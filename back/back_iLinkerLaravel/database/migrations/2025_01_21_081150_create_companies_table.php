@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('CIF')->unique();
             $table->string('sector');
             $table->integer('num_people');
+            $table->string('logo')->nullable();
+            $table->text('description')->nullable();
 
             //Informacion de contacto
             $table->string('email')->unique();
@@ -34,7 +36,6 @@ return new class extends Migration
             //Ubicacion de la empresa
             $table->string('address');
             $table->string('city');
-            $table->string('state');
             $table->integer('postal_code');
             $table->string('country');
 

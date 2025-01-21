@@ -14,12 +14,12 @@ return new class extends Migration
         Schema::create('instittions', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            //Informacion básica
+            //Información básica
             $table->string('name');
             $table->string('NIF');
             $table->string('type');
-            $table->string('educational_level');
             $table->string('academic_sector');
+            $table->string('logo')->nullable();
 
             //Informacion de contacto
             $table->integer('phone');
@@ -30,13 +30,13 @@ return new class extends Migration
             $table->string('responsible_name');
             $table->integer('responsible_phone');
             $table->string('responsible_email')->unique();
-            $table->string('company_position');
+            $table->string('institution_position');
 
-            //Ubicacion de la empresa
+            //Ubicacion de la institucion
             $table->string('address');
             $table->string('city');
-            $table->string('state');
-
+            $table->string('country');
+            $table->string('postal_code');
 
             $table->foreign('user_id')->references('id')->on('users');
             $table->timestamps();
