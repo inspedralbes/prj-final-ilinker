@@ -10,12 +10,13 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::prefix('/user')->group(function () {
+Route::prefix('/users')->group(function () {
     Route::post('/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/update', [UserController::class, 'update'])->name('user.update');
+    Route::post('/delete', [UserController::class, 'delete'])->name('user.delete');
 });
 
 Route::prefix('/company')->group(function () {
-    Route::post('/create',[CompanyController::class,'create'])->name('company.create');
     Route::post('/update',[CompanyController::class,'update'])->name('company.update');
     Route::post('/delete',[CompanyController::class,'delete'])->name('company.delete');
 });
