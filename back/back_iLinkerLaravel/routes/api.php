@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OfferController;
 use \App\Http\Controllers\UserController;
+use \App\Http\Controllers\InstitutionController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,6 +20,11 @@ Route::prefix('/users')->group(function () {
 Route::prefix('/company')->group(function () {
     Route::post('/update',[CompanyController::class,'update'])->name('company.update');
     Route::post('/delete',[CompanyController::class,'delete'])->name('company.delete');
+});
+
+Route::prefix('/institution')->group(function () {
+    Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
+    Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
 });
 
 Route::prefix('/offers')->group(function () {

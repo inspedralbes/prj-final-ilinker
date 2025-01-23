@@ -22,6 +22,7 @@ class UserController extends Controller
 
     public function create(Request $request){
 
+
         $validated = $request->validate([
             'name' => 'required',
             'email' => 'required',
@@ -40,12 +41,12 @@ class UserController extends Controller
 
         if($user['user']->rol === 'company')
         {
-            $company = $this->companyService->createCompany($user['user']);
+            $company = $this->companyService->createCompany($user['user'], $request->company );
             return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'company'=>$company ]);
         }
         elseif ($user['user']->rol === 'institutions') {
 
-            $institution = $this->institutionService->createInstitution($user['user']);
+            $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
             return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'institution'=>$institution]);
 
         }
