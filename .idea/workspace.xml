@@ -5,16 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/es.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/fr.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/components/languageSwitcher.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/hooks/useTranslation.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/next.config.mjs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/layout.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/src/app/register/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/register/page.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -41,6 +36,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "dev-jheremy",
+    "last_opened_file_path": "C:/Users/premi/OneDrive/Documentos/GitHub/prj-final-ilinker/ilinker/src/app",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -50,7 +46,11 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src" />
     </key>
   </component>
@@ -70,7 +70,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1737452729198</updated>
-      <workItem from="1737452730625" duration="23949000" />
+      <workItem from="1737452730625" duration="30342000" />
     </task>
     <servers />
   </component>

@@ -7,38 +7,84 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import {useDropzone} from 'react-dropzone';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
+import { useForm, FormProvider } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 
 export default function Register() {
+    const stepSchemas = [
+        // Step 1 validation schema
+        yup.object({
+            nombre: yup.string().required("El nombre es obligatorio"),
+            apellidos: yup.string().required("Los apellidos son obligatorios"),
+            fechaNacimiento: yup.date().required("La fecha de nacimiento es obligatoria"),
+            email: yup
+                .string()
+                .email("Debe ser un correo válido")
+                .required("El correo es obligatorio"),
+            rol: yup.string().required("El rol es obligatorio"),
+        }),
+        // Step 2 validation schema
+        yup.object({
+            "company.name": yup.string().required("El nombre de la empresa es obligatorio"),
+            "company.phone": yup.string().required("El teléfono de la empresa es obligatorio"),
+            "company.cif_nif": yup.string().required("El CIF/NIF de la empresa es obligatorio"),
+            "company.address": yup.string().required("La dirección de la empresa es obligatoria"),
+        }),
+    ];
     const {t} = useTranslation();
     const animatedComponents = makeAnimated();
     const [totalSteps, setTotalSteps] = useState(2);
     const [step, setStep] = useState(1);
+    const methods = useForm({
+        resolver: yupResolver(stepSchemas[step - 1]), // Cambiar el esquema según el paso
+        mode: "onChange",
+        defaultValues: {
+            nombre: "",
+            apellidos: "",
+            fechaNacimiento: "",
+            email: "",
+            rol: "estudiante",
+            carrera: "",
+            universidad: "",
+            semestre: "",
+            company: {
+                name: "",
+                phone: "",
+                cif_nif: "",
+                short_description: "",
+                logo: "",
+                address: "",
+                sectors: [],
+            },
+            nombreInstituto: "",
+            tipo: "",
+            ubicacion: "",
+        },
+    });
     const [formData, setFormData] = useState({
-        nombre: '',
-        apellidos: '',
-        fechaNacimiento: '',
-        email: '',
-        rol: 'estudiante',
-        // Campos específicos por rol
-        // Estudiante
-        carrera: '',
-        universidad: '',
-        semestre: '',
-        // Empresa
-        company:{
-            name: '',
-            phone: '',
-            cif_nif: '',
-            short_description: '',
-            logo: '',
-            address: '',
+        nombre: "",
+        apellidos: "",
+        fechaNacimiento: "",
+        email: "",
+        rol: "estudiante",
+        carrera: "",
+        universidad: "",
+        semestre: "",
+        company: {
+            name: "",
+            phone: "",
+            cif_nif: "",
+            short_description: "",
+            logo: "",
+            address: "",
             sectors: [],
         },
-        // Instituto
-        nombreInstituto: '',
-        tipo: '',
-        ubicacion: '',
+        nombreInstituto: "",
+        tipo: "",
+        ubicacion: "",
     });
+
     const sectores = [
         {id: 1, nombre: 'Tecnología'},
         {id: 2, nombre: 'Salud'},
@@ -48,7 +94,7 @@ export default function Register() {
     ];
 
     useEffect(() => {
-        switch (formData.rol) {
+        switch (methods.watch('rol')) {
             case 'estudiante':
                 setTotalSteps(2); // Información personal + académica
                 break;
@@ -61,7 +107,7 @@ export default function Register() {
             default:
                 setTotalSteps(2); // Valor por defecto
         }
-    }, [formData.rol]);
+    }, [methods.watch('rol')]);
 
     const {getRootProps, getInputProps} = useDropzone({
         accept: 'image/*',
@@ -78,7 +124,6 @@ export default function Register() {
             }
         },
     });
-
     const handleRemoveImage = () => {
         setFormData((prevData) => ({
             ...prevData,
@@ -106,20 +151,26 @@ export default function Register() {
             });
         }
     };
-
     const handleNext = () => {
         setStep(step + 1);
     };
-
+    const onSubmit = (data) => {
+        if (step < totalSteps) {
+            setStep(step + 1); // Avanzar al siguiente paso
+        } else {
+            console.log("Datos del formulario:", data); // Enviar el formulario
+        }
+    };
     const handleBack = () => {
         setStep(step - 1);
     };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         // Aquí iría la lógica para enviar los datos al servidor
         console.log('Datos del formulario:', formData);
     };
+
+
 
     const renderStep1 = () => (
         <div className="space-y-6">
@@ -132,12 +183,14 @@ export default function Register() {
                     <input
                         type="text"
                         id="nombre"
-                        name="nombre"
-                        value={formData.nombre}
-                        onChange={handleInputChange}
+                        // name="nombre"
+                        // value={formData.nombre}
+                        // onChange={handleInputChange}
+                        {...methods.register("nombre")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                         required
                     />
+                    <p className="text-sm text-red-600">{methods.formState.errors.nombre?.message}</p>
                 </div>
                 <div>
                     <label htmlFor="apellidos" className="block text-sm font-medium text-darkGray mb-2">
@@ -146,12 +199,14 @@ export default function Register() {
                     <input
                         type="text"
                         id="apellidos"
-                        name="apellidos"
-                        value={formData.apellidos}
-                        onChange={handleInputChange}
+                        // name="apellidos"
+                        // value={formData.apellidos}
+                        // onChange={handleInputChange}
+                        {...methods.register("apellidos")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                         required
                     />
+                    <p className="text-sm text-red-600">{methods.formState.errors.apellidos?.message}</p>
                 </div>
             </div>
 
@@ -162,12 +217,14 @@ export default function Register() {
                 <input
                     type="email"
                     id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
+                    // name="email"
+                    // value={formData.email}
+                    // onChange={handleInputChange}
+                    {...methods.register("email")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.email?.message}</p>
             </div>
             <div>
                 <label htmlFor="fechaNacimiento" className="block text-sm font-medium text-darkGray mb-2">
@@ -176,12 +233,14 @@ export default function Register() {
                 <input
                     type="date"
                     id="fechaNacimiento"
-                    name="fechaNacimiento"
-                    value={formData.fechaNacimiento}
-                    onChange={handleInputChange}
+                    // name="fechaNacimiento"
+                    // value={formData.fechaNacimiento}
+                    // onChange={handleInputChange}
+                    {...methods.register("fechaNacimiento")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.fechaNacimiento?.message}</p>
             </div>
             <div>
                 <label htmlFor="rol" className="block text-sm font-medium text-darkGray mb-2">
@@ -189,9 +248,10 @@ export default function Register() {
                 </label>
                 <select
                     id="rol"
-                    name="rol"
-                    value={formData.rol}
-                    onChange={handleInputChange}
+                    // name="rol"
+                    // value={formData.rol}
+                    // onChange={handleInputChange}
+                    {...methods.register("rol")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     required
                 >
@@ -199,6 +259,7 @@ export default function Register() {
                     <option value="empresa">Empresa</option>
                     <option value="instituto">Instituto</option>
                 </select>
+                <p className="text-sm text-red-600">{methods.formState.errors.rol?.message}</p>
             </div>
         </div>
     );
@@ -261,12 +322,14 @@ export default function Register() {
                 <input
                     type="text"
                     id="company_name"
-                    name="company_name"
-                    value={formData.company.name}
-                    onChange={handleInputChange}
+                    // name="company_name"
+                    // value={formData.company.name}
+                    // onChange={handleInputChange}
+                    {...methods.register("company.name")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.company?.name?.message}</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
@@ -276,12 +339,14 @@ export default function Register() {
                     <input
                         type="text"
                         id="company_phone"
-                        name="company_phone"
-                        value={formData.company.phone}
-                        onChange={handleInputChange}
+                        // name="company_phone"
+                        // value={formData.company.phone}
+                        // onChange={handleInputChange}
+                        {...methods.register("company.phone")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                         required
                     />
+                    <p className="text-sm text-red-600">{methods.formState.errors.company?.phone?.message}</p>
                 </div>
                 <div>
                     <label htmlFor="company_cif_nif" className="block text-sm font-medium text-darkGray mb-2">
@@ -290,12 +355,14 @@ export default function Register() {
                     <input
                         type="text"
                         id="company_cif_nif"
-                        name="company_cif_nif"
-                        value={formData.company.cif_nif}
-                        onChange={handleInputChange}
+                        // name="company_cif_nif"
+                        // value={formData.company.cif_nif}
+                        // onChange={handleInputChange}
+                        {...methods.register("company.cif_nif")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                         required
                     />
+                    <p className="text-sm text-red-600">{methods.formState.errors.company?.cif_nif?.message}</p>
                 </div>
             </div>
             <div>
@@ -304,16 +371,17 @@ export default function Register() {
                 </label>
                 <input
                     id="company_address"
-                    name="company_address"
                     type="text"
-                    value={formData.company.address}
-                    onChange={handleInputChange}
+                    // name="company_address"
+                    // value={formData.company.address}
+                    // onChange={handleInputChange}
+                    {...methods.register("company.address")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     placeholder="Ingresa la dirección de la empresa"
                     required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.company?.address?.message}</p>
             </div>
-
         </div>
     );
 
@@ -494,12 +562,12 @@ export default function Register() {
                         />
                     </div>
                 </div>
-                <form onSubmit={handleSubmit} className="space-y-8">
+                <FormProvider onSubmit={...methods} className="space-y-8">
                     {step === 1 && renderStep1()}
-                    {step === 2 && formData.rol === 'estudiante' && renderStep2Estudiante()}
-                    {step === 2 && formData.rol === 'empresa' && renderStep2Empresa()}
-                    {step === 3 && formData.rol === 'empresa' && renderStep3Empresa()}
-                    {step === 2 && formData.rol === 'instituto' && renderStep2Instituto()}
+                    {step === 2 && methods.watch('rol') === 'estudiante' && renderStep2Estudiante()}
+                    {step === 2 && methods.watch('rol') === 'empresa' && renderStep2Empresa()}
+                    {step === 3 && methods.watch('rol') === 'empresa' && renderStep3Empresa()}
+                    {step === 2 && methods.watch('rol') === 'instituto' && renderStep2Instituto()}
 
                     <div className="flex justify-between mt-8">
                         {step > 1 && (
@@ -514,7 +582,7 @@ export default function Register() {
                         {step < totalSteps ? (
                             <button
                                 type="button"
-                                onClick={handleNext}
+                                onClick={methods.handleSubmit(onSubmit)}
                                 className="flex items-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg"
                             >
                                 Siguiente <ArrowRight className="inline-block ml-2"/>
@@ -528,7 +596,7 @@ export default function Register() {
                             </button>
                         )}
                     </div>
-                </form>
+                </FormProvider>
             </div>
         </div>
     );
