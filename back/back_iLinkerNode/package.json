@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "back_ilinkernode": "file:",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "http": "^0.0.1-security",
