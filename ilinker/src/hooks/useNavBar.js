@@ -12,7 +12,7 @@ export default function useNavBar() {
     const fetchUser = async () => {
       try {
         // Realiza una petición a tu API para obtener los datos del usuario autenticado
-        const response = await axios.get("/api/user", {
+        const response = await axios.get("/auth/login", {
           headers: {
             // Asegúrate de incluir el token de autenticación si es necesario
             Authorization: `Bearer ${localStorage.getItem("token")}`,
