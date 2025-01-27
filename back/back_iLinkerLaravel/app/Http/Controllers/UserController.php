@@ -63,11 +63,16 @@ class UserController extends Controller
 
 
     public function getUser(Request $request){
+
         $validated = $request->validate([
             'id' => 'required',
         ]);
 
-        $user = $this->userService->getUserById($validated['id']);
+        $user = $this->userService->getUserByIdWithInfo($validated['id']);
+
+        if (!$user){
+            return response()->json(['status'=>'warning', 'message'=>'El usuario no se encuentra registrado']);
+        }
 
         return response()->json(['status'=>'success', 'user'=> $user]);
     }

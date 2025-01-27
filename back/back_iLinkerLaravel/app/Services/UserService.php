@@ -91,11 +91,23 @@ class UserService
         return User::all();
     }
 
-    public function getUserById($id)
+    public function getUserByIdWithInfo($id)
     {
-        $user = User::findOrFail($id);
+        try {
+            $user = User::findOrFail($id);
 
-        return $user;
+            // Inicializa el objeto del usuario con la relación correspondiente
+            $userInfo = match ($user->rol) {
+                'company' => User::with('company')->where('id', $id)->first(),
+                'institutions' => User::with('institutions')->where('id', $id)->first(),
+                'student' => User::with('student')->where('id', $id)->first(),
+                default => null,
+            };
+
+            return $userInfo;
+        }catch (Exception $e){
+            return false;
+        }
     }
 
     public function checkIFUserExists($userData)
