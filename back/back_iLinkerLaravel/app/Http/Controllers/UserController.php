@@ -11,47 +11,64 @@ use App\Services\UserService;
 class UserController extends Controller
 {
 
-    protected $userService, $companyService, $institutionService;
+    protected $userService;
 
-    public function __construct(UserService $userService, CompanyService $companyService, InstitutionService $institutionService)
+    public function __construct(UserService $userService)
     {
         $this->userService = $userService;
-        $this->companyService = $companyService;
-        $this->institutionService = $institutionService;
     }
 
-    public function create(Request $request){
-
-
+    public function update(Request $request){
         $validated = $request->validate([
+            'id' => 'required',
             'name' => 'required',
+            'surname' => 'required',
+            'birthday' => 'required',
             'email' => 'required',
-            'password' => 'required',
-            'rol' => 'required',
         ]);
 
-        $check = $this->userService->checkIFUserExists($validated);
-        if($check){
-            return response()->json(['status'=>'warning', "message" => "El usuario ya existe en la base de datos."]);
+        $user = $this->userService->updateUser($validated);
+        return response()->json(['status'=>'success', 'user'=> $user]);
+
+    }
+
+    public function deactivate(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+        ]);
+
+        $user = $this->userService->deactivateUser($validated['id']);
+        if ($user){
+            return response()->json(['status'=>'success', 'user'=> $user, 'message'=>'El usuario a sido dado de baja correctamente']);
         }
 
-        $user = $this->userService->createUser($validated);
-        $token = $user['token'];
+        return response()->json(['status' => 'warning', 'message'=>'El usuario no pudo ser dado de baja' ]);
+    }
 
+    public function activate(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+        ]);
 
-        if($user['user']->rol === 'company')
-        {
-            $company = $this->companyService->createCompany($user['user'], $request->company );
-            return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'company'=>$company ]);
-        }
-        elseif ($user['user']->rol === 'institutions') {
-
-            $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
-            return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'institution'=>$institution]);
-
+        $user = $this->userService->activateUser($validated['id']);
+        if ($user){
+            return response()->json(['status'=>'success', 'user'=> $user, 'message'=>'El usuario a sido dado de alta correctamente']);
         }
 
-        return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token]);
+        return response()->json(['status'=>'warning', 'message'=>'El usuario no pudo ser dado de baja' ]);
 
+    }
+
+
+    public function getUser(Request $request){
+        $validated = $request->validate([
+            'id' => 'required',
+        ]);
+
+        $user = $this->userService->getUserById($validated['id']);
+
+        return response()->json(['status'=>'success', 'user'=> $user]);
     }
 }
