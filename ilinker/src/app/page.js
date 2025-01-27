@@ -1,3 +1,4 @@
+//import NavBar from "../components/navBar"; // Importa el NavBar
 import Image from "next/image";
 
 export default async function Home() {
