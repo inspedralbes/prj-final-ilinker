@@ -3,8 +3,13 @@ import Image from "next/image";
 import { useState } from "react";
 
 export default  function Login() {
+  // const [fromStage, setFormStage] = useState("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -12,17 +17,23 @@ export default  function Login() {
     console.log("Password:", password);
 
     // Enviar los datos al backend
-    // const response = await fetch("http://localhost:3000/api/login", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ email, password }),
-    // });
+    const response = await fetch("http://localhost:8000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // const data = await response.json();
-    // console.log("Datos enviados:", data);
+    const data = await response.json();
+    console.log("Respuesta del servidor:", data);
+
+    
+    console.log("Datos enviados:");
+    alert("Datos enviados");
   };
+
+ 
 
   // await new Promise((resolve) => setTimeout(resolve, 3000)); // Simula un retraso
   return (
