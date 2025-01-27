@@ -1,15 +1,15 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default  function Login() {
-  // const [fromStage, setFormStage] = useState("email");
+export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,14 +28,13 @@ export default  function Login() {
     const data = await response.json();
     console.log("Respuesta del servidor:", data);
 
-    
-    console.log("Datos enviados:");
-    alert("Datos enviados");
+    if (response.ok) {
+      router.push("/");
+    } else {
+      alert("Error en el login: " + data.message);
+    }
   };
 
- 
-
-  // await new Promise((resolve) => setTimeout(resolve, 3000)); // Simula un retraso
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white shadow-lg rounded-lg">
@@ -61,7 +60,7 @@ export default  function Login() {
               id="email"
               name="email"
               value={email}
-             onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               placeholder="Introdueix el teu correu electrònic"
@@ -83,7 +82,7 @@ export default  function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-2 block w-full px-4 py-2 border border-gray-300  text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
               placeholder="Introduïu la vostra contrasenya"
             />
           </div>
