@@ -43,20 +43,20 @@ class InstitutionService
     public function updateInstitution($institution, $data)
     {
         $institution = Institutions::findOrFail($data['id']);
-        $institution->name = null;
-        $institution->NIF = null;
-        $institution->type = null;
-        $institution->academic_sector = null;
-        $institution->logo = null;
-        $institution->phone = null;
-        $institution->email = null;
-        $institution->website = null;
-        $institution->responsible_phone = null;
-        $institution->institution_position = null;
-        $institution->address = null;
-        $institution->city = null;
-        $institution->country = null;
-        $institution->postal_code = null;
+        $institution->name = $institution['name'];
+        $institution->NIF = $institution['NIF'];
+        $institution->type = $institution['type'];
+        $institution->academic_sector = $institution['academic_sector'];
+        $institution->logo = $institution['logo'];
+        $institution->phone = $institution['phone'];
+        $institution->email = $institution['email'];
+        $institution->website = $institution['website'];
+        $institution->responsible_phone = $institution['responsible_phone'];
+        $institution->institution_position = $institution['institution_position'];
+        $institution->address = $institution['address'];
+        $institution->city = $institution['city'];
+        $institution->country = $institution['country'];
+        $institution->postal_code = $institution['postal_code'];
 
         $institution->save();
 

@@ -32,11 +32,11 @@ class CompanyController extends Controller
             'postal_code' => 'nullable|string',
             'country' => 'nullable|string',
         ]);
-
+        /*
         $check = $this->companyService->checkIFCompanyExists($validated);
         if($check){
             return response()->json(['status'=>'warning','message' => 'Company already exists']);
-        }
+        }*/
 
         $company = $this->companyService->updateCompany($validated);
         return response()->json(['status'=>'success','company' => $company]);

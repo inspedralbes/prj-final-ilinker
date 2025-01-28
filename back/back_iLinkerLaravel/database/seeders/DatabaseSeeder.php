@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             SkillSeeder::class,
+            SectorSeeder::class,
+            CoursesSeeder::class,
         ]);
     }
 }
