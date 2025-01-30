@@ -42,25 +42,26 @@ class InstitutionService
 
     public function updateInstitution($institution, $data)
     {
-        $institution = Institutions::findOrFail($data['id']);
-        $institution->name = $institution['name'];
-        $institution->NIF = $institution['NIF'];
-        $institution->type = $institution['type'];
-        $institution->academic_sector = $institution['academic_sector'];
-        $institution->logo = $institution['logo'];
-        $institution->phone = $institution['phone'];
-        $institution->email = $institution['email'];
-        $institution->website = $institution['website'];
-        $institution->responsible_phone = $institution['responsible_phone'];
-        $institution->institution_position = $institution['institution_position'];
-        $institution->address = $institution['address'];
-        $institution->city = $institution['city'];
-        $institution->country = $institution['country'];
-        $institution->postal_code = $institution['postal_code'];
+        $institutions = Institutions::findOrFail($data['id']);
 
-        $institution->save();
+        $institutions->name = $institution['name'];
+        $institutions->NIF = $institution['NIF'];
+        $institutions->type = $institution['type'];
+        $institutions->academic_sector = $institution['academic_sector'];
+        $institutions->logo = $institution['logo'];
+        $institutions->phone = $institution['phone'];
+        $institutions->email = $institution['email'];
+        $institutions->website = $institution['website'];
+        $institutions->responsible_phone = $institution['responsible_phone'];
+        $institutions->institution_position = $institution['institution_position'];
+        $institutions->address = $institution['address'];
+        $institutions->city = $institution['city'];
+        $institutions->country = $institution['country'];
+        $institutions->postal_code = $institution['postal_code'];
 
-        return $institution;
+        $institutions->save();
+
+        return $institutions;
     }
 
     public function deleteInstitution($id)

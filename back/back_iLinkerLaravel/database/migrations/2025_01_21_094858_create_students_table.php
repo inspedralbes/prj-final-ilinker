@@ -37,9 +37,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
 
             //Datos academicos
-            $table->json('experience')->nullable()->default(null);
             $table->json('languages')->nullable()->default(null);
-            $table->json('projects')->nullable()->default(null);
 
             $table->timestamps();
         });
