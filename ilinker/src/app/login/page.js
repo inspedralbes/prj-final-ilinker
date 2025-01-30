@@ -7,14 +7,11 @@ export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // Estado para el mensaje de error
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Email:", email);
-    console.log("Password:", password);
+    setErrorMessage(""); // Limpiar mensajes de error previos
 
     // Enviar los datos al backend
     const response = await fetch("http://localhost:8000/api/auth/login", {
@@ -29,9 +26,13 @@ export default function Login() {
     console.log("Respuesta del servidor:", data);
 
     if (response.ok) {
+      // Guardar el token en el localStorage
+      localStorage.setItem("token", data.token);
+      // Si la autenticación es exitosa, redirigir al usuario
       router.push("/");
     } else {
-      alert("Error en el login: " + data.message);
+      // Si hay un error en las credenciales, mostrar el mensaje de error
+      setErrorMessage(data.message || "Error en el login. Por favor, revisa tus credenciales.");
     }
   };
 
@@ -63,7 +64,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Introdueix el teu correu electrònic"
+              placeholder="Introduïu el vostre correu electrònic"
             />
           </div>
 
@@ -86,6 +87,13 @@ export default function Login() {
               placeholder="Introduïu la vostra contrasenya"
             />
           </div>
+
+          {/* Mostrar mensaje de error si existe */}
+          {errorMessage && (
+            <div className="text-red-600 text-sm">
+              {errorMessage}
+            </div>
+          )}
 
           {/* Botón de login */}
           <div>

@@ -62,13 +62,14 @@ class UserController extends Controller
     }
 
 
-    public function getUser(Request $request){
-        $validated = $request->validate([
-            'id' => 'required',
-        ]);
+    public function getUser(Request $request) {
+        $user = $request->user(); // Obtener el usuario autenticado
+        if ($user) {
+            return response()->json(['status' => 'success', 'user' => $user]);
+        }
 
-        $user = $this->userService->getUserById($validated['id']);
-
-        return response()->json(['status'=>'success', 'user'=> $user]);
+        return response()->json(['status' => 'error', 'message' => 'Usuario no encontrado']);
     }
+
+
 }
