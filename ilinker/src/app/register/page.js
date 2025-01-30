@@ -7,9 +7,10 @@ import LanguageSwitcher from '@/components/LanguageSwitcher';
 import {useDropzone} from 'react-dropzone';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-import { useForm, FormProvider } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
+import {useForm, FormProvider} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import * as comm from "@/communicationManager/communicationManager";
 
 export default function Register() {
     const stepSchemas = [
@@ -26,30 +27,153 @@ export default function Register() {
         }),
         // Step 2 validation schema
         yup.object({
-            "company.name": yup.string().required("El nombre de la empresa es obligatorio"),
-            "company.phone": yup.string().required("El teléfono de la empresa es obligatorio"),
-            "company.cif_nif": yup.string().required("El CIF/NIF de la empresa es obligatorio"),
-            "company.address": yup.string().required("La dirección de la empresa es obligatoria"),
+            company: yup.object().when('rol', {
+                is: 'empresa',
+                then: () => yup.object({
+                    name: yup.string().required("El nombre es obligatorio"),
+                    phone: yup.string().required("El teléfono es obligatorio"),
+                    cif_nif: yup.string().required("El CIF/NIF es obligatorio"),
+                    address: yup.string().required("La dirección es obligatoria"),
+                }),
+                otherwise: () => yup.object().nullable()
+            }),
+            institution: yup.object().when('rol', {
+                is: 'instituto',
+                then: () => yup.object({
+                    name: yup.string().required("El nombre es obligatorio"),
+                    email: yup.string().required("El email es obligatorio"),
+                    phone: yup.string().required("El teléfono es obligatorio"),
+                    cif_nif: yup.string().required("El CIF/NIF es obligatorio"),
+                    address: yup.string().required("La dirección es obligatoria"),
+                }),
+                otherwise: () => yup.object().nullable()
+            }),
         }),
+        yup.object({
+            company: yup.object().when('rol', {
+                is: 'empresa',
+                then: () => yup.object({
+                    logo: yup.string(), // Ya no es requerido
+                    short_description: yup.string(), // Ya no es requerido
+                    sectors: yup
+                        .array()
+                        .of(
+                            yup.object({
+                                id: yup.number().required(),
+                                nombre: yup.string().required(),
+                            })
+                        )
+                        .nullable(),
+                }),
+                otherwise: () => yup.object().nullable()
+            }),
+        })
     ];
     const {t} = useTranslation();
     const animatedComponents = makeAnimated();
     const [totalSteps, setTotalSteps] = useState(2);
     const [step, setStep] = useState(1);
     const methods = useForm({
-        resolver: yupResolver(stepSchemas[step - 1]), // Cambiar el esquema según el paso
+        resolver: yupResolver(stepSchemas[step - 1]),
         mode: "onChange",
+        reValidateMode: "onChange",
         defaultValues: {
             nombre: "",
             apellidos: "",
             fechaNacimiento: "",
             email: "",
             rol: "estudiante",
-            carrera: "",
-            universidad: "",
-            semestre: "",
+            student: {
+                type_document: "",
+                id_document: null,
+                nationality: "",
+                photo_pic: "",
+                birthday: "",
+                gender: "",
+                phone: null,
+                address: "",
+                city: "",
+                country: "",
+                postal_code: "",
+                institution: "",
+                education: [
+                    {
+                        "degree": "Grado en Ingeniería Informática",
+                        "institution": "Universidad Complutense de Madrid",
+                        "start_date": "2018-09-01",
+                        "end_date": "2022-06-30",
+                        "grade": "Sobresaliente"
+                    },
+                    {
+                        "degree": "Máster en Ciencia de Datos",
+                        "institution": "Universidad Politécnica de Madrid",
+                        "start_date": "2023-09-01",
+                        "end_date": null,
+                        "grade": null
+                    }
+                ],
+                "skills": [
+                    "Python",
+                    "Laravel",
+                    "SQL",
+                    "Machine Learning"
+                ],
+                "experience": [
+                    {
+                        "company": "Tech Solutions S.L.",
+                        "position": "Desarrollador Web",
+                        "start_date": "2021-01-01",
+                        "end_date": "2022-12-31",
+                        "description": "Desarrollo de aplicaciones web en Laravel y Vue.js."
+                    },
+                    {
+                        "company": "AI Innovators",
+                        "position": "Data Scientist Intern",
+                        "start_date": "2023-02-01",
+                        "end_date": null,
+                        "description": "Colaboración en proyectos de machine learning."
+                    }
+                ],
+                "languages": [
+                    {
+                        "language": "Español",
+                        "level": "Nativo"
+                    },
+                    {
+                        "language": "Inglés",
+                        "level": "Avanzado"
+                    },
+                    {
+                        "language": "Francés",
+                        "level": "Intermedio"
+                    }
+                ],
+                "projects": [
+                    {
+                        "id": 1,
+                        "user_id": 1,
+                        "name": "Sistema de Gestión Académica",
+                        "description": "Aplicación para la gestión de notas y matrículas de estudiantes.",
+                        "link": "https://github.com/juanperez/gestion-academica",
+                        "pictures": [
+                            "https://example.com/projects/gestion1.png",
+                            "https://example.com/projects/gestion2.png"
+                        ],
+                        "end_project": "2022-06-15"
+                    },
+                    {
+                        "id": 2,
+                        "user_id": 1,
+                        "name": "Chatbot Inteligente",
+                        "description": "Chatbot con IA para atención al cliente.",
+                        "link": "https://juanperez.com/chatbot",
+                        "pictures": [],
+                        "end_project": "2023-08-01"
+                    }
+                ]
+            },
             company: {
-                name: "",
+                name: "dsadsadas",
                 phone: "",
                 cif_nif: "",
                 short_description: "",
@@ -57,9 +181,23 @@ export default function Register() {
                 address: "",
                 sectors: [],
             },
-            nombreInstituto: "",
-            tipo: "",
-            ubicacion: "",
+            institution: {
+                name: "",
+                cif_nif: "",
+                type: "",
+                academic_sector: "",
+                logo: "",
+                phone: null,
+                email: "",
+                website: "",
+                responsible_phone: null,
+                position: "",
+                address: "",
+                city: "",
+                country: "",
+                postal_code: ""
+            },
+
         },
     });
     const [formData, setFormData] = useState({
@@ -108,33 +246,39 @@ export default function Register() {
                 setTotalSteps(2); // Valor por defecto
         }
     }, [methods.watch('rol')]);
+    const [countries, setCountries] = useState([]);
+
+    useEffect(() => {
+        const fetchCountries = async () => {
+            const data = await comm.getAllCountries();
+            if (!data.error) {
+                setCountries(data);
+            } else {
+                console.error("Error al obtener los países:", data.error);
+            }
+        };
+
+        fetchCountries();
+    }, []);
+
+    useEffect(() => {
+        console.log("Países actualizados:", countries);
+    }, [countries]);
 
     const {getRootProps, getInputProps} = useDropzone({
         accept: 'image/*',
         onDrop: (acceptedFiles) => {
             if (acceptedFiles.length) {
                 const imageUrl = URL.createObjectURL(acceptedFiles[0]);
-                setFormData((prevData) => ({
-                    ...prevData,
-                    company: {
-                        ...prevData.company,
-                        logo: imageUrl
-                    },
-                }));
+                methods.setValue("company.logo", imageUrl);
             }
         },
     });
     const handleRemoveImage = () => {
-        setFormData((prevData) => ({
-            ...prevData,
-            company: {
-                ...prevData.company,
-                logo: imageUrl
-            },
-        }));
+        methods.setValue("company.logo", "");
     };
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
 
         if (name.startsWith('company_')) {
             setFormData((prevData) => ({
@@ -171,7 +315,6 @@ export default function Register() {
     };
 
 
-
     const renderStep1 = () => (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-darkGray mb-8">Información Personal</h2>
@@ -188,7 +331,7 @@ export default function Register() {
                         // onChange={handleInputChange}
                         {...methods.register("nombre")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                        required
+
                     />
                     <p className="text-sm text-red-600">{methods.formState.errors.nombre?.message}</p>
                 </div>
@@ -204,7 +347,7 @@ export default function Register() {
                         // onChange={handleInputChange}
                         {...methods.register("apellidos")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                        required
+
                     />
                     <p className="text-sm text-red-600">{methods.formState.errors.apellidos?.message}</p>
                 </div>
@@ -222,7 +365,7 @@ export default function Register() {
                     // onChange={handleInputChange}
                     {...methods.register("email")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
+
                 />
                 <p className="text-sm text-red-600">{methods.formState.errors.email?.message}</p>
             </div>
@@ -238,7 +381,7 @@ export default function Register() {
                     // onChange={handleInputChange}
                     {...methods.register("fechaNacimiento")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
+
                 />
                 <p className="text-sm text-red-600">{methods.formState.errors.fechaNacimiento?.message}</p>
             </div>
@@ -253,7 +396,7 @@ export default function Register() {
                     // onChange={handleInputChange}
                     {...methods.register("rol")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
+
                 >
                     <option value="estudiante">Estudiante</option>
                     <option value="empresa">Empresa</option>
@@ -309,6 +452,37 @@ export default function Register() {
                     required
                 />
             </div>
+            <div>
+                <label htmlFor="student_nacionality" className="block text-sm font-medium text-darkGray mb-2">
+                    Nacionalidad
+                </label>
+                <Select
+                    components={animatedComponents}
+                    options={countries}
+                    isSearchable
+                    placeholder="Busca y selecciona un país..."
+                    getOptionLabel={(option) => (
+                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                            <img
+                                src={option.flags.svg}
+                                alt={option.name.common}
+                                style={{ width: "20px", height: "15px", borderRadius: "3px" }}
+                            />
+                            {option.name.common}
+                        </div>
+                    )}
+                    getOptionValue={(option) => option.cca3}
+                    filterOption={(candidate, input) => {
+                        const label = candidate.data.name.common.toLowerCase();
+                        const searchTerm = input.toLowerCase();
+                        return label.includes(searchTerm);
+                    }}
+                    onChange={(selectedOption) => {
+                        console.log("País seleccionado:", selectedOption)
+                        methods.setValue('student.nationality', selectedOption);
+                    }}
+                />
+            </div>
         </div>
     );
 
@@ -327,7 +501,7 @@ export default function Register() {
                     // onChange={handleInputChange}
                     {...methods.register("company.name")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
+
                 />
                 <p className="text-sm text-red-600">{methods.formState.errors.company?.name?.message}</p>
             </div>
@@ -344,7 +518,7 @@ export default function Register() {
                         // onChange={handleInputChange}
                         {...methods.register("company.phone")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                        required
+
                     />
                     <p className="text-sm text-red-600">{methods.formState.errors.company?.phone?.message}</p>
                 </div>
@@ -360,7 +534,7 @@ export default function Register() {
                         // onChange={handleInputChange}
                         {...methods.register("company.cif_nif")}
                         className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                        required
+
                     />
                     <p className="text-sm text-red-600">{methods.formState.errors.company?.cif_nif?.message}</p>
                 </div>
@@ -378,7 +552,7 @@ export default function Register() {
                     {...methods.register("company.address")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     placeholder="Ingresa la dirección de la empresa"
-                    required
+
                 />
                 <p className="text-sm text-red-600">{methods.formState.errors.company?.address?.message}</p>
             </div>
@@ -394,19 +568,19 @@ export default function Register() {
                 </label>
                 <div className="relative">
                     {/* Mostrar el área de Drag and Drop solo si no hay una imagen cargada */}
-                    {!formData.company.logo && (
+                    {!methods.watch("company.logo") && ( // Verificar si el logo no está cargado
                         <div {...getRootProps()}
                              className="w-full h-[128px] px-4 py-2 rounded-lg border border-gray-200 mt-2 text-center cursor-pointer">
                             <input {...getInputProps()} id="company_logo" name="company_logo" accept="image/*"
-                                   required/>
+                                   />
                             <p className="text-sm text-gray-500">Drag & drop an image here, or click to select</p>
                         </div>
                     )}
 
-                    {formData.company.logo && (
+                    {methods.watch("company.logo") && ( // Verificar si el logo ya está cargado
                         <div className="w-full h-32 bg-gray-200 rounded-lg overflow-hidden relative">
                             <img
-                                src={formData.company.logo}
+                                src={methods.watch("company.logo")} // Usar watch para obtener el valor del logo
                                 alt="Logo preview"
                                 className="w-full h-full object-cover"
                             />
@@ -428,13 +602,14 @@ export default function Register() {
                 <Select
                     closeMenuOnSelect={false}
                     components={animatedComponents}
-                    defaultValue={[sectores[2], sectores[1]]}
+                    defaultValue={[]}
                     isMulti
                     options={sectores}
                     isSearchable
                     placeholder="Busca y selecciona..."
                     getOptionLabel={(option) => option.nombre}
                     getOptionValue={(option) => option.id}
+                    onChange={(selectedOptions) => methods.setValue("company.sectors", selectedOptions)}
                 />
             </div>
             <div>
@@ -443,13 +618,10 @@ export default function Register() {
                 </label>
                 <textarea
                     id="company_short_description"
-                    name="company_short_description"
-                    value={formData.company.short_description}
-                    onChange={handleInputChange}
+                    {...methods.register("company.short_description")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                     rows="3"
                     placeholder="Escribe una breve descripción de la empresa"
-                    required
                 ></textarea>
             </div>
         </div>
@@ -486,12 +658,44 @@ export default function Register() {
                 <input
                     type="text"
                     id="nombreInstituto"
-                    name="nombreInstituto"
-                    value={formData.nombreInstituto}
-                    onChange={handleInputChange}
+                    {...methods.register("institution.name")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.institution?.name?.message}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label htmlFor="institution_phone" className="block text-sm font-medium text-darkGray mb-2">
+                        Telefono de contacto
+                    </label>
+                    <input
+                        type="text"
+                        id="institution_phone"
+                        // name="company_phone"
+                        // value={formData.company.phone}
+                        // onChange={handleInputChange}
+                        {...methods.register("institution.phone")}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+
+                    />
+                    <p className="text-sm text-red-600">{methods.formState.errors.institution?.phone?.message}</p>
+                </div>
+                <div>
+                    <label htmlFor="institution_cif_nif" className="block text-sm font-medium text-darkGray mb-2">
+                        Identificació fiscal (C.I.F o N.I.F)
+                    </label>
+                    <input
+                        type="text"
+                        id="institution_cif_nif"
+                        // name="company_cif_nif"
+                        // value={formData.company.cif_nif}
+                        // onChange={handleInputChange}
+                        {...methods.register("institution.cif_nif")}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+
+                    />
+                    <p className="text-sm text-red-600">{methods.formState.errors.institution?.cif_nif?.message}</p>
+                </div>
             </div>
             <div>
                 <label htmlFor="tipo" className="block text-sm font-medium text-darkGray mb-2">
@@ -499,17 +703,27 @@ export default function Register() {
                 </label>
                 <select
                     id="tipo"
-                    name="tipo"
-                    value={formData.tipo}
-                    onChange={handleInputChange}
+                    {...methods.register("institution.type")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
                 >
                     <option value="">Seleccionar tipo</option>
                     <option value="universidad">Universidad</option>
                     <option value="instituto">Instituto Técnico</option>
                     <option value="escuela">Escuela Profesional</option>
                 </select>
+                <p className="text-sm text-red-600">{methods.formState.errors.institution?.type?.message}</p>
+            </div>
+            <div>
+                <label htmlFor="institution_email" className="block text-sm font-medium text-darkGray mb-2">
+                    Email
+                </label>
+                <input
+                    type="text"
+                    id="institution_email"
+                    {...methods.register("institution.email")}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+                />
+                <p className="text-sm text-red-600">{methods.formState.errors.institution?.email?.message}</p>
             </div>
             <div>
                 <label htmlFor="ubicacion" className="block text-sm font-medium text-darkGray mb-2">
@@ -518,12 +732,10 @@ export default function Register() {
                 <input
                     type="text"
                     id="ubicacion"
-                    name="ubicacion"
-                    value={formData.ubicacion}
-                    onChange={handleInputChange}
+                    {...methods.register("institution.address")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.institution?.address?.message}</p>
             </div>
         </div>
     );
@@ -562,40 +774,41 @@ export default function Register() {
                         />
                     </div>
                 </div>
-                <FormProvider onSubmit={...methods} className="space-y-8">
-                    {step === 1 && renderStep1()}
-                    {step === 2 && methods.watch('rol') === 'estudiante' && renderStep2Estudiante()}
-                    {step === 2 && methods.watch('rol') === 'empresa' && renderStep2Empresa()}
-                    {step === 3 && methods.watch('rol') === 'empresa' && renderStep3Empresa()}
-                    {step === 2 && methods.watch('rol') === 'instituto' && renderStep2Instituto()}
+                <FormProvider {...methods}>
+                    <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-8">
+                        {step === 1 && renderStep1()}
+                        {step === 2 && methods.watch('rol') === 'estudiante' && renderStep2Estudiante()}
+                        {step === 2 && methods.watch('rol') === 'empresa' && renderStep2Empresa()}
+                        {step === 3 && methods.watch('rol') === 'empresa' && renderStep3Empresa()}
+                        {step === 2 && methods.watch('rol') === 'instituto' && renderStep2Instituto()}
 
-                    <div className="flex justify-between mt-8">
-                        {step > 1 && (
-                            <button
-                                type="button"
-                                onClick={handleBack}
-                                className="flex items-center text-sm font-medium text-darkGray"
-                            >
-                                <ArrowLeft className="inline-block mr-2"/> Atrás
-                            </button>
-                        )}
-                        {step < totalSteps ? (
-                            <button
-                                type="button"
-                                onClick={methods.handleSubmit(onSubmit)}
-                                className="flex items-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg"
-                            >
-                                Siguiente <ArrowRight className="inline-block ml-2"/>
-                            </button>
-                        ) : (
-                            <button
-                                type="submit"
-                                className="flex items-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg"
-                            >
-                                Enviar
-                            </button>
-                        )}
-                    </div>
+                        <div className="flex justify-between mt-8">
+                            {step > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={handleBack}
+                                    className="flex items-center text-sm font-medium text-darkGray"
+                                >
+                                    <ArrowLeft className="inline-block mr-2"/> Atrás
+                                </button>
+                            )}
+                            {step < totalSteps ? (
+                                <button
+                                    type="submit"
+                                    className="flex items-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg"
+                                >
+                                    Siguiente <ArrowRight className="inline-block ml-2"/>
+                                </button>
+                            ) : (
+                                <button
+                                    type="submit"
+                                    className="flex items-center px-6 py-3 text-sm font-medium text-white bg-black rounded-lg"
+                                >
+                                    Enviar
+                                </button>
+                            )}
+                        </div>
+                    </form>
                 </FormProvider>
             </div>
         </div>
