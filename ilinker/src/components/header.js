@@ -5,17 +5,18 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 
 export default function Header() {
     const pathname = usePathname()
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 items-center">
+            <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
                 <div className="mr-4 flex">
                     <Link href="/" className="flex items-center space-x-2">
-                        <BriefcaseIcon className="h-6 w-6" />
-                        <span className="font-bold">ILinker</span>
+                        <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
+                        <span className="font-bold">iLinker</span>
                     </Link>
                 </div>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
@@ -32,10 +33,10 @@ export default function Header() {
                     </nav>
                     <div className="flex items-center space-x-2">
                         <Button variant="outline" asChild>
-                            <Link href="/auth/login">Login</Link>
+                            <Link href="/login">Login</Link>
                         </Button>
                         <Button asChild>
-                            <Link href="/auth/register">Register</Link>
+                            <Link href="/register">Register</Link>
                         </Button>
                         <ModeToggle />
                     </div>
