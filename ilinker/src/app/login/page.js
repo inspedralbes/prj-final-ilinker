@@ -11,6 +11,7 @@ export default function Login() {
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // Estado para el mensaje de error
 
   const handleLogin = async (e) => {
     e.preventDefault();
