@@ -7,6 +7,7 @@ use App\Http\Controllers\OfferController;
 use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
+use \App\Http\Controllers\CambiarContraseñaController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -16,6 +17,10 @@ Route::prefix('/auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('auth.register');
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+    // ruta para enviar el código de recuperación de contraseña
+    Route::post('sendRecoveryCode', [CambiarContraseñaController::class, 'sendCode']);
+    Route::post('verifyCode', [CambiarContraseñaController::class, 'verifyCode']);
+    Route::post('resetPassword', [CambiarContraseñaController::class, 'resetPassword']);
 });
 
 Route::prefix('/users')->group(function () {
@@ -27,8 +32,8 @@ Route::prefix('/users')->group(function () {
 });
 
 Route::prefix('/company')->group(function () {
-    Route::post('/update',[CompanyController::class,'update'])->name('company.update');
-    Route::post('/delete',[CompanyController::class,'delete'])->name('company.delete');
+    Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
+    Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
 });
 
 Route::prefix('/institution')->group(function () {
