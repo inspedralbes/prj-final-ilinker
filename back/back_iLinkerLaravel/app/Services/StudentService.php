@@ -13,9 +13,10 @@ class StudentService
 
     public function createStudent($data, $student)
     {
+
         $students = new Student();
 
-        $students->user_id = $data['user_id'];
+        $students->user_id = $data['id'];
         $students->name = $data['name'];
         $students->surname = $data['surname'];
         $students->type_document = $student['type_document'];
@@ -29,9 +30,12 @@ class StudentService
         $students->city = $student['city'];
         $students->country = $student['country'];
         $students->postal_code = $student['postal_code'];
-        $students->languages = $student['languages'];
+        //$students->languages = $student['languages'];
+        $students->languages = is_string($student['languages']) ? $student['languages'] : json_encode($student['languages'], JSON_UNESCAPED_UNICODE);
 
         $students->save();
+
+        return $students;
     }
 
     public function updateStudent($data, $student)
@@ -48,7 +52,7 @@ class StudentService
         $students->city = $student['city'];
         $students->country = $student['country'];
         $students->postal_code = $student['postal_code'];
-        $students->languages = $student['languages'];
+        $students->languages = is_string($student['languages']) ? $student['languages'] : json_encode($student['languages'], JSON_UNESCAPED_UNICODE);
 
         $students->save();
 

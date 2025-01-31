@@ -4,21 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
+use App\Services\StudentService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use function Laravel\Prompts\error;
+use Illuminate\Support\Facades\DB;
+
 
 class AuthController extends Controller
 {
 
 
-    protected $userService, $companyService, $institutionService;
+    protected $userService, $companyService, $institutionService, $studentService;
 
-    public function __construct(UserService $userService, CompanyService $companyService, InstitutionService $institutionService)
+    public function __construct(UserService $userService, CompanyService $companyService, InstitutionService $institutionService, StudentService $studentService)
     {
         $this->userService = $userService;
         $this->companyService = $companyService;
         $this->institutionService = $institutionService;
+        $this->studentService = $studentService;
     }
 
     public function login(Request $request)
@@ -40,8 +45,8 @@ class AuthController extends Controller
 
     }
 
-    public function register(Request $request){
-
+    public function register(Request $request)
+    {
         $validated = $request->validate([
             'name' => 'required',
             'surname' => 'required',
@@ -51,27 +56,55 @@ class AuthController extends Controller
             'rol' => 'required',
         ]);
 
+        // Verificar si el usuario ya existe
         $check = $this->userService->checkIFUserExists($validated);
-        if($check){
-            return response()->json(['status'=>'warning', "message" => "El usuario ya existe en la base de datos."]);
+        if ($check) {
+            return response()->json(['status' => 'warning', "message" => "El usuario ya existe en la base de datos."]);
         }
 
-        $user = $this->userService->createUser($validated);
-        $token = $user['token'];
+        // Iniciar una transacción de BD
+        DB::beginTransaction();
 
+        try {
+            // Crear el usuario
+            $user = $this->userService->createUser($validated);
+            $token = $user['token'];
 
-        if($user['user']->rol === 'company')
-        {
-            $company = $this->companyService->createCompany($user['user'], $request->company );
-            return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'company'=>$company ]);
+            if ($user['user']->rol === 'company') {
+                $company = $this->companyService->createCompany($user['user'], $request->company);
+                if (!$company) {
+                    throw new \Exception('Error al crear la empresa.');
+                }
+                DB::commit();
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
+            }
+
+            elseif ($user['user']->rol === 'institutions') {
+                $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
+                if (!$institution) {
+                    throw new \Exception('Error al crear la institución.');
+                }
+                DB::commit();
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
+            }
+
+            elseif ($user['user']->rol === 'student') {
+                $student = $this->studentService->createStudent($user['user'], $request->student);
+                if (!$student) {
+                    throw new \Exception('Error al crear el estudiante.');
+                }
+                DB::commit();
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
+            }
+
+            else {
+                throw new \Exception('El rol no está especificado.');
+            }
+        } catch (\Exception $e) {
+            // Si ocurre un error, deshacer los cambios en la BD
+            DB::rollBack();
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
-        elseif ($user['user']->rol === 'institutions')
-        {
-            $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
-            return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token, 'institution'=>$institution]);
-        }
-
-        return response()->json(['status'=>'success', 'user'=> $user['user'], 'token' => $token]);
     }
 
     public function logout()

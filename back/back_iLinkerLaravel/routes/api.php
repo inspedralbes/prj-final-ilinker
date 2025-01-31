@@ -8,6 +8,7 @@ use \App\Http\Controllers\UserController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CambiarContraseñaController;
+use \App\Http\Controllers\StudentEducationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -39,6 +40,10 @@ Route::prefix('/company')->group(function () {
 Route::prefix('/institution')->group(function () {
     Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
     Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
+});
+
+Route::prefix('/education')->group(function () {
+    Route::post('/create', [StudentEducationController::class, 'create'])->name('create.education');
 });
 
 Route::prefix('/offers')->group(function () {
