@@ -197,7 +197,6 @@ export default function Register() {
                 country: "",
                 postal_code: ""
             },
-
         },
     });
     const [formData, setFormData] = useState({

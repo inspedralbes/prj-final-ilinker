@@ -18,7 +18,7 @@ export const metadata = {
 };
 import { Inter } from 'next/font/google';
 import Header from '@/components/header';
-
+import { Toaster } from "@/components/ui/toaster";
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({children}) {
@@ -33,6 +33,7 @@ export default function RootLayout({children}) {
         >
             <Header />
             <main>{children}</main>
+            <Toaster />
         </ThemeProvider>
         </body>
         </html>
