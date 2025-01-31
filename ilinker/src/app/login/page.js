@@ -27,11 +27,11 @@ export default function Login() {
       const data = await response.json();
       console.log("Respuesta del servidor:", data);
 
-      // if (response.ok) {
-      //   router.push("/");
-      // } else {
-      //   alert("Error en el login: " + data.message);
-      // }
+      if (response.ok) {
+         router.push("/");
+       } else {
+         alert("Error en el login: " + data.message);
+       }
     } catch (error) {
       alert("Error en la conexión");
     }
