@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {apiRequest} from "@/communicationManager/communicationManager";
 
 export default function Login() {
   const router = useRouter();
@@ -16,15 +17,17 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:8000/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await apiRequest("auth/login", "POST", {email, password})
+      // const response = await fetch("http://localhost:8000/api/auth/login", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify({ email, password }),
+      // });
 
-      const data = await response.json();
+      // const data = await response.json();
+      const data = response;
       console.log("Respuesta del servidor:", data);
 
       // if (response.ok) {
