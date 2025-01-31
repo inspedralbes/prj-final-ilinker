@@ -17,6 +17,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log("login")
       const response = await apiRequest("auth/login", "POST", {email, password})
       // const response = await fetch("http://localhost:8000/api/auth/login", {
       //   method: "POST",
