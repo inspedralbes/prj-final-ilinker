@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\CambiarContraseña;
 use App\Mail\SendPasswordResetCode;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
 
@@ -53,11 +54,13 @@ class CambiarContraseñaController extends Controller
     }
 
     public function resetPassword(Request $request){
+
              $request->validate([
             'email'=> 'required|email',
             'code'=> 'required|string|digits:6',
-            'password'=> 'required|string|confirmed'
+            'password'=> 'required|string'
              ]);
+
         $passwordReset = CambiarContraseña::where('email',$request->email)
             ->where('code',$request->code)
             ->where('expires_at','>=',now())
@@ -70,9 +73,6 @@ class CambiarContraseñaController extends Controller
             $user = User::where('email',$request->email)->first();
             $user->password = bcrypt($request->password);
             $user->save();
-
-            // Eliminar el codigo usado
-            $passwordReset->DB::select();
 
             return response()->json(['message'=>'Contrasenya actualitzada correctament']);
 

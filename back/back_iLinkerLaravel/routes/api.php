@@ -19,9 +19,9 @@ Route::prefix('/auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     // ruta para enviar el código de recuperación de contraseña
-    Route::post('sendRecoveryCode', [CambiarContraseñaController::class, 'sendCode']);
-    Route::post('verifyCode', [CambiarContraseñaController::class, 'verifyCode']);
-    Route::post('resetPassword', [CambiarContraseñaController::class, 'resetPassword']);
+    Route::post('/sendRecoveryCode', [CambiarContraseñaController::class, 'sendCode']);
+    Route::post('/verifyCode', [CambiarContraseñaController::class, 'verifyCode']);
+    Route::post('/resetPassword', [CambiarContraseñaController::class, 'resetPassword']);
 });
 
 Route::prefix('/users')->group(function () {

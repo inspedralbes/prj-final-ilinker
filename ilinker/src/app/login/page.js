@@ -30,11 +30,11 @@ export default function Login() {
       const data = response;
       console.log("Respuesta del servidor:", data);
 
-      // if (response.ok) {
-      //   router.push("/");
-      // } else {
-      //   alert("Error en el login: " + data.message);
-      // }
+      if (response.ok ) {
+        router.push("/");
+      } else {
+        alert("Error en el login: " + data.message);
+      }
     } catch (error) {
       alert("Error en la conexión");
     }
@@ -101,13 +101,13 @@ export default function Login() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            email,
+            email: email,
             code: verificationCode,
-            newPassword,
+            password: newPassword,
           }),
         }
       );
-
+      
       if (response.ok) {
         alert("Contrasenya actualitzada correctament");
         setFormState("login");
@@ -116,6 +116,7 @@ export default function Login() {
       }
     } catch (error) {
       alert("Error en la conexión");
+
     }
   };
 
