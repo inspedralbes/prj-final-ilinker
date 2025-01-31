@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Creacion y modificacion de services, creacion de json para hacer seeders y tambien tests">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modificaciones">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -25,18 +25,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Deraybcbc"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Deraybcbc&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
-    "accountId": "5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
+    &quot;accountId&quot;: &quot;5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6&quot;
   }
-}]]></component>
+}</component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -51,7 +51,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "dev-kevin",
-    "last_opened_file_path": "C:/Users/premi/OneDrive/Documentos/GitHub/prj-final-ilinker/ilinker/src/app",
+    "last_opened_file_path": "C:/Users/deray/Documents/Cosas/validacion",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -87,7 +87,8 @@
       <option name="presentableId" value="Default" />
       <updated>1737452729198</updated>
       <workItem from="1737452730625" duration="30342000" />
-      <workItem from="1738310379786" duration="1243000" />
+      <workItem from="1738310379786" duration="3785000" />
+      <workItem from="1738314469418" duration="138000" />
     </task>
     <task id="LOCAL-00001" summary="Creacion y modificacion de services, creacion de json para hacer seeders y tambien tests">
       <option name="closed" value="true" />
@@ -97,7 +98,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738239847166</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="modificaciones">
+      <option name="closed" value="true" />
+      <created>1738314418541</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1738314418541</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -106,6 +115,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Modificacion de services, creacion de test y pruebas" />
     <MESSAGE value="Creacion y modificacion de services, creacion de json para hacer seeders y tambien tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Creacion y modificacion de services, creacion de json para hacer seeders y tambien tests" />
+    <MESSAGE value="modificaciones" />
+    <option name="LAST_COMMIT_MESSAGE" value="modificaciones" />
   </component>
 </project>
