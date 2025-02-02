@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiRequest } from "@/communicationManager/communicationManager";
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
+import {Card,CardHeader,CardContent,CardFooter,} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ export default function Login() {
 
   const validateEmptyFields = (fields) => {
     const empty = {};
-    Object.keys(fields).forEach(field => {
+    Object.keys(fields).forEach((field) => {
       if (!fields[field].trim()) {
         empty[field] = "Este campo es obligatorio";
       }
@@ -34,26 +34,25 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setApiError("");
-    
+
     const isValid = validateEmptyFields({
       email,
-      password
+      password,
     });
-    
+
     if (isValid) {
       try {
-        const response = await apiRequest("auth/login", "POST", {
+        const response = await apiRequest("auth/login", "GET", {
           email,
           password,
         });
 
         console.log("login response", response);
-        
 
-        if (response.status) {
+        if (response.success) {
           router.push("/");
         } else {
-          setApiError(response.message || "Credenciales incorrectas");
+          setApiError("Correu electrònic o contrasenya incorrectes");
         }
       } catch (error) {
         setApiError("Error de conexión con el servidor");
@@ -64,11 +63,11 @@ export default function Login() {
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
     setApiError("");
-    
+
     const isValid = validateEmptyFields({
-      email
+      email,
     });
-    
+
     if (isValid) {
       try {
         const response = await apiRequest("auth/sendRecoveryCode", "POST", {
@@ -90,11 +89,11 @@ export default function Login() {
   const handleVerifyCode = async (e) => {
     e.preventDefault();
     setApiError("");
-    
+
     const isValid = validateEmptyFields({
-      code: verificationCode
+      code: verificationCode,
     });
-    
+
     if (isValid) {
       try {
         const response = await apiRequest("auth/verifyCode", "POST", {
@@ -117,12 +116,12 @@ export default function Login() {
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setApiError("");
-    
+
     const isValid = validateEmptyFields({
       newPassword,
-      confirmPassword
+      confirmPassword,
     });
-    
+
     if (isValid) {
       if (newPassword !== confirmPassword) {
         setApiError("Las contraseñas no coinciden");
@@ -179,7 +178,7 @@ export default function Login() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, email: undefined }));
+                      setEmptyFields((prev) => ({ ...prev, email: undefined }));
                     }
                   }}
                   placeholder="Introduce tu correo electrónico"
@@ -199,7 +198,10 @@ export default function Login() {
                   onChange={(e) => {
                     setPassword(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, password: undefined }));
+                      setEmptyFields((prev) => ({
+                        ...prev,
+                        password: undefined,
+                      }));
                     }
                   }}
                   placeholder="Introduce tu contraseña"
@@ -230,7 +232,7 @@ export default function Login() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, email: undefined }));
+                      setEmptyFields((prev) => ({ ...prev, email: undefined }));
                     }
                   }}
                   placeholder="correo@ejemplo.com"
@@ -260,7 +262,7 @@ export default function Login() {
                   onChange={(e) => {
                     setVerificationCode(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, code: undefined }));
+                      setEmptyFields((prev) => ({ ...prev, code: undefined }));
                     }
                   }}
                   maxLength={6}
@@ -291,14 +293,19 @@ export default function Login() {
                   onChange={(e) => {
                     setNewPassword(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, newPassword: undefined }));
+                      setEmptyFields((prev) => ({
+                        ...prev,
+                        newPassword: undefined,
+                      }));
                     }
                   }}
                   placeholder="Nueva contraseña"
                   className={emptyFields.newPassword ? "border-red-500" : ""}
                 />
                 {emptyFields.newPassword && (
-                  <p className="text-red-500 text-sm">{emptyFields.newPassword}</p>
+                  <p className="text-red-500 text-sm">
+                    {emptyFields.newPassword}
+                  </p>
                 )}
               </div>
               <div className="space-y-2">
@@ -310,14 +317,21 @@ export default function Login() {
                   onChange={(e) => {
                     setConfirmPassword(e.target.value);
                     if (e.target.value.trim()) {
-                      setEmptyFields(prev => ({ ...prev, confirmPassword: undefined }));
+                      setEmptyFields((prev) => ({
+                        ...prev,
+                        confirmPassword: undefined,
+                      }));
                     }
                   }}
                   placeholder="Confirmar contraseña"
-                  className={emptyFields.confirmPassword ? "border-red-500" : ""}
+                  className={
+                    emptyFields.confirmPassword ? "border-red-500" : ""
+                  }
                 />
                 {emptyFields.confirmPassword && (
-                  <p className="text-red-500 text-sm">{emptyFields.confirmPassword}</p>
+                  <p className="text-red-500 text-sm">
+                    {emptyFields.confirmPassword}
+                  </p>
                 )}
               </div>
               <Button type="submit" className="w-full">
