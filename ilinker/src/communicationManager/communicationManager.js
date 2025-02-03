@@ -4,13 +4,12 @@ const routeApi = "http://localhost:8000/api/";
 
 export async function apiRequest(endpoint, method = "GET", body = null) {
     try {
-        const token = Cookies.get("authToken"); // Obtener el token de la cookie
-
+        const token = Cookies.get("authToken");
         const options = {
             method,
             headers: {
                 "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}), // Agregar el token si existe
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
         };
 
@@ -18,16 +17,26 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
             options.body = JSON.stringify(body);
         }
 
+        console.log(`Haciendo petición a ${routeApi + endpoint}`, options); // Para debugging
+
         const response = await fetch(routeApi + endpoint, options);
+        const data = await response.json();
+
+        console.log("Respuesta del servidor:", data); // Para debugging
 
         if (!response.ok) {
-            throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
+            // Si la respuesta no es ok, convertimos el mensaje de error en un objeto error
+            return {
+                error: data.message || `Error: ${response.status} ${response.statusText}`
+            };
         }
 
-        return await response.json();
+        return data;
     } catch (error) {
         console.error(`Error en la petición a ${endpoint}:`, error);
-        return { error: error.message }; // Devolver error para manejarlo en el frontend
+        return { 
+            error: "Error de conexión al servidor"
+        };
     }
 }
 

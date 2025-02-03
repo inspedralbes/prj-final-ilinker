@@ -1,14 +1,9 @@
 "use client";
 import Image from "next/image";
-import { useCallback, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
-// import { signIn } from "next-auth/client";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { apiRequest } from "@/communicationManager/communicationManager";
-import {Card,CardHeader,CardContent,CardFooter,} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import Cookies from 'js-cookie';  // Añade esta línea
 
 export default function Login() {
   const router = useRouter();
@@ -18,397 +13,312 @@ export default function Login() {
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [emptyFields, setEmptyFields] = useState({});
-  const [apiError, setApiError] = useState("");
-
-  const validateEmptyFields = (fields) => {
-    const empty = {};
-    Object.keys(fields).forEach((field) => {
-      if (!fields[field].trim()) {
-        empty[field] = "Este campo es obligatorio";
-      }
-    });
-    setEmptyFields(empty);
-    return Object.keys(empty).length === 0;
-  };
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setApiError("");
+    setErrorMessage(""); // Limpiar mensaje de error anterior
+    
+    try {
+        const response = await apiRequest("auth/login", "POST", { email, password });
+        console.log("Respuesta del servidor:", response);
 
-    const isValid = validateEmptyFields({
-      email,
-      password,
-    });
-
-    if (isValid) {
-      try {
-        const response = await apiRequest("auth/login", "POST", {
-          email,
-          password,
-        });
-
-        console.log("login response", response);
-
-        if (response.status === "success") {
-          router.push("/");
-        } else {
-          setApiError("Correu electrònic o contrasenya incorrectes");
+        if (response.error) {
+            setErrorMessage(response.error);
+            return;
         }
-      } catch (error) {
-        setApiError("Error de conexión con el servidor");
-      }
+
+        if (response.token) {
+            // Guardar el token en una cookie
+            Cookies.set("authToken", response.token);
+            console.log("Token guardado:", response.token);
+            router.push("/");
+        } else {
+            setErrorMessage("No se recibió el token de autenticación");
+        }
+    } catch (error) {
+        console.error("Error durante el login:", error);
+        setErrorMessage("Error en la conexión al servidor");
     }
   };
-
-  const handleGoogleLogin = async (e) => {
-    try{
-      const result = await signIn("google",{
-      callbackUrl: "/",
-      redirect: true,
-    });
-    }catch(error){
-      setApiError("Error al iniciar sesión con Google");
-    }
-  };
-
 
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
-    setApiError("");
-
-    const isValid = validateEmptyFields({
-      email,
-    });
-
-    if (isValid) {
-      try {
-        const response = await apiRequest("auth/sendRecoveryCode", "POST", {
-          email,
-        });
-
-        if (response.success) {
-          setFormState("code");
-          setEmptyFields({});
-        } else {
-          setApiError("Error al enviar el código de recuperación");
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/auth/sendRecoveryCode",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
         }
-      } catch (error) {
-        setApiError("Error de conexión con el servidor");
+      );
+
+      if (response.ok) {
+        setFormState("code");
+      } else {
+        alert("Error al enviar el codi de recuperació");
       }
+    } catch (error) {
+      alert("Error en la conexión");
     }
   };
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
-    setApiError("");
+    try {
+      const response = await fetch("http://localhost:8000/api/auth/verifyCode", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, code: verificationCode }),
+      });
 
-    const isValid = validateEmptyFields({
-      code: verificationCode,
-    });
-
-    if (isValid) {
-      try {
-        const response = await apiRequest("auth/verifyCode", "POST", {
-          email,
-          code: verificationCode,
-        });
-
-        if (response.success) {
-          setFormState("newPassword");
-          setEmptyFields({});
-        } else {
-          setApiError("Código de verificación incorrecto");
-        }
-      } catch (error) {
-        setApiError("Error de conexión con el servidor");
+      if (response.ok) {
+        setFormState("newPassword");
+      } else {
+        alert("Error al verificar el codi");
       }
+    } catch (error) {
+      alert("Error en la conexión");
     }
   };
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    setApiError("");
+    if (newPassword !== confirmPassword) {
+      alert("Les contrasenyes no coincideixen");
+      return;
+    }
 
-    const isValid = validateEmptyFields({
-      newPassword,
-      confirmPassword,
-    });
-
-    if (isValid) {
-      if (newPassword !== confirmPassword) {
-        setApiError("Las contraseñas no coinciden");
-        return;
-      }
-
-      try {
-        const response = await apiRequest("auth/resetPassword", "POST", {
-          email,
-          code: verificationCode,
-          password: newPassword,
-        });
-
-        if (response.success) {
-          setFormState("login");
-          setEmptyFields({});
-        } else {
-          setApiError("Error al actualizar la contraseña");
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/auth/resetPassword",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email,
+            code: verificationCode,
+            password: newPassword,
+          }),
         }
-      } catch (error) {
-        setApiError("Error de conexión con el servidor");
+      );
+      
+      if (response.ok) {
+        alert("Contrasenya actualitzada correctament");
+        setFormState("login");
+      } else {
+        alert("Error al actualitzar la contrasenya");
       }
+    } catch (error) {
+      alert("Error en la conexión");
+
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-2">
-          <div className="flex justify-center">
-            <Image
-              src="/images/logo_nombre.svg"
-              alt="logo"
-              width={150}
-              height={58}
-            />
-          </div>
-          {apiError && (
-            <Alert variant="destructive">
-              <AlertDescription>{apiError}</AlertDescription>
-            </Alert>
-          )}
-        </CardHeader>
+      <div className="w-full max-w-md p-8 space-y-8 bg-white shadow-lg rounded-lg">
+        <Image
+          className="mx-auto"
+          src="/images/logo_nombre.svg"
+          alt="logo"
+          width={150}
+          height={58}
+        />
 
-        <CardContent>
-          {formState === "login" && (
+        {formState === "login" && (
+          <>
             <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({ ...prev, email: undefined }));
-                    }
-                  }}
-                  placeholder="Introduce tu correo electrónico"
-                  className={emptyFields.email ? "border-red-500" : ""}
-                />
-                {emptyFields.email && (
-                  <p className="text-red-500 text-sm">{emptyFields.email}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({
-                        ...prev,
-                        password: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder="Introduce tu contraseña"
-                  className={emptyFields.password ? "border-red-500" : ""}
-                />
-                {emptyFields.password && (
-                  <p className="text-red-500 text-sm">{emptyFields.password}</p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full">
-                Iniciar sesión
-              </Button>
-            </form>
-          )}
-
-          <br></br>
-          <p>─────────────── OR ───────────────</p>
-          <br></br>
-          
-          {/*Hacer login con Google  */}
-          <div className="flex items-center justify-center space-x-2">
-            <Button
-              variant="secondary"
-              className="w-full"
-              onClick={() => {
-                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
-              }}
-            >
-              Iniciar sesión con Google
-            </Button>
-          </div>
-          
-
-          {formState === "email" && (
-            <form onSubmit={handleSendRecoveryCode} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
-                Recuperar contraseña
-              </h2>
-              <div className="space-y-2">
-                <Label htmlFor="recovery-email">Correo electrónico</Label>
-                <Input
-                  id="recovery-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({ ...prev, email: undefined }));
-                    }
-                  }}
-                  placeholder="correo@ejemplo.com"
-                  className={emptyFields.email ? "border-red-500" : ""}
-                />
-                {emptyFields.email && (
-                  <p className="text-red-500 text-sm">{emptyFields.email}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">
-                Enviar código
-              </Button>
-            </form>
-          )}
-
-          {formState === "code" && (
-            <form onSubmit={handleVerifyCode} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
-                Verificar código
-              </h2>
-              <div className="space-y-2">
-                <Label htmlFor="code">Código de verificación</Label>
-                <Input
-                  id="code"
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) => {
-                    setVerificationCode(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({ ...prev, code: undefined }));
-                    }
-                  }}
-                  maxLength={6}
-                  placeholder="------"
-                  className={emptyFields.code ? "border-red-500" : ""}
-                />
-                {emptyFields.code && (
-                  <p className="text-red-500 text-sm">{emptyFields.code}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">
-                Verificar código
-              </Button>
-            </form>
-          )}
-
-          {formState === "newPassword" && (
-            <form onSubmit={handleResetPassword} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
-                Nueva contraseña
-              </h2>
-              <div className="space-y-2">
-                <Label htmlFor="new-password">Nueva contraseña</Label>
-                <Input
-                  id="new-password"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({
-                        ...prev,
-                        newPassword: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder="Nueva contraseña"
-                  className={emptyFields.newPassword ? "border-red-500" : ""}
-                />
-                {emptyFields.newPassword && (
-                  <p className="text-red-500 text-sm">
-                    {emptyFields.newPassword}
-                  </p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirm-password">Confirmar contraseña</Label>
-                <Input
-                  id="confirm-password"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    if (e.target.value.trim()) {
-                      setEmptyFields((prev) => ({
-                        ...prev,
-                        confirmPassword: undefined,
-                      }));
-                    }
-                  }}
-                  placeholder="Confirmar contraseña"
-                  className={
-                    emptyFields.confirmPassword ? "border-red-500" : ""
-                  }
-                />
-                {emptyFields.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {emptyFields.confirmPassword}
-                  </p>
-                )}
-              </div>
-              <Button type="submit" className="w-full">
-                Actualizar contraseña
-              </Button>
-            </form>
-          )}
-        </CardContent>
-
-        <CardFooter className="flex flex-col space-y-4">
-          {formState === "login" && (
-            <>
-              <Button
-                variant="ghost"
-                onClick={() => setFormState("email")}
-                className="text-sm"
-              >
-                ¿Has olvidado la contraseña?
-              </Button>
-              <div className="text-sm text-center">
-                ¿Nuevo en Ilinker?{" "}
-                <Button
-                  variant="link"
-                  onClick={() => router.push("/register")}
-                  className="text-gray-400"
+              {/* Campo de correo electrónico */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-600"
                 >
-                  Registrarse
-                </Button>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Introdueix el teu correu electrònic"
+                />
               </div>
-            </>
-          )}
-          {formState !== "login" && (
-            <Button
-              variant="ghost"
-              onClick={() => {
-                setFormState("login");
-                setApiError("");
-                setEmptyFields({});
-              }}
-              className="text-sm"
+
+              {/* Campo de contraseña */}
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-600"
+                >
+                  Contrasenya
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Introduïu la vostra contrasenya"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-2 px-4 bg-black text-white font-semibold rounded-lg shadow-md hover:bg-[#3e3e3e] hover:shadow-lg transition-all duration-400"
+              >
+                Iniciar sessió
+              </button>
+            </form>
+
+            <div className="text-center space-y-4">
+              <button
+                onClick={() => setFormState("email")}
+                className="text-sm text-black hover:underline"
+              >
+                Has oblidat la contrasenya?
+              </button>
+              <div className="text-sm text-black">
+                Nou a Ilinker?{" "}
+                <button
+                  onClick={() => router.push("/register")}
+                  className="text-gray-400 hover:underline"
+                >
+                  Registrar-se
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {formState === "email" && (
+          <form onSubmit={handleSendRecoveryCode} className="space-y-6">
+            <h2 className="text-xl font-semibold text-center text-black">
+              Recuperar contrasenya
+            </h2>
+            <div>
+              <label
+                htmlFor="recovery-email"
+                className="block text-sm font-medium text-gray-600"
+              >
+                Correu electrònic
+              </label>
+              <input
+                type="email"
+                id="recovery-email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Ilinker@example.com"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-black text-white font-semibold rounded-lg shadow-md hover:bg-[#3e3e3e] hover:shadow-lg transition-all duration-400"
             >
-              Volver al login
-            </Button>
-          )}
-        </CardFooter>
-      </Card>
+              Enviar codi
+            </button>
+            <button
+              type="button"
+              onClick={() => setFormState("login")}
+              className="w-full text-sm text-black hover:underline"
+            >
+              Tornar al login
+            </button>
+          </form>
+        )}
+
+        {formState === "code" && (
+          <form onSubmit={handleVerifyCode} className="space-y-6">
+            <h2 className="text-xl font-bold text-center">Verificar codi</h2>
+            <div>
+              <label
+                htmlFor="code"
+                className="block text-sm font-medium text-gray-600"
+              >
+                Codi de verificació
+              </label>
+              <input
+                type="text"
+                id="code"
+                value={verificationCode}
+                onChange={(e) => setVerificationCode(e.target.value)}
+                maxLength={6}
+                pattern="\d{6}"
+                required
+                className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="- - - - - -"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-black text-white font-semibold rounded-lg shadow-md hover:bg-[#3e3e3e] hover:shadow-lg transition-all duration-400"
+            >
+              Verificar codi
+            </button>
+          </form>
+        )}
+
+        {formState === "newPassword" && (
+          <form onSubmit={handleResetPassword} className="space-y-6">
+            <h2 className="text-xl font-bold text-center">Nova contrasenya</h2>
+            <div>
+              <label
+                htmlFor="new-password"
+                className="block text-sm font-medium text-gray-600"
+              >
+                Nova contrasenya
+              </label>
+              <input
+                type="password"
+                id="new-password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Nova contrasenya"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="confirm-password"
+                className="block text-sm font-medium text-gray-600"
+              >
+                Confirmar contrasenya
+              </label>
+              <input
+                type="password"
+                id="confirm-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="mt-2 block w-full px-4 py-2 border border-gray-300 text-black rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Confirmar nova contrasenya"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full py-2 px-4 bg-black text-white font-semibold rounded-lg shadow-md hover:bg-[#3e3e3e] hover:shadow-lg transition-all duration-400"
+            >
+              Actualitzar contrasenya
+            </button>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
