@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+import { redirect, useRouter } from "next/navigation";
+// import { signIn } from "next-auth/client";
 import { apiRequest } from "@/communicationManager/communicationManager";
 import {Card,CardHeader,CardContent,CardFooter,} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,14 +43,14 @@ export default function Login() {
 
     if (isValid) {
       try {
-        const response = await apiRequest("auth/login", "GET", {
+        const response = await apiRequest("auth/login", "POST", {
           email,
           password,
         });
 
         console.log("login response", response);
 
-        if (response.success) {
+        if (response.status === "success") {
           router.push("/");
         } else {
           setApiError("Correu electrònic o contrasenya incorrectes");
@@ -59,6 +60,18 @@ export default function Login() {
       }
     }
   };
+
+  const handleGoogleLogin = async (e) => {
+    try{
+      const result = await signIn("google",{
+      callbackUrl: "/",
+      redirect: true,
+    });
+    }catch(error){
+      setApiError("Error al iniciar sesión con Google");
+    }
+  };
+
 
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
@@ -218,6 +231,24 @@ export default function Login() {
             </form>
           )}
 
+          <br></br>
+          <p>─────────────── OR ───────────────</p>
+          <br></br>
+          
+          {/*Hacer login con Google  */}
+          <div className="flex items-center justify-center space-x-2">
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => {
+                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+              }}
+            >
+              Iniciar sesión con Google
+            </Button>
+          </div>
+          
+
           {formState === "email" && (
             <form onSubmit={handleSendRecoveryCode} className="space-y-6">
               <h2 className="text-xl font-semibold text-center">
@@ -266,7 +297,7 @@ export default function Login() {
                     }
                   }}
                   maxLength={6}
-                  placeholder="123456"
+                  placeholder="------"
                   className={emptyFields.code ? "border-red-500" : ""}
                 />
                 {emptyFields.code && (
