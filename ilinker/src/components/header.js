@@ -1,14 +1,22 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import Image from "next/image"
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
+import { BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 
 export default function Header() {
-    const pathname = usePathname()
+    const pathname = usePathname();
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+    useEffect(() => {
+        const token = Cookies.get("authToken");
+        setIsAuthenticated(!!token);
+    }, []);
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -32,16 +40,24 @@ export default function Header() {
                         </Link>
                     </nav>
                     <div className="flex items-center space-x-2">
-                        <Button variant="outline" asChild>
-                            <Link href="/login">Login</Link>
-                        </Button>
-                        <Button asChild>
-                            <Link href="/register">Register</Link>
-                        </Button>
+                        {isAuthenticated ? (
+                            <Link href="/profile" className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700">
+                                <span className="font-semibold">Yo</span>
+                            </Link>
+                        ) : (
+                            <>
+                                <Button variant="outline" asChild>
+                                    <Link href="/login">Login</Link>
+                                </Button>
+                                <Button asChild>
+                                    <Link href="/register">Register</Link>
+                                </Button>
+                            </>
+                        )}
                         <ModeToggle />
                     </div>
                 </div>
             </div>
         </header>
-    )
+    );
 }
