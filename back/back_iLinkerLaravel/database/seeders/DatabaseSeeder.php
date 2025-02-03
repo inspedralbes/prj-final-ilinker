@@ -24,6 +24,11 @@ class DatabaseSeeder extends Seeder
             SkillSeeder::class,
             SectorSeeder::class,
             CoursesSeeder::class,
+            UserSeeder::class,
+            CompanySeeder::class,
+            InstitutionsSeeder::class,
+            StudentSeeder::class,
+            OfferSeeder::class,
         ]);
     }
 }

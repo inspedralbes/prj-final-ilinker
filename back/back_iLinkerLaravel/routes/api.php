@@ -9,6 +9,7 @@ use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
+use \App\Http\Controllers\ExperienceController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -44,6 +45,14 @@ Route::prefix('/institution')->group(function () {
 
 Route::prefix('/education')->group(function () {
     Route::post('/create', [StudentEducationController::class, 'create'])->name('create.education');
+    Route::post('/update', [StudentEducationController::class, 'update'])->name('update.education');
+    Route::delete('/delete', [StudentEducationController::class, 'delete'])->name('delete.education');
+});
+
+Route::prefix('/experience')->group(function () {
+    Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
+    Route::post('/update',[ExperienceController::class, 'udpate'])->name('update.experience');
+    Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
 });
 
 Route::prefix('/offers')->group(function () {

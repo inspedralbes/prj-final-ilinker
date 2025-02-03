@@ -4,13 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante">
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/company.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/institutions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/offers.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/student.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/users.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentEducationService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentEducationService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_083009_create_instittions_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CoursesSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CoursesSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/SectorSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/SectorSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_113816_create_offers_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_113816_create_offers_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CompanySeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CompanySeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/InstittionsSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/InstitutionsSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/OfferSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/OfferSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/css/app.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/tailwind.config.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,6 +41,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Deraybcbc"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
+    "accountId": "5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6"
+  }
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -42,6 +65,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "dev-kevin",
     "last_opened_file_path": "C:/Users/premi/OneDrive/Documentos/GitHub/prj-final-ilinker/ilinker/src/app",
     "node.js.detected.package.eslint": "true",
@@ -65,8 +89,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23726.107" />
-        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23726.107" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
+        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
       </set>
     </attachedChunks>
   </component>
@@ -79,10 +103,24 @@
       <option name="presentableId" value="Default" />
       <updated>1737452729198</updated>
       <workItem from="1737452730625" duration="30342000" />
+      <workItem from="1738568573880" duration="13478000" />
     </task>
+    <task id="LOCAL-00001" summary="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante">
+      <option name="closed" value="true" />
+      <created>1738325757269</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1738325757269</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante" />
   </component>
 </project>
