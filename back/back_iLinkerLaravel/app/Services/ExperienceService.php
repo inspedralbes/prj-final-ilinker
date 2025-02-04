@@ -21,18 +21,18 @@ class ExperienceService
         if($data['company_id'] === null){
             $experience->company_id = null;
             $experience->company_name = $data['company_name'] ?? null;
-            $experience->company_addreess = $data['company_addrees'] ?? null;
+            $experience->company_address = $data['company_address'] ?? null;
         }else{
             $company = Company::findOrFail($data['company_id']);
 
             if($company){
                 $experience->company_id = $company->id;
                 $experience->company_name = $company->name;
-                $experience->company_addreess = $company->address;
+                $experience->company_address = $company->address;
             }else{
                 $experience->company_id = null;
                 $experience->company_name = $data['company_name'] ?? null;
-                $experience->company_addreess = $data['company_addrees']??null;
+                $experience->company_address = $data['company_address']??null;
             }
         }
 
@@ -47,22 +47,21 @@ class ExperienceService
     public function updateExperience($data)
     {
         $experience = StudentExperience::findOrFail($data['id']);
-        $experience->student_id = $data['student_id'];
 
-        if($experience->company_id == null){
+        if($data['company_id'] === null){
             $experience->company_id = null;
             $experience->company_name = $data['company_name'] ?? null;
-            $experience->company_addreess = $data['company_addrees'] ?? null;
+            $experience->company_address = $data['company_address'] ?? null;
         }else{
             $company = Company::findOrFail($data['company_id']);
             if($company){
                 $experience->company_id = $company->id;
                 $experience->company_name = $company->name;
-                $experience->company_addreess = $company->address;
+                $experience->company_address = $company->address;
             }else{
                 $experience->company_id = null;
                 $experience->company_name = $data['company_name'] ?? null;
-                $experience->company_addreess = $data['company_addrees']??null;
+                $experience->company_address = $data['company_address']??null;
             }
         }
 

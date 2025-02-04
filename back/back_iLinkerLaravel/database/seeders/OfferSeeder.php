@@ -27,6 +27,7 @@ class OfferSeeder extends Seeder
                     'postal_code' => $offer['postal_code'],
                     'salary' => $offer['salary'],
                     'active' => $offer['active'],
+                    'inscribed'=> $offer['inscribed'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

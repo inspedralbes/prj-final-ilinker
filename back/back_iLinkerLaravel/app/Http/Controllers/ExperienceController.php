@@ -23,7 +23,7 @@ class ExperienceController extends Controller
             'company_name' => 'nullable',
             'department' => 'required',
             'employee_type' => 'required',
-            'company_addreess' => 'nullable',
+            'company_address' => 'nullable',
             'location_type' => 'required',
         ]);
 
@@ -50,7 +50,7 @@ class ExperienceController extends Controller
     public function update(Request $request)
     {
         $validate = $request->validate([
-            'student_id' => 'required',
+            'id' => 'required',
             'company_id' => 'nullable',
             'company_name' => 'nullable',
             'department' => 'required',
