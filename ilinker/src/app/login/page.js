@@ -2,9 +2,13 @@
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
-// import { signIn } from "next-auth/client";
 import { apiRequest } from "@/communicationManager/communicationManager";
-import {Card,CardHeader,CardContent,CardFooter,} from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,10 +40,7 @@ export default function Login() {
     e.preventDefault();
     setApiError("");
 
-    const isValid = validateEmptyFields({
-      email,
-      password,
-    });
+    const isValid = validateEmptyFields({ email, password });
 
     if (isValid) {
       try {
@@ -47,6 +48,7 @@ export default function Login() {
           email,
           password,
         });
+        console.log("login response", response);
 
         console.log("login response", response);
 
@@ -61,17 +63,9 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async (e) => {
-    try{
-      const result = await signIn("google",{
-      callbackUrl: "/",
-      redirect: true,
-    });
-    }catch(error){
-      setApiError("Error al iniciar sesión con Google");
-    }
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
-
 
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
@@ -228,26 +222,23 @@ export default function Login() {
               <Button type="submit" className="w-full">
                 Iniciar sesión
               </Button>
+
+              <br></br>
+              <p>─────────────── OR ───────────────</p>
+              <br></br>
             </form>
           )}
 
-          <br></br>
-          <p>─────────────── OR ───────────────</p>
-          <br></br>
-          
           {/*Hacer login con Google  */}
           <div className="flex items-center justify-center space-x-2">
             <Button
               variant="secondary"
               className="w-full"
-              onClick={() => {
-                window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
-              }}
+              onClick={handleGoogleLogin}
             >
               Iniciar sesión con Google
             </Button>
           </div>
-          
 
           {formState === "email" && (
             <form onSubmit={handleSendRecoveryCode} className="space-y-6">
