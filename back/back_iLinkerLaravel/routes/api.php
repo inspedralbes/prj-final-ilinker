@@ -70,9 +70,9 @@ Route::prefix('/offers')->group(function () {
 });
 
 Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getAll']);
+    Route::get('/', [SkillsController::class, 'getSkills']);
 });
 
-Route::prefix('/page')->group(function (){
+Route::prefix('/page')->group(function (){ 
    Route::get('/register', [PagesController::class, 'registerPage']);
 });
