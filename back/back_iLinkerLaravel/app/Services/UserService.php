@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 
@@ -38,6 +39,10 @@ class UserService
         $user->password = $newUser['password'];
         $user->rol = $newUser['rol'];
         $user->save();
+
+        $user = Auth::user();
+
+        Auth::login($user);
 
         // Generar un token para el usuario
         $token = $user->createToken('auth_token')->plainTextToken;

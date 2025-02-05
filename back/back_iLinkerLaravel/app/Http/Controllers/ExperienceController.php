@@ -64,6 +64,7 @@ class ExperienceController extends Controller
         try{
 
             $experience = $this->experienceService->updateExperience($validate);
+
             if (!$experience) {
                 throw new \Exception('Error al actualizar la experiencia del estudiante.');
             }

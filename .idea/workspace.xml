@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Creaciones de seeder, controller y tambien configuracion de services para hacer inserts, update y delete de experiencia y estudios de un estudiante.">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Configuracion de experiences controller, api y migration de estudents para un campo no de error tambien creacion de skillController para poader hacer el service.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092726_create_student_experiences_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092726_create_student_experiences_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/OfferSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/OfferSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +90,8 @@
       <updated>1737452729198</updated>
       <workItem from="1737452730625" duration="30342000" />
       <workItem from="1738568573880" duration="13530000" />
-      <workItem from="1738656339492" duration="8626000" />
+      <workItem from="1738656339492" duration="9191000" />
+      <workItem from="1738741853149" duration="3073000" />
     </task>
     <task id="LOCAL-00001" summary="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante">
       <option name="closed" value="true" />
@@ -111,7 +109,15 @@
       <option name="project" value="LOCAL" />
       <updated>1738585403228</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Configuracion de experiences controller, api y migration de estudents para un campo no de error tambien creacion de skillController para poader hacer el service.">
+      <option name="closed" value="true" />
+      <created>1738672054067</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1738672054067</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -120,6 +126,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Modifiaciones de seeder, serices y creacion de controladores para hacer insert de eduaction de un estudiante" />
     <MESSAGE value="Creaciones de seeder, controller y tambien configuracion de services para hacer inserts, update y delete de experiencia y estudios de un estudiante." />
-    <option name="LAST_COMMIT_MESSAGE" value="Creaciones de seeder, controller y tambien configuracion de services para hacer inserts, update y delete de experiencia y estudios de un estudiante." />
+    <MESSAGE value="Configuracion de experiences controller, api y migration de estudents para un campo no de error tambien creacion de skillController para poader hacer el service." />
+    <option name="LAST_COMMIT_MESSAGE" value="Configuracion de experiences controller, api y migration de estudents para un campo no de error tambien creacion de skillController para poader hacer el service." />
   </component>
 </project>
