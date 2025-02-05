@@ -17,26 +17,26 @@ class CompanyService
 
         $company->user_id = $data['id'];
 
-        $company->name = $dataCompany['name'];
-        $company->CIF = $dataCompany['CIF'];
-        $company->num_people= $dataCompany['num_people'];
-        $company->logo = $dataCompany['logo'];
+        $company->name = $dataCompany['name']  ?? null;
+        $company->CIF = $dataCompany['CIF']  ?? null;
+        $company->num_people= $dataCompany['num_people'] ?? null;
+        $company->logo = $dataCompany['logo']  ?? null;
         $company->short_description = $dataCompany['short_description'];
-        $company->description = $dataCompany['description'];
-        $company->email = $dataCompany['email'];
-        $company->phone = $dataCompany['phone'];
-        $company->website = $dataCompany['website'];
+        $company->description = $dataCompany['description'] ?? null;
+        $company->email = $dataCompany['email'] ?? null;
+        $company->phone = $dataCompany['phone']  ?? null;
+        $company->website = $dataCompany['website'] ?? null;
 
-        $company->responsible_name = $data['name'];
+        $company->responsible_name = $data['name']  ?? null;
 
-        $company->responsible_phone = $dataCompany['responsible_phone'];
-        $company->responsible_email = $data['email'];
+        $company->responsible_phone = $dataCompany['responsible_phone']  ?? null;
+        $company->responsible_email = $data['email']  ?? null;
 
-        $company->company_position = $dataCompany['company_position'];
-        $company->address = $dataCompany['address'];
-        $company->city = $dataCompany['city'];
-        $company->postal_code = $dataCompany['postal_code'];
-        $company->country = $dataCompany['country'];
+        $company->company_position = $dataCompany['company_position']  ?? null;
+        $company->address = $dataCompany['address']  ?? null;
+        $company->city = $dataCompany['city']  ?? null;
+        $company->postal_code = $dataCompany['postal_code']  ?? null;
+        $company->country = $dataCompany['country']  ?? null;
 
         $company->save();
 

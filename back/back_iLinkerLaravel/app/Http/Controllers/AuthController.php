@@ -8,6 +8,7 @@ use App\Services\StudentService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\DB;
 
@@ -47,6 +48,7 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        Log::info($request);
         $validated = $request->validate([
             'name' => 'required',
             'surname' => 'required',
@@ -55,6 +57,7 @@ class AuthController extends Controller
             'password' => 'required',
             'rol' => 'required',
         ]);
+        Log::info($validated);
 
         // Verificar si el usuario ya existe
         $check = $this->userService->checkIFUserExists($validated);

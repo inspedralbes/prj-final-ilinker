@@ -3,8 +3,11 @@ import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {apiRequest} from "@/communicationManager/communicationManager";
+import { useToast } from "@/hooks/use-toast";
+import Cookies from "js-cookie";
 
 export default function Login() {
+  const { toast } = useToast();
   const router = useRouter();
   const [formState, setFormState] = useState("login");
   const [email, setEmail] = useState("");
@@ -17,26 +20,32 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log("login")
       const response = await apiRequest("auth/login", "POST", {email, password})
-      // const response = await fetch("http://localhost:8000/api/auth/login", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({ email, password }),
-      // });
-
-      // const data = await response.json();
       const data = response;
       console.log("Respuesta del servidor:", data);
-
-      if (response.ok ) {
+      if (response.status === "success" ) {
         router.push("/");
+        Cookies.set("authToken", data.token, { expires: 7, secure: true, sameSite: "Strict" });
+        Cookies.set("userData", JSON.stringify(data.user), { expires: 7, secure: true, sameSite: "Strict" });
+        toast({
+          title: "Se ha iniciado sesion correctamente",
+          description: "Las credenciales son correctas.",
+          variant: "success"
+        })
       } else {
-        alert("Error en el login: " + data.message);
+        toast({
+          title: "No se ha encontrado al usuario.",
+          description: "Las credenciales son incorrectas o no existen.",
+          variant: "error"
+        })
       }
     } catch (error) {
-      alert("Error en la conexión");
+      toast({
+        title: "No se ha encontrado al usuario.",
+        description: "Las credenciales son incorrectas o no existen.",
+        variant: "error"
+      })
     }
   };
 
