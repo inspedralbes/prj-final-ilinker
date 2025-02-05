@@ -53,7 +53,7 @@ class SkillController extends Controller
 
         try{
 
-            $skill =
+            //$skill =
 
         }catch (\Exception $e){
             DB::rollback();

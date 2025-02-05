@@ -44,12 +44,9 @@ class UserService
         $user->rol = $newUser['rol'];
         $user->save();
 
-        $user = Auth::user();
-
-        Auth::login($user);
-
         // Generar un token para el usuario
         $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
         return [
             'user' => $user ,
