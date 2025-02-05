@@ -1,16 +1,21 @@
 import Cookies from "js-cookie";
 
-const routeApi = "http://localhost:8000/api/";
+const routeApi = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/";
 
 export async function apiRequest(endpoint, method = "GET", body = null) {
     try {
-        const token = Cookies.get("authToken"); // Obtener el token de la cookie
+        let token = null;
+
+        if (typeof window !== "undefined") {
+            // Estamos en el cliente
+            token = Cookies.get("authToken");
+        }
 
         const options = {
             method,
             headers: {
                 "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}), // Agregar el token si existe
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
         };
 
@@ -26,8 +31,8 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
 
         return await response.json();
     } catch (error) {
-        console.error(`Error en la petición a ${endpoint}:`, error);
-        return { error: error.message }; // Devolver error para manejarlo en el frontend
+        console.error(`Error en la petición a ${endpoint}:`, error.message);
+        return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
     }
 }
 

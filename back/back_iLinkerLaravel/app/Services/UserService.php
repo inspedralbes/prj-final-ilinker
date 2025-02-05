@@ -26,10 +26,14 @@ class UserService
 
         if (!empty($newUser['birthday'])) {
             $fecha = DateTime::createFromFormat('d/m/Y', $newUser['birthday']);
+
+            if (!$fecha) {
+                $fecha = DateTime::createFromFormat('Y-m-d', $newUser['birthday']);
+            }
+
             if ($fecha) {
                 $user->birthday = $fecha->format('Y-m-d'); // Convertir al formato SQL
             } else {
-                // Manejar error de formato
                 throw new Exception("Formato de fecha inválido: " . $newUser['birthday']);
             }
         }

@@ -1,24 +1,15 @@
-import {Geist, Geist_Mono} from "next/font/google";
 import {ThemeProvider} from "next-themes"
 import "./globals.css";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
 
 export const metadata = {
     title: "iLinker",
     description: "Description about iLinker",
 };
+
 import { Inter } from 'next/font/google';
-import Header from '@/components/header';
 import { Toaster } from "@/components/ui/toaster";
+import ManagerHeader from "@/components/managerHeader";
+
 const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({children}) {
@@ -31,7 +22,7 @@ export default function RootLayout({children}) {
             enableSystem
             disableTransitionOnChange
         >
-            <Header />
+            <ManagerHeader />
             <main>{children}</main>
             <Toaster />
         </ThemeProvider>

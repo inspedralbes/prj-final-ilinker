@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\PagesController;
+use App\Http\Controllers\SkillsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OfferController;
@@ -50,4 +52,12 @@ Route::prefix('/offers')->group(function () {
     Route::post('/create', [OfferController::class, 'create'])->name('offers.create');
     Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
     Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
+});
+
+Route::prefix('/skills')->group(function () {
+    Route::get('/', [SkillsController::class, 'getAll']);
+});
+
+Route::prefix('/page')->group(function (){
+   Route::get('/register', [PagesController::class, 'registerPage']);
 });

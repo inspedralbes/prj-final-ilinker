@@ -13,7 +13,7 @@ class SectorSeeder extends Seeder
      */
     public function run(): void
     {
-        $ruta_json = '../resources/json/sectors.json';
+        $ruta_json = './resources/json/sectors.json';
         if (file_exists($ruta_json)) {
             $json = file_get_contents($ruta_json);
             $sectors = json_decode($json, true);
