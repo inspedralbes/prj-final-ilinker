@@ -1,3 +1,4 @@
+// src/communicationManager/communicationManager.js
 import Cookies from "js-cookie";
 
 const routeApi = "http://localhost:8000/api/";
@@ -5,11 +6,16 @@ const routeApi = "http://localhost:8000/api/";
 export async function apiRequest(endpoint, method = "GET", body = null) {
     try {
         const token = Cookies.get("authToken");
+        console.log("BOdy manager", body);
+        
+        // Mostrar el token para debugging
+        console.log("Token actual:", token);
+
         const options = {
             method,
             headers: {
                 "Content-Type": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                ...(token ? { "Authorization": `Bearer ${token}` } : {})
             },
         };
 
@@ -17,15 +23,22 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
             options.body = JSON.stringify(body);
         }
 
-        console.log(`Haciendo petición a ${routeApi + endpoint}`, options); // Para debugging
+        // Log completo de la petición
+        console.log(`Realizando petición a ${routeApi + endpoint}`, {
+            ...options,
+            headers: { ...options.headers }
+        });
 
         const response = await fetch(routeApi + endpoint, options);
         const data = await response.json();
 
-        console.log("Respuesta del servidor:", data); // Para debugging
+        // Log de la respuesta
+        console.log("Respuesta completa del servidor:", {
+            status: response.status,
+            data
+        });
 
         if (!response.ok) {
-            // Si la respuesta no es ok, convertimos el mensaje de error en un objeto error
             return {
                 error: data.message || `Error: ${response.status} ${response.statusText}`
             };

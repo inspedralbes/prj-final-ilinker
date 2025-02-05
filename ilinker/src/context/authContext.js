@@ -1,37 +1,77 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+// En src/context/authContext.js
+"use client"
+import { createContext, useContext, useEffect, useState } from "react"
+import Cookies from "js-cookie"
+import { apiRequest } from "@/communicationManager/communicationManager"
 
-const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
+const AuthContext = createContext()
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const router = useRouter();
+  const [userData, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // Verifica si ya tienes un usuario autenticado (por ejemplo, en LocalStorage o Cookies)
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (storedUser) {
-      setUser(storedUser);
+  const fetchUser = async () => {
+    const token = Cookies.get("authToken");
+    console.log("Verificando token:", token);
+
+    if (token) {
+      try {
+        const json = {
+          id: 1
+        }
+        const userData = await apiRequest(`users/info?id=1`, "GET");
+        console.log("Datos del usuario Auth:", userData);
+
+        if (!userData.error) {
+          setUser(userData);
+        } else {
+          console.log("Error al obtener datos del usuario:", userData.error);
+          setUser(null);
+          Cookies.remove("authToken");
+        }
+      } catch (error) {
+        console.error("Error fetchUser:", error);
+        setUser(null);
+        Cookies.remove("authToken");
+      }
+    } else {
+      console.log("No hay token");
+      setUser(null);
     }
-  }, []);
+    setLoading(false);
+  };
 
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData)); // Guarda el usuario en LocalStorage
-    router.push("/");
+  const login = async (userData) => {
+    try {
+      console.log("Login con datos:", userData);
+      Cookies.set("authToken", userData.token);
+
+      // Verificar inmediatamente los datos del usuario
+      await fetchUser();
+    } catch (error) {
+      console.error("Error en login:", error);
+      throw error;
+    }
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-    router.push("/login");
-  };
+    Cookies.remove("authToken")
+    setUser(null)
+  }
+
+  const value = {
+    userData,
+    loading,
+    login,
+    logout,
+    refreshUser: fetchUser // Exportamos la función para refrescar el usuario
+  }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
-  );
-};
+  )
+}
+
+export const useAuth = () => useContext(AuthContext)

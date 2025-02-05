@@ -5,9 +5,7 @@ import { SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import Image from "next/image"
-import { useEffect, useState } from "react"
-import { apiRequest } from "@/communicationManager/communicationManager"
-import Cookies from "js-cookie"
+import { useAuth } from "@/context/authContext"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,39 +20,15 @@ import { LogOut, User } from "lucide-react"
 export default function Header() {
     const pathname = usePathname()
     const router = useRouter()
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        const checkAuth = async () => {
-            const token = Cookies.get("authToken")
-            if (token) {
-                try {
-                    const userData = await apiRequest("users/info")
-                    if (!userData.error) {
-                        setUser(userData)
-                    }
-                } catch (error) {
-                    console.error("Error fetching user data:", error)
-                    Cookies.remove("authToken")
-                }
-            }
-            setLoading(false)
-        }
-
-        checkAuth()
-    }, [])
-
-    const handleLogout = () => {
-        Cookies.remove("authToken")
-        setUser(null)
-        router.push("/login")
-    }
+    const { userData, loading, logout } = useAuth()
 
     const getInitials = (name) => {
         if (!name) return "U"
         return name.split(" ").map(n => n[0]).join("").toUpperCase()
     }
+
+    console.log("Usuario", userData);
+    
 
     return (
         <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -66,7 +40,7 @@ export default function Header() {
                     </Link>
                 </div>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-                    {user && (
+                    {userData && (
                         <nav className="flex items-center space-x-6">
                             <Link href="/feed" className={pathname === "/feed" ? "text-foreground" : "text-muted-foreground"}>
                                 <SearchIcon className="h-5 w-5" />
@@ -82,18 +56,18 @@ export default function Header() {
                     <div className="flex items-center space-x-2">
                         {!loading && (
                             <>
-                                {user ? (
+                                {userData.status == 'success' ? (
                                     <DropdownMenu>
                                         <DropdownMenuTrigger className="flex items-center space-x-2">
                                             <Avatar>
-                                                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                                <AvatarFallback>{getInitials(userData?.name)}</AvatarFallback>
                                             </Avatar>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>
                                                 <div className="flex flex-col space-y-1">
-                                                    <p className="text-sm font-medium leading-none">{user.name}</p>
-                                                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                                                    <p className="text-sm font-medium leading-none">{userData?.name}</p>
+                                                    <p className="text-xs leading-none text-muted-foreground">{userData?.email}</p>
                                                 </div>
                                             </DropdownMenuLabel>
                                             <DropdownMenuSeparator />
@@ -102,7 +76,7 @@ export default function Header() {
                                                 <span>Perfil</span>
                                             </DropdownMenuItem>
                                             <DropdownMenuSeparator />
-                                            <DropdownMenuItem onClick={handleLogout}>
+                                            <DropdownMenuItem onClick={logout}>
                                                 <LogOut className="mr-2 h-4 w-4" />
                                                 <span>Cerrar sesión</span>
                                             </DropdownMenuItem>
