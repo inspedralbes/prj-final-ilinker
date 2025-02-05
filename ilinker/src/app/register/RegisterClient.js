@@ -13,11 +13,14 @@ import * as yup from "yup";
 import * as comm from "@/communicationManager/communicationManager";
 import {apiRequest} from "@/communicationManager/communicationManager";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+
+
 
 
 export default function RegisterClient({countries, sectors}) {
     const router = useRouter();
-
+    const { toast } = useToast();
     const stepSchemas = [
         // Step 1 validation schema
         yup.object({
