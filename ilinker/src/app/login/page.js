@@ -3,13 +3,16 @@ import Image from "next/image";
 import { useCallback, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { apiRequest } from "@/communicationManager/communicationManager";
-import {Card,CardHeader,CardContent,CardFooter,} from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { GoogleLogin } from "@react-oauth/google";
-import axios from "axios";
 
 export default function Login() {
   const router = useRouter();
@@ -60,14 +63,8 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async(response) => {
-    const { tokenId } = response;
-
-    try{
-      // enviar el token de Google al backend
-      const response = await axios.post("http://localhost:3001/auth/googleLogin", { tokenId });
-    }catch(error){
-    }
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
   };
 
   const handleSendRecoveryCode = async (e) => {
