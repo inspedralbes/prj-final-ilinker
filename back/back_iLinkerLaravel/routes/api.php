@@ -60,6 +60,7 @@ Route::prefix('/experience')->group(function () {
 
 Route::prefix('/skill')->group(function () {
     Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+    Route::delete('/delete', [SkillController::class, 'delete'])->name('delete.skill');
     Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
 });
 

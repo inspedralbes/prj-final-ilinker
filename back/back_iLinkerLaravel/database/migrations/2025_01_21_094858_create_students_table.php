@@ -18,8 +18,8 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users');
 
             //Formacion básica
-            $table->string('name');
-            $table->string('surname');
+            $table->string('name')->nullable();
+            $table->string('surname')->nullable();
             $table->enum('type_document', ['DNI', 'NIE', 'PASAPORTE']);
             $table->string('id_document');
             $table->string('nationality')->nullable();
