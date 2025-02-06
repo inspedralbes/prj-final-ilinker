@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Log;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\DB;
 
+use Google_Client;
+use App\Models\User;
+use Laravel\Sanctum\HasApiTokens;
 
 class AuthController extends Controller
 {
@@ -43,8 +46,38 @@ class AuthController extends Controller
         }
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
-
     }
+
+    public function loginWithGoogle(Request $request)
+    {
+        $idToken = $request->input('id_token');
+
+        $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
+        $payload = $client->verifyIdToken($idToken);
+
+        if ($payload) {
+            $email = $payload['email'];
+            $user = User::where('email', $email)->first();
+
+            if (!$user) {
+                $user = User::create([
+                    'name' => $payload['name'],
+                    'email' => $email,
+                    'password' => bcrypt(uniqid()),
+                ]);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'token' => $token,
+                'user' => $user,
+            ]);
+        } else {
+            return response()->json(['error' => 'Invalid token'], 401);
+        }
+    }
+
 
     public function register(Request $request)
     {
@@ -80,27 +113,21 @@ class AuthController extends Controller
                 }
                 DB::commit();
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
-            }
-
-            elseif ($user['user']->rol === 'institutions') {
+            } elseif ($user['user']->rol === 'institutions') {
                 $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
                 if (!$institution) {
                     throw new \Exception('Error al crear la institución.');
                 }
                 DB::commit();
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
-            }
-
-            elseif ($user['user']->rol === 'student') {
+            } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
                 if (!$student) {
                     throw new \Exception('Error al crear el estudiante.');
                 }
                 DB::commit();
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
-            }
-
-            else {
+            } else {
                 throw new \Exception('El rol no está especificado.');
             }
         } catch (\Exception $e) {
@@ -114,6 +141,5 @@ class AuthController extends Controller
     {
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
-
     }
 }

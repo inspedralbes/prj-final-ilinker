@@ -64,27 +64,29 @@ export default function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+    signIn("google");
   };
 
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
     setApiError("");
-
+  
     const isValid = validateEmptyFields({
       email,
     });
-
+  
     if (isValid) {
       try {
         const response = await apiRequest("auth/sendRecoveryCode", "POST", {
           email,
         });
-
-        if (response.success) {
+  
+        if (response.status === "success") {
           setFormState("code");
           setEmptyFields({});
+          console.log("Código de recuperación enviado correctamente", response);
         } else {
+          console.log("Error al enviar el código de recuperación", response);
           setApiError("Error al enviar el código de recuperación");
         }
       } catch (error) {
@@ -92,25 +94,27 @@ export default function Login() {
       }
     }
   };
+  
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
     setApiError("");
-
+  
     const isValid = validateEmptyFields({
       code: verificationCode,
     });
-
+  
     if (isValid) {
       try {
         const response = await apiRequest("auth/verifyCode", "POST", {
           email,
           code: verificationCode,
         });
-
-        if (response.success) {
+  
+        if (response.status === "success") {
           setFormState("newPassword");
           setEmptyFields({});
+          console.log("Código verificado correctamente", response);
         } else {
           setApiError("Código de verificación incorrecto");
         }
@@ -119,32 +123,34 @@ export default function Login() {
       }
     }
   };
+  
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setApiError("");
-
+  
     const isValid = validateEmptyFields({
       newPassword,
       confirmPassword,
     });
-
+  
     if (isValid) {
       if (newPassword !== confirmPassword) {
         setApiError("Las contraseñas no coinciden");
         return;
       }
-
+  
       try {
         const response = await apiRequest("auth/resetPassword", "POST", {
           email,
           code: verificationCode,
           password: newPassword,
         });
-
-        if (response.success) {
+  
+        if (response.status === "success") {
           setFormState("login");
           setEmptyFields({});
+          console.log("Contraseña restablecida correctamente", response);
         } else {
           setApiError("Error al actualizar la contraseña");
         }
@@ -153,6 +159,7 @@ export default function Login() {
       }
     }
   };
+  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
