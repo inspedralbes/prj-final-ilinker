@@ -6,6 +6,13 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   callbacks: {
@@ -17,7 +24,11 @@ export const authOptions = {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ id_token: account.id_token }),
+            body: JSON.stringify({ 
+              id_token: account.id_token,
+              email: profile.email,
+              name: profile.name
+            }),
           });
 
           if (!response.ok) {
@@ -25,9 +36,7 @@ export const authOptions = {
           }
 
           const data = await response.json();
-          if (data.token) {
-            return true;
-          }
+          return !!data.token;
         } catch (error) {
           console.error("Error al autenticar con Google:", error);
           return false;
@@ -35,6 +44,19 @@ export const authOptions = {
       }
       return false;
     },
+    async session({ session, token }) {
+      return session;
+    },
+    async jwt({ token, account }) {
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
+  },
+  pages: {
+    signIn: '/login',
+    error: '/login', 
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

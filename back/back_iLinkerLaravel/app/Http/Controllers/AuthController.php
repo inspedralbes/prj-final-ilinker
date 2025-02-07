@@ -48,37 +48,6 @@ class AuthController extends Controller
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
     }
 
-    public function loginWithGoogle(Request $request)
-    {
-        $idToken = $request->input('id_token');
-
-        $client = new Google_Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
-        $payload = $client->verifyIdToken($idToken);
-
-        if ($payload) {
-            $email = $payload['email'];
-            $user = User::where('email', $email)->first();
-
-            if (!$user) {
-                $user = User::create([
-                    'name' => $payload['name'],
-                    'email' => $email,
-                    'password' => bcrypt(uniqid()),
-                ]);
-            }
-
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'token' => $token,
-                'user' => $user,
-            ]);
-        } else {
-            return response()->json(['error' => 'Invalid token'], 401);
-        }
-    }
-
-
     public function register(Request $request)
     {
         Log::info($request);

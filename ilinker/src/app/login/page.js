@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { apiRequest } from "@/communicationManager/communicationManager";
 import {
   Card,
@@ -63,24 +64,30 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    signIn("google");
+  const handleGoogleLogin = async () => {
+    try {
+      console.log("Iniciando login con Google...");
+      const result = await signIn("google");
+      console.log("Resultado del login con Google:", result);
+    } catch (error) {
+      console.error("Error detallado del login con Google:", error);
+    }
   };
 
   const handleSendRecoveryCode = async (e) => {
     e.preventDefault();
     setApiError("");
-  
+
     const isValid = validateEmptyFields({
       email,
     });
-  
+
     if (isValid) {
       try {
         const response = await apiRequest("auth/sendRecoveryCode", "POST", {
           email,
         });
-  
+
         if (response.status === "success") {
           setFormState("code");
           setEmptyFields({});
@@ -94,23 +101,22 @@ export default function Login() {
       }
     }
   };
-  
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
     setApiError("");
-  
+
     const isValid = validateEmptyFields({
       code: verificationCode,
     });
-  
+
     if (isValid) {
       try {
         const response = await apiRequest("auth/verifyCode", "POST", {
           email,
           code: verificationCode,
         });
-  
+
         if (response.status === "success") {
           setFormState("newPassword");
           setEmptyFields({});
@@ -123,30 +129,29 @@ export default function Login() {
       }
     }
   };
-  
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setApiError("");
-  
+
     const isValid = validateEmptyFields({
       newPassword,
       confirmPassword,
     });
-  
+
     if (isValid) {
       if (newPassword !== confirmPassword) {
         setApiError("Las contraseñas no coinciden");
         return;
       }
-  
+
       try {
         const response = await apiRequest("auth/resetPassword", "POST", {
           email,
           code: verificationCode,
           password: newPassword,
         });
-  
+
         if (response.status === "success") {
           setFormState("login");
           setEmptyFields({});
@@ -159,7 +164,6 @@ export default function Login() {
       }
     }
   };
-  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
