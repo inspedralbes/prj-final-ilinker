@@ -8,10 +8,10 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       authorization: {
         params: {
-          prompt: "select_account",
+          scope: "openid email profile", 
+          prompt: "consent",
           access_type: "offline",
-          response_type: "code",
-          scope: "openid email profile"
+          response_type: "code"
         }
       }
     }),
@@ -20,53 +20,60 @@ export const authOptions = {
     async signIn({ user, account, profile }) {
       if (account.provider === "google") {
         try {
-          console.log("Attempting to authenticate with backend...");
-          
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/google`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "Accept": "application/json",
             },
             body: JSON.stringify({
+              id_token: account.id_token, // Envía el ID token de Google
+              access_token: account.access_token, // Añadir access token por si es necesario
               email: profile.email,
-              name: profile.name,
-              access_token: account.access_token,
+              name: profile.name
             }),
           });
 
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error del servidor:", errorData);
+            return false;
+          }
+
           const data = await response.json();
           
-          if (response.ok && data.status === 'success') {
+          // Añadir el token a la sesión
+          if (data.token) {
             account.access_token = data.token;
             return true;
           }
           
-          console.error("Backend authentication failed:", data);
           return false;
+          
         } catch (error) {
-          console.error("Authentication error:", error);
+          console.error("Error de red:", error);
           return false;
         }
       }
-      return true;
+      return false;
+    },
+    async session({ session, token }) {
+      // Pasar el token personalizado al cliente
+      session.accessToken = token.accessToken;
+      return session;
     },
     async jwt({ token, account }) {
-      if (account?.access_token) {
+      if (account) {
         token.accessToken = account.access_token;
       }
       return token;
-    },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      return session;
     },
   },
   pages: {
     signIn: '/login',
     error: '/login',
   },
-  debug: process.env.NODE_ENV === "development",
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development", // Activar debug en desarrollo
 };
 
 const handler = NextAuth(authOptions);
