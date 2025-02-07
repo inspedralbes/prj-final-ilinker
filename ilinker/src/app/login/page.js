@@ -51,8 +51,6 @@ export default function Login() {
         });
         console.log("login response", response);
 
-        console.log("login response", response);
-
         if (response.status === "success") {
           router.push("/");
         } else {
@@ -68,6 +66,11 @@ export default function Login() {
     try {
       console.log("Iniciando login con Google...");
       const result = await signIn("google");
+      if (result?.error) {
+        console.error("El usuario no esta logeado:", result.error);
+      } else {
+        console.log("El usuario ha logeado correctamente:", result);
+      }
       console.log("Resultado del login con Google:", result);
     } catch (error) {
       console.error("Error detallado del login con Google:", error);
