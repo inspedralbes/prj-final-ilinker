@@ -13,6 +13,7 @@ use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\ExperienceController;
 use \App\Http\Controllers\SkillController;
+use \App\Http\Controllers\ProjectController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -56,6 +57,12 @@ Route::prefix('/experience')->group(function () {
     Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
     Route::post('/update',[ExperienceController::class, 'update'])->name('update.experience');
     Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
+});
+
+Route::prefix('/projects')->group(function () {
+   Route::post('/create', [ProjectController::class, 'create'])->name('create.project');
+   Route::post('/update', [ProjectController::class, 'update'])->name('update.project');
+   Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
 });
 
 Route::prefix('/skill')->group(function () {
