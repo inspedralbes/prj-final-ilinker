@@ -19,17 +19,17 @@ class StudentService
         $students->user_id = $data['id'];
         $students->name = $data['name'];
         $students->surname = $data['surname'];
-        $students->type_document = $student['type_document'];
-        $students->id_document = $student['id_document'];
-        $students->nationality = $student['nationality'];
-        $students->photo_pic = $student['photo_pic'];
+        $students->type_document = $student['type_document'] ?? null;
+        $students->id_document = $student['id_document']  ?? null;
+        $students->nationality = $student['nationality']  ?? null;
+        $students->photo_pic = $student['photo_pic']  ?? null;
         $students->birthday = $data['birthday'];
-        $students->gender = $student['gender'];
-        $students->phone = $student['phone'];
-        $students->address = $student['address'];
-        $students->city = $student['city'];
-        $students->country = $student['country'];
-        $students->postal_code = $student['postal_code'];
+        $students->gender = $student['gender'] ?? null;
+        $students->phone = $student['phone'] ?? null;
+        $students->address = $student['address'] ?? null;
+        $students->city = $student['city'] ?? null;
+        $students->country = $student['country'] ?? null;
+        $students->postal_code = $student['postal_code'] ?? null;
         //$students->languages = $student['languages'];
         $students->languages = is_string($student['languages']) ? $student['languages'] : json_encode($student['languages'], JSON_UNESCAPED_UNICODE);
 

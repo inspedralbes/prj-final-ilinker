@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offer;
 use App\Models\Sector;
 use App\Models\Skill;
 use Illuminate\Http\Request;
@@ -39,6 +40,28 @@ class PagesController extends Controller
                 'message' => 'An error occurred while fetching data',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+
+    public function searchPractices()
+    {
+        try{
+            $latestOffers = Offer::with(['company'])
+                ->latest()
+                ->get();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Se han enviado las ofertas correctamente',
+                'data' => $latestOffers
+            ]);
+        }catch (\Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching data',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }

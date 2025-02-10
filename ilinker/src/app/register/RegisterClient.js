@@ -12,12 +12,13 @@ import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import * as comm from "@/communicationManager/communicationManager";
 import {apiRequest} from "@/communicationManager/communicationManager";
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
+import {useToast} from "@/hooks/use-toast";
 
 
 export default function RegisterClient({countries, sectors}) {
+    const {toast} = useToast();
     const router = useRouter();
-
     const stepSchemas = [
         // Step 1 validation schema
         yup.object({
@@ -56,13 +57,13 @@ export default function RegisterClient({countries, sectors}) {
             }),
             student: yup.object().when('rol', {
                 is: 'student',
-                then: ()=>yup.object({
+                then: () => yup.object({
                     type_document: yup.string().required("El tipo de documento es necesario."),
-                    id_document: null,
-                    nationality: "",
-                    gender: "",
-                    phone: null,
-                    languages: []
+                    id_document: yup.string().required('El ID del documento es necesario.'),
+                    country:  yup.string().required('El campo de pais es necesario.'),
+                    city: yup.string().required('La ciudad es un campo necesario.'),
+                    address: yup.string().required('La dirección es un campo necesario.'),
+                    phone: yup.number().required('El numero de telefono es un campo necesario.')
                 })
             })
         }),
@@ -90,6 +91,7 @@ export default function RegisterClient({countries, sectors}) {
     const animatedComponents = makeAnimated();
     const [totalSteps, setTotalSteps] = useState(2);
     const [step, setStep] = useState(1);
+    const [cities, setCities] = useState([]);
     const methods = useForm({
         resolver: yupResolver(stepSchemas[step - 1]),
         mode: "onChange",
@@ -104,9 +106,6 @@ export default function RegisterClient({countries, sectors}) {
             student: {
                 type_document: "",
                 id_document: null,
-                nationality: "",
-                photo_pic: "",
-                gender: "",
                 phone: null,
                 address: "",
                 city: "",
@@ -180,6 +179,9 @@ export default function RegisterClient({countries, sectors}) {
                 setTotalSteps(2); // Valor por defecto
         }
     }, [methods.watch('rol')]);
+    useEffect(() => {
+        console.log(cities)
+    }, [cities])
 
     const {getRootProps, getInputProps} = useDropzone({
         accept: 'image/*',
@@ -214,7 +216,7 @@ export default function RegisterClient({countries, sectors}) {
     const handleNext = () => {
         setStep(step + 1);
     };
-    const onSubmit = async(data) => {
+    const onSubmit = async (data) => {
         console.log("Datos del formulario:", data); // Enviar el formulario
 
         if (step < totalSteps) {
@@ -225,8 +227,7 @@ export default function RegisterClient({countries, sectors}) {
             const response = await apiRequest('auth/register', "POST", data);
             console.log(response)
 
-            if(response.status === 'success')
-            {
+            if (response.status === 'success') {
                 router.push("/");
                 toast({
                     title: "Se ha iniciado sesion correctamente",
@@ -336,92 +337,146 @@ export default function RegisterClient({countries, sectors}) {
     const renderStep2Estudiante = () => (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-darkGray mb-8">Información Académica</h2>
-            <div>
-                <label htmlFor="student_type_document" className="block text-sm font-medium text-darkGray mb-2">
-                    Tipo de Documento
-                </label>
-                <select
-                    id="student_type_document"
-                    {...methods.register("student.type_document")}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label htmlFor="student_type_document" className="block text-sm font-medium text-darkGray mb-2">
+                        Tipo de Documento
+                    </label>
+                    <select
+                        id="student_type_document"
+                        {...methods.register("student.type_document")}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+                    >
+                        <option value="DNI">DNI</option>
+                        <option value="NIE">NIE</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                    </select>
+                    <p className="text-sm text-red-600">{methods.formState.errors.student?.type_document?.message}</p>
+                </div>
+                <div>
+                    <label htmlFor="id_document" className="block text-sm font-medium text-darkGray mb-2">
+                        Documento
+                    </label>
+                    <input
+                        type="text"
+                        id="id_document"
+                        {...methods.register("student.id_document")}
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
+                    />
+                    <p className="text-sm text-red-600">{methods.formState.errors.student?.id_document?.message}</p>
+                </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                    <label htmlFor="student_country" className="block text-sm font-medium text-darkGray mb-2">
+                        Pais de residencia
+                    </label>
+                    <Select
+                        components={animatedComponents}
+                        options={countries}
+                        isSearchable
+                        placeholder="Busca y selecciona un país..."
+                        getOptionLabel={(option) => (
+                            <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+                                <img
+                                    src={option.flags.svg}
+                                    alt={option.name.common}
+                                    style={{width: "20px", height: "15px", borderRadius: "3px"}}
+                                />
+                                {option.name.common}
+                            </div>
+                        )}
+                        getOptionValue={(option) => option.cca3}
+                        filterOption={(candidate, input) => {
+                            const label = candidate.data.name.common.toLowerCase();
+                            const searchTerm = input.toLowerCase();
+                            return label.includes(searchTerm);
+                        }}
+                        onChange={(selectedOption) => {
+                            console.log("País seleccionado:", selectedOption);
+                            const option = selectedOption.name.common;
+                            methods.setValue('student.country', option);
 
-                >
-                    <option value="DNI">DNI</option>
-                    <option value="NIF">NIF</option>
-                    <option value="PASAPORTE">Pasaporte</option>
-                </select>
-                <p className="text-sm text-red-600">{methods.formState.errors.student?.type_document?.message}</p>
+                            async function fetchCountries() {
+                                const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({"country": selectedOption.name.common})
+                                });
+                                let data = null;
+                                data = await response.json();
+
+                                console.log(data)
+                                if (!data.error) {
+                                    const cityOptions = data.data.map(city => ({
+                                        label: city,
+                                        value: city
+                                    }));
+                                    setCities(cityOptions);
+                                }
+                            }
+
+                            fetchCountries();
+                        }}
+                    />
+                    <p className="text-sm text-red-600">{methods.formState.errors.student?.country?.message}</p>
+                </div>
+                <div>
+                    <label htmlFor="student_cities" className="block text-sm font-medium text-darkGray mb-2">
+                        Ciudad de residencia
+                    </label>
+                    <Select
+                        components={animatedComponents}
+                        options={cities}
+                        isSearchable
+                        placeholder="Busca tu ciudad..."
+                        onChange={(selectedOption) => {
+                            console.log("Ciudad seleccionado:", selectedOption);
+                            const option = selectedOption.label
+                            methods.setValue('student.city', option);
+                        }}
+                    />
+                    <p className="text-sm text-red-600">{methods.formState.errors.student?.city?.message}</p>
+                </div>
             </div>
             <div>
-                <label htmlFor="carrera" className="block text-sm font-medium text-darkGray mb-2">
-                    Carrera
+                <label htmlFor="student_address" className="block text-sm font-medium text-darkGray mb-2">
+                    Dirección
                 </label>
                 <input
                     type="text"
-                    id="carrera"
-                    {...methods.register("student.institution")}
+                    id="student_address"
+                    {...methods.register("student.address")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.student?.address?.message}</p>
             </div>
             <div>
-                <label htmlFor="universidad" className="block text-sm font-medium text-darkGray mb-2">
-                    Universidad
+                <label htmlFor="student_phone" className="block text-sm font-medium text-darkGray mb-2">
+                    Numero de telefono
                 </label>
                 <input
                     type="text"
-                    id="universidad"
-                    name="universidad"
-                    value={formData.universidad}
-                    onChange={handleInputChange}
+                    id="student_phone"
+                    {...methods.register("student.phone")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
                 />
+                <p className="text-sm text-red-600">{methods.formState.errors.student?.phone?.message}</p>
             </div>
-            <div>
-                <label htmlFor="semestre" className="block text-sm font-medium text-darkGray mb-2">
-                    Semestre Actual
-                </label>
-                <input
-                    type="text"
-                    id="semestre"
-                    name="semestre"
-                    value={formData.semestre}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    required
-                />
-            </div>
-            <div>
-                <label htmlFor="student_nacionality" className="block text-sm font-medium text-darkGray mb-2">
-                    Nacionalidad
-                </label>
-                <Select
-                    components={animatedComponents}
-                    options={countries}
-                    isSearchable
-                    placeholder="Busca y selecciona un país..."
-                    getOptionLabel={(option) => (
-                        <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
-                            <img
-                                src={option.flags.svg}
-                                alt={option.name.common}
-                                style={{width: "20px", height: "15px", borderRadius: "3px"}}
-                            />
-                            {option.name.common}
-                        </div>
-                    )}
-                    getOptionValue={(option) => option.cca3}
-                    filterOption={(candidate, input) => {
-                        const label = candidate.data.name.common.toLowerCase();
-                        const searchTerm = input.toLowerCase();
-                        return label.includes(searchTerm);
-                    }}
-                    onChange={(selectedOption) => {
-                        console.log("País seleccionado:", selectedOption)
-                        methods.setValue('student.nationality', selectedOption);
-                    }}
-                />
-            </div>
+            {/*<div>*/}
+            {/*    <label htmlFor="student_lenguages" className="block text-sm font-medium text-darkGray mb-2">*/}
+            {/*        Dirección*/}
+            {/*    </label>*/}
+            {/*    <input*/}
+            {/*        type="text"*/}
+            {/*        id="student_lenguages"*/}
+            {/*        {...methods.register("student.address")}*/}
+            {/*        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"*/}
+            {/*    />*/}
+            {/*    <p className="text-sm text-red-600">{methods.formState.errors.student?.address?.message}</p>*/}
+            {/*</div>*/}
         </div>
     );
 

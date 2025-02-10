@@ -60,4 +60,5 @@ Route::prefix('/skills')->group(function () {
 
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
+   Route::get('/search', [PagesController::class, 'searchPractices']);
 });
