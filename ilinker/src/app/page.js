@@ -18,6 +18,7 @@ import {
   Users2Icon,
   CalendarDaysIcon
 } from "lucide-react"
+import Cookies from "js-cookie";
 
 // Mock data for internships
 const mockInternships = [
@@ -48,7 +49,8 @@ const mockInternships = [
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("")
-
+  // console.log(Cookies.get('authToken'))
+  // console.log(Cookies.get('userData'))
   return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

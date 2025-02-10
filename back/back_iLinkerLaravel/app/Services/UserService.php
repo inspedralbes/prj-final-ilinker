@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 
@@ -44,6 +45,10 @@ class UserService
         $user->save();
 
         // Generar un token para el usuario
+        if(Auth::attempt(['email'=>$newUser['email'], 'password'=>$newUser['password']])){
+            $user = Auth::user();
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return [
@@ -114,7 +119,7 @@ class UserService
         }
     }
 
-    public function checkIFUserExists($userData)
+    public function checkIfUserExists($userData)
     {
         return User::where('email', '=', $userData['email'])->exists();
 

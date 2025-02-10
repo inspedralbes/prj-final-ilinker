@@ -1,10 +1,11 @@
 "use client";
 import Image from "next/image";
-import { useState } from "react";
+import {useContext, useState} from "react";
 import { useRouter } from "next/navigation";
 import {apiRequest} from "@/communicationManager/communicationManager";
 import { useToast } from "@/hooks/use-toast";
 import Cookies from "js-cookie";
+import {AuthContext} from "@/contexts/AuthContext";
 
 export default function Login() {
   const { toast } = useToast();
@@ -16,6 +17,7 @@ export default function Login() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // Estado para el mensaje de error
+  const {login} = useContext(AuthContext);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,8 +28,9 @@ export default function Login() {
       console.log("Respuesta del servidor:", data);
       if (response.status === "success" ) {
         router.push("/");
-        Cookies.set("authToken", data.token, { expires: 7, secure: true, sameSite: "Strict" });
-        Cookies.set("userData", JSON.stringify(data.user), { expires: 7, secure: true, sameSite: "Strict" });
+
+        login(data.token, JSON.stringify(data.user));
+
         toast({
           title: "Se ha iniciado sesion correctamente",
           description: "Las credenciales son correctas.",

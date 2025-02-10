@@ -7,10 +7,8 @@ export default async function SearchPage() {
     if(response.status === 'success')
     {
         console.log("cargado correctamente")
-        console.log(response)
     }else{
         console.log("no cargo bien")
-        console.log(response)
     }
 
     return <SearchClient latestOffers={response.data} />;

@@ -60,7 +60,7 @@ class AuthController extends Controller
         Log::info($validated);
 
         // Verificar si el usuario ya existe
-        $check = $this->userService->checkIFUserExists($validated);
+        $check = $this->userService->checkIfUserExists($validated);
         if ($check) {
             return response()->json(['status' => 'warning', "message" => "El usuario ya existe en la base de datos."]);
         }
@@ -79,6 +79,7 @@ class AuthController extends Controller
                     throw new \Exception('Error al crear la empresa.');
                 }
                 DB::commit();
+
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
             }
 

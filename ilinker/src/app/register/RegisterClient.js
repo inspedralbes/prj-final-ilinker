@@ -14,6 +14,7 @@ import * as comm from "@/communicationManager/communicationManager";
 import {apiRequest} from "@/communicationManager/communicationManager";
 import {useRouter} from "next/navigation";
 import {useToast} from "@/hooks/use-toast";
+import Cookies from "js-cookie";
 
 
 export default function RegisterClient({countries, sectors}) {
@@ -229,6 +230,8 @@ export default function RegisterClient({countries, sectors}) {
 
             if (response.status === 'success') {
                 router.push("/");
+                Cookies.set("authToken", response.token, { expires: 7, secure: true, sameSite: "Strict" });
+                Cookies.set("userData", JSON.stringify(response.user), { expires: 7, secure: true, sameSite: "Strict" });
                 toast({
                     title: "Se ha iniciado sesion correctamente",
                     description: "Las credenciales son correctas.",

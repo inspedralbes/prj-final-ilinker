@@ -119,13 +119,9 @@ export default function SearchClient({latestOffers}) {
                 <Separator/>
 
                 <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">About Tech Company Inc.</h3>
+                    <h3 className="text-lg font-semibold">About {selectedInfoJob.company.name}</h3>
                     <p className="text-muted-foreground">
-                        Tech Company Inc. is a leading technology company focused on building innovative solutions that
-                        help
-                        businesses grow. Our mission is to empower organizations with cutting-edge tools and
-                        technologies
-                        that drive success in the digital age.
+                        {selectedInfoJob.company.short_description}
                     </p>
                 </div>
             </div>
