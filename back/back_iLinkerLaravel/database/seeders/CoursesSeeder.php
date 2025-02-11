@@ -13,12 +13,12 @@ class CoursesSeeder extends Seeder
      */
     public function run(): void
     {
-        $ruta_json = '../resources/courses.json';
+        $ruta_json = './resources/json/courses.json';
         if (file_exists($ruta_json)) {
             $json = file_get_contents($ruta_json);
             $courses = json_decode($json, true);
             foreach ($courses as $course) {
-                Courses::created([
+                Courses::create([
                     'id_parent' => $course['id_parent'],
                     'name' => $course['name'],
                     'created_at' => now(),

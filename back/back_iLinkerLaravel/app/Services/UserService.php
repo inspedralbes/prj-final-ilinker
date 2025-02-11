@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use DateTime;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 
@@ -26,10 +27,14 @@ class UserService
 
         if (!empty($newUser['birthday'])) {
             $fecha = DateTime::createFromFormat('d/m/Y', $newUser['birthday']);
+
+            if (!$fecha) {
+                $fecha = DateTime::createFromFormat('Y-m-d', $newUser['birthday']);
+            }
+
             if ($fecha) {
                 $user->birthday = $fecha->format('Y-m-d'); // Convertir al formato SQL
             } else {
-                // Manejar error de formato
                 throw new Exception("Formato de fecha inválido: " . $newUser['birthday']);
             }
         }
@@ -41,6 +46,7 @@ class UserService
 
         // Generar un token para el usuario
         $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
         return [
             'user' => $user ,
