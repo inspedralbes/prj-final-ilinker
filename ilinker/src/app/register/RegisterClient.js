@@ -17,6 +17,8 @@ import {useToast} from "@/hooks/use-toast";
 import Cookies from "js-cookie";
 
 
+
+
 export default function RegisterClient({countries, sectors}) {
     const {toast} = useToast();
     const router = useRouter();

@@ -18,7 +18,7 @@ class CoursesSeeder extends Seeder
             $json = file_get_contents($ruta_json);
             $courses = json_decode($json, true);
             foreach ($courses as $course) {
-                Courses::created([
+                Courses::create([
                     'id_parent' => $course['id_parent'],
                     'name' => $course['name'],
                     'created_at' => now(),

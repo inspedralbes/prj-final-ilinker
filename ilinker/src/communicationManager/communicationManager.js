@@ -22,7 +22,10 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
         if (body) {
             options.body = JSON.stringify(body);
         }
-
+           
+        console.log("URL de la solicitud:", `${routeApi}/${endpoint}`);
+        console.log("Opciones de la solicitud:", options);
+        
         const response = await fetch(routeApi + endpoint, options);
 
         if (!response.ok) {
