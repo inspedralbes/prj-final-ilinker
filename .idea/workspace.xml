@@ -6,7 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +38,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "dev-jheremy",
+    "git-widget-placeholder": "create-events-in-page-search-company",
     "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

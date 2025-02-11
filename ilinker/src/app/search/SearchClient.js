@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useState} from 'react';
+import {useContext, useEffect, useState} from 'react';
 import {
     Search,
     MapPin,
@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { formatDistanceToNow } from 'date-fns';
 import SearchHeader from "@/components/searchHeader";
+import {AuthContext} from "@/contexts/AuthContext";
 
 export default function SearchClient({latestOffers}) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -43,6 +44,7 @@ export default function SearchClient({latestOffers}) {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
     const [selectedInfoJob, setSelectedInfoJob] = useState(null);
+    const {loggedIn, userData} = useContext(AuthContext);
 
     const JobDetails = () => {
         return selectedInfoJob !== null ? (
