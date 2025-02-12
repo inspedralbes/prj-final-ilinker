@@ -1,10 +1,10 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {ModeToggle} from "@/components/mode-toggle"
+import {BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon, Building2Icon, User, LandmarkIcon} from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import {usePathname} from "next/navigation"
 import Image from "next/image"
 import {AuthContext} from "@/contexts/AuthContext";
 import {useContext, useEffect, useRef, useState} from "react";
@@ -14,29 +14,55 @@ export default function HeaderDefault() {
     const {loggedIn, userData, logout} = useContext(AuthContext);
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header
+            className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
                 <div className="mr-4 flex">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
+                        <Image src="/images/logo.svg" alt="logo" width={35} height={35}/>
                         <span className="font-bold">iLinker</span>
                     </Link>
                 </div>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <nav className="flex items-center space-x-6">
-                        <Link href="/feed" className={pathname === "/feed" ? "text-foreground" : "text-muted-foreground"}>
-                            <SearchIcon className="h-5 w-5" />
-                        </Link>
-                        <Link href="/messages" className={pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}>
-                            <MessageCircleIcon className="h-5 w-5" />
-                        </Link>
-                        <Link href="/notifications" className={pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}>
-                            <BellIcon className="h-5 w-5" />
-                        </Link>
+                        {loggedIn ? (
+                            <>
+                                <Link href="/feed"
+                                      className={pathname === "/feed" ? "text-foreground" : "text-muted-foreground"}>
+                                    <SearchIcon className="h-5 w-5"/>
+                                </Link>
+                                <Link href="/messages"
+                                      className={pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}>
+                                    <MessageCircleIcon className="h-5 w-5"/>
+                                </Link>
+                                <Link href="/notifications"
+                                      className={pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}>
+                                    <BellIcon className="h-5 w-5"/>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/search"
+                                      className={`flex flex-col items-center ${pathname === "/feed" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-4 w-4"/>
+                                    <span className="text-[12px]">Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                      className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-4 w-4"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                      className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-4 w-4"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                            </>
+                        )}
                     </nav>
                     <div className="flex items-center space-x-2">
                         {loggedIn ? (
-                            <ProfileDropdown userData={userData} logout={logout} />
+                            <ProfileDropdown userData={userData} logout={logout}/>
                         ) : (
                             <>
                                 <Button variant="outline" asChild>
@@ -47,7 +73,7 @@ export default function HeaderDefault() {
                                 </Button>
                             </>
                         )}
-                        <ModeToggle />
+                        <ModeToggle/>
                     </div>
                 </div>
             </div>
@@ -57,7 +83,7 @@ export default function HeaderDefault() {
 }
 
 // Componente para el menú desplegable del perfil
-function ProfileDropdown({ userData, logout }) {
+function ProfileDropdown({userData, logout}) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -187,7 +213,7 @@ function ProfileDropdown({ userData, logout }) {
                             <p className="font-medium">Help</p>
                         </Link>
                     </li>
-                    <hr className="my-2 border-slate-200" role="separator" />
+                    <hr className="my-2 border-slate-200" role="separator"/>
                     {/* Opción "Sign Out" */}
                     <li
                         role="menuitem"
