@@ -31,7 +31,7 @@ class CambiarContraseñaController extends Controller
         // Enviar email
         Mail::to($request->email)->send (new SendPasswordResetCode($code));
 
-        return response()->json(['message' => 'Código enviat correctament']);
+        return response()->json(['status' => 'success', 'message' => 'Codi enviat correctament']);
     }
 
     public function verifyCode(Request $request)
@@ -47,10 +47,10 @@ class CambiarContraseñaController extends Controller
             ->first();
 
             if(!$RestablecerContraseña){
-                return response()->json(['message' => 'Codi invalid o caducat'], 400);
+                return response()->json(['status' => 'error', 'message' => 'Codi invàlid o caducat'], 400);
             }
 
-            return response()->json(['message'=>'Codi valid']);
+            return response()->json(['status' => 'success', 'message' => 'Codi correcte']);
     }
 
     public function resetPassword(Request $request){
@@ -67,14 +67,14 @@ class CambiarContraseñaController extends Controller
             ->first();
 
               if(!$passwordReset){
-                return response()->json(['message' => 'Codi invalid o caducat'], 400);
+                return response()->json(['status' => 'error', 'message' => 'Codi invàlid o caducat'], 400);
             }
 
             $user = User::where('email',$request->email)->first();
             $user->password = bcrypt($request->password);
             $user->save();
 
-            return response()->json(['message'=>'Contrasenya actualitzada correctament']);
+            return response()->json(['status' => 'success', 'message' => 'Contrasenya restablerta correctament']);
 
     }
 }

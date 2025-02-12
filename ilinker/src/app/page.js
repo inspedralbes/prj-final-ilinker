@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {useContext, useEffect, useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar } from "@/components/ui/avatar"
@@ -18,6 +18,9 @@ import {
   Users2Icon,
   CalendarDaysIcon
 } from "lucide-react"
+import Cookies from "js-cookie";
+import { useSession } from "next-auth/react";
+import {AuthContext} from "@/contexts/AuthContext";
 
 // Mock data for internships
 const mockInternships = [
@@ -47,8 +50,11 @@ const mockInternships = [
 ]
 
 export default function Home() {
-  const [searchTerm, setSearchTerm] = useState("")
+ 
 
+  const [searchTerm, setSearchTerm] = useState("")
+  // console.log(Cookies.get('authToken'))
+  // console.log(Cookies.get('userData'))
   return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

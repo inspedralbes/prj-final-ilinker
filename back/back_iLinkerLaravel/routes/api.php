@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\CompanyController;
-use App\Http\Controllers\PagesController;
-use App\Http\Controllers\SkillsController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OfferController;
 use \App\Http\Controllers\UserController;
+use App\Http\Controllers\PagesController;
+use \App\Http\Controllers\SkillController;
+use App\Http\Controllers\SkillsController;
+use App\Http\Controllers\CompanyController;
+use \App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
-use \App\Http\Controllers\ExperienceController;
-use \App\Http\Controllers\SkillController;
-use \App\Http\Controllers\ProjectController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,6 +29,8 @@ Route::prefix('/auth')->group(function () {
     Route::post('/verifyCode', [CambiarContraseñaController::class, 'verifyCode']);
     Route::post('/resetPassword', [CambiarContraseñaController::class, 'resetPassword']);
 });
+Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
+
 
 Route::prefix('/users')->group(function () {
     Route::post('/update', [UserController::class, 'update'])->name('user.update');
@@ -83,4 +86,5 @@ Route::prefix('/skills')->group(function () {
 
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
+   Route::get('/search', [PagesController::class, 'searchPractices']);
 });
