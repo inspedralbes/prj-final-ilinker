@@ -4,6 +4,7 @@ import {useCallback, useContext, useState} from "react";
 import { redirect, useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { apiRequest } from "@/communicationManager/communicationManager";
+import { Eye, EyeOff } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -27,6 +28,10 @@ export default function Login() {
   const [emptyFields, setEmptyFields] = useState({});
   const [apiError, setApiError] = useState("");
   const {login} = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const validateEmptyFields = (fields) => {
     const empty = {};
     Object.keys(fields).forEach((field) => {
@@ -54,7 +59,7 @@ export default function Login() {
 
         if (response.status === "success") {
           router.push("/");
-          login(response.user, response.token)
+          login(response.user, response.token);
         } else {
           setApiError("Correu electrònic o contrasenya incorrectes");
         }
@@ -171,8 +176,8 @@ export default function Login() {
   };
 
   return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
-        <Card className="w-full max-w-md">
+      <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+        <Card className="w-full max-w-md bg-white shadow-lg">
           <CardHeader className="space-y-2">
             <div className="flex justify-center">
               <Image
@@ -214,39 +219,57 @@ export default function Login() {
 
                   <div className="space-y-2">
                     <Label htmlFor="password">Contraseña</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => {
-                          setPassword(e.target.value);
-                          if (e.target.value.trim()) {
-                            setEmptyFields((prev) => ({
-                              ...prev,
-                              password: undefined,
-                            }));
-                          }
-                        }}
-                        placeholder="Introduce tu contraseña"
-                        className={emptyFields.password ? "border-red-500" : ""}
-                    />
+                    <div className="relative">
+                      <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={password}
+                          onChange={(e) => {
+                            setPassword(e.target.value);
+                            if (e.target.value.trim()) {
+                              setEmptyFields((prev) => ({
+                                ...prev,
+                                password: undefined,
+                              }));
+                            }
+                          }}
+                          placeholder="Introduce tu contraseña"
+                          className={emptyFields.password ? "border-red-500" : ""}
+                      />
+                      <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 -translate-y-1/2"
+                          onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                        ) : (
+                            <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+
                     {emptyFields.password && (
                         <p className="text-red-500 text-sm">{emptyFields.password}</p>
                     )}
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                     Iniciar sesión
                   </Button>
 
-                  <br></br>
-                  <p>─────────────── O ────────────────</p>
+                  <div className="my-6">
+                    <p className="text-center text-gray-500">─────────────── O ────────────────</p>
+                  </div>
 
                   {/* Login with Google */}
                   <div className="flex items-center justify-center">
                     <Button
+                        type="button"
                         variant="outline"
-                        className="w-full flex items-center justify-center space-x-2 transition-all duration-200 hover:bg-gray-50"
+                        className="w-full flex items-center justify-center space-x-2 transition-all duration-200 hover:bg-gray-50 border-gray-300"
                         onClick={handleGoogleLogin}
                     >
                       <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -275,7 +298,7 @@ export default function Login() {
 
             {formState === "email" && (
                 <form onSubmit={handleSendRecoveryCode} className="space-y-6">
-                  <h2 className="text-xl font-semibold text-center">
+                  <h2 className="text-xl font-semibold text-center text-gray-800">
                     Recuperar contraseña
                   </h2>
                   <div className="space-y-2">
@@ -297,7 +320,7 @@ export default function Login() {
                         <p className="text-red-500 text-sm">{emptyFields.email}</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                     Enviar código
                   </Button>
                 </form>
@@ -305,7 +328,7 @@ export default function Login() {
 
             {formState === "code" && (
                 <form onSubmit={handleVerifyCode} className="space-y-6">
-                  <h2 className="text-xl font-semibold text-center">
+                  <h2 className="text-xl font-semibold text-center text-gray-800">
                     Verificar código
                   </h2>
                   <div className="space-y-2">
@@ -328,7 +351,7 @@ export default function Login() {
                         <p className="text-red-500 text-sm">{emptyFields.code}</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                     Verificar código
                   </Button>
                 </form>
@@ -336,60 +359,86 @@ export default function Login() {
 
             {formState === "newPassword" && (
                 <form onSubmit={handleResetPassword} className="space-y-6">
-                  <h2 className="text-xl font-semibold text-center">
+                  <h2 className="text-xl font-semibold text-center text-gray-800">
                     Nueva contraseña
                   </h2>
                   <div className="space-y-2">
                     <Label htmlFor="new-password">Nueva contraseña</Label>
-                    <Input
-                        id="new-password"
-                        type="password"
-                        value={newPassword}
-                        onChange={(e) => {
-                          setNewPassword(e.target.value);
-                          if (e.target.value.trim()) {
-                            setEmptyFields((prev) => ({
-                              ...prev,
-                              newPassword: undefined,
-                            }));
-                          }
-                        }}
-                        placeholder="Nueva contraseña"
-                        className={emptyFields.newPassword ? "border-red-500" : ""}
-                    />
+                    <div className="relative">
+                      <Input
+                          id="new-password"
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => {
+                            setNewPassword(e.target.value);
+                            if (e.target.value.trim()) {
+                              setEmptyFields((prev) => ({
+                                ...prev,
+                                newPassword: undefined,
+                              }));
+                            }
+                          }}
+                          placeholder="Nueva contraseña"
+                          className={emptyFields.newPassword ? "border-red-500" : ""}
+                      />
+                      <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 -translate-y-1/2"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                      >
+                        {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                        ) : (
+                            <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                     {emptyFields.newPassword && (
-                        <p className="text-red-500 text-sm">
-                          {emptyFields.newPassword}
-                        </p>
+                        <p className="text-red-500 text-sm">{emptyFields.newPassword}</p>
                     )}
                   </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirmar contraseña</Label>
-                    <Input
-                        id="confirm-password"
-                        type="password"
-                        value={confirmPassword}
-                        onChange={(e) => {
-                          setConfirmPassword(e.target.value);
-                          if (e.target.value.trim()) {
-                            setEmptyFields((prev) => ({
-                              ...prev,
-                              confirmPassword: undefined,
-                            }));
-                          }
-                        }}
-                        placeholder="Confirmar contraseña"
-                        className={
-                          emptyFields.confirmPassword ? "border-red-500" : ""
-                        }
-                    />
+                    <div className="relative">
+                      <Input
+                          id="confirm-password"
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => {
+                            setConfirmPassword(e.target.value);
+                            if (e.target.value.trim()) {
+                              setEmptyFields((prev) => ({
+                                ...prev,
+                                confirmPassword: undefined,
+                              }));
+                            }
+                          }}
+                          placeholder="Confirmar contraseña"
+                          className={emptyFields.confirmPassword ? "border-red-500" : ""}
+                      />
+                      <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 -translate-y-1/2"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                        ) : (
+                            <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                     {emptyFields.confirmPassword && (
-                        <p className="text-red-500 text-sm">
-                          {emptyFields.confirmPassword}
-                        </p>
+                        <p className="text-red-500 text-sm">{emptyFields.confirmPassword}</p>
                     )}
                   </div>
-                  <Button type="submit" className="w-full">
+
+                  <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                     Actualizar contraseña
                   </Button>
                 </form>
@@ -402,16 +451,16 @@ export default function Login() {
                   <Button
                       variant="ghost"
                       onClick={() => setFormState("email")}
-                      className="text-sm"
+                      className="text-sm text-gray-600 hover:text-gray-800"
                   >
                     ¿Has olvidado la contraseña?
                   </Button>
-                  <div className="text-sm text-center">
+                  <div className="text-sm text-center text-gray-600">
                     ¿Nuevo en Ilinker?{" "}
                     <Button
                         variant="link"
                         onClick={() => router.push("/register")}
-                        className="text-black-400"
+                        className="text-black-400 hover:text-gray-800"
                     >
                       Registrarse
                     </Button>
@@ -426,7 +475,7 @@ export default function Login() {
                       setApiError("");
                       setEmptyFields({});
                     }}
-                    className="text-sm"
+                    className="text-sm text-gray-600 hover:text-gray-800"
                 >
                   Volver al login
                 </Button>

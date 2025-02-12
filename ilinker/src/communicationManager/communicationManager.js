@@ -1,6 +1,6 @@
 import Cookies from "js-cookie";
 
-const routeApi = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/";
+const routeApi = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/").replace(/\/+$/, "") + "/";
 
 export async function apiRequest(endpoint, method = "GET", body = null) {
     try {
@@ -15,41 +15,53 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
             method,
             headers: {
                 "Content-Type": "application/json",
+                "Accept": "application/json",
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
+            credentials: "include",
         };
 
         if (body) {
             options.body = JSON.stringify(body);
         }
-           
-        console.log("URL de la solicitud:", `${routeApi}/${endpoint}`);
-        console.log("Opciones de la solicitud:", options);
-        
-        const response = await fetch(routeApi + endpoint, options);
 
+        const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
+        const url = `${routeApi}${cleanEndpoint}`;
+
+        console.log("URL de la solicitud:", url);
+        console.log("Opciones de la solicitud:", options);
+
+        const response = await fetch(url, options);
+
+        // if (!response.ok) {
+        //     throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
+        // }
         if (!response.ok) {
-            throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
         console.error(`Error en la petición a ${endpoint}:`, error.message);
-        return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
+        throw error;
+        // return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
     }
 }
 
-export async function login(){
+export async function login() {
     try {
-        const response = await fetch(routeApi + 'login');
-        if (!response.ok) {
-            throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
-        }
-        const data = await response.json();
-        return data;
+        // Use the apiRequest function for consistency
+        // return await apiRequest('login');
+        await fetch(`${routeApi.replace('/api/', '')}/sanctum/csrf-cookie`, {
+            credentials: 'include'
+        });
+
+        return await apiRequest('auth/login', 'POST', credentials);
+
     } catch (error) {
-        console.error('Error al obtener los países:', error);
-        return { error: error.message }; // Devolvemos un objeto con el error para manejarlo donde se llame esta función
+        console.error('Error al realizar login:', error);
+        return { error: error.message };
     }
 }
 
