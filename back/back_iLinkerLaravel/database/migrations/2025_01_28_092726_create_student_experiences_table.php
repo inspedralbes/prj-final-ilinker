@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('department')->nullable();
             $table->string('employee_type')->nullable();
 
-            $table->string('company_addreess')->nullable();
+            $table->string('company_address')->nullable();
             $table->enum('location_type', ['hibrido', 'remoto', 'presencial'])->nullable();
             $table->timestamps();
         });

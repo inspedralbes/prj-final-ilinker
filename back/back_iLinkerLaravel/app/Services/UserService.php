@@ -50,6 +50,7 @@ class UserService
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;
+        Auth::login($user);
 
         return [
             'user' => $user ,
