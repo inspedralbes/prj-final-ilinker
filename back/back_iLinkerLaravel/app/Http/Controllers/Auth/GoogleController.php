@@ -48,7 +48,7 @@ class GoogleController extends Controller
                 ]);
             }
 
-            $token = $user->createToken('google-auth')->plainTextToken;
+            $token = $user->createToken('auth_token')->plainTextToken;
 
             Log::info('Google login successful', ['email' => $email]);
 

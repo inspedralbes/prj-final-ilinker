@@ -40,7 +40,7 @@ export const authOptions = {
           }
 
           const data = await response.json();
-          
+
           // Añadir el token a la sesión
           if (data.token) {
             account.access_token = data.token;
@@ -59,7 +59,7 @@ export const authOptions = {
     async session({ session, token }) {
       // Pasar el token personalizado al cliente
       session.accessToken = token.accessToken;
-      return session;
+      return true;
     },
     async jwt({ token, account }) {
       if (account) {
@@ -69,8 +69,8 @@ export const authOptions = {
     },
   },
   pages: {
-    signIn: '/login',
-    error: '/login',
+    signIn: '/',
+    error: '/',
   },
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development", // Activar debug en desarrollo

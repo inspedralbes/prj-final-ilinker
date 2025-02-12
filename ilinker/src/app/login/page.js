@@ -72,7 +72,9 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     try {
       console.log("Iniciando login con Google...");
-      const result = await signIn("google");
+      const result = await signIn("google", {callbackUrl: "/", redirect: false });
+      console.log("Resultado de signIn:", result);
+
       if (result?.error) {
         console.error("El usuario no esta logeado:", result.error);
       } else {
