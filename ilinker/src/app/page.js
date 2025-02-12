@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import {useContext, useEffect, useState} from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Avatar } from "@/components/ui/avatar"
@@ -19,6 +19,8 @@ import {
   CalendarDaysIcon
 } from "lucide-react"
 import Cookies from "js-cookie";
+import { useSession } from "next-auth/react";
+import {AuthContext} from "@/contexts/AuthContext";
 
 // Mock data for internships
 const mockInternships = [
@@ -48,6 +50,8 @@ const mockInternships = [
 ]
 
 export default function Home() {
+ 
+
   const [searchTerm, setSearchTerm] = useState("")
   // console.log(Cookies.get('authToken'))
   // console.log(Cookies.get('userData'))

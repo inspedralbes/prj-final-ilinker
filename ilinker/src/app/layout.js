@@ -30,12 +30,5 @@ export default function RootLayout({children}) {
         </AuthProvider>
         </body>
         </html>
-        // <html lang="en">
-        //   <body
-        //     className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        //   >
-        //     {children}
-        //   </body>
-        // </html>
     );
 }

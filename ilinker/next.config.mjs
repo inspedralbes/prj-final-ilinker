@@ -3,7 +3,9 @@ const nextConfig = {reactStrictMode: true,
     images: {
         unoptimized: true,
     },
-    output: 'export',
+    // esto Esta comentado para que funciona el login de google pero si descomentas OUTPUT va salir error y no va funcionar el login de google
+    
+    // output: 'export',
 };
 
 export default nextConfig;
