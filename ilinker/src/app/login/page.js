@@ -31,7 +31,6 @@ export default function Login() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-
   const validateEmptyFields = (fields) => {
     const empty = {};
     Object.keys(fields).forEach((field) => {
@@ -175,8 +174,8 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
+      <Card className="w-full max-w-md bg-white shadow-lg">
         <CardHeader className="space-y-2">
           <div className="flex justify-center">
             <Image
@@ -255,13 +254,12 @@ export default function Login() {
                 )}
               </div>
 
-
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                 Iniciar sesión
               </Button>
 
               <div className="my-6">
-                <p className="text-center">─────────────── O ────────────────</p>
+                <p className="text-center text-gray-500">─────────────── O ────────────────</p>
               </div>
 
               {/* Login with Google */}
@@ -269,7 +267,7 @@ export default function Login() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="w-full flex items-center justify-center space-x-2 transition-all duration-200 hover:bg-gray-50"
+                  className="w-full flex items-center justify-center space-x-2 transition-all duration-200 hover:bg-gray-50 border-gray-300"
                   onClick={handleGoogleLogin}
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24">
@@ -298,7 +296,7 @@ export default function Login() {
 
           {formState === "email" && (
             <form onSubmit={handleSendRecoveryCode} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
+              <h2 className="text-xl font-semibold text-center text-gray-800">
                 Recuperar contraseña
               </h2>
               <div className="space-y-2">
@@ -320,7 +318,7 @@ export default function Login() {
                   <p className="text-red-500 text-sm">{emptyFields.email}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                 Enviar código
               </Button>
             </form>
@@ -328,7 +326,7 @@ export default function Login() {
 
           {formState === "code" && (
             <form onSubmit={handleVerifyCode} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
+              <h2 className="text-xl font-semibold text-center text-gray-800">
                 Verificar código
               </h2>
               <div className="space-y-2">
@@ -351,7 +349,7 @@ export default function Login() {
                   <p className="text-red-500 text-sm">{emptyFields.code}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
                 Verificar código
               </Button>
             </form>
@@ -359,7 +357,7 @@ export default function Login() {
 
           {formState === "newPassword" && (
             <form onSubmit={handleResetPassword} className="space-y-6">
-              <h2 className="text-xl font-semibold text-center">
+              <h2 className="text-xl font-semibold text-center text-gray-800">
                 Nueva contraseña
               </h2>
               <div className="space-y-2">
@@ -400,47 +398,47 @@ export default function Login() {
                 )}
               </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="confirm-password">Confirmar contraseña</Label>
-                  <div className="relative">
-                    <Input
-                      id="confirm-password"
-                      type={showConfirmPassword ? "text" : "password"}
-                      value={confirmPassword}
-                      onChange={(e) => {
-                        setConfirmPassword(e.target.value);
-                        if (e.target.value.trim()) {
-                          setEmptyFields((prev) => ({
-                            ...prev,
-                            confirmPassword: undefined,
-                          }));
-                        }
-                      }}
-                      placeholder="Confirmar contraseña"
-                      className={emptyFields.confirmPassword ? "border-red-500" : ""}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    >
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {emptyFields.confirmPassword && (
-                    <p className="text-red-500 text-sm">{emptyFields.confirmPassword}</p>
-                  )}
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirmar contraseña</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                      if (e.target.value.trim()) {
+                        setEmptyFields((prev) => ({
+                          ...prev,
+                          confirmPassword: undefined,
+                        }));
+                      }
+                    }}
+                    placeholder="Confirmar contraseña"
+                    className={emptyFields.confirmPassword ? "border-red-500" : ""}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
-                
-                <Button type="submit" className="w-full">
-                  Actualizar contraseña
-                </Button>
+                {emptyFields.confirmPassword && (
+                  <p className="text-red-500 text-sm">{emptyFields.confirmPassword}</p>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full bg-black text-white hover:bg-gray-800">
+                Actualizar contraseña
+              </Button>
             </form>
           )}
         </CardContent>
@@ -451,16 +449,16 @@ export default function Login() {
               <Button
                 variant="ghost"
                 onClick={() => setFormState("email")}
-                className="text-sm"
+                className="text-sm text-gray-600 hover:text-gray-800"
               >
                 ¿Has olvidado la contraseña?
               </Button>
-              <div className="text-sm text-center">
+              <div className="text-sm text-center text-gray-600">
                 ¿Nuevo en Ilinker?{" "}
                 <Button
                   variant="link"
                   onClick={() => router.push("/register")}
-                  className="text-black-400"
+                  className="text-black-400 hover:text-gray-800"
                 >
                   Registrarse
                 </Button>
@@ -475,7 +473,7 @@ export default function Login() {
                 setApiError("");
                 setEmptyFields({});
               }}
-              className="text-sm"
+              className="text-sm text-gray-600 hover:text-gray-800"
             >
               Volver al login
             </Button>
