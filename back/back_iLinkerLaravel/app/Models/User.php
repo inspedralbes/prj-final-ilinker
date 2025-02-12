@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 
 class User extends Authenticatable
 {
@@ -80,5 +81,10 @@ class User extends Authenticatable
     public function skills()
     {
         return $this->belongsToMany(Skill::class, 'student_skills', 'student_id', 'skill_id');
+    }
+
+    public function projects()
+    {
+        return $this->HasMany(UserProject::class, 'user_id');
     }
 }
