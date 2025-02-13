@@ -29,7 +29,7 @@ import {
     Link
 } from 'lucide-react';
 
-export default function CompanyClientMe() {
+export default function CompanyClientMe({company}) {
     const [isEditing, setIsEditing] = useState(null);
     const [logoImage, setLogoImage] = useState("https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80");
     const [coverImage, setCoverImage] = useState("https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80");
@@ -151,7 +151,7 @@ export default function CompanyClientMe() {
             {/* Cover Photo */}
             <div className="relative h-80 bg-gray-300">
                 <img
-                    src={coverImage}
+                    src={company?.cover_photo || coverImage}
                     alt="Cover"
                     className="w-full h-full object-cover"
                 />
@@ -175,8 +175,8 @@ export default function CompanyClientMe() {
                                 <div className="relative flex-shrink-0">
                                     <img
                                         className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                                        src={logoImage}
-                                        alt={institute.basic.name}
+                                        src={company?.logo || logoImage}
+                                        alt={company?.logo}
                                     />
                                     <label className="absolute bottom-2 right-2 cursor-pointer">
                                         <input
@@ -221,11 +221,13 @@ export default function CompanyClientMe() {
                                         </div>
                                     ) : (
                                         <div>
-                                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{institute.basic.name}</h1>
-                                            <p className="text-lg text-gray-600">{institute.basic.slogan}</p>
+                                            <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{company?.name || "No tenemos este dato"}</h1>
+                                            <p className={`text-lg text-gray-600 ${!company?.slogan ? 'hidden' : ''}`}>
+                                                {company?.slogan}
+                                            </p>
                                             <p className="text-gray-500 flex items-center mt-2">
                                                 <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                                                {institute.basic.location}
+                                                {company?.address}
                                             </p>
                                             <button
                                                 onClick={() => handleEdit('basic')}
@@ -244,10 +246,7 @@ export default function CompanyClientMe() {
                                         <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                                         Contactar
                                     </button>
-                                    <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                        <Users className="h-5 w-5 mr-2 text-gray-400" />
-                                        Seguir
-                                    </button>
+
                                     <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                                         <Share2 className="h-5 w-5 text-gray-400" />
                                     </button>
@@ -260,13 +259,13 @@ export default function CompanyClientMe() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="flex items-center">
                                     <Globe className="h-5 w-5 text-gray-400 mr-2" />
-                                    <a href={`https://${institute.basic.website}`} className="text-blue-600 hover:underline">
-                                        {institute.basic.website}
+                                    <a href={company?.website || ""} className="text-blue-600 hover:underline">
+                                        {company?.website || "No hay website vinculada"}
                                     </a>
                                 </div>
                                 <div className="flex items-center">
                                     <Phone className="h-5 w-5 text-gray-400 mr-2" />
-                                    <span className="text-gray-600">{institute.basic.phone}</span>
+                                    <span className="text-gray-600">{company?.phone}</span>
                                 </div>
                                 <div className="flex items-center">
                                     <Mail className="h-5 w-5 text-gray-400 mr-2" />
