@@ -2,7 +2,7 @@
 
 import {Button} from "@/components/ui/button"
 import {ModeToggle} from "@/components/mode-toggle"
-import {BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon, Building2Icon, User, LandmarkIcon} from "lucide-react"
+import {BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon, Building2Icon, User, LandmarkIcon, MessageSquareIcon, Bell} from "lucide-react"
 import Link from "next/link"
 import {usePathname} from "next/navigation"
 import Image from "next/image"
@@ -27,35 +27,48 @@ export default function HeaderDefault() {
                     <nav className="flex items-center space-x-6">
                         {loggedIn ? (
                             <>
-                                <Link href="/feed"
-                                      className={pathname === "/feed" ? "text-foreground" : "text-muted-foreground"}>
-                                    <SearchIcon className="h-5 w-5"/>
+                                <Link href="/search"
+                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Personas</span>
                                 </Link>
                                 <Link href="/messages"
-                                      className={pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}>
-                                    <MessageCircleIcon className="h-5 w-5"/>
+                                      className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <MessageSquareIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Mensajes</span>
                                 </Link>
                                 <Link href="/notifications"
-                                      className={pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}>
-                                    <BellIcon className="h-5 w-5"/>
+                                      className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Bell className="h-5 w-5"/>
+                                    <span className="text-[12px]">Notificaciones</span>
                                 </Link>
                             </>
                         ) : (
                             <>
                                 <Link href="/search"
-                                      className={`flex flex-col items-center ${pathname === "/feed" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
-                                    <Building2Icon className="h-4 w-4"/>
+                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5"/>
                                     <span className="text-[12px]">Empresas</span>
                                 </Link>
                                 <Link href="/people"
-                                      className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <User className="h-4 w-4"/>
+                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5"/>
                                     <span className="text-[12px]">Personas</span>
                                 </Link>
                                 <Link href="/institutions"
-                                      className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <LandmarkIcon className="h-4 w-4"/>
-                                    <span className="text-[12px]">Personas</span>
+                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Institutos</span>
                                 </Link>
                             </>
                         )}
@@ -65,7 +78,7 @@ export default function HeaderDefault() {
                             <ProfileDropdown userData={userData} logout={logout}/>
                         ) : (
                             <>
-                                <Button variant="outline" asChild>
+                                <Button variant="ghost" asChild>
                                     <Link href="/login">Login</Link>
                                 </Button>
                                 <Button asChild>
@@ -105,10 +118,10 @@ function ProfileDropdown({userData, logout}) {
     }, []);
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative mx-2" ref={dropdownRef}>
             <div onClick={toggleDropdown}>
                 <Image
-                    src={userData?.profilePic || "/default-profile.png"}
+                    src={userData?.photo_pic || "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"}
                     alt="Profile"
                     width={40}
                     height={40}
@@ -139,56 +152,7 @@ function ProfileDropdown({userData, logout}) {
                             />
                         </svg>
                         <Link href="/profile" className="ml-2">
-                            <p className="font-medium">My Profile</p>
-                        </Link>
-                    </li>
-                    {/* Opción "Edit Profile" */}
-                    <li
-                        role="menuitem"
-                        className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            className="w-5 h-5 text-slate-400"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652A1 1 0 0 1 11.18 19H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <Link href="/profile/edit" className="ml-2">
-                            <p className="font-medium">Edit Profile</p>
-                        </Link>
-                    </li>
-                    {/* Opción "Inbox" */}
-                    <li
-                        role="menuitem"
-                        className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            className="w-5 h-5 text-slate-400"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 0 1 5.273 3h9.454a2.75 2.75 0 0 1 2.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3.73Z"
-                                clipRule="evenodd"
-                            />
-                            <path
-                                fillRule="evenodd"
-                                d="M3.068 5.418A1.25 1.25 0 0 1 5.273 4.5h9.454a1.25 1.25 0 0 1 1.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 0 0-.86.49l-.606 1.02a1 1 0 0 1-.86.49H8.236a1 1 0 0 1-.894-.553l-.448-.894A1 1 0 0 0 6 11H2.53l.015-.062 1.523-5.52Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <Link href="/inbox" className="ml-2">
-                            <p className="font-medium">Inbox</p>
+                            <p className="font-medium">Mi perfil</p>
                         </Link>
                     </li>
                     {/* Opción "Help" */}
@@ -210,7 +174,7 @@ function ProfileDropdown({userData, logout}) {
                             />
                         </svg>
                         <Link href="/help" className="ml-2">
-                            <p className="font-medium">Help</p>
+                            <p className="font-medium">Ayuda</p>
                         </Link>
                     </li>
                     <hr className="my-2 border-slate-200" role="separator"/>

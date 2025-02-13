@@ -43,6 +43,8 @@ Route::prefix('/users')->group(function () {
 Route::prefix('/company')->group(function () {
     Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
     Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
+    Route::get('/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
+    Route::post('/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 });
 
 Route::prefix('/institution')->group(function () {
