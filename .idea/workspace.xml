@@ -5,12 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/institutions/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/messages/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/notifications/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/people/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientNotMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyDoesntExist.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/workingOnIt.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/api/auth/[...nextauth]/route.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/api/auth/[...nextauth]/route.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/layout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_04_083949_create_personal_access_tokens_table.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/src/app/login/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/login/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileNotMe.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,7 +56,7 @@
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;dev-jheremy&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;create-events-in-page-search-company&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -61,6 +75,7 @@
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\profile\company\[slug]" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src" />
