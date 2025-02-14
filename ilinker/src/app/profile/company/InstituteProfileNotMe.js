@@ -1,12 +1,57 @@
 "use client";
 
 import { useState } from 'react';
-import { Search, MapPin, Users, Calendar, BookmarkIcon, MessageCircle, Share2, ThumbsUp, GraduationCap, Building2, Clock, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, MapPin, Users, Calendar, BookmarkIcon, MessageCircle, Share2, ThumbsUp, GraduationCap, Building2, Clock, BookOpen, ChevronDown, ChevronUp, Briefcase, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-// Mock data
+// Add mock data for job vacancies
+const jobVacancies = [
+  {
+    id: 1,
+    company: "TechCorp Solutions",
+    position: "Desarrollador Web en Prácticas",
+    type: "Prácticas",
+    location: "Barcelona",
+    modality: "Híbrido",
+    schedule: "Media Jornada",
+    duration: "3 meses",
+    description: "Buscamos estudiantes de último año de DAW para prácticas en desarrollo web con React y Node.js.",
+    requirements: [
+      "Estudiante de DAW",
+      "Conocimientos de React",
+      "JavaScript moderno",
+      "Git"
+    ],
+    preferredCourses: ["Desarrollo de Aplicaciones Web"],
+    postedDate: "2024-02-10",
+    applicationDeadline: "2024-03-10"
+  },
+  {
+    id: 2,
+    company: "SystemAdmin Pro",
+    position: "Técnico de Sistemas Junior",
+    type: "Prácticas",
+    location: "Barcelona",
+    modality: "Presencial",
+    schedule: "Jornada Completa",
+    duration: "6 meses",
+    description: "Posición para estudiantes de ASIX interesados en administración de sistemas Linux y Windows Server.",
+    requirements: [
+      "Estudiante de ASIX",
+      "Conocimientos de Linux",
+      "Windows Server",
+      "Redes"
+    ],
+    preferredCourses: ["Administración de Sistemas Informáticos en Red"],
+    postedDate: "2024-02-12",
+    applicationDeadline: "2024-03-15"
+  }
+];
+
+// Mock data for institute
 const institutData = {
   institute: {
     name: "Institut Pedralbes",
@@ -77,6 +122,7 @@ const institutData = {
   ]
 };
 
+// Mock data for students
 const students = [
   {
     id: 1,
@@ -98,6 +144,7 @@ const students = [
   }
 ];
 
+// Mock data for publications
 const publications = [
   {
     id: 1,
@@ -132,9 +179,9 @@ const publications = [
 ];
 
 export default function InstitutPedralbes() {
+  const [activeTab, setActiveTab] = useState("publications");
   const [searchTerm, setSearchTerm] = useState("");
   const [expandedCourses, setExpandedCourses] = useState({});
-  const [activeTab, setActiveTab] = useState("publications");
   const { institute, educationalOffering } = institutData;
 
   // Search filter functions
@@ -157,6 +204,16 @@ export default function InstitutPedralbes() {
       course.tags.some(tag => tag.toLowerCase().includes(searchString)) ||
       course.modules.some(module => module.toLowerCase().includes(searchString)) ||
       course.jobOpportunities.some(job => job.toLowerCase().includes(searchString))
+    );
+  });
+
+  const filteredJobs = jobVacancies.filter(job => {
+    const searchString = searchTerm.toLowerCase();
+    return (
+      job.position.toLowerCase().includes(searchString) ||
+      job.company.toLowerCase().includes(searchString) ||
+      job.description.toLowerCase().includes(searchString) ||
+      job.requirements.some(req => req.toLowerCase().includes(searchString))
     );
   });
 
@@ -277,6 +334,13 @@ export default function InstitutPedralbes() {
             >
               Ciclos Formativos
             </Button>
+            <Button
+              variant={activeTab === "jobs" ? "default" : "outline"}
+              onClick={() => handleTabChange("jobs")}
+              className="flex-1 sm:flex-none"
+            >
+              Empleos
+            </Button>
           </div>
 
           {/* Search Bar */}
@@ -286,7 +350,9 @@ export default function InstitutPedralbes() {
                 <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                 <Input
                   placeholder={
-                    activeTab === "publications"
+                    activeTab === "jobs"
+                      ? "Buscar por empresa, posición o requisitos..."
+                      : activeTab === "publications"
                       ? "Buscar por título, autor o contenido..."
                       : "Buscar por nombre, departamento, módulos o tags..."
                   }
@@ -298,56 +364,145 @@ export default function InstitutPedralbes() {
             </CardContent>
           </Card>
 
-          {activeTab === "publications" ? (
-            // Publications Grid with Search Results
-            <>
+          {/* Jobs Content */}
+          {activeTab === "jobs" && (
+            <div className="space-y-4">
+              {filteredJobs.length === 0 ? (
+                <Card className="p-6 text-center">
+                  <p className="text-muted-foreground">No se encontraron ofertas de empleo que coincidan con tu búsqueda.</p>
+                </Card>
+              ) : (
+                filteredJobs.map((job) => (
+                  <Card key={job.id} className="p-6">
+                    <div className="space-y-4">
+                      {/* Header */}
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="text-xl font-semibold">{job.position}</h3>
+                          <p className="text-muted-foreground">{job.company}</p>
+                        </div>
+                        <Badge variant="secondary">{job.type}</Badge>
+                      </div>
+
+                      {/* Job Details */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span>{job.location}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span>{job.schedule}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          <span>{job.duration}</span>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div>
+                        <p>{job.description}</p>
+                      </div>
+
+                      {/* Requirements */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Requisitos:</h4>
+                        <ul className="list-disc list-inside space-y-1">
+                          {job.requirements.map((req, index) => (
+                            <li key={index} className="text-muted-foreground">{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Preferred Courses */}
+                      <div>
+                        <h4 className="font-semibold mb-2">Ciclos formativos preferentes:</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {job.preferredCourses.map((course, index) => (
+                            <Badge key={index} variant="outline">{course}</Badge>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Dates */}
+                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <span>Publicado: {new Date(job.postedDate).toLocaleDateString()}</span>
+                        <span>Fecha límite: {new Date(job.applicationDeadline).toLocaleDateString()}</span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-wrap gap-2">
+                        <Button>
+                          <Briefcase className="h-4 w-4 mr-2" />
+                          Solicitar práctica
+                        </Button>
+                        <Button variant="outline">
+                          <BookmarkIcon className="h-4 w-4 mr-2" />
+                          Guardar
+                        </Button>
+                        <Button variant="outline">
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Compartir
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Publications Content */}
+          {activeTab === "publications" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredPublications.length === 0 ? (
                 <Card className="p-6 text-center">
                   <p className="text-muted-foreground">No se encontraron publicaciones que coincidan con tu búsqueda.</p>
                 </Card>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPublications.map((publication) => (
-                    <Card key={publication.id} className="overflow-hidden h-full">
-                      <div className="relative h-40 w-full">
-                        <img
-                          src={publication.image}
-                          alt={publication.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="text-lg font-semibold mb-1">{publication.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Por {publication.author} • {formatDate(publication.date)}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mb-4 text-sm">{publication.excerpt}</p>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            {publication.likes}
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            {publication.comments}
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Share2 className="h-4 w-4 mr-1" />
-                            Compartir
-                          </Button>
+                filteredPublications.map((publication) => (
+                  <Card key={publication.id} className="overflow-hidden h-full">
+                    <div className="relative h-40 w-full">
+                      <img
+                        src={publication.image}
+                        alt={publication.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-1">{publication.title}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Por {publication.author} • {formatDate(publication.date)}
+                          </p>
                         </div>
                       </div>
-                    </Card>
-                  ))}
-                </div>
+                      <p className="mb-4 text-sm">{publication.excerpt}</p>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <ThumbsUp className="h-4 w-4 mr-1" />
+                          {publication.likes}
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          {publication.comments}
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Share2 className="h-4 w-4 mr-1" />
+                          Compartir
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))
               )}
-            </>
-          ) : (
-            // Courses Content with Search Results
+            </div>
+          )}
+
+          {/* Courses Content */}
+          {activeTab === "courses" && (
             <>
               <Card className="mb-6 p-6">
                 <h3 className="text-xl font-semibold mb-4">Sobre el {institute.name}</h3>
@@ -361,8 +516,6 @@ export default function InstitutPedralbes() {
                   <p className="text-muted-foreground">No se encontraron ciclos formativos que coincidan con tu búsqueda.</p>
                 </Card>
               ) : (
-                // ... (previous code remains the same until the courses mapping)
-
                 <div className="space-y-4">
                   {filteredCourses.map((course) => (
                     <Card key={course.id} className="p-6">
@@ -404,12 +557,9 @@ export default function InstitutPedralbes() {
                             <div className="mt-4 space-y-4">
                               <div className="flex flex-wrap gap-2">
                                 {course.tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="px-3 py-1 bg-slate-100 rounded-full text-sm"
-                                  >
+                                  <Badge key={tag} variant="secondary">
                                     {tag}
-                                  </span>
+                                  </Badge>
                                 ))}
                               </div>
 
@@ -432,10 +582,6 @@ export default function InstitutPedralbes() {
                               </div>
 
                               <div className="flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm">
-                                  <ThumbsUp className="h-4 w-4 mr-2" />
-                                  Me interesa
-                                </Button>
                                 <Button variant="outline" size="sm">
                                   <MessageCircle className="h-4 w-4 mr-2" />
                                   Consultar

@@ -15,6 +15,9 @@ use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -80,4 +83,14 @@ Route::prefix('/skills')->group(function () {
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
    Route::get('/search', [PagesController::class, 'searchPractices']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::get('/posts/{post}', [PostController::class, 'show']);
+
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+
+    Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
 });
