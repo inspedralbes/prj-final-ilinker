@@ -34,10 +34,11 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatDistanceToNow } from 'date-fns';
+import {formatDistanceToNow} from 'date-fns';
 import SearchHeader from "@/components/searchHeader";
 import {AuthContext} from "@/contexts/AuthContext";
-import { useRouter } from 'next/navigation'
+import {useRouter} from 'next/navigation'
+import Link from "next/link"
 
 export default function SearchClient({latestOffers}) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -52,7 +53,7 @@ export default function SearchClient({latestOffers}) {
         console.log("apply offer")
     }
 
-    const handleRedirectLogin = ()=>{
+    const handleRedirectLogin = () => {
         router.push('/login');
     }
     const JobDetails = () => {
@@ -62,12 +63,15 @@ export default function SearchClient({latestOffers}) {
                     <h2 className="text-2xl font-bold mb-2">{selectedInfoJob.title}</h2>
                     <div className="flex items-center gap-2 text-muted-foreground mb-4">
                         <Building2 className="h-4 w-4"/>
-                        <span>{selectedInfoJob.company.name}</span>
+                        <Link href={`/profile/company/${selectedInfoJob?.company?.slug}`} className="ml-2">
+                            <span>{selectedInfoJob.company.name}</span>
+                        </Link>
                         <MapPin className="h-4 w-4 ml-2"/>
                         <span>{selectedInfoJob.address}</span>
                     </div>
                     <div className="flex gap-4">
-                        <Button className="flex-1" onClick={loggedIn ? handleApplyOffer:handleRedirectLogin}>Apply now</Button>
+                        <Button className="flex-1" onClick={loggedIn ? handleApplyOffer : handleRedirectLogin}>Apply
+                            now</Button>
                         <Button variant="outline" size="icon">
                             <BookmarkPlus className="h-5 w-5"/>
                         </Button>
@@ -139,7 +143,7 @@ export default function SearchClient({latestOffers}) {
         ) : null
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         setSelectedInfoJob(selectedJob)
     }, [selectedJob]);
 
@@ -247,7 +251,7 @@ export default function SearchClient({latestOffers}) {
                                         </div>
                                         <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                                             <Clock className="h-4 w-4"/>
-                                            <span>Posted {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</span>
+                                            <span>Posted {formatDistanceToNow(new Date(job.created_at), {addSuffix: true})}</span>
                                             <Separator orientation="vertical" className="h-4"/>
                                             <span>84 applicants</span>
                                         </div>
@@ -257,7 +261,8 @@ export default function SearchClient({latestOffers}) {
 
                             {/* Si NO está logeado y hay más de 3 ofertas, agregamos el overlay */}
                             {!loggedIn && latestOffers.length > 3 && (
-                                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex justify-center items-center">
+                                <div
+                                    className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex justify-center items-center">
                                     <span className="text-white font-medium">Inicia sesión para ver más</span>
                                 </div>
                             )}
@@ -297,7 +302,7 @@ export default function SearchClient({latestOffers}) {
                                     </div>
                                     <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                                         <Clock className="h-4 w-4"/>
-                                        <span>Posted {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</span>
+                                        <span>Posted {formatDistanceToNow(new Date(job.created_at), {addSuffix: true})}</span>
                                         <Separator orientation="vertical" className="h-4"/>
                                         <span>84 applicants</span>
                                     </div>

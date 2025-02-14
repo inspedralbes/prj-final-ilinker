@@ -18,6 +18,7 @@ class CompanyService
         $company->user_id = $data['id'];
 
         $company->name = $dataCompany['name']  ?? null;
+        $company->slug = generateSlug($dataCompany['name']);
         $company->CIF = $dataCompany['CIF']  ?? null;
         $company->num_people= $dataCompany['num_people'] ?? null;
         $company->logo = $dataCompany['logo']  ?? null;
