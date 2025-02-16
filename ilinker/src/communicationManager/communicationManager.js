@@ -28,8 +28,6 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
         const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
         const url = `${routeApi}${cleanEndpoint}`;
 
-        console.log("URL de la solicitud:", url);
-        console.log("Opciones de la solicitud:", options);
 
         const response = await fetch(url, options);
 

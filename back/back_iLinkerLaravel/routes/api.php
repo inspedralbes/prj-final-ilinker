@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SectorController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -79,7 +80,12 @@ Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
 });
 
+Route::prefix('/sectors')->group(function () {
+    Route::get('/', [SectorController::class, 'getSectors']);
+});
+
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
    Route::get('/search', [PagesController::class, 'searchPractices']);
+   Route::get('/profile/company', [PagesController::class, 'profileCompany']);
 });

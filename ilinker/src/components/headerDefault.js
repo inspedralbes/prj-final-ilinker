@@ -1,8 +1,7 @@
 "use client"
 
 import {Button} from "@/components/ui/button"
-import {ModeToggle} from "@/components/mode-toggle"
-import {BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon, Building2Icon, User, LandmarkIcon, MessageSquareIcon, Bell} from "lucide-react"
+import {Bell, Building2Icon, LandmarkIcon, MessageSquareIcon, User} from "lucide-react"
 import Link from "next/link"
 import {usePathname} from "next/navigation"
 import Image from "next/image"
@@ -151,10 +150,39 @@ function ProfileDropdown({userData, logout}) {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        <Link href="/profile" className="ml-2">
+                        <Link href={`/profile/student/${userData.slug}`} className="ml-2">
                             <p className="font-medium">Mi perfil</p>
                         </Link>
                     </li>
+                    {/* Opción "My Profile" */}
+                    {userData?.rol === "company" ? (
+                        <>
+                            <li
+                                role="menuitem"
+                                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-5 h-5 text-slate-400"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M3 21v-3.75C3 14.56 4.56 13 6.75 13h10.5C19.44 13 21 14.56 21 17.25V21m-18 0h18M4.5 7h15m-15 4.5h15M9 3h6v4.5H9V3z"
+                                    />
+                                </svg>
+                                <Link href={`/profile/company/${userData?.company.slug}`} className="ml-2">
+                                    <p className="font-medium">Mi compañia</p>
+                                </Link>
+                            </li>
+                        </>
+                    ) : (<></>)}
+
                     {/* Opción "Help" */}
                     <li
                         role="menuitem"

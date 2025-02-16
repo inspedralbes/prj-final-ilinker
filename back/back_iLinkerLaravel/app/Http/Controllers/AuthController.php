@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
 use App\Services\StudentService;
@@ -42,6 +43,9 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            $company = Company::where('user_id', $user->id)->first();
+
+            $user->company = $company;
             return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
         }
 
@@ -82,6 +86,7 @@ class AuthController extends Controller
                 }
                 DB::commit();
 
+                $user['user']['company'] = $company;
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
             } elseif ($user['user']->rol === 'institutions') {
                 $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);

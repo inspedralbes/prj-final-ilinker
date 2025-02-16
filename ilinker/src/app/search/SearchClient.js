@@ -89,10 +89,10 @@ export default function SearchClient({latestOffers}) {
                         <Users className="h-4 w-4 text-muted-foreground"/>
                         <span>501-1,000 employees</span>
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                        <Banknote className="h-4 w-4 text-muted-foreground"/>
-                        <span>$130K - $180K</span>
-                    </div>
+                    {/*<div className="flex items-center gap-2 text-sm">*/}
+                    {/*    <Banknote className="h-4 w-4 text-muted-foreground"/>*/}
+                    {/*    <span>$130K - $180K</span>*/}
+                    {/*</div>*/}
                     <div className="flex items-center gap-2 text-sm">
                         <GraduationCap className="h-4 w-4 text-muted-foreground"/>
                         <span>Bachelor's degree</span>
@@ -102,32 +102,6 @@ export default function SearchClient({latestOffers}) {
                 <Separator/>
 
                 <div className="space-y-4">
-                    {/*<h3 className="text-lg font-semibold">About the job</h3>*/}
-                    {/*<p className="text-muted-foreground">*/}
-                    {/*    We are seeking a talented Senior Software Engineer to join our dynamic team. In this role, you*/}
-                    {/*    will*/}
-                    {/*    be responsible for developing and maintaining our core products while collaborating with*/}
-                    {/*    cross-functional teams to deliver high-quality solutions.*/}
-                    {/*</p>*/}
-
-                    {/*<h4 className="font-semibold mt-4">Responsibilities:</h4>*/}
-                    {/*<ul className="list-disc pl-5 text-muted-foreground space-y-2">*/}
-                    {/*    <li>Design and implement new features for our platform</li>*/}
-                    {/*    <li>Write clean, maintainable, and efficient code</li>*/}
-                    {/*    <li>Collaborate with product managers and designers</li>*/}
-                    {/*    <li>Mentor junior developers and conduct code reviews</li>*/}
-                    {/*    <li>Participate in technical architecture discussions</li>*/}
-                    {/*</ul>*/}
-
-                    {/*<h4 className="font-semibold mt-4">Requirements:</h4>*/}
-                    {/*<ul className="list-disc pl-5 text-muted-foreground space-y-2">*/}
-                    {/*    <li>5+ years of professional software development experience</li>*/}
-                    {/*    <li>Strong proficiency in JavaScript/TypeScript and React</li>*/}
-                    {/*    <li>Experience with modern frontend frameworks and tools</li>*/}
-                    {/*    <li>Excellent problem-solving and communication skills</li>*/}
-                    {/*    <li>Bachelor's degree in Computer Science or related field</li>*/}
-                    {/*</ul>*/}
-
                     <div dangerouslySetInnerHTML={{__html: selectedInfoJob.description}}/>
                 </div>
 
