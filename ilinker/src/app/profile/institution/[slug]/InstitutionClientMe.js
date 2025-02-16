@@ -159,6 +159,7 @@ export default function InstituteProfileLogin() {
     }))
   }
 
+
   // ---------------------- Renderizados de secciones ----------------------
 
   const renderAcercaDe = (
