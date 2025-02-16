@@ -13,13 +13,7 @@
 
 ## Descripción
 
-**iLinker** es una plataforma web integral y colaborativa diseñada para conectar a estudiantes, empresas y centros educativos, facilitando la búsqueda, gestión y supervisión de prácticas profesionales. Su enfoque está en optimizar el proceso para cada tipo de usuario, promoviendo experiencias personalizadas, eficientes y enriquecedoras.
-
-La plataforma actúa como un ecosistema completo donde:
-
-- **Estudiantes** pueden encontrar oportunidades relevantes.
-- **Empresas** pueden acceder a candidatos calificados.
-- **Centros educativos** pueden supervisar y gestionar la participación de sus estudiantes, garantizando el éxito de las prácticas.
+ El nostre projecte sorgeix per donar resposta a la dificultat de trobar pràctiques professionals. Hem desenvolupat una plataforma web que connecta empreses, estudiants i escoles de manera efectiva. Les empreses poden promocionar les seves ofertes per atraure estudiants en pràctiques, mentre que aquests tenen l’oportunitat de trobar opcions que s’ajustin a les seves necessitats formatives. Paral·lelament, les institucions educatives poden gestionar i facilitar l’accés a pràctiques pels seus alumnes, fomentant així una col·laboració fluida entre totes les parts implicades.
 
 ## Gestión del Proyecto
 
