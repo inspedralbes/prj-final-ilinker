@@ -24,7 +24,6 @@ La plataforma actúa como un ecosistema completo donde:
 ## Gestión del Proyecto
 
 - **Gestor de tareas:** [Taiga](#)
-- **Prototipo gráfico:** [Penpot/Figma/Moqups](#)
 
 ## URLs de Producción
 
@@ -33,21 +32,11 @@ La plataforma actúa como un ecosistema completo donde:
 
 ## Estado del Proyecto
 
-(Explicar en qué punto se encuentra el desarrollo, qué funcionalidades están completadas y cuáles están en progreso.)
-
-## Instalación y Configuración
-
-(Explicar los requisitos previos, instrucciones de instalación y configuración si es necesario.)
 
 ## Tecnologías Utilizadas
 
-(Listar las tecnologías y herramientas empleadas en el desarrollo del proyecto.)
-
-## Contribuciones
-
-(Explicar cómo otros desarrolladores pueden contribuir al proyecto.)
-
-## Licencia
-
-(Especificar la licencia bajo la cual se distribuye el proyecto.)
-
+- Next.js
+- Laravel 11
+- shadcn/ui
+- Docker 
+¡
