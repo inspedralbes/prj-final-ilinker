@@ -5,42 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Creacion de controladores, servicios y endpoints para el crud de Proyectos para el estudiante.">
-      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/auth/GoogleAuthController.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_04_083949_create_personal_access_tokens_table.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/api/auth/[...nextauth]/route.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileNotMe.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/components/userMenu.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/context/authContext.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/contexts/AuthContext.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/OfferController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/OfferController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PagesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PagesController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Offer.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Offer.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/cors.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/cors.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/0001_01_01_000000_create_users_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/0001_01_01_000000_create_users_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/users.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/users.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/next.config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/layout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/login/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/login/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/search/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/search/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/communicationManager/communicationManager.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/communicationManager/communicationManager.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileNotMe.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileNotMe.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/contexts/AuthContext.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/contexts/AuthContext.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,9 +28,26 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev-kevin" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="D:\xampp\php\php.exe" />
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Deraybcbc&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
+    &quot;accountId&quot;: &quot;5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -72,13 +59,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "Merging config-api",
-    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "profile-company-page",
+    "last_opened_file_path": "C:/Users/deray/Documents/Cosas/AEA4.2 Activitat 1.2 - Chat WebRTC",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PhpStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\PhpStorm 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -99,8 +87,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
-        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
+        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
       </set>
     </attachedChunks>
   </component>
@@ -117,6 +105,9 @@
       <workItem from="1738323716874" duration="1818000" />
       <workItem from="1738570541797" duration="23720000" />
       <workItem from="1739225011257" duration="3167000" />
+      <workItem from="1739884450259" duration="7000" />
+      <workItem from="1739887695881" duration="10000" />
+      <workItem from="1740176873801" duration="3519000" />
     </task>
     <servers />
   </component>
@@ -125,6 +116,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Creacion de controladores, servicios y endpoints para el crud de Proyectos para el estudiante." />
-    <option name="LAST_COMMIT_MESSAGE" value="Creacion de controladores, servicios y endpoints para el crud de Proyectos para el estudiante." />
+    <MESSAGE value="merge de todo" />
+    <option name="LAST_COMMIT_MESSAGE" value="merge de todo" />
   </component>
 </project>

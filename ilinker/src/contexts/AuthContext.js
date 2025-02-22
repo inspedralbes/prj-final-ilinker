@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     // Función para iniciar sesión: establece las cookies y actualiza el estado
-    const login = (token, userDataObj) => {
+    const login = (userDataObj, token) => {
         Cookies.set("authToken", token);
         Cookies.set("userData", JSON.stringify(userDataObj));
         setLoggedIn(true);
