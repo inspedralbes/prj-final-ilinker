@@ -15,6 +15,7 @@ use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
+use \App\Http\Controllers\ProjectController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();

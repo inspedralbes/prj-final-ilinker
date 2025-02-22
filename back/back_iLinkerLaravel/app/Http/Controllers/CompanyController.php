@@ -41,4 +41,15 @@ class CompanyController extends Controller
         $company = $this->companyService->updateCompany($validated);
         return response()->json(['status'=>'success','company' => $company]);
     }
+
+    public function delete(Request $request)
+    {
+        $validated = $request->validate([
+            'id' => 'required',
+        ]);
+
+        $company = $this->companyService->deleteCompany($validated['id']);
+
+        return response()->json(['status'=>'success','company' => $company]);
+    }
 }
