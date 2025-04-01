@@ -1,6 +1,3 @@
-Aquí tienes una propuesta de diseño para el README.md de tu proyecto:
-
----
 
 # iLinker
 
@@ -47,4 +44,3 @@ Conecta empresas, estudiantes y escuelas para facilitar la búsqueda y oferta de
 
 ---
 
-Esta estructura ofrece un diseño limpio, organizado y profesional que permite a los visitantes comprender rápidamente la finalidad, el alcance y las tecnologías del proyecto. Puedes personalizarlo según las necesidades específicas del repositorio o añadir secciones adicionales (por ejemplo, instalación, uso, contribución, etc.) en el futuro.
