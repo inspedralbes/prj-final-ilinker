@@ -1,16 +1,46 @@
-# transversals
-Esquema mínim de carpetes pels projectes transversals
 
-És obligatori seguir aquesta estructura tot i que la podeu ampliar.
+# iLinker
 
-## Atenció
-Un cop comenceu heu de canviar aquesta explicació amb la corresponent al vostre projecte (utilitzant markdown)
+Conecta empresas, estudiantes y escuelas para facilitar la búsqueda y oferta de prácticas profesionales.
 
-# Aquest fitxer ha de contenir com a mínim:
- * Nom dels integrants
- * Nom del projecte
- * Petita descripció
- * Adreça del gestor de tasques (taiga, jira, trello...)
- * Adreça del prototip gràfic del projecte (Penpot, figma, moqups...)
- * URL de producció (quan la tingueu)
- * Estat: (explicació d'en quin punt està)
+## Integrantes del Proyecto
+
+- **Clara Reyes Ubach**
+- **Jheremy Pinto**
+- **Kevin Deray Burga**
+- **Purvish Patel**
+
+---
+
+## Descripción del Proyecto
+
+**iLinker** nace con el objetivo de resolver la dificultad para encontrar prácticas profesionales. Nuestra plataforma web conecta de manera efectiva a:
+
+- **Empresas:** Pueden promocionar sus ofertas y atraer a estudiantes para sus vacantes.
+- **Estudiantes:** Tienen la oportunidad de descubrir prácticas que se adapten a sus necesidades formativas.
+- **Instituciones Educativas:** Gestionan y facilitan el acceso a prácticas para sus alumnos, promoviendo una colaboración fluida entre todos los actores involucrados.
+
+---
+
+## Tecnologías Utilizadas
+
+- **Frontend:** Next.js
+- **Backend:** Laravel 11
+- **UI:** shadcn/ui
+- **Contenedores:** Docker
+
+---
+
+## Gestión del Proyecto
+
+- **Herramienta de Gestión:** [Taiga](#)
+
+---
+
+## URLs de Producción
+
+- [http://200.234.232.216/](http://200.234.232.216/)
+- [http://www.ilinker.cat/](http://www.ilinker.cat/)
+
+---
+
