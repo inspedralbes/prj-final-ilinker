@@ -48,20 +48,19 @@ export default function CompanyProfileMeClient({}) {
                 <div className="relative px-6 pb-6">
                     {/* Logo */}
                     <div className="absolute -top-16 left-6 rounded-lg overflow-hidden border-4 border-white shadow-lg bg-white">
-
+                        <Image
+                            src={company.logo}
+                            alt="Company Logo"
+                            width={120}
+                            height={120}
+                            className="object-cover"
+                        />
                     </div>
 
                     {/* Información de la empresa */}
-                    <div className="mt-16 flex justify-between items-start">
-                        <div>
+                    <div className=" flex justify-between items-start">
+                        <div className="mt-20">
                             <div className="flex items-center gap-2">
-                                <Image
-                                    src={company.logo}
-                                    alt="Company Logo"
-                                    width={120}
-                                    height={120}
-                                    className="object-cover"
-                                />
                                 <h1 className="text-2xl font-bold">{company.name}</h1>
                                 <svg viewBox="0 0 24 24" width="24" height="24" className="text-blue-500">
                                     <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
@@ -79,7 +78,7 @@ export default function CompanyProfileMeClient({}) {
                             </div>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                             <Button className="bg-blue-600 hover:bg-blue-700">
                                 <UserPlus className="h-4 w-4 mr-2" /> Seguir
                             </Button>

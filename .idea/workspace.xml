@@ -5,10 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Creacion de controladores, servicios y endpoints para el crud de Proyectos para el estudiante.">
-      <change afterPath="$PROJECT_DIR$/ilinker/src/components/loading/LoadingPage.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
