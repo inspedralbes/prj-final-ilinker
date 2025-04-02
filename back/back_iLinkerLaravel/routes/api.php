@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SectorController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,13 @@ Route::prefix('/users')->group(function () {
     Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
 });
 
+Route::prefix('/student')->group(function () {
+    Route::post('update', [StudentController::class, 'update'])->name('student.update');
+    Route::post('delete', [StudentController::class, 'delete'])->name('student.delete');
+    Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
+    Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
+});
+
 Route::prefix('/company')->group(function () {
     Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
     Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
@@ -61,14 +69,14 @@ Route::prefix('/education')->group(function () {
 
 Route::prefix('/experience')->group(function () {
     Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
-    Route::post('/update',[ExperienceController::class, 'update'])->name('update.experience');
+    Route::post('/update', [ExperienceController::class, 'update'])->name('update.experience');
     Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
 });
 
 Route::prefix('/projects')->group(function () {
-   Route::post('/create', [ProjectController::class, 'create'])->name('create.project');
-   Route::post('/update', [ProjectController::class, 'update'])->name('update.project');
-   Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
+    Route::post('/create', [ProjectController::class, 'create'])->name('create.project');
+    Route::post('/update', [ProjectController::class, 'update'])->name('update.project');
+    Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
 });
 
 Route::prefix('/skill')->group(function () {
@@ -91,8 +99,8 @@ Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);
 });
 
-Route::prefix('/page')->group(function (){
-   Route::get('/register', [PagesController::class, 'registerPage']);
-   Route::get('/search', [PagesController::class, 'searchPractices']);
-   Route::get('/profile/company', [PagesController::class, 'profileCompany']);
+Route::prefix('/page')->group(function () {
+    Route::get('/register', [PagesController::class, 'registerPage']);
+    Route::get('/search', [PagesController::class, 'searchPractices']);
+    Route::get('/profile/company', [PagesController::class, 'profileCompany']);
 });

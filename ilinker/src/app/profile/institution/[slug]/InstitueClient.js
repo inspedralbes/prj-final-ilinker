@@ -1,4 +1,4 @@
-// src/app/profile/institution/[slug]/InstitueClient.js
+// src/app/profile/institution/[uuid]/InstitueClient.js
 'use client'
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/AuthContext";

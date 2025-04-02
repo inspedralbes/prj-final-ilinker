@@ -20,6 +20,7 @@ class StudentSeeder extends Seeder
             foreach($students as $student){
                 Student::create([
                     'user_id' => $student['user_id'],
+                    'uuid' => uuid_create(),
                     'name' => $student['name'],
                     'surname' => $student['surname'],
                     'type_document' => $student['type_document'],
