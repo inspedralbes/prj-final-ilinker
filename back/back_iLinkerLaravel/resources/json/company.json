@@ -2,6 +2,7 @@
     {
         "user_id": 2,
         "name": "Tech Solutions S.L.",
+        "slug": "tech-solutions-s-l",
         "CIF": "B12345678",
         "num_people": 50,
         "logo": "tech_solutions_logo.png",

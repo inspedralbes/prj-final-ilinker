@@ -64,4 +64,26 @@ class PagesController extends Controller
             ]);
         }
     }
+
+
+    public function profileCompany()
+    {
+        try {
+            $sectors = Sector::all('id', 'name');
+            $skills =  Skill::all('id', 'name');
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Se han enviado las ofertas correctamente',
+                'sectors' => $sectors,
+                'skills' => $skills
+            ]);
+        }catch (\Exception $e){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching data',
+                'error' => $e->getMessage()
+            ]);
+        }
+    }
 }
