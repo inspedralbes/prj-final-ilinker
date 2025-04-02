@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SectorController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +44,8 @@ Route::prefix('/users')->group(function () {
 Route::prefix('/company')->group(function () {
     Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
     Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
+    Route::get('/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
+    Route::post('/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 });
 
 Route::prefix('/institution')->group(function () {
@@ -84,7 +87,12 @@ Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
 });
 
+Route::prefix('/sectors')->group(function () {
+    Route::get('/', [SectorController::class, 'getSectors']);
+});
+
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
    Route::get('/search', [PagesController::class, 'searchPractices']);
+   Route::get('/profile/company', [PagesController::class, 'profileCompany']);
 });

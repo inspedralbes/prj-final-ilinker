@@ -9,4 +9,12 @@ class CompanySector extends Model
 {
     /** @use HasFactory<\Database\Factories\CompanySectorFactory> */
     use HasFactory;
+
+    public function company(){
+        $this->belongsTo(Company::class);
+    }
+
+    public function sector(){
+        $this->belongsTo(Sector::class);
+    }
 }

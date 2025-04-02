@@ -1,10 +1,9 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
-import { BriefcaseIcon, SearchIcon, BellIcon, MessageCircleIcon } from "lucide-react"
+import {Button} from "@/components/ui/button"
+import {Bell, Building2Icon, LandmarkIcon, MessageSquareIcon, User} from "lucide-react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import {usePathname} from "next/navigation"
 import Image from "next/image"
 import {AuthContext} from "@/contexts/AuthContext";
 import {useContext, useEffect, useRef, useState} from "react";
@@ -14,32 +13,71 @@ export default function HeaderDefault() {
     const {loggedIn, userData, logout} = useContext(AuthContext);
 
     return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header
+            className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
                 <div className="mr-4 flex">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
+                        <Image src="/images/logo.svg" alt="logo" width={35} height={35}/>
                         <span className="font-bold">iLinker</span>
                     </Link>
                 </div>
                 <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <nav className="flex items-center space-x-6">
-                        <Link href="/feed" className={pathname === "/feed" ? "text-foreground" : "text-muted-foreground"}>
-                            <SearchIcon className="h-5 w-5" />
-                        </Link>
-                        <Link href="/messages" className={pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}>
-                            <MessageCircleIcon className="h-5 w-5" />
-                        </Link>
-                        <Link href="/notifications" className={pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}>
-                            <BellIcon className="h-5 w-5" />
-                        </Link>
+                        {loggedIn ? (
+                            <>
+                                <Link href="/search"
+                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                                <Link href="/messages"
+                                      className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <MessageSquareIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Mensajes</span>
+                                </Link>
+                                <Link href="/notifications"
+                                      className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Bell className="h-5 w-5"/>
+                                    <span className="text-[12px]">Notificaciones</span>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/search"
+                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5"/>
+                                    <span className="text-[12px]">Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5"/>
+                                    <span className="text-[12px]">Institutos</span>
+                                </Link>
+                            </>
+                        )}
                     </nav>
                     <div className="flex items-center space-x-2">
                         {loggedIn ? (
-                            <ProfileDropdown userData={userData} logout={logout} />
+                            <ProfileDropdown userData={userData} logout={logout}/>
                         ) : (
                             <>
-                                <Button variant="outline" asChild>
+                                <Button variant="ghost" asChild>
                                     <Link href="/login">Login</Link>
                                 </Button>
                                 <Button asChild>
@@ -47,7 +85,7 @@ export default function HeaderDefault() {
                                 </Button>
                             </>
                         )}
-                        <ModeToggle />
+                        {/*<ModeToggle/>*/}
                     </div>
                 </div>
             </div>
@@ -57,7 +95,7 @@ export default function HeaderDefault() {
 }
 
 // Componente para el menú desplegable del perfil
-function ProfileDropdown({ userData, logout }) {
+function ProfileDropdown({userData, logout}) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -79,10 +117,10 @@ function ProfileDropdown({ userData, logout }) {
     }, []);
 
     return (
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative mx-2" ref={dropdownRef}>
             <div onClick={toggleDropdown}>
                 <Image
-                    src={userData?.profilePic || "/default-profile.png"}
+                    src={userData?.photo_pic || "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"}
                     alt="Profile"
                     width={40}
                     height={40}
@@ -112,59 +150,39 @@ function ProfileDropdown({ userData, logout }) {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        <Link href="/profile" className="ml-2">
-                            <p className="font-medium">My Profile</p>
+                        <Link href={`/profile/student/${userData.slug}`} className="ml-2">
+                            <p className="font-medium">Mi perfil</p>
                         </Link>
                     </li>
-                    {/* Opción "Edit Profile" */}
-                    <li
-                        role="menuitem"
-                        className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            className="w-5 h-5 text-slate-400"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652A1 1 0 0 1 11.18 19H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <Link href="/profile/edit" className="ml-2">
-                            <p className="font-medium">Edit Profile</p>
-                        </Link>
-                    </li>
-                    {/* Opción "Inbox" */}
-                    <li
-                        role="menuitem"
-                        className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                        onClick={() => setIsOpen(false)}
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            className="w-5 h-5 text-slate-400"
-                        >
-                            <path
-                                fillRule="evenodd"
-                                d="M1 11.27c0-.246.033-.492.099-.73l1.523-5.521A2.75 2.75 0 0 1 5.273 3h9.454a2.75 2.75 0 0 1 2.651 2.019l1.523 5.52c.066.239.099.485.099.732V15a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-3.73Z"
-                                clipRule="evenodd"
-                            />
-                            <path
-                                fillRule="evenodd"
-                                d="M3.068 5.418A1.25 1.25 0 0 1 5.273 4.5h9.454a1.25 1.25 0 0 1 1.205.918l1.523 5.52c.006.02.01.041.015.062H14a1 1 0 0 0-.86.49l-.606 1.02a1 1 0 0 1-.86.49H8.236a1 1 0 0 1-.894-.553l-.448-.894A1 1 0 0 0 6 11H2.53l.015-.062 1.523-5.52Z"
-                                clipRule="evenodd"
-                            />
-                        </svg>
-                        <Link href="/inbox" className="ml-2">
-                            <p className="font-medium">Inbox</p>
-                        </Link>
-                    </li>
+                    {/* Opción "My Profile" */}
+                    {userData?.rol === "company" ? (
+                        <>
+                            <li
+                                role="menuitem"
+                                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    className="w-5 h-5 text-slate-400"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M3 21v-3.75C3 14.56 4.56 13 6.75 13h10.5C19.44 13 21 14.56 21 17.25V21m-18 0h18M4.5 7h15m-15 4.5h15M9 3h6v4.5H9V3z"
+                                    />
+                                </svg>
+                                <Link href={`/profile/company/${userData?.company.slug}`} className="ml-2">
+                                    <p className="font-medium">Mi compañia</p>
+                                </Link>
+                            </li>
+                        </>
+                    ) : (<></>)}
+
                     {/* Opción "Help" */}
                     <li
                         role="menuitem"
@@ -184,10 +202,10 @@ function ProfileDropdown({ userData, logout }) {
                             />
                         </svg>
                         <Link href="/help" className="ml-2">
-                            <p className="font-medium">Help</p>
+                            <p className="font-medium">Ayuda</p>
                         </Link>
                     </li>
-                    <hr className="my-2 border-slate-200" role="separator" />
+                    <hr className="my-2 border-slate-200" role="separator"/>
                     {/* Opción "Sign Out" */}
                     <li
                         role="menuitem"

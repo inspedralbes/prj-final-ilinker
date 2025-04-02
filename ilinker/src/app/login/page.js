@@ -58,8 +58,8 @@ export default function Login() {
         console.log("login response", response);
 
         if (response.status === "success") {
-          router.push("/");
-          login(response.user, response.token);
+          router.push("/search");
+          login( response.token, response.user);
         } else {
           setApiError("Correu electrònic o contrasenya incorrectes");
         }
