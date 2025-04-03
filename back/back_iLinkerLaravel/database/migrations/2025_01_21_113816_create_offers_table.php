@@ -26,6 +26,10 @@ return new class extends Migration
             $table->string('postal_code');
 
             $table->string('salary');
+            $table->boolean('active')->default(true);
+            $table->enum('location_type', ['hibrido', 'remoto', 'presencial'])->nullable();
+            $table->integer('inscribed');
+
 
             $table->foreign('company_id')->references('id')->on('companies');
 

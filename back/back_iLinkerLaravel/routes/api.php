@@ -11,6 +11,8 @@ use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
+use \App\Http\Controllers\ExperienceController;
+use \App\Http\Controllers\SkillController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -46,6 +48,19 @@ Route::prefix('/institution')->group(function () {
 
 Route::prefix('/education')->group(function () {
     Route::post('/create', [StudentEducationController::class, 'create'])->name('create.education');
+    Route::post('/update', [StudentEducationController::class, 'update'])->name('update.education');
+    Route::delete('/delete', [StudentEducationController::class, 'delete'])->name('delete.education');
+});
+
+Route::prefix('/experience')->group(function () {
+    Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
+    Route::post('/update',[ExperienceController::class, 'update'])->name('update.experience');
+    Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
+});
+
+Route::prefix('/skill')->group(function () {
+    Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+    Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
 });
 
 Route::prefix('/offers')->group(function () {
