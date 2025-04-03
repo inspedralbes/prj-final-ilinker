@@ -32,6 +32,6 @@ class Student extends Model
 
     public function projects()
     {
-        return $this->HasMany(UserProject::class, 'user_id');
+        return $this->HasMany(StudentProject::class, 'student_id');
     }
 }

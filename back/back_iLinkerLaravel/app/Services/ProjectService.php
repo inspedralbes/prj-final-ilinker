@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\UserProject;
+use App\Models\StudentProject;
 use DateTime;
 use Exception;
 
@@ -15,7 +15,7 @@ class ProjectService
 
     public function createProject($data)
     {
-        $project = new UserProject();
+        $project = new StudentProject();
 
         $project->user_id = $data['user_id'];
         $project->name = $data['name'];
@@ -45,7 +45,7 @@ class ProjectService
 
     public function updateProject($data)
     {
-        $project = UserProject::findOrFail($data['id']);
+        $project = StudentProject::findOrFail($data['id']);
         $project->name = $data['name'];
         $project->description = $data['description'];
         $project->link = $data['link'];
@@ -70,7 +70,7 @@ class ProjectService
 
     public function deleteProject($data)
     {
-        $project = UserProject::findOrFail($data['id']);
+        $project = StudentProject::findOrFail($data['id']);
         $project->delete();
 
         return $project;

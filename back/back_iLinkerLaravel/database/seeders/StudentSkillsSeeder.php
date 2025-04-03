@@ -13,11 +13,11 @@ class StudentSkillsSeeder extends Seeder
      */
     public function run(): void
     {
-        $ruta = './resources/json/students_skills.json';
+        $ruta = './resources/json/student_skills.json';
         $json = json_decode(file_get_contents($ruta), true);
         foreach ($json as $skills) {
-            StudentSkills::created([
-                'student_id' => $skills['id'],
+            StudentSkills::create([
+                'student_id' => $skills['student_id'],
                 'skill_id' => $skills['skill_id'],
                 'created_at' => now(),
                 'updated_at' => now()

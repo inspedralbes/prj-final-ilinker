@@ -13,7 +13,7 @@ class StudentExperienceSeeder extends Seeder
      */
     public function run(): void
     {
-        $ruta = './resources/json/student_experiences.json';
+        $ruta = './resources/json/student_experience.json';
         $json = json_decode(file_get_contents($ruta), true);
 
         foreach ($json as $experience) {
