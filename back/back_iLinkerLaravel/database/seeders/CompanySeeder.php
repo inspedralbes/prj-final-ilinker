@@ -21,6 +21,7 @@ class CompanySeeder extends Seeder
                 Company::create([
                     'user_id' => $value['user_id'],
                     'name' => $value['name'],
+                    'slug' => $value['slug'],
                     'CIF' => $value['CIF'],
                     'num_people' => $value['num_people'],
                     'logo' => $value['logo'],
