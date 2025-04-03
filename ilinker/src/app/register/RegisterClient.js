@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useContext} from 'react';
 import {ArrowLeft, ArrowRight} from 'lucide-react';
 import {useTranslation} from "@/hooks/useTranslation";
 import LanguageSwitcher from '@/components/LanguageSwitcher';
@@ -15,11 +15,13 @@ import {apiRequest} from "@/communicationManager/communicationManager";
 import {useRouter} from "next/navigation";
 import {useToast} from "@/hooks/use-toast";
 import Cookies from "js-cookie";
+import {AuthContext} from "@/contexts/AuthContext";
 
 
 export default function RegisterClient({countries, sectors}) {
     const {toast} = useToast();
     const router = useRouter();
+    const {login} = useContext(AuthContext);
     const stepSchemas = [
         // Step 1 validation schema
         yup.object({
@@ -230,8 +232,7 @@ export default function RegisterClient({countries, sectors}) {
 
             if (response.status === 'success') {
                 router.push("/");
-                Cookies.set("authToken", response.token, { expires: 7, secure: true, sameSite: "Strict" });
-                Cookies.set("userData", JSON.stringify(response.user), { expires: 7, secure: true, sameSite: "Strict" });
+                login(response.token, response.user);
                 toast({
                     title: "Se ha iniciado sesion correctamente",
                     description: "Las credenciales son correctas.",

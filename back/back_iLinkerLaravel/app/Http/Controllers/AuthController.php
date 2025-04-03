@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
 use App\Services\StudentService;
@@ -12,6 +13,9 @@ use Illuminate\Support\Facades\Log;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\DB;
 
+use Google_Client;
+use App\Models\User;
+use Laravel\Sanctum\HasApiTokens;
 
 class AuthController extends Controller
 {
@@ -39,11 +43,13 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
+            $company = Company::where('user_id', $user->id)->first();
+
+            $user->company = $company;
             return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
         }
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
-
     }
 
     public function register(Request $request)
@@ -80,28 +86,23 @@ class AuthController extends Controller
                 }
                 DB::commit();
 
+                $user['user']['company'] = $company;
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
-            }
-
-            elseif ($user['user']->rol === 'institutions') {
+            } elseif ($user['user']->rol === 'institutions') {
                 $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
                 if (!$institution) {
                     throw new \Exception('Error al crear la institución.');
                 }
                 DB::commit();
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
-            }
-
-            elseif ($user['user']->rol === 'student') {
+            } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
                 if (!$student) {
                     throw new \Exception('Error al crear el estudiante.');
                 }
                 DB::commit();
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
-            }
-
-            else {
+            } else {
                 throw new \Exception('El rol no está especificado.');
             }
         } catch (\Exception $e) {
@@ -115,6 +116,5 @@ class AuthController extends Controller
     {
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
-
     }
 }

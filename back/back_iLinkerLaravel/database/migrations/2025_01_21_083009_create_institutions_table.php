@@ -16,15 +16,26 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             //Información básica
             $table->string('name')->unique()->nullable();
+            $table->string('custom_url')->nullable();
+            $table->string('slogan')->nullable();
+            $table->text('about')->nullable();
             $table->string('NIF')->unique()->nullable();
             $table->string('type')->nullable();
             $table->string('academic_sector')->nullable();
+            $table->string('location')->nullable();
+            $table->string('size')->nullable();
+            $table->string('sector')->nullable();
+            $table->string('founded_year')->nullable();
+            $table->json('languages')->nullable();
+
+            // Imagenes de la institucion
             $table->string('logo')->nullable();
+            $table->string('cover')->nullable();
 
             //Informacion de contacto
+            $table->string('website')->nullable();
             $table->integer('phone')->nullable();
             $table->string('email')->unique()->nullable();
-            $table->string('website')->nullable();
 
             //Persona a cargo de llevar esto
             $table->string('responsible_name');
