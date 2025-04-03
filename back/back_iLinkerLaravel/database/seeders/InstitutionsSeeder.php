@@ -21,6 +21,7 @@ class InstitutionsSeeder extends Seeder
                 Institutions::create([
                     'user_id' => $institution['user_id'],
                     'name' => $institution['name'],
+                    'slug' => $institution['slug'],
                     'NIF' => $institution['NIF'],
                     'type' => $institution['type'],
                     'academic_sector' => $institution['academic_sector'],

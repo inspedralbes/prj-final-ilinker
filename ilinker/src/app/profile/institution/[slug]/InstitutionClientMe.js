@@ -2,24 +2,7 @@
 
 import { useState } from "react"
 import {
-  Pencil,
-  MapPin,
-  Building2,
-  Globe,
-  Mail,
-  Phone,
-  Calendar,
-  Plus,
-  Users,
-  MessageCircle,
-  Share2,
-  Camera,
-  Award,
-  Briefcase,
-  Languages,
-  ChevronRight,
-  ChevronLeft,
-  X,
+  Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X,
 } from "lucide-react"
 
 // Importamos los componentes de Tabs y Card de ui.shadcn
@@ -29,10 +12,10 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 export default function InstituteProfileLogin() {
   const [isEditing, setIsEditing] = useState(null)
   const [logoImage, setLogoImage] = useState(
-    "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
+    "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80"
   )
   const [coverImage, setCoverImage] = useState(
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80",
+    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80"
   )
 
   const [institute, setInstitute] = useState({
@@ -159,8 +142,7 @@ export default function InstituteProfileLogin() {
     }))
   }
 
-
-  // ---------------------- Renderizados de secciones ----------------------
+  // ---------------------- Secciones renderizadas ----------------------
 
   const renderAcercaDe = (
     <div className="mt-6 border-t border-gray-200 pt-6">
@@ -361,7 +343,7 @@ export default function InstituteProfileLogin() {
                   {institute.specialties.map((specialty, index) => (
                     <span
                       key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-black-800"
+                      className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200"
                     >
                       {specialty}
                     </span>
@@ -432,7 +414,7 @@ export default function InstituteProfileLogin() {
   const renderCompanyPublications = (
     <div className="mt-6 border-t border-gray-200 pt-6">
       <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones de Empresa</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {publications.slice(0, visiblePublications).map((pub) => (
           <Card key={pub.id}>
             <CardHeader>
@@ -466,7 +448,7 @@ export default function InstituteProfileLogin() {
   const renderPublicaciones = (
     <div className="mt-6">
       <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {publications.map((pub) => (
           <Card key={pub.id}>
             <CardHeader>
@@ -489,7 +471,7 @@ export default function InstituteProfileLogin() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Cover Photo */}
-      <div className="relative h-80 bg-gray-300">
+      <div className="relative h-60 sm:h-72 md:h-80 lg:h-96 bg-gray-300">
         <img src={coverImage || "/placeholder.svg"} alt="Cover" className="w-full h-full object-cover" />
         <label className="absolute bottom-4 right-4 cursor-pointer">
           <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "cover")} />
@@ -497,17 +479,17 @@ export default function InstituteProfileLogin() {
         </label>
       </div>
 
-      <div className="max-w-6xl mx-auto px-9 sm:px-6 lg:px-8">
-        {/* Aquí envolvemos todo en un único <Tabs> para poder separar la barra y el contenido en dos cards */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+        {/* Tabs envolviendo toda la tarjeta */}
         <Tabs defaultValue="inicio">
-          {/* Card superior con la info del instituto y la barra de Tabs */}
-          <div className="relative -mt-32">
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <div className="sm:flex sm:items-center sm:justify-between">
-                <div className="sm:flex sm:space-x-5">
+          {/* Card superior con info del instituto y barra de Tabs */}
+          <div className="relative">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col sm:flex-row sm:space-x-5 items-center">
                   <div className="relative flex-shrink-0">
                     <img
-                      className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
+                      className="mx-auto h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
                       src={logoImage || "/placeholder.svg"}
                       alt={institute.basic.name}
                     />
@@ -573,25 +555,25 @@ export default function InstituteProfileLogin() {
                     )}
                   </div>
                 </div>
-                <div className="mt-5 flex justify-center sm:mt-0">
+                <div className="mt-5 flex justify-center">
                   <div className="flex space-x-2">
-                    <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                       <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                       Contactar
                     </button>
-                    <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                       <Users className="h-5 w-5 mr-2 text-gray-400" />
                       Seguir
                     </button>
-                    <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                      <Share2 className="h-5 w-5 text-gray-400" />
+                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                      <Share2 className="h-5 w-5" />
                     </button>
                   </div>
                 </div>
               </div>
               {/* Información de contacto */}
               <div className="mt-6 border-t border-gray-200 pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {isEditing === "contact" ? (
                     <>
                       <div className="flex items-center">
@@ -655,7 +637,7 @@ export default function InstituteProfileLogin() {
                   )}
                 </div>
               </div>
-              {/* Barra de Tabs en la misma tarjeta superior */}
+              {/* Barra de Tabs */}
               <div className="mt-6 border-t border-gray-200 pt-6">
                 <TabsList>
                   <TabsTrigger value="inicio">Inicio</TabsTrigger>
@@ -667,11 +649,10 @@ export default function InstituteProfileLogin() {
                 </TabsList>
               </div>
             </div>
-            
           </div>
 
-          {/* Card inferior donde se muestra el contenido de cada pestaña */}
-          <div className="mt-4 bg-white rounded-lg shadow-lg p-6">
+          {/* Card inferior con el contenido de cada pestaña */}
+          <div className="mt-4 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <TabsContent value="inicio">
               {renderInicio}
               {renderCompanyPublications}

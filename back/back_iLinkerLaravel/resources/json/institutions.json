@@ -3,6 +3,7 @@
         "user_id": 3,
         "name": "Instituto Tecnológico Central",
         "NIF": "A12345678",
+        "slug": "pedralbes",
         "type": "Universidad",
         "academic_sector": "Tecnología",
         "logo": "logo_itc.png",
