@@ -38,10 +38,11 @@ export default async function CompanyProfilePage() {
 // export default async function InstitutionPage({ params }) {
 //     const { slug } = params;
 //     const institution = await getInstitution(slug);
-    
+
 //     if (!institution) {
 //         return <InstituteDoesntExist />;
 //     }
 
 //     return <InstitutionClient slug={slug} institution={institution} />;
 // }
+
