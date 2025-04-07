@@ -11,11 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-<<<<<<<< HEAD:back/back_iLinkerLaravel/database/migrations/2025_02_13_084420_create_job_opportunities_table.php
-        Schema::create('job_opportunities', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-========
         Schema::create('institution_certifications', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('institution_id');
@@ -23,7 +18,6 @@ return new class extends Migration
             $table->string('issued_by')->nullable();
             $table->string('year')->nullable();
             $table->foreign('institution_id')->references('id')->on('institutions');
->>>>>>>> dev-clara:back/back_iLinkerLaravel/database/migrations/2025_02_16_212645_create_institution_certifications_table.php
             $table->timestamps();
         });
     }
@@ -33,10 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-<<<<<<<< HEAD:back/back_iLinkerLaravel/database/migrations/2025_02_13_084420_create_job_opportunities_table.php
-        Schema::dropIfExists('job_opportunities');
-========
         Schema::dropIfExists('institution_certifications');
->>>>>>>> dev-clara:back/back_iLinkerLaravel/database/migrations/2025_02_16_212645_create_institution_certifications_table.php
     }
 };

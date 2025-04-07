@@ -1,16 +1,34 @@
 "use client"
-
-import {Button} from "@/components/ui/button"
-import {Bell, Building2Icon, LandmarkIcon, MessageSquareIcon, User} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Bell, Building2Icon, LandmarkIcon, Menu, MessageSquareIcon, User, X } from "lucide-react"
 import Link from "next/link"
-import {usePathname} from "next/navigation"
+import { usePathname } from "next/navigation"
 import Image from "next/image"
-import {AuthContext} from "@/contexts/AuthContext";
-import {useContext, useEffect, useRef, useState} from "react";
+import { AuthContext } from "@/contexts/AuthContext";
+import { useContext, useEffect, useRef, useState } from "react";
 
 export default function HeaderDefault() {
     const pathname = usePathname();
-    const {loggedIn, userData, logout} = useContext(AuthContext);
+    const { loggedIn, userData, logout } = useContext(AuthContext);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Cierra el menú móvil cuando cambia la ruta
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [pathname]);
+
+    // Prevenir scroll cuando el menú está abierto
+    useEffect(() => {
+        if (mobileMenuOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, [mobileMenuOpen]);
 
     return (
         <header
@@ -18,55 +36,57 @@ export default function HeaderDefault() {
             <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
                 <div className="mr-4 flex">
                     <Link href="/" className="flex items-center space-x-2">
-                        <Image src="/images/logo.svg" alt="logo" width={35} height={35}/>
+                        <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
                         <span className="font-bold">iLinker</span>
                     </Link>
                 </div>
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+
+                {/* Versión de escritorio */}
+                <div className="hidden md:flex flex-1 items-center justify-between space-x-2 md:justify-end">
                     <nav className="flex items-center space-x-6">
                         {loggedIn ? (
                             <>
                                 <Link href="/search"
-                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
-                                    <Building2Icon className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5" />
                                     <span className="text-[12px]">Empresas</span>
                                 </Link>
                                 <Link href="/people"
-                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <User className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5" />
                                     <span className="text-[12px]">Personas</span>
                                 </Link>
                                 <Link href="/institutions"
-                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <LandmarkIcon className="h-5 w-5"/>
-                                    <span className="text-[12px]">Personas</span>
+                                    className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5" />
+                                    <span className="text-[12px]">Institutos</span>
                                 </Link>
                                 <Link href="/messages"
-                                      className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <MessageSquareIcon className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <MessageSquareIcon className="h-5 w-5" />
                                     <span className="text-[12px]">Mensajes</span>
                                 </Link>
                                 <Link href="/notifications"
-                                      className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <Bell className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Bell className="h-5 w-5" />
                                     <span className="text-[12px]">Notificaciones</span>
                                 </Link>
                             </>
                         ) : (
                             <>
                                 <Link href="/search"
-                                      className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
-                                    <Building2Icon className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/search" ? "text-foreground flex flex-col items-center" : "text-muted-foreground flex flex-col items-center"}`}>
+                                    <Building2Icon className="h-5 w-5" />
                                     <span className="text-[12px]">Empresas</span>
                                 </Link>
                                 <Link href="/people"
-                                      className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <User className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5" />
                                     <span className="text-[12px]">Personas</span>
                                 </Link>
                                 <Link href="/institutions"
-                                      className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
-                                    <LandmarkIcon className="h-5 w-5"/>
+                                    className={`flex flex-col items-center ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5" />
                                     <span className="text-[12px]">Institutos</span>
                                 </Link>
                             </>
@@ -74,7 +94,7 @@ export default function HeaderDefault() {
                     </nav>
                     <div className="flex items-center space-x-2">
                         {loggedIn ? (
-                            <ProfileDropdown userData={userData} logout={logout}/>
+                            <ProfileDropdown userData={userData} logout={logout} />
                         ) : (
                             <>
                                 <Button variant="ghost" asChild>
@@ -88,14 +108,126 @@ export default function HeaderDefault() {
                         {/*<ModeToggle/>*/}
                     </div>
                 </div>
+
+                {/* Botones para móvil - siempre visibles */}
+                <div className="flex flex-1 justify-end items-center md:hidden">
+                    {loggedIn && (
+                        <ProfileDropdown userData={userData} logout={logout} />
+                    )}
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="ml-2"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {mobileMenuOpen ? (
+                            <X className="h-6 w-6" />
+                        ) : (
+                            <Menu className="h-6 w-6" />
+                        )}
+                    </Button>
+                </div>
+            </div>
+
+            {/* Overlay para cerrar el menú al hacer clic fuera */}
+            {mobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/20 z-40 md:hidden"
+                    onClick={() => setMobileMenuOpen(false)}
+                ></div>
+            )}
+
+            {/* Menú móvil que sale desde la derecha */}
+            <div
+                className={`fixed top-0 right-0 bottom-0 z-50 w-64 bg-background shadow-xl transform transition-transform duration-300 ease-in-out md:hidden ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+                    }`}
+            >
+                {/* Cabecera del menú móvil */}
+                <div className="flex items-center justify-between p-4 border-b">
+                    <h2 className="font-semibold">Menú</h2>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setMobileMenuOpen(false)}
+                    >
+                        <X className="h-5 w-5" />
+                    </Button>
+                </div>
+
+                {/* Contenido del menú móvil */}
+                <nav className="px-4 py-3 space-y-1 h-screen flex flex-col" style={{ backgroundColor: 'white' }}>
+                    <div className="flex-grow">
+                        {loggedIn ? (
+                            <>
+                                <Link href="/search"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/search" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Building2Icon className="h-5 w-5" />
+                                    <span>Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5" />
+                                    <span>Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5" />
+                                    <span>Institutos</span>
+                                </Link>
+                                <Link href="/messages"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/messages" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <MessageSquareIcon className="h-5 w-5" />
+                                    <span>Mensajes</span>
+                                </Link>
+                                <Link href="/notifications"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Bell className="h-5 w-5" />
+                                    <span>Notificaciones</span>
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/search"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/search" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <Building2Icon className="h-5 w-5" />
+                                    <span>Empresas</span>
+                                </Link>
+                                <Link href="/people"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/people" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <User className="h-5 w-5" />
+                                    <span>Personas</span>
+                                </Link>
+                                <Link href="/institutions"
+                                    className={`flex items-center space-x-3 py-3 ${pathname === "/institutions" ? "text-foreground" : "text-muted-foreground"}`}>
+                                    <LandmarkIcon className="h-5 w-5" />
+                                    <span>Institutos</span>
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                </nav>
+
+                {/* Botones de login/register para móvil */}
+                {!loggedIn && (
+                    <div className="absolute bottom-0 left-0 right-0 p-4 border-t">
+                        <div className="flex flex-col space-y-2">
+                            <Button variant="outline" asChild className="w-full">
+                                <Link href="/login">Login</Link>
+                            </Button>
+                            <Button asChild className="w-full">
+                                <Link href="/register">Register</Link>
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
         </header>
-
     )
 }
 
 // Componente para el menú desplegable del perfil
-function ProfileDropdown({userData, logout}) {
+function ProfileDropdown({ userData, logout }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
@@ -111,7 +243,6 @@ function ProfileDropdown({userData, logout}) {
                 setIsOpen(false);
             }
         };
-
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
@@ -131,6 +262,7 @@ function ProfileDropdown({userData, logout}) {
                 <ul
                     role="menu"
                     className="absolute right-0 z-10 mt-2 min-w-[180px] overflow-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg"
+                    style={{ backgroundColor: 'white' }}
                 >
                     {/* Opción "My Profile" */}
                     <li
@@ -150,11 +282,11 @@ function ProfileDropdown({userData, logout}) {
                                 clipRule="evenodd"
                             />
                         </svg>
-                        <Link href={`/profile/student/${userData.slug}`} className="ml-2">
+                        <Link href={`/profile/student/${userData?.slug}`} className="ml-2">
                             <p className="font-medium">Mi perfil</p>
                         </Link>
                     </li>
-                    {/* Opción "My Profile" */}
+                    {/* Opción "Mi compañia" */}
                     {userData?.rol === "company" ? (
                         <>
                             <li
@@ -182,7 +314,6 @@ function ProfileDropdown({userData, logout}) {
                             </li>
                         </>
                     ) : (<></>)}
-
                     {/* Opción "Help" */}
                     <li
                         role="menuitem"
@@ -205,7 +336,7 @@ function ProfileDropdown({userData, logout}) {
                             <p className="font-medium">Ayuda</p>
                         </Link>
                     </li>
-                    <hr className="my-2 border-slate-200" role="separator"/>
+                    <hr className="my-2 border-slate-200" role="separator" />
                     {/* Opción "Sign Out" */}
                     <li
                         role="menuitem"
