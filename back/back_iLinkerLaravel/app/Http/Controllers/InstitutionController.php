@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Institutions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -144,14 +145,30 @@ class InstitutionController extends Controller
 
     public function getByCustomUrl(string $customUrl)
     {
-        $institution = Institutions::where('custom_url', $customUrl)
-            ->with('user')
-            ->firstOrFail();
+        try {
+            $institution = Institutions::where('slug', $customUrl)
+                ->orWhere('custom_url', $customUrl)
+                ->with('user')
+                ->first();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Institution found',
-            'data' => $institution
-        ]);
+            if (!$institution) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Institution not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Institution found',
+                'data' => $institution
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error finding institution: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error finding institution'
+            ], 500);
+        }
     }
 }
