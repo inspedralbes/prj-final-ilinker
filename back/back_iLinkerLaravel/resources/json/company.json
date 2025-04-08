@@ -1,0 +1,23 @@
+[
+    {
+        "user_id": 2,
+        "name": "Tech Solutions S.L.",
+        "slug": "tech-solutions-s-l",
+        "CIF": "B12345678",
+        "num_people": 50,
+        "logo": "tech_solutions_logo.png",
+        "short_description": "Empresa especializada en soluciones tecnológicas.",
+        "description": "Tech Solutions es una empresa líder en desarrollo de software y consultoría tecnológica.",
+        "email": "contacto@techsolutions.com",
+        "phone": 912345678,
+        "website": "https://www.techsolutions.com",
+        "responsible_name": "Laura",
+        "responsible_phone": 987654321,
+        "responsible_email": "laura.martinez@techsolutions.com",
+        "company_position": "Directora de RRHH",
+        "address": "Calle Innovación 10",
+        "city": "Madrid",
+        "postal_code": 28001,
+        "country": "España"
+    }
+]

@@ -1,0 +1,54 @@
+services:
+  db:
+    image: mysql:8.2.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ilinker
+    ports:
+      - "${VITE_DB_PORT}:3306"
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "${ADMINER_PORT}:8080"
+
+  next:
+    build: ./ilinker/
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./ilinker:/app
+    working_dir: /app
+    command: bash -c "npm install && npm run dev"
+
+  nodejs:
+    build: ./back/back_iLinkerNode
+    ports:
+      - "${NODEJS_PORT}:${NODEJS_PORT}"
+    volumes:
+      - ./back/back_iLinkerNode:/app
+    working_dir: /app
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    restart: always
+    command: bash -c "npm install && npm start"
+
+  laravel:
+    build: ./back/back_iLinkerLaravel
+    ports:
+      - "${LARAVEL_PORT}:8000"
+    volumes:
+      - ./back/back_iLinkerLaravel:/var/www/:cached
+    working_dir: /var/www/
+    depends_on:
+      - db
+    entrypoint: ["bash", "/var/www/entrypoint.sh"]

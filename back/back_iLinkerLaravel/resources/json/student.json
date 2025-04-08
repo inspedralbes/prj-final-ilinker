@@ -1,0 +1,32 @@
+[
+    {
+        "user_id": 1,
+        "name": "Andrés",
+        "surname": "Pérez",
+        "type_document": "DNI",
+        "id_document": "12345678A",
+        "nationality": "Española",
+        "photo_pic": "andres_perez.png",
+        "birthday": "2000-04-15",
+        "gender": "Masculino",
+        "phone": 612345678,
+        "address": "Calle Mayor 10",
+        "city": "Madrid",
+        "country": "España",
+        "postal_code": "28001",
+        "languages": [
+            {
+                "language": "Español",
+                "level": "Nativo"
+            },
+            {
+                "language": "Inglés",
+                "level": "Avanzado"
+            },
+            {
+                "language": "Francés",
+                "level": "Intermedio"
+            }
+        ]
+    }
+]

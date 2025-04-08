@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Creacion de proyectos, experiencia y skills de un estudiante para mmostrarlo por front">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Console/Commands/MakeService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Helpers/general.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/OfferController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PagesController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SectorController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillsController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/auth/GoogleAuthController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Mail/SendPasswordResetCode.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/CambiarContraseña.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/CompanySector.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/CompanySkills.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Courses.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Institutions.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Offer.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Sector.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Skill.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Student.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/StudentEducation.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/StudentExperience.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/StudentSkills.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CompanyService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/InstitutionService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/SkillService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentEducationService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/cors.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/CompanySectorFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/CoursesFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/OfferFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/SectorFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/SkillFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/StudentEducationFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/StudentExperienceFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/StudentFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/StudentSkillsFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/UserProjectFactory.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_083009_create_institutions_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_111401_create_user_projects_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_113816_create_offers_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_22_105055_create_sectors_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_22_105114_create_company_sectors_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_27_104539_create_skills_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_080504_create_cambiar_contraseña_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_081214_create_courses_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092115_create_student_education_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092553_create_student_skills_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092726_create_student_experiences_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_085607_add_column_slug_in_company.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_104032_add_column_photo_pic_in_users.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_112142_add_column_slug_in_institutions.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_113019_add_column_cover_photo_in_company.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_115048_add_column_company_email_in_company.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_181049_create_company_skills_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212049_create_institution_specialties_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212348_create_institution_hashtags_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212440_create_institution_additional_locations_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212645_create_institution_certifications_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212819_create_institution_collaborations_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_213156_create_institution_milestones_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_213242_create_institution_publications_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CompanySectorSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CoursesSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/InstitutionsSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/OfferSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/SectorSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/SkillSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentEducationSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentExperienceSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSkillsSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/UserSeeder.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/entrypoint.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/ilinker.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/company.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/courses.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/institutions.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/offers.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/sectors.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/skills.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/student.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/student_education.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/users.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/views/emails/password-reset-code.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/tests/Feature/UserTest.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerNode/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/doc/endpoint.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/en.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/es.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/public/locales/fr.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/api/auth/[...nextauth]/route.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/institutions/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/login/layout.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/messages/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/notifications/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/people/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientNotMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyDoesntExist.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/ModalOffer.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitueClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstituteDoesntExist.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitutionClientMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitutionClientNotMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/search/page.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/communicationManager/communicationManager.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/languageSwitcher.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/managerHeader.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/mode-toggle.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/navBar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/searchHeader.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/accordion.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/alert-dialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/alert.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/aspect-ratio.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/avatar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/badge.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/breadcrumb.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/button.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/calendar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/card.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/carousel.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/chart.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/checkbox.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/collapsible.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/command.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/context-menu.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/dialog.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/drawer.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/dropdown-menu.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/form.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/hover-card.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/input-otp.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/input.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/label.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/menubar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/navigation-menu.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/pagination.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/popover.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/progress.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/radio-group.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/resizable.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/scroll-area.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/select.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/separator.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/sheet.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/skeleton.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/slider.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/sonner.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/switch.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/table.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/tabs.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/textarea.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/toast.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/toaster.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/toggle-group.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/toggle.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/ui/tooltip.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/userMenu.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/components/workingOnIt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/context/authContext.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/contexts/AuthContext.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/hooks/use-toast.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/hooks/useNavBar.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/hooks/useTranslation.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/lib/utils.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Company.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Company.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Instittions.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/UserProject.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/filesystems.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/filesystems.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/InstittionsFactory.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/factories/InstittionsFactory.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/0001_01_01_000000_create_users_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/0001_01_01_000000_create_users_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_081150_create_companies_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_081150_create_companies_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_083009_create_instittions_table.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CompanySeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/CompanySeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/InstittionsSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/UserProjectSeeder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/css/app.css" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/css/app.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/storage/app/private/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/tailwind.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/tailwind.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerNode/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerNode/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerNode/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerNode/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerNode/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerNode/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/next.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/next.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/favicon.ico" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/favicon.ico" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/layout.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/layout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/loading.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/loading.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/login/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/login/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/register/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/register/page.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/tailwind.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/tailwind.config.mjs" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev-jheremy" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="D:\xampp\php\php.exe" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2rvwCBYv75C3Do6OARcGf3Qx9vC" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Merging main",
+    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "D:\\PhpStorm\\PhpStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Proyectos programacion\daw2\prj-final-ilinker\back\back_iLinkerLaravel" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\search\components" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\search" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\profile\company\[slug]" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
+      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
+        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="" />
+      <created>1737452729198</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1737452729198</updated>
+      <workItem from="1737452730625" duration="30342000" />
+      <workItem from="1738323349961" duration="354000" />
+      <workItem from="1738323716874" duration="1818000" />
+      <workItem from="1738570541797" duration="23720000" />
+      <workItem from="1739225011257" duration="3167000" />
+      <workItem from="1739703727259" duration="23106000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Creacion de proyectos, experiencia y skills de un estudiante para mmostrarlo por front" />
+    <option name="LAST_COMMIT_MESSAGE" value="Creacion de proyectos, experiencia y skills de un estudiante para mmostrarlo por front" />
+  </component>
+</project>
