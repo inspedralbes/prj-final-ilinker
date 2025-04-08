@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Company;
+use App\Models\CompanySector;
+use App\Models\CompanySkills;
+use Illuminate\Support\Facades\Log;
 
 class CompanyService
 {
@@ -18,6 +21,7 @@ class CompanyService
         $company->user_id = $data['id'];
 
         $company->name = $dataCompany['name']  ?? null;
+        $company->slug = generateSlug($dataCompany['name']);
         $company->CIF = $dataCompany['CIF']  ?? null;
         $company->num_people= $dataCompany['num_people'] ?? null;
         $company->logo = $dataCompany['logo']  ?? null;
@@ -45,12 +49,23 @@ class CompanyService
 
     public function updateCompany($data)
     {
+        Log::info($data);
         $company = Company::findOrFail($data['id']);
 
         $company->name = $data['name'];
         $company->CIF = $data['CIF'];
         $company->num_people= $data['num_people'];
-        $company->logo = $data['logo'];
+        if ($data->hasFile('logo')) {
+            $fileName = "logo_{$company->id}." . $data->file('logo')->getClientOriginalExtension();
+            $path = $data->file('logo')->storeAs("public/companies", $fileName);
+            $company->logo = "storage/companies/{$fileName}";
+        }
+
+        if ($data->hasFile('cover_photo')) {
+            $fileName = "cover_photo_{$company->id}." . $data->file('cover_photo')->getClientOriginalExtension();
+            $path = $data->file('cover_photo')->storeAs("public/companies", $fileName);
+            $company->cover_photo = "storage/companies/{$fileName}";
+        }
         $company->short_description = $data['short_description'];
         $company->description = $data['description'];
         $company->email = $data['email'];
@@ -64,6 +79,28 @@ class CompanyService
         $company->country = $data['country'];
 
         $company->save();
+
+        $sectors = $data['sectors'];
+        $skills = $data['skills'];
+
+        foreach ($sectors as $sector) {
+            $checkIfHasSector = CompanySector::where('company_id', $company->id)->where('sector_id', $sector['id'])->first();
+            if(!$checkIfHasSector){
+                $newCompanySector = new CompanySector();
+                $newCompanySector->company_id = $company->id;
+                $newCompanySector->sector_id = $sector['id'];
+                $newCompanySector->save();
+            }
+        }
+        foreach ($skills as $skil) {
+        $checkIfHasSkill = CompanySkills::where('company_id', $company->id)->where('skill_id', $skil['id'])->first();
+            if(!$checkIfHasSkill){
+                $newCompanySkill = new CompanySkills();
+                $newCompanySkill->company_id = $company->id;
+                $newCompanySkill->skill_id = $skil['id'];
+                $newCompanySkill->save();
+            }
+        }
 
         return $company;
     }

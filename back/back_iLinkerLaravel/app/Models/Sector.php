@@ -9,4 +9,6 @@ class Sector extends Model
 {
     /** @use HasFactory<\Database\Factories\SectorFactory> */
     use HasFactory;
+
+
 }

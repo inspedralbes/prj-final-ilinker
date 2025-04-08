@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SectorController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -48,8 +49,12 @@ Route::prefix('/company')->group(function () {
 });
 
 Route::prefix('/institution')->group(function () {
-    Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
-    Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
+    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
+    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+    Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
+    Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
 });
 
 Route::prefix('/education')->group(function () {
@@ -79,7 +84,12 @@ Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
 });
 
+Route::prefix('/sectors')->group(function () {
+    Route::get('/', [SectorController::class, 'getSectors']);
+});
+
 Route::prefix('/page')->group(function (){
    Route::get('/register', [PagesController::class, 'registerPage']);
    Route::get('/search', [PagesController::class, 'searchPractices']);
+   Route::get('/profile/company', [PagesController::class, 'profileCompany']);
 });

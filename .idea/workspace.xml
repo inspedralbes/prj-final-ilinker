@@ -5,26 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/institutions/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/messages/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/notifications/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/people/page.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClient.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientMe.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyClientNotMe.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/CompanyDoesntExist.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ilinker/src/components/workingOnIt.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_13_112142_add_column_slug_in_institutions.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212049_create_institution_specialties_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212348_create_institution_hashtags_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212440_create_institution_additional_locations_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212645_create_institution_certifications_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_212819_create_institution_collaborations_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_213156_create_institution_milestones_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_16_213242_create_institution_publications_table.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitueClient.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstituteDoesntExist.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitutionClientMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/InstitutionClientNotMe.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/institution/[slug]/page.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_02_04_083949_create_personal_access_tokens_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/login/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/login/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileMeClient.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/CompanyProfileNotMe.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/company/page.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/company/[slug]/page.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/register/RegisterClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/search/SearchClient.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/components/headerDefault.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_083009_create_institutions_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_083009_create_institutions_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +39,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="dev-jheremy" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="D:\xampp\php\php.exe" />
@@ -53,19 +55,19 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;create-events-in-page-search-company&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\PhpStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "Merging dev",
+    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "ts.external.directory.path": "D:\\PhpStorm\\PhpStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Proyectos programacion\daw2\prj-final-ilinker\back\back_iLinkerLaravel" />
@@ -102,6 +104,7 @@
       <workItem from="1738323716874" duration="1818000" />
       <workItem from="1738570541797" duration="23720000" />
       <workItem from="1739225011257" duration="3167000" />
+      <workItem from="1739703727259" duration="23106000" />
     </task>
     <servers />
   </component>
