@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class InstitutionController extends Controller
 {
@@ -22,6 +23,7 @@ class InstitutionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:institutions|max:255',
+            'slug' => 'nullable|string|max:255',
             'custom_url' => 'nullable|string|max:255',
             'slogan' => 'nullable|string|max:255',
             'about' => 'nullable|string',
@@ -55,11 +57,14 @@ class InstitutionController extends Controller
 
         $data = $request->all();
 
-        // Check if user is authenticated and set user_id
+        // Generate el slug a partir del name 
+        if(empty($data['slug'])){
+            $data['slug'] = Str::slug($data['name'], '_');
+        }
+
         if (Auth::check()) {
             $data['user_id'] = Auth::id();
         } else if (!isset($data['user_id']) || empty($data['user_id'])) {
-            // If not authenticated and no user_id provided, return error
             return response()->json([
                 'message' => 'Authentication required. Please login or provide a valid user_id.',
                 'errors' => ['user_id' => ['User ID is required.']]
