@@ -6,7 +6,6 @@ export default function Loading() {
                 <div className="w-7 h-7 border-4 border-t-transparent border-black rounded-full animate-spin"></div>
                 <p className="text-black">Carregant...</p>
             </div>
-
         </div>
     );
 }
