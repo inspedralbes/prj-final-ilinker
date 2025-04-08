@@ -6,6 +6,7 @@ use App\Models\Institutions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
@@ -139,8 +140,63 @@ class InstitutionController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Institution deleted'
-
         ]);
+    }
+
+    // Upload logo or cover image for institution
+    public function uploadImage(Request $request, string $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+                'type' => 'required|in:logo,cover'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            $institution = Institutions::findOrFail($id);
+            
+            // Check if user is authorized to update this institution
+            if (Auth::id() !== $institution->user_id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $file = $request->file('image');
+            $type = $request->input('type');
+            
+            // Generate unique filename
+            $filename = $type . '_' . $institution->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            
+            // Store file in public storage
+            $path = $file->storeAs('institutions/' . $institution->id, $filename, 'public');
+            
+            // Generate public URL
+            $url = Storage::url($path);
+            
+            // Update institution record
+            if ($type === 'logo') {
+                $institution->logo = $url;
+            } else {
+                $institution->cover = $url;
+            }
+            
+            $institution->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => ucfirst($type) . ' image uploaded successfully',
+                $type . '_url' => $url
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error uploading institution image: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error uploading image: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function getByCustomUrl(string $customUrl)

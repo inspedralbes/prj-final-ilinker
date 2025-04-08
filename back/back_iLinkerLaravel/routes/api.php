@@ -55,6 +55,7 @@ Route::prefix('/institution')->group(function () {
     Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
     Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
     Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
+    Route::post('/{id}/image', [InstitutionController::class, 'uploadImage'])->middleware('auth:sanctum')->name('institution.uploadImage');
 });
 
 Route::prefix('/education')->group(function () {

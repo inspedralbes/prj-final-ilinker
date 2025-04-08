@@ -21,50 +21,33 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
-export default function InstitutionClientNotMe() {
+export default function InstitutionClientNotMe({ institution }) {
   const [visiblePublications, setVisiblePublications] = useState(3)
   const [isFollowing, setIsFollowing] = useState(false)
 
-  // Datos estáticos del instituto (en un caso real vendrían de una API/Base de datos)
+  if (!institution) {
+    return null;
+  }
+
   const institute = {
     basic: {
-      name: "Institut Pedralbes",
-      customUrl: "institut-pedralbes",
-      slogan: "Formando los profesionales del futuro",
-      about: "El Institut Pedralbes es un centro público de formación profesional líder en Barcelona, especializado en tecnología e informática. Nuestra misión es proporcionar una educación de calidad que prepare a los estudiantes para los desafíos del mundo laboral moderno.",
-      location: "Av. d'Esplugues, 36-42, 08034 Barcelona",
-      size: "50-200 empleados",
-      type: "Centro Público de Formación Profesional",
-      sector: "Educación Secundaria y Formación Profesional",
-      foundedYear: "1975",
-      website: "www.institutpedralbes.cat",
-      phone: "+34 932 033 332",
-      email: "secretaria@institutpedralbes.cat",
-      languages: ["Catalán", "Castellano", "Inglés"],
-      logo: "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80",
-      cover: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80"
+      name: institution.name || "",
+      slogan: institution.slogan || "",
+      about: institution.about || "",
+      location: institution.location || "",
+      size: institution.size || "",
+      type: institution.type || "",
+      sector: institution.sector || "",
+      foundedYear: institution.founded_year || "",
+      website: institution.website || "",
+      phone: institution.phone || "",
+      email: institution.email || "",
+      languages: institution.languages || [],
+      logo: institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f",
+      cover: institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
     },
-    specialties: [
-      "Desarrollo de Aplicaciones Web",
-      "Administración de Sistemas",
-      "Ciberseguridad",
-      "Inteligencia Artificial",
-      "Desarrollo de Videojuegos",
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: "Centro Certificado Microsoft Imagine Academy",
-        issuedBy: "Microsoft",
-        year: "2023",
-      },
-      {
-        id: 2,
-        name: "Cisco Networking Academy",
-        issuedBy: "Cisco",
-        year: "2022",
-      },
-    ],
+    specialties: institution.specialties || [],
+    certifications: institution.certifications || [],
     collaborations: [
       {
         id: 1,
