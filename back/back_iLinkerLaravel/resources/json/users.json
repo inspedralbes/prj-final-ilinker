@@ -23,10 +23,11 @@
         "name": "Miguel",
         "surname": "Fernández",
         "birthday": "1995-03-10",
-        "email": "miguel.fernandez@example.com",
-        "active": false,
-        "email_verified_at": null,
+        "email": "purvish@gmail.com",
+        "active": true,
+        "email_verified_at": "2025-02-02 14:30:00",
         "password": "1234",
-        "rol": "institutions"
+        "rol": "institutions" 	
+        
     }
 ]
