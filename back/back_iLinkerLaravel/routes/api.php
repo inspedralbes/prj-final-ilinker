@@ -49,13 +49,17 @@ Route::prefix('/company')->group(function () {
 });
 
 Route::prefix('/institution')->group(function () {
+    // Public routes
     Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
-    Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
-    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
-    Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
-    Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
     Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
-    Route::post('/{id}/image', [InstitutionController::class, 'uploadImage'])->middleware('auth:sanctum')->name('institution.uploadImage');
+    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+    
+    // Protected routes that require authentication
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
+        Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+    });
 });
 
 Route::prefix('/education')->group(function () {

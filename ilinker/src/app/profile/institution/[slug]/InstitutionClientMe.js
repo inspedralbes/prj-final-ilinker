@@ -26,8 +26,10 @@ export default function InstitutionClientMe({ institution }) {
     phone: institution.phone || '',
     email: institution.email || ''
   })
-  const [logoImage, setLogoImage] = useState(institution.logo || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f")
-  const [coverImage, setCoverImage] = useState(institution.cover || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
+
+  // mostrar imagen de logo y cover
+  const [logoImage, setLogoImage] = useState(institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f")
+  const [coverImage, setCoverImage] = useState(institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
 
   const handleEdit = (section) => {
     setIsEditing(section)
@@ -35,11 +37,49 @@ export default function InstitutionClientMe({ institution }) {
 
   const handleSave = async () => {
     try {
-      // Call API to save changes
-      await apiRequest(`institution/${institution.id}`, 'PUT', institutionData);
-      setIsEditing(null)
+      const dataToSend = {
+        ...institutionData,
+        id: institution.id,
+        // Ensure languages is an array
+        languages: Array.isArray(institutionData.languages) ? institutionData.languages : [],
+        // Ensure specialties is an array
+        specialties: Array.isArray(institutionData.specialties) ? institutionData.specialties : []
+      };
+      
+      // Call API to save changes using the correct endpoint
+      const response = await apiRequest('institution/update', 'POST', dataToSend);
+      
+      if (response.status === 'success') {
+        // Update local state with server response
+        setInstitutionData(prevState => ({
+          ...prevState,
+          ...response.data
+        }));
+        
+        // Update image URLs if they were included
+        if (response.data.logo_url) {
+          setLogoImage(response.data.logo_url);
+        }
+        if (response.data.cover_url) {
+          setCoverImage(response.data.cover_url);
+        }
+        
+        // Exit edit mode
+        setIsEditing(null);
+      } else {
+        console.error('Server error:', response);
+        throw new Error(response.message || 'Failed to update institution');
+      }
     } catch (error) {
       console.error('Error saving institution:', error);
+      // Show validation errors if any
+      if (error.response?.status === 422) {
+        console.error('Validation errors:', error.response.data.errors);
+        // You might want to show these errors to the user
+        alert('Please check the form fields for errors.');
+      } else {
+        alert('Failed to save changes. Please try again.');
+      }
     }
   }
 
@@ -48,24 +88,50 @@ export default function InstitutionClientMe({ institution }) {
     if (file) {
       try {
         const formData = new FormData()
-        formData.append('image', file)
-        formData.append('type', type)
 
-        const response = await apiRequest(`institution/${institution.id}/image`, 'POST', formData)
-        
         if (type === "logo") {
-          setLogoImage(response.logo_url)
-          setInstitutionData(prev => ({ ...prev, logo_url: response.logo_url }))
+          formData.append('logo', file)
         } else {
-          setCoverImage(response.cover_url)
-          setInstitutionData(prev => ({ ...prev, cover_url: response.cover_url }))
+          formData.append('cover', file)
+        }
+
+        // Incluir el ID de la institución
+        formData.append('id', institution.id)
+
+        // Usar la ruta de actualización general
+        const response = await apiRequest('institution/update', 'POST', formData, true);
+
+        if (response && response.data) {
+          const imageField = type === "logo" ? "logo" : "cover";
+          const imageUrl = response.data[imageField] ? 
+            `${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data[imageField]}` :
+            null;
+
+          if (imageUrl) {
+            if (type === "logo") {
+              setLogoImage(imageUrl);
+              setInstitutionData(prev => ({
+                ...prev,
+                logo: response.data.logo,
+                logo_url: imageUrl
+              }));
+            } else {
+              setCoverImage(imageUrl);
+              setInstitutionData(prev => ({
+                ...prev,
+                cover: response.data.cover,
+                cover_url: imageUrl
+              }));
+            }
+          }
+        } else {
+          throw new Error(response.message || 'Failed to upload image');
         }
       } catch (error) {
         console.error('Error uploading image:', error)
       }
     }
   }
-
   const updateInstitution = (field, value) => {
     setInstitutionData(prev => ({
       ...prev,
