@@ -27,12 +27,22 @@ export default function InstitutionClientMe({ institution }) {
     phone: institution.phone || '',
     email: institution.email || ''
   })
+  const [originalData, setOriginalData] = useState({...institution})
 
   const [logoImage, setLogoImage] = useState(institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f")
   const [coverImage, setCoverImage] = useState(institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
 
   const handleEdit = (section) => {
+    // Store the current state before editing
+    setOriginalData({...institutionData})
     setIsEditing(section)
+    setError(null)
+  }
+
+  const handleCancel = () => {
+    // Restore original data for the section being edited
+    setInstitutionData({...institutionData, ...originalData})
+    setIsEditing(null)
     setError(null)
   }
 
@@ -183,13 +193,21 @@ export default function InstitutionClientMe({ institution }) {
     )
   }
 
-  const renderSaveButton = () => (
-    <button
-      onClick={handleSave}
-      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-    >
-      Guardar
-    </button>
+  const renderActionButtons = () => (
+    <div className="flex gap-2 mt-2">
+      <button
+        onClick={handleSave}
+        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+      >
+        Guardar
+      </button>
+      <button
+        onClick={handleCancel}
+        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+      >
+        Cancelar
+      </button>
+    </div>
   )
 
   // la parte dpnde muestra informacion sobre instituto 
@@ -208,14 +226,11 @@ export default function InstitutionClientMe({ institution }) {
             onChange={(e) => updateInstitution("about", e.target.value)}
             className="w-full h-32 p-2 border rounded"
           />
-          {renderSaveButton()}
+          {renderActionButtons()}
           {renderErrorMessage()}
         </div>
       ) : (
         <p className="text-gray-600">{institutionData.about}</p>
-        
-        
-        
       )}
     </div>
   )
@@ -280,7 +295,7 @@ export default function InstitutionClientMe({ institution }) {
               />
             </div>
           </div>
-          {renderSaveButton()}
+          {renderActionButtons()}
           {renderErrorMessage()}
         </div>
       ) : (
@@ -359,7 +374,7 @@ export default function InstitutionClientMe({ institution }) {
             <Plus className="h-4 w-4 inline mr-1" />
             Añadir especialidad
           </button>
-          {renderSaveButton()}
+          {renderActionButtons()}
           {renderErrorMessage()}
         </div>
       ) : (
@@ -437,7 +452,7 @@ export default function InstitutionClientMe({ institution }) {
                             className="text-gray-600 border rounded px-2 py-1 flex-1"
                           />
                         </div>
-                        {renderSaveButton()}
+                        {renderActionButtons()}
                         {renderErrorMessage()}
                       </div>
                     ) : (
@@ -492,8 +507,10 @@ export default function InstitutionClientMe({ institution }) {
                           className="flex-1 border rounded px-2 py-1"
                         />
                       </div>
-                      {renderSaveButton()}
-                      {renderErrorMessage()}
+                      <div className="col-span-3">
+                        {renderActionButtons()}
+                        {renderErrorMessage()}
+                      </div>
                     </>
                   ) : (
                     <>
