@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Institutions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -82,47 +83,71 @@ class InstitutionController extends Controller
     {
         $institution = Institutions::findOrFail($id);
 
+        // Ajustamos las validaciones para tratar los archivos de imagen
         $validator = Validator::make($request->all(), [
-            'name' => ['nullable', 'string', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
-            'slug' => 'nullable|string|max:255',
-            'custom_url' => 'nullable|string|max:255',
-            'slogan' => 'nullable|string|max:255',
-            'about' => 'nullable|string',
-            'NIF' => ['nullable', 'string', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
-            'type' => 'nullable|string|max:255',
-            'academic_sector' => 'nullable|string|max:255',
-            'location' => 'nullable|string|max:255',
-            'size' => 'nullable|string|max:255',
-            'sector' => 'nullable|string|max:255',
-            'founded_year' => 'nullable|string|max:255',
-            'languages' => 'nullable|array',
-            'logo' => 'nullable|string|max:255',
-            'cover' => 'nullable|string|max:255',
-            'website' => 'nullable|string|max:255',
-            'phone' => 'nullable|integer',
-            'email' => ['nullable', 'email', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
-            'responsible_name' => 'nullable|string|max:255',
-            'responsible_phone' => 'nullable|integer',
-            'responsible_email' => ['nullable', 'email', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
+            'name'                 => ['nullable', 'string', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
+            'slug'                 => 'nullable|string|max:255',
+            'custom_url'           => 'nullable|string|max:255',
+            'slogan'               => 'nullable|string|max:255',
+            'about'                => 'nullable|string',
+            'NIF'                  => ['nullable', 'string', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
+            'type'                 => 'nullable|string|max:255',
+            'academic_sector'      => 'nullable|string|max:255',
+            'location'             => 'nullable|string|max:255',
+            'size'                 => 'nullable|string|max:255',
+            'sector'               => 'nullable|string|max:255',
+            'founded_year'         => 'nullable|string|max:255',
+            'languages'            => 'nullable|array',
+            // Ajustamos la validación de logo y cover para recibir imágenes
+            'logo'                 => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'cover_photo'                => 'nullable|image|mimes:jpg,jpeg,png,gif,svg|max:2048',
+            'website'              => 'nullable|string|max:255',
+            'phone'                => 'nullable|integer',
+            'email'                => ['nullable', 'email', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
+            'responsible_name'     => 'nullable|string|max:255',
+            'responsible_phone'    => 'nullable|integer',
+            'responsible_email'    => ['nullable', 'email', Rule::unique('institutions')->ignore($institution->id), 'max:255'],
             'institution_position' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'city' => 'nullable|string|max:255',
-            'country' => 'nullable|string|max:255',
-            'postal_code' => 'nullable|string|max:255',
+            'address'              => 'nullable|string|max:255',
+            'city'                 => 'nullable|string|max:255',
+            'country'              => 'nullable|string|max:255',
+            'postal_code'          => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $institution->update($request->all());
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Institution updated',
-            'data' => $institution,
+        // Obtenemos todos los datos enviados en el request
+        $data = $request->all();
 
+        // Procesamos el archivo del logo si existe y lo guardamos en el disco 'public'
+        if ($request->hasFile('logo')) {
+            Log::info($request);
+            // Guarda el archivo en la carpeta 'logo' dentro de storage/app/public
+            $logoPath = $request->file('logo')->store('logo', 'public');
+            Log::info($logoPath);
+            // Almacenamos la ruta relativa (por ejemplo: logo/archivo.jpg)
+            $data['logo'] = $logoPath;
+        }
+
+        // Procesamos el archivo de portada (cover) si existe y lo guardamos en el disco 'public'
+        if ($request->hasFile('cover')) {
+            // Guarda el archivo en la carpeta 'cover' dentro de storage/app/public
+            $coverPath = $request->file('cover')->store('cover', 'public');
+            // Almacenamos la ruta relativa
+            $data['cover'] = $coverPath;
+        }
+
+        $institution->update($data);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Institution updated',
+            'data'    => $institution,
         ]);
     }
+
 
     // borrar las institución
     public function destroy(string $id)

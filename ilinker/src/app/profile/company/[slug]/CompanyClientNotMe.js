@@ -156,15 +156,7 @@ export default function CompanyClientNotMe() {
                     alt="Cover"
                     className="w-full h-full object-cover"
                 />
-                <label className="absolute bottom-4 right-4 cursor-pointer">
-                    <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, 'cover')}
-                    />
-                    <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
-                </label>
+                
             </div>
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -179,15 +171,7 @@ export default function CompanyClientNotMe() {
                                         src={logoImage}
                                         alt={institute.basic.name}
                                     />
-                                    <label className="absolute bottom-2 right-2 cursor-pointer">
-                                        <input
-                                            type="file"
-                                            className="hidden"
-                                            accept="image/*"
-                                            onChange={(e) => handleImageUpload(e, 'logo')}
-                                        />
-                                        <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
-                                    </label>
+                                  
                                 </div>
                                 <div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
                                     {isEditing === 'basic' ? (
@@ -228,13 +212,6 @@ export default function CompanyClientNotMe() {
                                                 <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                                                 {institute.basic.location}
                                             </p>
-                                            <button
-                                                onClick={() => handleEdit('basic')}
-                                                className="mt-2 flex items-center text-blue-600 hover:text-blue-800"
-                                            >
-                                                <Pencil className="h-4 w-4 mr-1" />
-                                                Editar información básica
-                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -280,12 +257,7 @@ export default function CompanyClientNotMe() {
                         <div className="mt-6 border-t border-gray-200 pt-6">
                             <div className="flex justify-between items-center mb-4">
                                 <h2 className="text-lg font-medium text-gray-900">Acerca de</h2>
-                                <button
-                                    onClick={() => handleEdit('about')}
-                                    className="text-blue-600 hover:text-blue-800"
-                                >
-                                    <Pencil className="h-4 w-4" />
-                                </button>
+                                
                             </div>
                             {isEditing === 'about' ? (
                                 <div>
