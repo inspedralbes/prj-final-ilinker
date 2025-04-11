@@ -4,13 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Perfil del estudiante, funciones creada">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Cmavios de perfil de estudiantes con conexion a la base de datos">
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CoursesController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CoursesService.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ilinker/src/app/profile/student/[uuid]/ModalInstitutions.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_111401_create_user_projects_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_111401_create_student_projects_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/DatabaseSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentExperienceSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentExperienceSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSkillsSeeder.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/StudentSkillsSeeder.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/seeders/UserProjectSeeder.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Student.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Student.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/StudentEducation.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/StudentEducation.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/InstitutionService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/InstitutionService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ilinker/src/app/profile/student/[uuid]/StudentClientMe.js" beforeDir="false" afterPath="$PROJECT_DIR$/ilinker/src/app/profile/student/[uuid]/StudentClientMe.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +74,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;D:\\PhpStorm\\PhpStorm 2024.2.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\PhpStorm 2024.3.1.1\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -79,6 +87,7 @@
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\deray\Documents\Cosas\iLinker\ilinker\src\app\profile\student\[uuid]" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\profile\company\[slug]" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
@@ -108,6 +117,9 @@
       <workItem from="1739225011257" duration="3167000" />
       <workItem from="1739703727259" duration="23106000" />
       <workItem from="1743586805547" duration="5818000" />
+      <workItem from="1744191723523" duration="4964000" />
+      <workItem from="1744267045066" duration="10265000" />
+      <workItem from="1744355041750" duration="6139000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -137,6 +149,7 @@
     <MESSAGE value="Rama actualizada con dev-kevin" />
     <MESSAGE value="eliminacion de archivos para no marear" />
     <MESSAGE value="Perfil del estudiante, funciones creada" />
-    <option name="LAST_COMMIT_MESSAGE" value="Perfil del estudiante, funciones creada" />
+    <MESSAGE value="Cmavios de perfil de estudiantes con conexion a la base de datos" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cmavios de perfil de estudiantes con conexion a la base de datos" />
   </component>
 </project>

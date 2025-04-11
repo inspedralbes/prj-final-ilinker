@@ -9,4 +9,9 @@ class StudentEducation extends Model
 {
     /** @use HasFactory<\Database\Factories\StudentEducationFactory> */
     use HasFactory;
+
+    public function institution()
+    {
+        return $this->hasOne(Institutions::class, 'id', 'institution_id');
+    }
 }

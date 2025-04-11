@@ -78,6 +78,19 @@ class InstitutionService
         return $institution;
     }
 
+    public function getInstitutions()
+    {
+        $institutions = Institutions::all()->map(function ($institution) {
+            return [
+                'id' => $institution->id,
+                'name' => $institution->name,
+                'logo' => $institution->logo,
+            ];
+        });
+
+        return $institutions;
+    }
+
     public function checkIFInstitutionExists($data)
     {
         return Institutions::where('name', '=', $data['name'])->exists();

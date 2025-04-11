@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
@@ -59,6 +60,7 @@ Route::prefix('/company')->group(function () {
 Route::prefix('/institution')->group(function () {
     Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
     Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
+    Route::get('/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
 });
 
 Route::prefix('/education')->group(function () {
@@ -89,6 +91,10 @@ Route::prefix('/offers')->group(function () {
     Route::post('/create', [OfferController::class, 'create'])->name('offers.create');
     Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
     Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
+});
+
+Route::prefix('/courses')->group(function () {
+   Route::get('/getCourses', [CoursesController::class, 'getCourses'])->name('get.courses');
 });
 
 Route::prefix('/skills')->group(function () {

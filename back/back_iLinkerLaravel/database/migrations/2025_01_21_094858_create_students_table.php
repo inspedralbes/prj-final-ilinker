@@ -24,6 +24,8 @@ return new class extends Migration
             $table->string('id_document');
             $table->string('nationality')->nullable();
             $table->string('photo_pic')->nullable();
+            $table->string('cover_photo')->nullable();
+            $table->string('desctiption')->nullable();
             $table->date('birthday')->nullable();
             $table->enum('gender',['Masculino', 'Femenino', 'No decir'])->nullable();
 

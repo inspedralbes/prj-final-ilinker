@@ -19,7 +19,7 @@ class StudentController extends Controller
     public function getStudent($uuid)
     {
 
-        $student = Student::with(['education', 'experience', 'projects', 'skills' => function ($query) {
+        $student = Student::with(['user','education.institution', 'experience', 'projects', 'skills' => function ($query) {
             $query->select('skills.id', 'skills.name');
         }])->where('uuid', $uuid)->first();
 
