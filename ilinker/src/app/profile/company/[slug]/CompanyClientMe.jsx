@@ -27,7 +27,7 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.js";
+import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.jsx";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
 
