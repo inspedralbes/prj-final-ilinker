@@ -6,7 +6,7 @@
         "email": "a23purpatmah@inspedralbes.cat",
         "active": true,
         "email_verified_at": "2024-02-01 12:00:00",
-        "password": "$2y$10$examplehashedpassword1",
+        "password": "iLk$2025",
         "rol": "student"
     },
     {
@@ -16,7 +16,7 @@
         "email": "laura.martinez@example.com",
         "active": true,
         "email_verified_at": "2024-02-02 14:30:00",
-        "password": "$2y$10$examplehashedpassword2",
+        "password": "iLk$2025",
         "rol": "company"
     },
     {
@@ -26,7 +26,7 @@
         "email": "miguel.fernandez@example.com",
         "active": false,
         "email_verified_at": null,
-        "password": "$2y$10$examplehashedpassword3",
+        "password": "iLk$2025",
         "rol": "institutions"
     }
 ]

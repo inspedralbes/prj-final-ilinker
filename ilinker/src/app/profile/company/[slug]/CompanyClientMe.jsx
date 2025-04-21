@@ -30,6 +30,7 @@ import Cookies from "js-cookie";
 import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.jsx";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
+import { apiRequest } from "@/communicationManager/communicationManager";
 
 export default function CompanyClientMe({ company, sectors, skills }) {
   const animatedComponents = makeAnimated();
@@ -143,47 +144,58 @@ export default function CompanyClientMe({ company, sectors, skills }) {
   const handleSave = async () => {
     showLoader();
     setIsEditing(null);
-
+  
     const formData = new FormData();
-
-    // Asegurarse de que los datos no sean cadenas
+  
+    // Asegurarse de que los datos no sean nulos
     Object.entries(companyEdited).forEach(([key, value]) => {
       if (key !== "logo" && key !== "cover_photo" && Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value)); // Asegurarse de que sean arrays de objetos
+        // Solo agregar valores no nulos y asegurarse de que sean arrays de objetos
+        if (value.length > 0) {
+          formData.append(key, JSON.stringify(value));
+        }
       } else if (key !== "logo" && key !== "cover_photo") {
-        formData.append(key, value);
+        // Solo agregar valores no nulos
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
       }
     });
-
+  
     // Asegurarse de que los archivos se agreguen correctamente
     if (companyEdited.logo instanceof File) {
       formData.append("logo", companyEdited.logo);
     }
-
+  
     if (companyEdited.cover_photo instanceof File) {
       formData.append("cover_photo", companyEdited.cover_photo);
     }
-
-    // const response = await apiRequest(
-    //     'company/update',
-    //     "POST",
-    //     companyEdited
-    // )
-
+  
+    // Obtener el token de autenticación
     const token = Cookies.get("authToken");
-
-    const response = await fetch("http://127.0.0.1:8000/api/company/update", {
-      method: "POST",
-      body: formData,
-      Authorization: `Bearer ${token}`,
-      credentials: "include",
-    });
-    const result = await response.json();
-
-    console.log(result);
-    setCompanyEdited(result.company);
-    hideLoader();
+  
+    try {
+      const response = await apiRequest('company/update', 'POST', formData)
+      // const response = await fetch("http://127.0.0.1:8000/api/company/update", {
+      //   method: "POST",
+      //   body: formData,
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   credentials: "include",
+      // });
+  
+      // const result = await response.json();
+  
+        console.log(response);
+        setCompanyEdited(response.company);
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+    } finally {
+      hideLoader();
+    }
   };
+  
 
   const [imageChangeCount, setImageChangeCount] = useState(0);
 

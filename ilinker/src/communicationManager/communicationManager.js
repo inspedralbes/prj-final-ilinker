@@ -4,48 +4,51 @@ const routeApi = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/
 
 export async function apiRequest(endpoint, method = "GET", body = null) {
     try {
-        let token = null;
-
-        if (typeof window !== "undefined") {
-            // Estamos en el cliente
-            token = Cookies.get("authToken");
-        }
-
-        const options = {
-            method,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            credentials: "include",
-        };
-
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-
-        const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
-        const url = `${routeApi}${cleanEndpoint}`;
-
-
-        const response = await fetch(url, options);
-
-        // if (!response.ok) {
-        //     throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
-        // }
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
-        }
-
-        return await response.json();
+      let token = null;
+  
+      if (typeof window !== "undefined") {
+        // Estamos en el cliente
+        token = Cookies.get("authToken");
+      }
+  
+      // Si el body es FormData, no se debe establecer el Content-Type
+      const isFormData = body instanceof FormData;
+  
+      const options = {
+        method,
+        headers: {
+          "Accept": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        // credentials: "include",
+      };
+  
+      // Si no es FormData, agregar el cuerpo como JSON
+      if (body && !isFormData) {
+        options.headers["Content-Type"] = "application/json";
+        options.body = JSON.stringify(body);
+      } else if (body && isFormData) {
+        // Si es FormData, no se necesita especificar el Content-Type
+        options.body = body;
+      }
+  
+      const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
+      const url = `${routeApi}${cleanEndpoint}`;
+  
+      const response = await fetch(url, options);
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
+      }
+  
+      return await response.json();
     } catch (error) {
-        console.error(`Error en la petición a ${endpoint}:`, error.message);
-        throw error;
-        // return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
+      console.error(`Error en la petición a ${endpoint}:`, error.message);
+      throw error;
     }
-}
+  }
+  
 
 export async function login() {
     try {
