@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext"; // Asegúrate de importar el contexto AuthContext
 import { LoaderProvider } from "@/contexts/LoaderContext"; // Asegúrate de importar el contexto LoaderContext
 import { Inter } from "next/font/google";
-
+import NavBar from "@/components/navBar/navBar";
 import "./globals.css";
 
 export const metadata = {
@@ -25,7 +25,7 @@ export default function RootLayout({
       >
         <AuthProvider>
           <LoaderProvider>
-            {/* <NavBar /> */}
+            <NavBar />
             <main>{children}</main>
           </LoaderProvider>
         </AuthProvider>
