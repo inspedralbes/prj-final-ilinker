@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} està pujant l'aplicació a PROD LARAVEL🚀
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   deploy:
