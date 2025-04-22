@@ -49,7 +49,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     size: institution.size || '',
     founded_year: institution.founded_year || '',
     location: institution.location || '',
-    website: institution.website?.replace(/https?:\/\//, '') || '',
+    website: institution.website || '',
     phone: institution.phone || '',
     email: institution.email || ''
   })
@@ -96,9 +96,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         case 'contact':
           dataToSend = {
             ...dataToSend,
-            website: institutionData.website,
-            phone: institutionData.phone,
-            email: institutionData.email
+            website: institutionData.website?.trim().replace(/^https?:\/\//, '').replace(/\/$/, ''),
+            phone: institutionData.phone ? String(institutionData.phone).trim() : '',
+            email: institutionData.email?.trim()
           }
           break
         case 'details':
@@ -155,6 +155,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       if (error.response?.status === 422 && error.response.data?.errors) {
         const errorMessage = Object.values(error.response.data.errors).flat().join('\n')
         setError(errorMessage)
+      }else{
+        setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
       }
     }
   }
@@ -532,7 +534,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                     <>
                       <div className="flex items-center">
                         <Globe className="h-5 w-5 text-gray-400 mr-2" />
-                        <a href={`https://${institutionData.website}`} className="text-blue-600 hover:underline">
+                        <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                           {institutionData.website}
                         </a>
                       </div>

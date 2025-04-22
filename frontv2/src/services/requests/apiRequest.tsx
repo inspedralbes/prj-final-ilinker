@@ -43,12 +43,18 @@ export async function apiRequest(
 
     const response = await fetch(url, options);
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData: any = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
+      if (response.status === 422 && data.errors) {
+        // Handle validation errors
+        const errorMessages = Object.values(data.errors).flat().join('\n');
+        throw new Error(errorMessages);
+      }
+      throw new Error(data.message || `Error en la respuesta: ${response.status}`);
     }
 
-    return await response.json();
+    return data;
   } catch (error: any) {
     console.error(`Error en la petición a ${endpoint}:`, error.message);
     throw error;
