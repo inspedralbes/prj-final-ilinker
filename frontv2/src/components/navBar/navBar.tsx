@@ -19,7 +19,9 @@ export default function NavBar() {
   const pathname = usePathname();
   const { loggedIn, userData, logout } = useContext(AuthContext);
   const router = useRouter();
-
+  if (pathname === "/") {
+    return null;
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">

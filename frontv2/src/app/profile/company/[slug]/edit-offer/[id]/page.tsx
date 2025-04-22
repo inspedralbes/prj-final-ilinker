@@ -100,6 +100,8 @@ export default function OfferDetail() {
       apiRequest(`offers/${id}`)
       .then((response)=>{
         if(response.status === 'success'){
+          console.log(response)
+          response.offer.skills = JSON.parse(response.offer.skills);
           setOffer(response.offer);
         }
       }).catch((err) =>{

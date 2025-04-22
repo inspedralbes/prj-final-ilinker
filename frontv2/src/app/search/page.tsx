@@ -1,6 +1,6 @@
 'use client'
 
-import {useContext, useEffect, useState} from 'react';
+import { useContext, useEffect, useState } from 'react';
 import {
     Search,
     MapPin,
@@ -14,14 +14,17 @@ import {
     Users,
     Banknote,
     GraduationCap,
-    X
+    X,
+    LogIn,
+    UserPlus,
+    AlertCircle
 } from 'lucide-react';
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Badge} from "@/components/ui/badge";
-import {Card} from "@/components/ui/card";
-import {Separator} from "@/components/ui/separator";
-import {ScrollArea} from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
     Sheet,
     SheetContent,
@@ -34,12 +37,14 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {formatDistanceToNow} from 'date-fns';
-import {AuthContext} from "@/contexts/AuthContext";
-import {useRouter} from 'next/navigation'
+import { formatDistanceToNow } from 'date-fns';
+import { AuthContext } from "@/contexts/AuthContext";
+import { useRouter } from 'next/navigation'
 import Link from "next/link"
 import { LoaderContext } from '@/contexts/LoaderContext';
 import { apiRequest } from '@/services/requests/apiRequest';
+import Modal from '@/components/ui/modal';
+import { useModal } from '@/hooks/use-modal';
 
 export default function SearchClient() {
     const [latestOffers, setLatestOffers] = useState(null);
@@ -48,33 +53,40 @@ export default function SearchClient() {
     const [selectedJob, setSelectedJob] = useState(null);
     const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
     const [selectedInfoJob, setSelectedInfoJob] = useState(null);
-    const {loggedIn, userData} = useContext(AuthContext);
-    const {showLoader, hideLoader} = useContext(LoaderContext)
+    const { loggedIn, userData } = useContext(AuthContext);
+    const { showLoader, hideLoader } = useContext(LoaderContext)
     const router = useRouter()
+
+    const { isOpen, openModal, closeModal } = useModal();
+    const loginModal = useModal();
+    const signupModal = useModal();
+    const alertModal = useModal();
+    const infoApplyModal = useModal();
 
     const handleApplyOffer = () => {
         console.log("apply offer")
+        infoApplyModal.openModal();
     }
 
     const handleRedirectLogin = () => {
         router.push('/login');
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         showLoader();
         if (!userData) {
-          router.push("/auth/login");
+            router.push("/auth/login");
         }
-        
+
         apiRequest('page/search')
-        .then((response)=>{
-            setSelectedJob(response.data[0])
-            setLatestOffers(response.data)
-        }).catch((e)=> console.error(e))
-        .finally(()=>{
-            hideLoader()
-        })
-        
+            .then((response) => {
+                setSelectedJob(response.data[0])
+                setLatestOffers(response.data)
+            }).catch((e) => console.error(e))
+            .finally(() => {
+                hideLoader()
+            })
+
     }, [userData, router])
     const JobDetails = () => {
         return selectedInfoJob !== null ? (
@@ -82,31 +94,31 @@ export default function SearchClient() {
                 <div>
                     <h2 className="text-2xl font-bold mb-2">{selectedInfoJob.title}</h2>
                     <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                        <Building2 className="h-4 w-4"/>
+                        <Building2 className="h-4 w-4" />
                         <Link href={`/profile/company/${selectedInfoJob?.company?.slug}`} className="ml-2">
                             <span>{selectedInfoJob.company.name}</span>
                         </Link>
-                        <MapPin className="h-4 w-4 ml-2"/>
+                        <MapPin className="h-4 w-4 ml-2" />
                         <span>{selectedInfoJob.address}</span>
                     </div>
                     <div className="flex gap-4">
                         <Button className="flex-1" onClick={loggedIn ? handleApplyOffer : handleRedirectLogin}>Apply
                             now</Button>
                         <Button variant="outline" size="icon">
-                            <BookmarkPlus className="h-5 w-5"/>
+                            <BookmarkPlus className="h-5 w-5" />
                         </Button>
                     </div>
                 </div>
 
-                <Separator/>
+                <Separator />
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-center gap-2 text-sm">
-                        <Globe className="h-4 w-4 text-muted-foreground"/>
+                        <Globe className="h-4 w-4 text-muted-foreground" />
                         <span>Remote available</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                        <Users className="h-4 w-4 text-muted-foreground"/>
+                        <Users className="h-4 w-4 text-muted-foreground" />
                         <span>501-1,000 employees</span>
                     </div>
                     {/*<div className="flex items-center gap-2 text-sm">*/}
@@ -114,18 +126,18 @@ export default function SearchClient() {
                     {/*    <span>$130K - $180K</span>*/}
                     {/*</div>*/}
                     <div className="flex items-center gap-2 text-sm">
-                        <GraduationCap className="h-4 w-4 text-muted-foreground"/>
+                        <GraduationCap className="h-4 w-4 text-muted-foreground" />
                         <span>Bachelor's degree</span>
                     </div>
                 </div>
 
-                <Separator/>
+                <Separator />
 
                 <div className="space-y-4">
-                    <div dangerouslySetInnerHTML={{__html: selectedInfoJob.description}}/>
+                    <div dangerouslySetInnerHTML={{ __html: selectedInfoJob.description }} />
                 </div>
 
-                <Separator/>
+                <Separator />
 
                 <div className="space-y-4">
                     <h3 className="text-lg font-semibold">About {selectedInfoJob.company.name}</h3>
@@ -151,7 +163,7 @@ export default function SearchClient() {
                 {/* Search Section */}
                 <div className="flex flex-wrap items-center gap-4 mb-8 hidden">
                     <div className="relative flex-1 min-w-[200px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search jobs, keywords, companies"
                             className="pl-9 w-full"
@@ -160,7 +172,7 @@ export default function SearchClient() {
                         />
                     </div>
                     <div className="relative flex-1 min-w-[200px]">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"/>
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="City, state, or zip code"
                             className="pl-9 w-full"
@@ -171,9 +183,9 @@ export default function SearchClient() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="flex items-center gap-2">
-                                <Filter className="h-4 w-4"/>
+                                <Filter className="h-4 w-4" />
                                 Date Posted
-                                <ChevronDown className="h-4 w-4"/>
+                                <ChevronDown className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
@@ -186,9 +198,9 @@ export default function SearchClient() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="flex items-center gap-2">
-                                <Briefcase className="h-4 w-4"/>
+                                <Briefcase className="h-4 w-4" />
                                 Experience Level
-                                <ChevronDown className="h-4 w-4"/>
+                                <ChevronDown className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
@@ -206,7 +218,7 @@ export default function SearchClient() {
 
                 {/* Split View Layout */}
                 <div className="grid grid-cols-1 md:[grid-template-columns:1fr_1.5fr] gap-6">
-                {/* Job Listings */}
+                    {/* Job Listings */}
                     <ScrollArea className="h-[calc(100vh-170px)]">
                         <div className="pr-4 relative">
                             {/* Siempre mostramos los 3 primeros */}
@@ -228,9 +240,9 @@ export default function SearchClient() {
                                                 <div>
                                                     <h3 className="text-lg font-semibold mb-1">{job.title}</h3>
                                                     <div className="flex items-center gap-2 text-muted-foreground">
-                                                        <Building2 className="h-4 w-4"/>
+                                                        <Building2 className="h-4 w-4" />
                                                         <span>{job.company.name}</span>
-                                                        <MapPin className="h-4 w-4 ml-2"/>
+                                                        <MapPin className="h-4 w-4 ml-2" />
                                                         <span>{job.address}</span>
                                                     </div>
                                                 </div>
@@ -240,13 +252,13 @@ export default function SearchClient() {
                                                 </div>
                                             </div>
                                             <Button variant="ghost" size="icon">
-                                                <BookmarkPlus className="h-5 w-5"/>
+                                                <BookmarkPlus className="h-5 w-5" />
                                             </Button>
                                         </div>
                                         <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                                            <Clock className="h-4 w-4"/>
-                                            <span>Posted {formatDistanceToNow(new Date(job.created_at), {addSuffix: true})}</span>
-                                            <Separator orientation="vertical" className="h-4"/>
+                                            <Clock className="h-4 w-4" />
+                                            <span>Posted {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</span>
+                                            <Separator orientation="vertical" className="h-4" />
                                             <span>84 applicants</span>
                                         </div>
                                     </Card>
@@ -279,9 +291,9 @@ export default function SearchClient() {
                                             <div>
                                                 <h3 className="text-lg font-semibold mb-1">{job.title}</h3>
                                                 <div className="flex items-center gap-2 text-muted-foreground">
-                                                    <Building2 className="h-4 w-4"/>
+                                                    <Building2 className="h-4 w-4" />
                                                     <span>{job.company.name}</span>
-                                                    <MapPin className="h-4 w-4 ml-2"/>
+                                                    <MapPin className="h-4 w-4 ml-2" />
                                                     <span>{job.address}</span>
                                                 </div>
                                             </div>
@@ -291,13 +303,13 @@ export default function SearchClient() {
                                             </div>
                                         </div>
                                         <Button variant="ghost" size="icon">
-                                            <BookmarkPlus className="h-5 w-5"/>
+                                            <BookmarkPlus className="h-5 w-5" />
                                         </Button>
                                     </div>
                                     <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                                        <Clock className="h-4 w-4"/>
-                                        <span>Posted {formatDistanceToNow(new Date(job.created_at), {addSuffix: true})}</span>
-                                        <Separator orientation="vertical" className="h-4"/>
+                                        <Clock className="h-4 w-4" />
+                                        <span>Posted {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</span>
+                                        <Separator orientation="vertical" className="h-4" />
                                         <span>84 applicants</span>
                                     </div>
                                 </Card>
@@ -309,7 +321,7 @@ export default function SearchClient() {
                     <div className="hidden md:block">
                         <Card className="">
                             <ScrollArea className="h-[calc(100vh-170px)] p-8">
-                                <JobDetails/>
+                                <JobDetails />
                             </ScrollArea>
                         </Card>
                     </div>
@@ -329,11 +341,22 @@ export default function SearchClient() {
                                     </Button>
                                 </SheetTitle>
                             </SheetHeader>
-                            <JobDetails/>
+                            <JobDetails />
                         </SheetContent>
                     </Sheet>
                 </div>
             </main>
+
+            <Modal
+                isOpen={infoApplyModal.isOpen}
+                onClose={infoApplyModal.closeModal}
+                id="info-apply-modal"
+                size='lg'
+                closeOnOutsideClick={false}>
+                <>
+                    <button onClick={infoApplyModal.closeModal}>close</button>
+                </>
+            </Modal>
         </div>
     );
 }
