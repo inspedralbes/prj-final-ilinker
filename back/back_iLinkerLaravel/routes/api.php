@@ -6,8 +6,9 @@ use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OfferController;
+use \App\Http\Controllers\AuthController;
 use \App\Http\Controllers\UserController;
+use App\Http\Controllers\OfferController;
 use App\Http\Controllers\PagesController;
 use \App\Http\Controllers\SkillController;
 use App\Http\Controllers\SkillsController;
@@ -15,9 +16,8 @@ use App\Http\Controllers\CompanyController;
 use \App\Http\Controllers\ExperienceController;
 use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
-use \App\Http\Controllers\AuthController;
-use \App\Http\Controllers\CambiarContraseñaController;
 use \App\Http\Controllers\StudentEducationController;
+use \App\Http\Controllers\CambiarContraseñaController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -61,6 +61,12 @@ Route::prefix('/institution')->group(function () {
     Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
     Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
     Route::get('/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
+    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
+    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+    Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
+    Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
 });
 
 Route::prefix('/education')->group(function () {

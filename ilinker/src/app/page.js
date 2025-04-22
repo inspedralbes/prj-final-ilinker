@@ -20,7 +20,6 @@ import {
 } from "lucide-react"
 import Cookies from "js-cookie";
 import { useSession } from "next-auth/react";
-import {AuthContext} from "@/contexts/AuthContext";
 
 // Mock data for internships
 const mockInternships = [
@@ -52,9 +51,7 @@ const mockInternships = [
 export default function Home() {
  
 
-  const [searchTerm, setSearchTerm] = useState("")
-  // console.log(Cookies.get('authToken'))
-  // console.log(Cookies.get('userData'))
+  const [searchTerm, setSearchTerm] = useState("");
   return (
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
