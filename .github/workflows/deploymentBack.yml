@@ -1,0 +1,50 @@
+name: Preparant per producció back
+run-name: ${{ github.actor }} està pujant l'aplicació a PROD LARAVEL🚀
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Clonar el repositori
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Configurar PHP i Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, xml, ctype, curl, gd, pdo_mysql, zip
+          tools: composer:v2
+
+      - name: 📦 Instalar dependencias en el runner
+        run: composer install --optimize-autoloader
+        working-directory: back/play2learnlaravel
+
+      - name: 📂 Sincronizar archivos con el servidor
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/prod_key.pem
+          chmod 600 ~/prod_key.pem
+          rsync -avz --delete --exclude '.env' -e "ssh -o StrictHostKeyChecking=no -i ~/prod_key.pem" ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/backend/laravel/
+        working-directory: back/play2learnlaravel
+
+      - name: 📦 Optimizar y migrar en el servidor
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/prod_key.pem ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd /var/www/backend/laravel
+          php artisan migrate --force
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          sudo systemctl restart php8.2-fpm
+          EOF
+
+      - name: 🔥 Eliminar clave privada
+        run: rm ~/prod_key.pem
+
+      - name: ✅ Deploy exitós
+        run: echo "🍏 Deployment completat amb èxit!"
+
