@@ -10,6 +10,12 @@ class CompanySector extends Model
     /** @use HasFactory<\Database\Factories\CompanySectorFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'id',
+        'company_id',
+        'sector_id',
+    ];
+
     public function company(){
         $this->belongsTo(Company::class);
     }

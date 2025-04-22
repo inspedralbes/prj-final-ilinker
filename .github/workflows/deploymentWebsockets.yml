@@ -1,0 +1,52 @@
+name: Preparant per producció front
+run-name: ${{ github.actor }} està pujant l'aplicació a NODE WEBSOCKETS🚀
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: back/websockets
+
+      - name: Verificar existència del directori back/websockets
+        run: ls -la .next || echo "⚠️ Directori 'back/websockets' no existeix!"
+        working-directory: back/websockets
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: back/websockets
+          include-hidden-files: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descarregant l'artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: websockets
+
+      - name: Verificar contenid del directori descarregat
+        run: ls -la websockets || echo "⚠️ No s'ha descarregat res a 'websockets'!"
+
+      - name: rsync a producción
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/prod_key.pem
+          chmod 600 ~/prod_key.pem
+          rsync -avz --exclude=node_modules -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem" websockets/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/backend/socket
+          rm ~/prod_key.pem
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."

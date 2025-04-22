@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class CompanySkills extends Model
 {
     //
-
+    protected $fillable =  [
+        'company_id',
+        'skill_id',
+    ];
     public function company()
     {
         return $this->belongsTo(Company::class);

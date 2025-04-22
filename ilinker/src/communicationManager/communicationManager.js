@@ -52,11 +52,11 @@ export async function apiRequest(endpoint, method = "GET", body = null, isFormDa
 
         return data;
     } catch (error) {
-        console.error(`Error en la petición a ${endpoint}:`, error.message);
-        throw error;
-        // return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
+      console.error(`Error en la petición a ${endpoint}:`, error.message);
+      throw error;
     }
-}
+  }
+  
 
 export async function login() {
     try {
