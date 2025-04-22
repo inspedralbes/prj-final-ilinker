@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import {
   Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X,
 } from "lucide-react"
@@ -38,11 +38,12 @@ interface InstitutionClientMeProps {
 export default function InstitutionClientMe({ institution }: InstitutionClientMeProps) {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [availableSkills, setAvailableSkills] = useState<Array<{id: number, name: string}>>([])
   const [institutionData, setInstitutionData] = useState<Institution>({
     ...institution,
-    specialties: institution.specialties || [],
-    certifications: institution.certifications || [],
-    languages: institution.languages || [],
+    specialties: Array.isArray(institution.specialties) ? institution.specialties : [],
+    certifications: Array.isArray(institution.certifications) ? institution.certifications : [],
+    languages: Array.isArray(institution.languages) ? institution.languages : [],
     about: institution.about || '',
     slogan: institution.slogan || '',
     type: institution.type || '',
@@ -57,6 +58,20 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
 
   const [logoImage, setLogoImage] = useState(institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f")
   const [coverImage, setCoverImage] = useState(institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
+
+  useEffect(() => {
+    const fetchSkills = async () => {
+      try {
+        const response = await apiRequest('skill/all', 'GET')
+        if (response.status === 'success') {
+          setAvailableSkills(response.skills)
+        }
+      } catch (error) {
+        console.error('Error fetching skills:', error)
+      }
+    }
+    fetchSkills()
+  }, [])
 
   const handleEdit = (section: string) => {
     setOriginalData({ ...institutionData })
@@ -82,6 +97,16 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   const handleSave = async () => {
     try {
       setError(null)
+
+      // Validar campos vacíos en specialties
+      if (isEditing === "specialties") {
+        const emptySpecialties = (institutionData.specialties || []).some(specialty => !specialty);
+        if (emptySpecialties) {
+          setError("Por favor selecciona una especialidad para todos los campos o elimina los campos vacíos");
+          return;
+        }
+      }
+
       let dataToSend: any = { id: institution.id }
 
       switch (isEditing) {
@@ -152,12 +177,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       console.error('Error saving institution:', error)
       setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
 
-      if (error.response?.status === 422 && error.response.data?.errors) {
-        const errorMessage = Object.values(error.response.data.errors).flat().join('\n')
-        setError(errorMessage)
-      }else{
-        setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
-      }
     }
   }
 
@@ -355,15 +374,20 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     </div>
   )
 
+  const ensureArray = (value: any): string[] => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return [value];
+    return [];
+  }
+
   const renderSpecialties = () => (
     <div className="mt-6 md:mt-0">
       <h3 className="text-lg font-medium text-gray-900 mb-4">Especialidades</h3>
       {isEditing === "specialties" ? (
         <div>
-          {(institutionData.specialties || []).map((specialty, index) => (
+          {ensureArray(institutionData.specialties).map((specialty, index) => (
             <div key={index} className="flex items-center mb-2">
-              <input
-                type="text"
+              <select
                 value={specialty}
                 onChange={(e) => {
                   const newSpecialties = [...(institutionData.specialties || [])]
@@ -371,7 +395,14 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                   updateInstitution("specialties", newSpecialties)
                 }}
                 className="flex-1 border rounded px-2 py-1 mr-2"
-              />
+              >
+                <option value="">Seleccionar una especialidad</option>
+                {availableSkills.map((skill) => (
+                  <option key={skill.id} value={skill.name}>
+                    {skill.name}
+                  </option>
+                ))}
+              </select>
               <button
                 onClick={() => {
                   const newSpecialties = (institutionData.specialties || []).filter((_, i) => i !== index)
@@ -390,7 +421,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
             className="mt-2 text-blue-600 hover:text-blue-800"
           >
             <Plus className="h-4 w-4 inline mr-1" />
-            Añadir especialidad
+            Añadir
           </button>
           {renderActionButtons()}
           {renderErrorMessage()}
@@ -398,7 +429,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       ) : (
         <div>
           <div className="flex flex-wrap gap-2">
-            {(institutionData.specialties || []).map((specialty, index) => (
+          {ensureArray(institutionData.specialties).map((specialty, index) => (
               <span
                 key={index}
                 className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200"
@@ -429,10 +460,10 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         </label>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20">
         <Tabs defaultValue="inicio">
           <div className="relative">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+            <div className="bg-white rounded-lg shadow-lg p-6 sm:p-6 md:p-8">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-col sm:flex-row sm:space-x-5 items-center">
                   <div className="relative flex-shrink-0">

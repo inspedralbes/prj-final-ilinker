@@ -77,6 +77,7 @@ Route::prefix('/experience')->group(function () {
 Route::prefix('/skill')->group(function () {
     Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
     Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
+    Route::get('/all', [SkillController::class, 'getAll'])->name('get.skills');
 });
 
 Route::prefix('/offers')->group(function () {

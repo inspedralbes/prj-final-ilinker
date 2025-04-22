@@ -60,4 +60,14 @@ class SkillController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    public function getAll()
+    {
+        try {
+            $skills = $this->skillService->getAllSkills();
+            return response()->json(['status' => 'success', 'skills' => $skills]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
 }

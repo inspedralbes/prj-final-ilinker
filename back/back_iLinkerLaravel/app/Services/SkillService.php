@@ -26,4 +26,9 @@ class SkillService
     {
 
     }
+
+    public function getAllSkills()
+    {
+        return Skill::all();
+    }
 }

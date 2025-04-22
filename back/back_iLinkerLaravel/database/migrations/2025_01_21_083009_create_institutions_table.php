@@ -28,6 +28,7 @@ return new class extends Migration
             $table->string('sector')->nullable();
             $table->string('founded_year')->nullable();
             $table->json('languages')->nullable();
+            $table->json('specialties')->nullable();
 
             // Imagenes de la institucion
             $table->string('logo')->nullable();

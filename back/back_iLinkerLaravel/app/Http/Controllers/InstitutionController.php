@@ -32,6 +32,7 @@ class InstitutionController extends Controller
             'sector' => 'nullable|string|max:255',
             'founded_year' => 'nullable|string|max:255',
             'languages' => 'nullable|array',
+            'specialties' => 'nullable|array',
             'website' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:255',
             'email' => 'nullable|email|unique:institutions|max:255',
