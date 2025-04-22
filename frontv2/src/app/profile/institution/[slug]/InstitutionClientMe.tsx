@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import {
   Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X,
 } from "lucide-react"
@@ -49,7 +49,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     size: institution.size || '',
     founded_year: institution.founded_year || '',
     location: institution.location || '',
-    website: institution.website || '',
+    website: institution.website?.replace(/https?:\/\//, '') || '',
     phone: institution.phone || '',
     email: institution.email || ''
   })
@@ -150,7 +150,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       }
     } catch (error: any) {
       console.error('Error saving institution:', error)
-      setError(error.message || 'Failed to save changes. Please try again.')
+      setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
 
       if (error.response?.status === 422 && error.response.data?.errors) {
         const errorMessage = Object.values(error.response.data.errors).flat().join('\n')
@@ -159,52 +159,38 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     }
   }
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
-    const file = event.target.files?.[0]
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
+    const file = e.target.files?.[0]
     if (!file) return
-
     try {
       setError(null)
+      const formData = new FormData()
+      // Asegurar que el ID sea una cadena de texto
+      formData.append('id', String(institution.id))
+      formData.append(type, file)
 
-      // Convert file to Base64 string
-      const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = error => reject(error)
-      })
-
-      const base64Image = await toBase64(file)
-
-      // Send as JSON
-      const response = await apiRequest('institution/update', 'POST', {
-        id: institution.id,
-        [type]: base64Image
-      })
-
-      if (response.status === 'success' && response.data) {
-        const imageUrl = response.data[`${type}_url`]
-        if (type === 'logo') {
-          setLogoImage(imageUrl)
-          setInstitutionData(prev => ({
-            ...prev,
-            logo: response.data.logo,
-            logo_url: imageUrl
-          }))
-        } else {
-          setCoverImage(imageUrl)
-          setInstitutionData(prev => ({
-            ...prev,
-            cover: response.data.cover,
-            cover_url: imageUrl
-          }))
+      // Pasar true como cuarto parámetro para indicar que es FormData
+      const response = await apiRequest('institution/update', 'POST', formData, true)
+      
+      if (response && response.data) {
+        const url = response.data[`${type}_url`] || 
+          (response.data[type] ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data[type]}` : null)
+          
+        if (url) {
+          if (type === 'logo') {
+            setLogoImage(url)
+            setInstitutionData(prev => ({ ...prev, logo_url: url, logo: response.data.logo }))
+          } else {
+            setCoverImage(url)
+            setInstitutionData(prev => ({ ...prev, cover_url: url, cover: response.data.cover }))
+          }
         }
       } else {
-        throw new Error(response.message || 'Failed to upload image')
+        throw new Error(response?.message || 'Image upload failed')
       }
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      setError(error.message || 'Failed to upload image. Please try again.')
+      setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
     }
   }
 
