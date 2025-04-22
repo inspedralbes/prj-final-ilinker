@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
-import { apiRequest } from "@/communicationManager/communicationManager";
+import { apiRequest } from "@/services/requests/apiRequest";
 import CompanyClientMe from "@/app/profile/company/[slug]/CompanyClientMe";
 import CompanyClientNotMe from "@/app/profile/company/[slug]/CompanyClientNotMe";
 import { LoaderContext } from "@/contexts/LoaderContext";

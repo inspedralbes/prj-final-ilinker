@@ -17,7 +17,7 @@ const getEnv = (key: string, fallback = ''): string => {
 };
 
 const config: AppConfig = {
-  apiUrl: getEnv('NEXT_PUBLIC_API_URL', 'http://localhost:8000/api/'), // Valor por defecto para la API
+  apiUrl: getEnv('NEXT_PUBLIC_API_URL', 'http://127.0.0.1:8000/api/'), // Valor por defecto para la API
   appUrl: getEnv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000'), // Valor por defecto para la app
 };
 

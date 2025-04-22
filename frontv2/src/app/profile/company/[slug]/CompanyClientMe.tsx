@@ -27,12 +27,12 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.jsx";
+import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.tsx";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
-import { apiRequest } from "@/communicationManager/communicationManager";
+import { apiRequest } from "@/services/requests/apiRequest";
 
-export default function CompanyClientMe({ company, sectors, skills }) {
+export default function CompanyClientMe({ company, sectors, skills }: { company: any; sectors: any; skills: any }) {
   const animatedComponents = makeAnimated();
   const [isEditing, setIsEditing] = useState(null);
   const [logoImage, setLogoImage] = useState(
