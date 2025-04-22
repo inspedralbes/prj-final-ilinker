@@ -48,6 +48,7 @@ Route::prefix('/student')->group(function () {
     Route::post('delete', [StudentController::class, 'delete'])->name('student.delete');
     Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
     Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
+    Route::post('/getEducationById', [StudentController::class, 'getEducationById'])->name('get.education');
 });
 
 Route::prefix('/company')->group(function () {

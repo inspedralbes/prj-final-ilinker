@@ -30,4 +30,16 @@ class StudentController extends Controller
         return response()->json(['status' => 'success', 'student' => $student]);
 
     }
+
+    public function getEducationById(Request $request){
+
+
+        $student = Student::with(['education.institution'])->where('uuid', $request->uuid)->first();
+
+        if (!$student) {
+            return response()->json(['status' => 'error', 'message' => 'Student not found']);
+        }
+
+        return response()->json(['status' => 'success', 'education' => $student]);
+    }
 }

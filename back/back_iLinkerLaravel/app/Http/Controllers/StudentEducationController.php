@@ -26,7 +26,7 @@ class StudentEducationController extends Controller
             'institute' => 'nullable',
             'degree' => 'nullable',
             'start_date' => 'required',
-            'end_date' => 'required',
+            'end_date' => 'nullable',
         ]);
 
         DB::beginTransaction();

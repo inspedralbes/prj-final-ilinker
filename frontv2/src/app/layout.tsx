@@ -5,6 +5,7 @@ import { LoaderProvider } from "@/contexts/LoaderContext"; // Asegúrate de impo
 import { Inter } from "next/font/google";
 import NavBar from "@/components/navBar/navBar";
 import "./globals.css";
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata = {
   title: "iLinker",
@@ -27,6 +28,7 @@ export default function RootLayout({
           <LoaderProvider>
             <NavBar />
             <main>{children}</main>
+            <Toaster />
           </LoaderProvider>
         </AuthProvider>
       </body>
