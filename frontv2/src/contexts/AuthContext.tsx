@@ -4,6 +4,7 @@ import { createContext, useState, useEffect, ReactNode } from 'react'
 import Cookies from 'js-cookie'
 import { User, AuthContextType } from '@/types/global'
 import { LoaderComponent } from '@/components/ui/loader-layout'
+import { apiRequest } from '@/services/requests/apiRequest'
 
 // Valor por defecto del contexto
 const defaultAuthContext: AuthContextType = {
@@ -28,24 +29,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [userData, setUserData] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true) // Estado de carga
 
-  const checkAuth = () => {
+  const checkAuth = async () => {
     const token = Cookies.get('authToken')
-    const userDataCookie = Cookies.get('userData')
 
-    if (token && userDataCookie) {
-      setLoggedIn(true)
-      try {
-        const parsedData: User = JSON.parse(userDataCookie)
-        setUserData(parsedData)
-      } catch (error) {
-        console.error('Error al parsear userData:', error)
-        setUserData(null)
+    try{
+      const response = await apiRequest('auth/check');
+
+      if(response.status === 'success'){
+        login(token, response.user)
       }
-    } else {
-      setLoggedIn(false)
-      setUserData(null)
+    }catch(e){
+      console.error("Error checking auth:", e);
+      logout();
+    }finally{
+      setIsLoading(false);
     }
-    setIsLoading(false) // Terminar el estado de carga
   }
 
   useEffect(() => {

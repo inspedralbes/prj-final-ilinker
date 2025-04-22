@@ -27,14 +27,16 @@ import Select from "react-select";
 import makeAnimated from "react-select/animated";
 import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
-import ModalOffer from "@/app/profile/company/[slug]/ModalOffer.tsx";
+import ModalOffer from "@/app/profile/company/[slug]/ModalOffer";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
 import { apiRequest } from "@/services/requests/apiRequest";
+import { useRouter } from "next/navigation";
 
 export default function CompanyClientMe({ company, sectors, skills }: { company: any; sectors: any; skills: any }) {
   const animatedComponents = makeAnimated();
-  const [isEditing, setIsEditing] = useState(null);
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState<string | null>(null);
   const [logoImage, setLogoImage] = useState(
     "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80"
   );
@@ -137,7 +139,7 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
  
   const API_PATH_IMG = "http://localhost:8000/storage/";
 
-  const handleEdit = (section) => {
+  const handleEdit = (section: string) => {
     setIsEditing(section);
   };
 
@@ -176,17 +178,6 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
   
     try {
       const response = await apiRequest('company/update', 'POST', formData)
-      // const response = await fetch("http://127.0.0.1:8000/api/company/update", {
-      //   method: "POST",
-      //   body: formData,
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   credentials: "include",
-      // });
-  
-      // const result = await response.json();
-  
         console.log(response);
         setCompanyEdited(response.company);
     } catch (error) {
@@ -195,11 +186,10 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
       hideLoader();
     }
   };
-  
 
   const [imageChangeCount, setImageChangeCount] = useState(0);
 
-  const handleImageUpload = (event, type) => {
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
 
@@ -210,7 +200,7 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
 
     console.log("Actualizando:", type, file);
 
-    setCompanyEdited((prev) => ({
+    setCompanyEdited((prev: any) => ({
       ...prev,
       [type]: file,
     }));
@@ -226,29 +216,25 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
     handleSave();
   }, [imageChangeCount]); // Se ejecuta solo cuando cambia la imagen
 
-  const updateInstitute = (section, value) => {
-    setInstitute((prev) => ({
-      ...prev,
-      [section]: value,
-    }));
-  };
 
-  const updateCompany = (e) => {
+  const updateCompany = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setCompanyEdited((prev) => ({
+    setCompanyEdited((prev: any) => ({
       ...prev,
       [name]: value,
     }));
   };
 
   const handleOpenModalAddOffer = () => {
-    setModalState(!modalState);
-    setModalModeEdit(false);
-    setJobData(null);
+    showLoader();
+    router.push(`/profile/company/${company.slug}/create-offer`);
+    // setModalState(!modalState);
+    // setModalModeEdit(false);
+    // setJobData(null);
   };
   const [jobData, setJobData] = useState(null);
   const [modalModeEdit, setModalModeEdit] = useState(false);
-  const handleOpenModalEditOffer = (job) => {
+  const handleOpenModalEditOffer = (job: any) => {
     setModalState(!modalState);
     setJobData(job);
     setModalModeEdit(true);

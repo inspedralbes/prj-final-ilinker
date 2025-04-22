@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Offer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 class OfferController extends Controller
 {
     public function create(Request $request)
     {
         $rules = [
-            'company_id'  => 'required',
             'title'       => 'required',
             'description' => 'required',
             'address'     => 'required',
@@ -20,7 +21,6 @@ class OfferController extends Controller
         ];
 
         $messages = [
-            'company_id.required'  => 'El campo empresa es obligatorio',
             'title.required'       => 'El campo titulo es obligatorio',
             'description.required' => 'El campo descripcion es obligatorio',
             'address.required'     => 'El campo direccion es obligatorio',
@@ -36,14 +36,16 @@ class OfferController extends Controller
                 'status'  => 'error',
                 'message' => 'Faltan campos obligatorios o tienen errores',
                 'errors'  => $validator->errors()
-            ], 422);
+            ]);
         }
 
         try {
             $data = $validator->validated();
 
+            $companyId = Company::where('user_id', Auth::id())->first()->id;
+
             $newOffer = new Offer();
-            $newOffer->company_id  = $data['company_id'];
+            $newOffer->company_id  = $companyId;
             $newOffer->title       = $data['title'];
             $newOffer->description = $data['description'];
             $newOffer->address     = $data['address'];

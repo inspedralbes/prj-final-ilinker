@@ -32,52 +32,55 @@ Route::prefix('/auth')->group(function () {
 });
 Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
 
+Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
 
-Route::prefix('/users')->group(function () {
-    Route::post('/update', [UserController::class, 'update'])->name('user.update');
-    Route::post('/delete', [UserController::class, 'delete'])->name('user.delete');
-    Route::get('/info', [UserController::class, 'getUser'])->name('get.user');
-    Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
-    Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
-});
+    Route::prefix('/users')->group(function () {
+        Route::post('/update', [UserController::class, 'update'])->name('user.update');
+        Route::post('/delete', [UserController::class, 'delete'])->name('user.delete');
+        Route::get('/info', [UserController::class, 'getUser'])->name('get.user');
+        Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
+        Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
+    });
 
-Route::prefix('/company')->group(function () {
-    Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
-    Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
-    Route::get('/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
-    Route::post('/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
-});
+    Route::prefix('/company')->group(function () {
+        Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
+        Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
+        Route::get('/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
+        Route::post('/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
+    });
 
-Route::prefix('/institution')->group(function () {
-    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
-    Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
-    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
-    Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
-    Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
-    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
-});
+    Route::prefix('/institution')->group(function () {
+        Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+        Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
+        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+        Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+        Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
+    });
 
-Route::prefix('/education')->group(function () {
-    Route::post('/create', [StudentEducationController::class, 'create'])->name('create.education');
-    Route::post('/update', [StudentEducationController::class, 'update'])->name('update.education');
-    Route::delete('/delete', [StudentEducationController::class, 'delete'])->name('delete.education');
-});
+    Route::prefix('/education')->group(function () {
+        Route::post('/create', [StudentEducationController::class, 'create'])->name('create.education');
+        Route::post('/update', [StudentEducationController::class, 'update'])->name('update.education');
+        Route::delete('/delete', [StudentEducationController::class, 'delete'])->name('delete.education');
+    });
 
-Route::prefix('/experience')->group(function () {
-    Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
-    Route::post('/update', [ExperienceController::class, 'update'])->name('update.experience');
-    Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
-});
+    Route::prefix('/experience')->group(function () {
+        Route::post('/create', [ExperienceController::class, 'create'])->name('create.experience');
+        Route::post('/update', [ExperienceController::class, 'update'])->name('update.experience');
+        Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
+    });
 
-Route::prefix('/skill')->group(function () {
-    Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
-    Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
-});
+    Route::prefix('/skill')->group(function () {
+        Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+        Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
+    });
 
-Route::prefix('/offers')->group(function () {
-    Route::post('/create', [OfferController::class, 'create'])->name('offers.create');
-    Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
-    Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
+    Route::prefix('/offers')->group(function () {
+        Route::post('/create', [OfferController::class, 'create'])->name('offers.create');
+        Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
+        Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
+    });
 });
 
 Route::prefix('/skills')->group(function () {
