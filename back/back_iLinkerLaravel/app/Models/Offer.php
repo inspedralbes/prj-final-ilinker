@@ -16,4 +16,9 @@ class Offer extends Model
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+
+    public function usersInterested()
+    {
+        return $this->belongsToMany(OfferUser::class, 'offer_user', 'offer_id', 'id');
+    }
 }

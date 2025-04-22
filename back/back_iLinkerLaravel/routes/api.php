@@ -77,6 +77,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::prefix('/offers')->group(function () {
+        Route::get('/{id}', [OfferController::class, 'show'])->name('offer.get');
         Route::post('/create', [OfferController::class, 'create'])->name('offers.create');
         Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
         Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');

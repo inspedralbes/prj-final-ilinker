@@ -15,6 +15,11 @@ import {
   Share2,
   UserIcon,
   UsersIcon,
+  Building2,
+  Clock,
+  BookmarkPlus,
+  GraduationCap,
+  X,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -22,6 +27,7 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
@@ -33,7 +39,27 @@ import Link from "next/link";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { useRouter } from "next/navigation";
 
-export default function CompanyClientMe({ company, sectors, skills }: { company: any; sectors: any; skills: any }) {
+export default function CompanyClientMe({
+  company,
+  sectors,
+  skills,
+}: {
+  company: any;
+  sectors: any;
+  skills: any;
+}) {
+  const scheduleLabels: Record<string, string> = {
+    full: "Full-Time",
+    part: "Media jornada",
+    negociable: "Tipo de Jornada sin definir",
+  };
+
+  const locationLabels: Record<string, string> = {
+    hibrido: "Híbrido",
+    presencial: "Presencial",
+    remoto: "Remoto",
+  };
+
   const animatedComponents = makeAnimated();
   const router = useRouter();
   const [isEditing, setIsEditing] = useState<string | null>(null);
@@ -136,7 +162,7 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
   });
   const [modalState, setModalState] = useState(false);
   const { hideLoader, showLoader } = useContext(LoaderContext);
- 
+
   const API_PATH_IMG = "http://localhost:8000/storage/";
 
   const handleEdit = (section: string) => {
@@ -146,9 +172,9 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
   const handleSave = async () => {
     showLoader();
     setIsEditing(null);
-  
+
     const formData = new FormData();
-  
+
     // Asegurarse de que los datos no sean nulos
     Object.entries(companyEdited).forEach(([key, value]) => {
       if (key !== "logo" && key !== "cover_photo" && Array.isArray(value)) {
@@ -163,23 +189,23 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
         }
       }
     });
-  
+
     // Asegurarse de que los archivos se agreguen correctamente
     if (companyEdited.logo instanceof File) {
       formData.append("logo", companyEdited.logo);
     }
-  
+
     if (companyEdited.cover_photo instanceof File) {
       formData.append("cover_photo", companyEdited.cover_photo);
     }
-  
+
     // Obtener el token de autenticación
     const token = Cookies.get("authToken");
-  
+
     try {
-      const response = await apiRequest('company/update', 'POST', formData)
-        console.log(response);
-        setCompanyEdited(response.company);
+      const response = await apiRequest("company/update", "POST", formData);
+      console.log(response);
+      setCompanyEdited(response.company);
     } catch (error) {
       console.error("Error en la solicitud:", error);
     } finally {
@@ -189,7 +215,10 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
 
   const [imageChangeCount, setImageChangeCount] = useState(0);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    type: string
+  ) => {
     const file = event.target.files && event.target.files[0];
     if (!file) return;
 
@@ -215,7 +244,6 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
   useEffect(() => {
     handleSave();
   }, [imageChangeCount]); // Se ejecuta solo cuando cambia la imagen
-
 
   const updateCompany = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -673,7 +701,8 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
                             {companyEdited.num_people}
                           </li>
                           <li>
-                            <strong>Fundada:</strong> {companyEdited.founded_year}
+                            <strong>Fundada:</strong>{" "}
+                            {companyEdited.founded_year}
                           </li>
                         </ul>
                       )}
@@ -786,36 +815,54 @@ export default function CompanyClientMe({ company, sectors, skills }: { company:
                 {/* Mapear las ofertas existentes */}
                 {companyEdited.offers.map((job, i) => (
                   <Card
-                    key={i}
-                    className="p-6 hover:shadow-lg transition-shadow"
+                    key={job.id}
+                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer `}
+                    onClick={() => {
+                      showLoader();
+                      router.push(`/profile/company/${company.slug}/edit-offer/${job.id}`);
+                    }}
                   >
+                    {/* Contenido del card */}
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-lg">{job.title}</h3>
-                        <div className="mt-2 space-y-1">
-                          <p className="text-gray-600">{job.address}</p>
-                          <p className="text-gray-600">
-                            {job.location_type || "Sin información"}
-                          </p>
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: job.description,
-                            }}
-                          />
-                          <p className="text-sm text-gray-500">
-                            Publicado hace{" "}
-                            {formatDistanceToNow(new Date(job.created_at), {
-                              addSuffix: true,
-                            })}
-                          </p>
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-1">
+                            {job.title}
+                          </h3>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Building2 className="h-4 w-4" />
+                            <span>{company.name}</span>
+                            <MapPin className="h-4 w-4 ml-2" />
+                            <span>{job.address}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {job.schedule_type && (
+                            <Badge variant="secondary">
+                              {scheduleLabels[job.schedule_type]}
+                            </Badge>
+                          )}
+                          {job.location_type && (
+                            <Badge variant="secondary">
+                              {locationLabels[job.location_type]}
+                            </Badge>
+                          )}
                         </div>
                       </div>
-                      <Button
-                        className="text-white"
-                        onClick={() => handleOpenModalEditOffer(job)}
-                      >
-                        Editar
+                      <Button variant="ghost" size="icon">
+                        <BookmarkPlus className="h-5 w-5" />
                       </Button>
+                    </div>
+                    <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>
+                        Posted{" "}
+                        {formatDistanceToNow(new Date(job.created_at), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                      <Separator orientation="vertical" className="h-4" />
+                      <span>{job.usersInterested?.length ? job.usersInterested.length : 0} applicants</span>
                     </div>
                   </Card>
                 ))}
