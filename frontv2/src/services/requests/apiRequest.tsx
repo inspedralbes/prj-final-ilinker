@@ -7,11 +7,12 @@ const routeApi: string = config.apiUrl;
 export async function apiRequest(
   endpoint: string,
   method: string = "GET",
-  body: any = null
+  body: any = null,
+  isFormData: boolean = false
 ): Promise<any> {
   try {
     let token: string | undefined;
-    
+
     // Solo ejecutar js-cookie en el cliente
     if (typeof window !== 'undefined') {
       token = Cookies.get("authToken");

@@ -59,27 +59,24 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   const [coverImage, setCoverImage] = useState(institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
 
   const handleEdit = (section: string) => {
-    // Store the current state before editing
     setOriginalData({ ...institutionData })
     setIsEditing(section)
     setError(null)
   }
 
   const handleCancel = () => {
-    // Restore original data for the section being edited
     setInstitutionData({ ...institutionData, ...originalData })
     setIsEditing(null)
     setError(null)
   }
 
-  const cleanArrayFields = (data: any) => {
-    if (typeof data.languages === 'string') {
-      data.languages = data.languages.split(',').map((item: string) => item.trim()).filter(Boolean)
+  // Utility to normalize comma-separated or array fields
+  const normalizeArray = (value: string | string[] | undefined): string[] => {
+    if (Array.isArray(value)) return value
+    if (typeof value === 'string') {
+      return value.split(',').map(item => item.trim()).filter(Boolean)
     }
-    if (typeof data.specialties === 'string') {
-      data.specialties = data.specialties.split(',').map((item: string) => item.trim()).filter(Boolean)
-    }
-    return data
+    return []
   }
 
   const handleSave = async () => {
@@ -110,7 +107,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
             type: institutionData.type,
             size: institutionData.size,
             founded_year: institutionData.founded_year,
-            languages: Array.isArray(institutionData.languages) ? institutionData.languages : institutionData.languages?.split(',').map(l => l.trim())
+            languages: normalizeArray(institutionData.languages)
           }
           break
         case 'about':
@@ -122,7 +119,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         case 'specialties':
           dataToSend = {
             ...dataToSend,
-            specialties: Array.isArray(institutionData.specialties) ? institutionData.specialties : institutionData.specialties?.split(',').map(s => s.trim())
+            specialties: normalizeArray(institutionData.specialties)
           }
           break
         default:
@@ -132,12 +129,11 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           }
       }
 
-      dataToSend = cleanArrayFields(dataToSend)
       const response = await apiRequest('institution/update', 'POST', dataToSend)
 
       if (response.status === 'success') {
-        setInstitutionData(prevState => ({
-          ...prevState,
+        setInstitutionData(prev => ({
+          ...prev,
           ...response.data
         }))
 
@@ -163,43 +159,52 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     }
   }
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
-    const file = event.target.files && event.target.files[0]
-    if (file) {
-      try {
-        setError(null)
-        const formData = new FormData()
-        formData.append(type, file)
-        formData.append('id', institution.id.toString())
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-        const response = await apiRequest('institution/update', 'POST', formData, true);
+    try {
+      setError(null)
 
-        if (response?.data) {
-          const imageUrl = response.data[`${type}_url`] ||
-            (response.data[type] ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data[type]}` : null)
+      // Convert file to Base64 string
+      const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = error => reject(error)
+      })
 
-          if (imageUrl) {
-            if (type === 'logo') {
-              setLogoImage(imageUrl)
-              setInstitutionData(prev => ({
-                ...prev,
-                logo: response.data.logo,
-                logo_url: imageUrl
-              }))
-            } else {
-              setCoverImage(imageUrl)
-              setInstitutionData(prev => ({
-                ...prev,
-                cover: response.data.cover,
-                cover_url: imageUrl
-              }))
-            }
-          }
+      const base64Image = await toBase64(file)
+
+      // Send as JSON
+      const response = await apiRequest('institution/update', 'POST', {
+        id: institution.id,
+        [type]: base64Image
+      })
+
+      if (response.status === 'success' && response.data) {
+        const imageUrl = response.data[`${type}_url`]
+        if (type === 'logo') {
+          setLogoImage(imageUrl)
+          setInstitutionData(prev => ({
+            ...prev,
+            logo: response.data.logo,
+            logo_url: imageUrl
+          }))
+        } else {
+          setCoverImage(imageUrl)
+          setInstitutionData(prev => ({
+            ...prev,
+            cover: response.data.cover,
+            cover_url: imageUrl
+          }))
         }
-      } catch (error) {
-        console.error('Error uploading image:', error)
-        setError('Failed to upload image. Please try again.')
+      } else {
+        throw new Error(response.message || 'Failed to upload image')
       }
+    } catch (error: any) {
+      console.error('Error uploading image:', error)
+      setError(error.message || 'Failed to upload image. Please try again.')
     }
   }
 
