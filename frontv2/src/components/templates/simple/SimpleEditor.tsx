@@ -6,13 +6,16 @@ import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
 import HardBreak from '@tiptap/extension-hard-break'
 import Typography from '@tiptap/extension-typography'
+import BulletList from '@tiptap/extension-bullet-list'
+import OrderedList from '@tiptap/extension-ordered-list'
+import ListItem from '@tiptap/extension-list-item'
 import TextAlign from '@tiptap/extension-text-align'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Image from '@tiptap/extension-image'
 import Color from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import {
   Bold,
   Italic,
@@ -35,6 +38,15 @@ interface SimpleEditorProps {
 }
 
 export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange }) => {
+  const colorTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null!);
+  
+  useEffect(() => {
+    return () => {
+      if (colorTimeoutRef.current) {
+        clearTimeout(colorTimeoutRef.current);
+      }
+    };
+  }, []);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -46,6 +58,21 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
         keepMarks: true,
         HTMLAttributes: {
           class: 'my-hard-break',
+        },
+      }),
+      BulletList.configure({
+        HTMLAttributes: {
+          class: 'bullet-list',
+        },
+      }),
+      OrderedList.configure({
+        HTMLAttributes: {
+          class: 'ordered-list',
+        },
+      }),
+      ListItem.configure({
+        HTMLAttributes: {
+          class: 'list-item',
         },
       }),
       Document,
@@ -68,7 +95,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto preserve-formatting',
       },
       handleKeyDown: (view, event) => {
         // Handle Shift + Enter for soft breaks
@@ -195,10 +222,15 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
             </button>
             <input
               type="color"
-              className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer transition-none"
               value={editor?.getAttributes('textStyle').color || '#000000'}
               onChange={(e) => {
-                editor?.chain().focus().setColor(e.target.value).run()
+                if (colorTimeoutRef.current) {
+                  clearTimeout(colorTimeoutRef.current);
+                }
+                colorTimeoutRef.current = setTimeout(() => {
+                  editor?.chain().focus().setColor(e.target.value).run();
+                }, 100);
               }}
             />
           </div>

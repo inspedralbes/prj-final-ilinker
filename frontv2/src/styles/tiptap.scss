@@ -10,6 +10,11 @@
     margin: 0.5em 0;
     line-height: 1.6;
     white-space: pre-wrap;
+    min-height: 1.6em;
+  }
+
+  .preserve-formatting * {
+    white-space: pre-wrap;
   }
 
   br {
@@ -33,14 +38,26 @@
       padding: 0.1rem 0;
     }
   
-  ul,
-  ol {
+  .bullet-list,
+  .ordered-list {
     padding: 0 1.5rem;
     margin: 1em 0;
     list-style-position: outside;
+
+    &:not(:first-child) {
+      margin-top: 1em;
+    }
   }
 
-  li {
+  .bullet-list {
+    list-style-type: disc;
+  }
+
+  .ordered-list {
+    list-style-type: decimal;
+  }
+
+  .list-item {
     margin: 0.5em 0;
     padding-left: 0.5em;
     
@@ -52,6 +69,41 @@
     &::marker {
       color: #4a5568;
     }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    line-height: 1.2;
+    margin: 1em 0 0.5em;
+    color: #1a202c;
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  h3 {
+    font-size: 1.17em;
+  }
+
+  h4 {
+    font-size: 1em;
+  }
+
+  h5 {
+    font-size: 0.83em;
+  }
+
+  h6 {
+    font-size: 0.67em;
   }
 
   ul[data-type="taskList"] {
