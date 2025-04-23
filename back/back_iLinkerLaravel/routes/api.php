@@ -47,12 +47,22 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
     });
 
+    Route::prefix('/student')->group(function () {
+        Route::post('update', [StudentController::class, 'update'])->name('student.update');
+        Route::post('delete', [StudentController::class, 'delete'])->name('student.delete');
+        Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
+        Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
+        Route::post('/getEducationById', [StudentController::class, 'getEducationById'])->name('get.education');
+    });
     Route::prefix('/company')->group(function () {
         Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
         Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
     });
 
     Route::prefix('/institution')->group(function () {
+        Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
+        Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
+        Route::get('/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
         Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
         Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
         Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
@@ -73,8 +83,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/delete', [ExperienceController::class, 'delete'])->name('delete.experience');
     });
 
+    Route::prefix('/projects')->group(function () {
+        Route::post('/create', [ProjectController::class, 'create'])->name('create.project');
+        Route::post('/update', [ProjectController::class, 'update'])->name('update.project');
+        Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
+    });
+
     Route::prefix('/skill')->group(function () {
         Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+        Route::delete('/delete', [SkillController::class, 'delete'])->name('delete.skill');
         Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
     });
 
@@ -85,6 +102,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
     });
 
+    Route::prefix('/courses')->group(function () {
+        Route::get('/getCourses', [CoursesController::class, 'getCourses'])->name('get.courses');
+    });
 });
 
 Route::prefix('/skills')->group(function () {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institutions;
+use App\Services\InstitutionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +12,21 @@ use Illuminate\Validation\Rule;
 
 class InstitutionController extends Controller
 {
+    protected InstitutionService $institutionService;
+    public function __construct(InstitutionService $institutionService){
+        $this->institutionService = $institutionService;
+    }
+
+
+    public function getInstitutions(){
+        try {
+            $institutions = $this->institutionService->getInstitutions();
+
+            return response()->json(['success' => 'success', 'institutions' => $institutions]);
+        }catch (\Exception $exception){
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+        }
+    }
     // Mostrar todas las instituciones
     public function index()
     {

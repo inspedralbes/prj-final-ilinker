@@ -16,14 +16,16 @@ return new class extends Migration
 
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
-
+            $table->string('uuid')->nullable();
             //Formacion básica
-            $table->string('name');
-            $table->string('surname');
+            $table->string('name')->nullable();
+            $table->string('surname')->nullable();
             $table->enum('type_document', ['DNI', 'NIE', 'PASAPORTE']);
             $table->string('id_document');
             $table->string('nationality')->nullable();
             $table->string('photo_pic')->nullable();
+            $table->string('cover_photo')->nullable();
+            $table->string('desctiption')->nullable();
             $table->date('birthday')->nullable();
             $table->enum('gender',['Masculino', 'Femenino', 'No decir'])->nullable();
 

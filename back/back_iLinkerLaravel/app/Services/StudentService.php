@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Student;
+use App\Models\User;
 
 class StudentService
 {
@@ -17,12 +18,13 @@ class StudentService
         $students = new Student();
 
         $students->user_id = $data['id'];
+        $students->uuid = uuid_create();
         $students->name = $data['name'];
         $students->surname = $data['surname'];
         $students->type_document = $student['type_document'] ?? null;
-        $students->id_document = $student['id_document']  ?? null;
-        $students->nationality = $student['nationality']  ?? null;
-        $students->photo_pic = $student['photo_pic']  ?? null;
+        $students->id_document = $student['id_document'] ?? null;
+        $students->nationality = $student['nationality'] ?? null;
+        $students->photo_pic = $student['photo_pic'] ?? null;
         $students->birthday = $data['birthday'];
         $students->gender = $student['gender'] ?? null;
         $students->phone = $student['phone'] ?? null;
@@ -57,6 +59,11 @@ class StudentService
         $students->save();
 
         return $students;
+    }
+
+    public function searchStudent($uuid)
+    {
+
     }
 
 

@@ -18,7 +18,7 @@ class StudentEducationSeeder extends Seeder
         foreach ($educations as $education) {
             StudentEducation::create([
                 'student_id' => $education['student_id'],
-                'course_id' => $education['course_id'],
+                'courses_id' => $education['courses_id'],
                 'institution_id' => $education['institution_id'],
                 'institute' => $education['institute'],
                 'degree' => $education['degree'],
