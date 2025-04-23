@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class StudentController extends Controller
 {
@@ -41,5 +42,20 @@ class StudentController extends Controller
         }
 
         return response()->json(['status' => 'success', 'education' => $student]);
+    }
+
+    public function getOfferData()
+    {
+        try{
+            $user = Auth::user();
+
+            $student = Student::with('education')
+                ->where('user_id', $user->id)
+                ->first();
+
+            return response()->json(['status' => 'success', 'student' => $student]);
+        }catch (\Exception $e){
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
     }
 }

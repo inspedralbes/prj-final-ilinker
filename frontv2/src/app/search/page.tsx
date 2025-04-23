@@ -18,6 +18,8 @@ import {
   LogIn,
   UserPlus,
   AlertCircle,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +48,7 @@ import { apiRequest } from "@/services/requests/apiRequest";
 import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SearchClient() {
   const [latestOffers, setLatestOffers] = useState<any | null>(null);
@@ -57,29 +60,45 @@ export default function SearchClient() {
   const { loggedIn, userData } = useContext(AuthContext);
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
+  const { toast } = useToast();
 
-  const { isOpen, openModal, closeModal } = useModal();
-  const loginModal = useModal();
-  const signupModal = useModal();
-  const alertModal = useModal();
   const infoApplyModal = useModal();
 
-  const handleApplyOffer = () => {
+  const handleApplyOffer = async () => {
     console.log("apply offer");
+    showLoader();
+
     if (!userData) {
       router.push("/login");
       return;
     }
 
     if (userData.rol === "student") {
-      showLoader();
-    //   const response = await apiRequest('student/data/' + userData.id);
-      infoApplyModal.openModal();
+      const response = await apiRequest("student/offer/get-data");
+      console.log(response);
+      if (response.status === "success") {
+        setStudentData(response.student);
+        infoApplyModal.openModal();
+        toast({
+          title: "Datos del estudiante obtenidos correctamente",
+          description: "Datos del estudiante obtenidos correctamente.",
+          variant: "success",
+        });
+      } else {
+        //change for toast for better user experience
+        toast({
+          title: "Error al obtener los datos del estudiante",
+          description: "Error al obtener los datos del estudiante.",
+          variant: "error",
+        });
+        alert("Error al obtener los datos del estudiante");
+      }
       hideLoader();
       return;
     }
 
     alert("solo los estudiantes pueden optar a solicitar");
+    hideLoader();
   };
   const handleRedirectLogin = () => {
     router.push("/login");
@@ -104,6 +123,7 @@ export default function SearchClient() {
 
   //data for the modal to apply
   const [step, setStep] = useState(1);
+  const [studentData, setStudentData] = useState<any | null>(null);
   const [coverLetter, setCoverLetter] = useState("");
   const [availability, setAvailability] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -135,6 +155,14 @@ export default function SearchClient() {
       hideLoader();
     }
   };
+
+  const handleNextStepApplyOffer = ()=>{
+    if(step === 1)
+    {
+        console.log("validar step 1");
+    }
+    next();
+  }
 
   const JobDetails = () => {
     return selectedInfoJob !== null ? (
@@ -442,22 +470,64 @@ export default function SearchClient() {
                 <div>
                   <img
                     src={
-                      userData?.photo_pic ||
+                      studentData?.photo_pic ||
                       "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
                     }
                     className="w-12 h-12 rounded-full"
                   />
                 </div>
                 <div className="ms-4">
-                  <p className="font-bold">{userData?.name}</p>
+                  <p className="font-bold">
+                    {studentData?.name + " " + studentData?.surname}
+                  </p>
                   <p className="text-gray-700 text-sm">
-                    {userData?.student?.university
-                      ? `Estudiante de ${userData?.student?.university}`
+                    {studentData?.education[0]?.institute
+                      ? `Estudiante de ${studentData?.education[0]?.institute}`
                       : "Sin datos académicos"}
                   </p>
                   <p className="text-gray-700 text-sm">
-                    {userData?.student?.address || "Sin dirección"}
+                    {studentData?.address || "Sin dirección"}
                   </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="relative">
+                  <p className="text-sm mb-0 text-gray-600">Email*</p>
+                  <div className="flex items-center">
+                    <Mail className="h-4 w-4 absolute left-3 text-gray-500" />
+                    <Input
+                      type="email"
+                      value={userData?.email}
+                      onChange={(e) =>
+                        setStudentData({
+                          ...studentData,
+                          email: e.target.value,
+                        })
+                      }
+                      placeholder="Email..."
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <p className="text-sm mb-0 text-gray-600">Numero de telefono*</p>
+                  <div className="flex items-center">
+                    <Phone className="h-4 w-4 absolute left-3 text-gray-500" />
+                    <Input
+                      type="number"
+                      value={studentData?.phone}
+                      onChange={(e) =>
+                        setStudentData({
+                          ...studentData,
+                          phone: e.target.value,
+                        })
+                      }
+                      placeholder="Numero de telefono..."
+                      className="pl-9"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -465,7 +535,7 @@ export default function SearchClient() {
                 <Button variant="secondary" onClick={infoApplyModal.closeModal}>
                   Cancelar
                 </Button>
-                <Button onClick={next}>Siguiente</Button>
+                <Button onClick={handleNextStepApplyOffer} disabled={!studentData?.email || !studentData?.phone}>Siguiente</Button>
               </div>
             </>
           )}
@@ -490,7 +560,7 @@ export default function SearchClient() {
                 <Button variant="secondary" onClick={back}>
                   Atrás
                 </Button>
-                <Button onClick={next} disabled={!coverLetter || !availability}>
+                <Button onClick={handleNextStepApplyOffer} disabled={!coverLetter || !availability}>
                   Siguiente
                 </Button>
               </div>

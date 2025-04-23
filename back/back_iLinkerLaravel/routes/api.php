@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\CoursesController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
+use App\Http\Controllers\StudentController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +56,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
         Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
         Route::post('/getEducationById', [StudentController::class, 'getEducationById'])->name('get.education');
+        Route::get('/offer/get-data', [StudentController::class, 'getOfferData'])->name('get.offer.data');
     });
     Route::prefix('/company')->group(function () {
         Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
