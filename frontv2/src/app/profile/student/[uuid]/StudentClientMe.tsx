@@ -1,6 +1,23 @@
 "use client"
 
-import {BriefcaseIcon, Camera, Globe, Mail, MapPin, MessageCircle, Pencil, Phone, Share2, UserIcon} from "lucide-react";
+import {
+    BriefcaseIcon,
+    Camera,
+    Globe,
+    Mail,
+    MapPin,
+    MessageCircle,
+    Pencil,
+    Phone,
+    Share2,
+    UserIcon,
+    Trash,
+    CheckCircle,
+    AlertTriangle,
+    TriangleAlert,
+    Plus,
+    BriefcaseBusiness
+} from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
@@ -14,6 +31,8 @@ import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
 import {apiRequest} from "@/services/requests/apiRequest";
+import {toast} from "@/hooks/use-toast";
+import ConfirmDialog from "@/components/dialog/confirmDialog";
 
 export interface User {
     id: number;
@@ -162,10 +181,13 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
     const [modalModeEdit, setModalModeEdit] = useState(false);
     const [changes, setChanges] = useState(false);
     const [currentStudy, setCurrentStudy] = useState(null);
+    const [openDialog, setOpenDialog] = useState(false);
+    const [educationSelect, setEducationSelect] = useState(null);
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
         setModalModeEdit(false)
+        setIsEditing(false);
     }
 
     const handleCloseModal = () => {
@@ -178,11 +200,63 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
         setEducationEdit(response.student.education);
     }
 
-    const EditInfo = (section) => {
+    const EditInfo = (section, education) => {
+
         setIsEditing(section)
+        setCurrentStudy(education)
+
         setModalState(!modalState);
         setModalModeEdit(false)
     }
+
+    const removeStudy = (education) => {
+        setOpenDialog(true)
+        setEducationSelect(education);
+    }
+
+    const handleConfirm = async () => {
+
+        try {
+            const response = await apiRequest('education/delete', 'DELETE', {id: educationSelect.id})
+
+            if (response.status === 'success') {
+                toast({
+                    title: (
+                        <div className="flex items-center gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500"/>
+                            <span>Estudio Eliminado</span>
+                        </div>
+                    ),
+                    description: "Estudio eliminado correctamente",
+                    variant: "default",
+                    duration: 2000
+                })
+                UpdateChange();
+                setOpenDialog(false);
+            } else {
+                toast({
+                    title: (
+                        <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-green-500"/>
+                            <span>Error al eliminar</span>
+                        </div>
+                    ),
+                    description: "Ha ocurrido un error al intentar eliminar el estudio",
+                    variant: "destructive",
+                    duration: 2000
+                })
+                setOpenDialog(false);
+            }
+
+        } catch (e) {
+            console.log(e)
+            setOpenDialog(false);
+        }
+    };
+
+    const handleCancel = () => {
+        setOpenDialog(false);
+    };
 
     useEffect(() => {
         UpdateChange();
@@ -403,6 +477,13 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                                 {/*    <UsersIcon className="h-4 w-4"/>*/}
                                 {/*    Personas empleadas*/}
                                 {/*</TabsTrigger>*/}
+                                <TabsTrigger
+                                    value="experience"
+                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                >
+                                    <BriefcaseBusiness className="h-4 w-4"/>
+                                    Mi Experiencia
+                                </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="inicio" className="mt-6 shadow-lg">
@@ -606,20 +687,21 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                             </TabsContent>
 
                             <TabsContent value="studies" className="mt-6 space-y-4">
-                                {/* Botón para añadir una nueva oferta */}
-                                <div className="flex justify-end">
-                                    <Button
-                                        className="bg-blue-600 text-white"
-                                        onClick={() => handleOpenModalAddStudies()}  // Asumiendo que tienes una función para manejar el modal de añadir oferta
-                                    >
-                                        Añadir Estudios
-                                    </Button>
-                                </div>
-
                                 <Card className="p-6 mt-6 mb-6">
                                     <div className="flex justify-between items-center mb-4">
 
                                         <h2 className="text-xl font-semibold mb-4">Estudios de {studentEdit.name}</h2>
+
+                                        {/* Botón para añadir una nueva oferta */}
+                                        <div className="flex justify-end">
+                                            <Button
+                                                variant="default"
+                                                className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
+                                                onClick={() => handleOpenModalAddStudies()}
+                                            >
+                                                <Plus className="h-5 w-5"/>
+                                            </Button>
+                                        </div>
 
                                     </div>
 
@@ -724,11 +806,32 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
 
                                                                                     {/* Botón de editar */}
                                                                                     <button
-                                                                                        onClick={() => EditInfo("study")} // asegúrate de tener esta función
+                                                                                        onClick={() => EditInfo("study", studies)} // asegúrate de tener esta función
                                                                                         className="text-blue-600 hover:text-blue-800"
                                                                                     >
                                                                                         <Pencil className="h-4 w-4"/>
                                                                                     </button>
+
+                                                                                    {/* Botón de eliminar */}
+                                                                                    <button
+                                                                                        onClick={() => removeStudy(studies)} // asegúrate de tener esta función
+                                                                                        className="text-red-600 hover:text-red-800"
+                                                                                    >
+                                                                                        <Trash className="h-4 w-4"/>
+                                                                                    </button>
+
+                                                                                    <ConfirmDialog
+                                                                                        open={openDialog}
+                                                                                        onOpenChange={setOpenDialog}
+                                                                                        title="¿Estás seguro?"
+                                                                                        description="Esta acción eliminará el estudio permanentemente."
+                                                                                        onConfirm={handleConfirm}
+                                                                                        onCancel={handleCancel}
+                                                                                        confirmText="Continuar"
+                                                                                        cancelText="Cancelar"
+                                                                                        icon={<TriangleAlert
+                                                                                            className="text-yellow-500"/>}
+                                                                                    />
                                                                                 </div>
                                                                             </div>
                                                                             <div
@@ -761,6 +864,205 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                                 </Card>
                             </TabsContent>
 
+                            <TabsContent value="experience" className="mt-6 space-y-4">
+                                <Card className="p-6 mt-6 mb-6">
+                                    <div className="flex justify-between items-center mb-4">
+
+                                        <h2 className="text-xl font-semibold mb-4">Experiencia de {studentEdit.name}</h2>
+
+                                        {/* Botón para añadir una nueva oferta */}
+                                        <div className="flex justify-end">
+                                            <Button
+                                                variant="default"
+                                                className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
+                                                onClick={() => handleOpenModalAddStudies()}
+                                            >
+                                                <Plus className="h-5 w-5"/>
+                                            </Button>
+                                        </div>
+
+                                    </div>
+
+                                    <div className="gap-6">
+                                        {/* Información General */}
+                                        <div className="">
+                                            {isEditing === "studies" ? (
+                                                <div className="space-y-3">
+
+                                                    <Input
+                                                        value={studentEdit.country}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            website: e.target.value
+                                                        })}
+                                                        placeholder="Sitio web"
+                                                    />
+
+                                                    <Select
+                                                        closeMenuOnSelect={false}
+                                                        components={animatedComponents}
+                                                        options={sectors}
+                                                        isSearchable
+                                                        isMulti
+                                                        placeholder="Busca y selecciona..."
+                                                        getOptionLabel={(option) => option.name}
+                                                        getOptionValue={(option) => option.id}
+                                                        onChange={(selectedOption) => {
+                                                            console.log(selectedOption);
+                                                            setStudentEdit({
+                                                                ...studentEdit,
+                                                                sectors: selectedOption
+                                                            })
+                                                        }}
+                                                    />
+                                                    <Input
+                                                        value={studentEdit.postal_code}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            postal_code: e.target.value
+                                                        })}
+                                                        placeholder="Tamaño"
+                                                    />
+                                                    <Input
+                                                        value={studentEdit.birthday}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            birthday: e.target.value
+                                                        })}
+                                                        placeholder="Año de fundación"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-0 relative">
+                                                    {educationEdit && educationEdit.length > 0 ? (
+                                                        <>
+                                                            {/* Línea vertical */}
+                                                            <div
+                                                                className="absolute left-10 top-6 bottom-6 w-0.5 bg-blue-200 z-0"></div>
+
+                                                            {educationEdit.map((studies, index) => (
+                                                                <div key={studies.id || studies.institute}
+                                                                     className="relative z-10">
+                                                                    <div className="flex items-start gap-4 mb-8">
+                                                                        {/* Imagen e indicador de línea de tiempo */}
+                                                                        <div className="relative">
+                                                                            <div
+                                                                                className="absolute left-10 top-10 w-5 h-5 rounded-full bg-blue-500 transform -translate-x-1/2 border-4 border-white z-20"></div>
+                                                                            <Image
+                                                                                src={
+                                                                                    studies.institution && studies.institution.logo
+                                                                                        ? studies.institution.logo
+                                                                                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiI8bK0w9ZqoX3JybXl_26MloLwBwjdsWLIw&s'
+                                                                                }
+                                                                                alt="Logo del instituto"
+                                                                                className="object-cover rounded-lg shadow-sm"
+                                                                                width={80}
+                                                                                height={80}
+                                                                            />
+                                                                        </div>
+
+                                                                        {/* Contenido */}
+                                                                        <div
+                                                                            className="flex-grow p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all ml-2">
+                                                                            <div
+                                                                                className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                                                                                <div className="flex flex-col">
+                                                                                    {studies.institution_id ? (
+                                                                                        <Link
+                                                                                            href={`/profile/institution/${studies.institution.slug}`}
+                                                                                            passHref>
+                                            <span
+                                                className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
+                                                {studies.institute}
+                                            </span>
+                                                                                        </Link>
+                                                                                    ) : (
+                                                                                        <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
+                                                                                    )}
+
+                                                                                    <div
+                                                                                        className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm inline-block font-medium mt-1 w-fit">
+                                                                                        {studies.degree}
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="flex items-center gap-2 mt-2 sm:mt-0">
+                                                                                    {/* Fechas */}
+                                                                                    <span
+                                                                                        className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
+                                        {studies.start_date} - {studies.end_date || "Cursando"}
+                                    </span>
+
+                                                                                    {/* Botones de acción */}
+                                                                                    <div className="flex gap-2 ml-2">
+                                                                                        <button
+                                                                                            onClick={() => EditInfo("study", studies)}
+                                                                                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                        >
+                                                                                            <Pencil
+                                                                                                className="h-4 w-4"/>
+                                                                                        </button>
+
+                                                                                        <button
+                                                                                            onClick={() => removeStudy(studies)}
+                                                                                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                        >
+                                                                                            <Trash className="h-4 w-4"/>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </>
+                                                    ) : (
+                                                        <div
+                                                            className="py-8 text-center border border-dashed border-gray-300 rounded-lg">
+                                                            <p className="text-gray-500">No hay estudios
+                                                                especificados</p>
+                                                            <button
+                                                                onClick={() => handleOpenModalAddStudies()}
+                                                                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                                + Añadir educación
+                                                            </button>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Botón para añadir nuevo estudio */}
+                                                    {educationEdit && educationEdit.length > 0 && (
+                                                        <div className="flex justify-center mt-4">
+                                                            <Button
+                                                                variant="outline"
+                                                                className="border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 text-blue-600 flex items-center gap-2"
+                                                                onClick={() => handleOpenModalAddStudies()}
+                                                            >
+                                                                <Plus className="h-4 w-4"/>
+                                                                <span>Añadir estudio</span>
+                                                            </Button>
+                                                        </div>
+                                                    )}
+
+                                                    <ConfirmDialog
+                                                        open={openDialog}
+                                                        onOpenChange={setOpenDialog}
+                                                        title="¿Estás seguro?"
+                                                        description="Esta acción eliminará el estudio permanentemente."
+                                                        onConfirm={handleConfirm}
+                                                        onCancel={handleCancel}
+                                                        confirmText="Continuar"
+                                                        cancelText="Cancelar"
+                                                        icon={<TriangleAlert className="text-yellow-500"/>}
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                </Card>
+                            </TabsContent>
 
                             <TabsContent value="empleados" className="mt-6">
                                 <Card className="p-6">

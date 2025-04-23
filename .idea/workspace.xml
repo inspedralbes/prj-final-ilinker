@@ -4,20 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Cambios para que el mismo modal funcione para los dos tanto como create o update">
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddStudies.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentDoesntExist.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/page.tsx" afterDir="false" />
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Empezar con la parte de experiencia del estudiante">
+      <change afterPath="$PROJECT_DIR$/frontv2/src/components/dialog/confirmDialog.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddStudies.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddStudies.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,20 +56,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "student-profile",
-    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;student-profile&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Proyectos programacion\daw2\prj-final-ilinker\back\back_iLinkerLaravel" />
@@ -119,6 +112,7 @@
       <workItem from="1744191723523" duration="4964000" />
       <workItem from="1744267045066" duration="10265000" />
       <workItem from="1744355041750" duration="6139000" />
+      <workItem from="1745390743304" duration="10598000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -144,7 +138,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745306215530</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Cambios para que el mismo modal funcione para los dos tanto como create o update">
+      <option name="closed" value="true" />
+      <created>1745321438193</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1745321438193</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -158,6 +160,7 @@
     <MESSAGE value="Perfil del estudiante, funciones creada" />
     <MESSAGE value="Cmavios de perfil de estudiantes con conexion a la base de datos" />
     <MESSAGE value="Cambios para que el mismo modal funcione para los dos tanto como create o update" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cambios para que el mismo modal funcione para los dos tanto como create o update" />
+    <MESSAGE value="Empezar con la parte de experiencia del estudiante" />
+    <option name="LAST_COMMIT_MESSAGE" value="Empezar con la parte de experiencia del estudiante" />
   </component>
 </project>
