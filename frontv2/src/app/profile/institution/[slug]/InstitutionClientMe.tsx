@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react"
 import {
   Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X,
 } from "lucide-react"
+import { SimpleEditor } from "@/components/templates/simple/SimpleEditor"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -258,16 +259,18 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       </div>
       {isEditing === "about" ? (
         <div>
-          <textarea
-            value={institutionData.about}
-            onChange={(e) => updateInstitution("about", e.target.value)}
-            className="w-full h-32 p-2 border rounded"
+          <SimpleEditor
+            content={institutionData.about || ''}
+            onChange={(html: string) => updateInstitution("about", html)}
           />
           {renderActionButtons()}
           {renderErrorMessage()}
         </div>
       ) : (
-        <p className="text-gray-600">{institutionData.about}</p>
+        <div
+          className="prose prose-sm sm:prose lg:prose-lg mx-auto"
+          dangerouslySetInnerHTML={{ __html: institutionData.about || '' }}
+        />
       )}
     </div>
   )
