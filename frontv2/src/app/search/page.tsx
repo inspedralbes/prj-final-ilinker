@@ -20,6 +20,11 @@ import {
   AlertCircle,
   Mail,
   Phone,
+  File,
+  FileSignature,
+  FileText,
+  Calendar,
+  CheckCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,8 +80,13 @@ export default function SearchClient() {
 
     if (userData.rol === "student") {
       const response = await apiRequest("student/offer/get-data");
-      console.log(response);
       if (response.status === "success") {
+        setStep(1);
+        response.student.email = userData?.email;
+        response.student.file = null;
+        response.student.cv = null;
+        response.student.availability = "";
+
         setStudentData(response.student);
         infoApplyModal.openModal();
         toast({
@@ -137,17 +147,13 @@ export default function SearchClient() {
     setError(null);
 
     try {
-      const form = new FormData();
-      form.append("offer_id", offerId.toString());
-      form.append("user_id", userData.id.toString());
-      form.append("cover_letter", coverLetter);
-      form.append("availability", availability);
-      if (resumeFile) form.append("resume", resumeFile);
+      console.log("candidatura hecha");
 
-      //   const res = await apiRequest("application/create", "POST", form);
-      // suponemos { status: 'success' }
-      //   if (res.status !== "success")
-      //     throw new Error(res.message || "Error al enviar");
+      // const response = await apiRequest("offer/apply", "POST", studentData);
+      const response = {status: "success", message: "error"}
+
+      if (response.status !== "success")
+        throw new Error(response.message || "Error al enviar");
       next(); // pasa al paso de confirmación
     } catch (err: any) {
       setError(err.message);
@@ -156,13 +162,23 @@ export default function SearchClient() {
     }
   };
 
-  const handleNextStepApplyOffer = ()=>{
-    if(step === 1)
-    {
-        console.log("validar step 1");
+  const handleNextStepApplyOffer = () => {
+    if (step === 1) {
+      console.log("validar step 1");
     }
     next();
-  }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      console.log(file)
+      setStudentData((prev: any) => ({
+        ...prev,
+        file: file,
+      }));
+    }
+  };
 
   const JobDetails = () => {
     return selectedInfoJob !== null ? (
@@ -312,9 +328,8 @@ export default function SearchClient() {
                 {latestOffers?.slice(0, 3).map((job: any) => (
                   <Card
                     key={job.id}
-                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
-                      selectedJob === job ? "border-primary" : ""
-                    }`}
+                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
+                      }`}
                     onClick={() => {
                       setSelectedJob(job);
                       if (window.innerWidth < 768) {
@@ -374,9 +389,8 @@ export default function SearchClient() {
                 latestOffers?.slice(3).map((job: any) => (
                   <Card
                     key={job.id}
-                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
-                      selectedJob === job ? "border-primary" : ""
-                    }`}
+                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
+                      }`}
                     onClick={() => {
                       setSelectedJob(job);
                       if (window.innerWidth < 768) {
@@ -498,7 +512,7 @@ export default function SearchClient() {
                     <Mail className="h-4 w-4 absolute left-3 text-gray-500" />
                     <Input
                       type="email"
-                      value={userData?.email}
+                      value={studentData?.email}
                       onChange={(e) =>
                         setStudentData({
                           ...studentData,
@@ -543,67 +557,189 @@ export default function SearchClient() {
           {/* Paso 2: Carta de presentación y disponibilidad */}
           {step === 2 && (
             <>
-              <h2 className="text-xl font-bold">2. Carta de presentación</h2>
-              <Textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                placeholder="Escribe aquí tu carta de presentación..."
-                rows={5}
-              />
-              <h2 className="text-xl font-bold mt-4">Disponibilidad</h2>
-              <Input
-                value={availability}
-                onChange={(e) => setAvailability(e.target.value)}
-                placeholder="Ej: Junio–Septiembre, 20h/semana"
-              />
-              <div className="flex justify-between mt-4">
+              <div className="relative">
+                <p className="text-sm mb-2 font-bold text-gray-700">Currículum Vitae (CV)*</p>
+                <label className="relative flex items-center space-x-3 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 hover:bg-gray-100 cursor-pointer">
+                  <FileText className="h-6 w-6 text-gray-500" />
+                  <div className="flex-1">
+                    {studentData?.cv ? (
+                      <span className="text-gray-700 truncate">{studentData.cv.name}</span>
+                    ) : (
+                      <span className="text-gray-400">
+                        Arrastra tu CV aquí o haz clic para subir
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                    onChange={(e) =>
+                      setStudentData({ ...studentData, cv: e.target.files?.[0] || null })
+                    }
+                  />
+                </label>
+                <p className="mt-2 text-xs text-gray-500">
+                  Mantén tu CV actualizado para acceder a las oportunidades más relevantes.
+                </p>
+              </div>
+
+              <div className="relative mt-6">
+                <p className="text-sm mb-2 font-bold text-gray-700">Carta de presentación</p>
+                <label className="relative flex items-center space-x-3 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 hover:bg-gray-100 cursor-pointer">
+                  <FileSignature className="h-6 w-6 text-gray-500" />
+                  <div className="flex-1">
+                    {studentData?.file ? (
+                      <span className="text-gray-700 truncate">{studentData.file.name}</span>
+                    ) : (
+                      <span className="text-gray-400">
+                        Arrastra tu carta de presentación aquí o haz clic para subir
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    className="absolute inset-0 h-full w-full opacity-0 cursor-pointer"
+                    onChange={handleFileChange}
+                  />
+                </label>
+                <p className="mt-2 text-xs text-gray-500">
+                  Una carta personalizada muestra tu entusiasmo y destaca tus fortalezas.
+                </p>
+              </div>
+
+              <div className="relative mt-6">
+                <h2 className="text-sm font-bold text-gray-700 mb-2">Disponibilidad</h2>
+                <Input
+                  value={studentData?.availability}
+                  onChange={(e) =>
+                    setStudentData({ ...studentData, availability: e.target.value })
+                  }
+                  placeholder="Ej: Junio – Septiembre, 20 h/semana"
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Especifica tu rango temporal y horas disponibles por semana.
+                </p>
+              </div>
+
+              <div className="flex justify-between mt-6">
                 <Button variant="secondary" onClick={back}>
                   Atrás
                 </Button>
-                <Button onClick={handleNextStepApplyOffer} disabled={!coverLetter || !availability}>
+                <Button
+                  onClick={handleNextStepApplyOffer}
+                  disabled={!studentData?.cv || !studentData?.file || !studentData?.availability}
+                >
                   Siguiente
                 </Button>
               </div>
             </>
+
           )}
 
-          {/* Paso 3: Adjunta tu CV (opcional) */}
+          {/* Paso 3: Revisa y envía */}
           {step === 3 && (
             <>
-              <h2 className="text-xl font-bold">3. Adjunta tu CV</h2>
-              <Input
-                type="file"
-                accept=".pdf,.doc,.docx"
-                onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-              />
-              <p className="text-sm text-gray-500">
-                Recomendado: PDF con un máximo de 2 MB.
-              </p>
-              <div className="flex justify-between mt-4">
-                <Button variant="secondary" onClick={back}>
-                  Atrás
-                </Button>
-                <Button onClick={next}>Siguiente</Button>
+              <h2 className="text-sm font-semibold">Resumen de solicitud</h2>
+              <div className="flex items-center">
+                <div>
+                  <img
+                    src={
+                      studentData?.photo_pic ||
+                      "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
+                    }
+                    className="w-12 h-12 rounded-full"
+                  />
+                </div>
+                <div className="ms-4">
+                  <p className="font-bold">
+                    {studentData?.name + " " + studentData?.surname}
+                  </p>
+                  <p className="text-gray-700 text-sm">
+                    {studentData?.education[0]?.institute
+                      ? `Estudiante de ${studentData?.education[0]?.institute}`
+                      : "Sin datos académicos"}
+                  </p>
+                  <p className="text-gray-700 text-sm">
+                    {studentData?.address || "Sin dirección"}
+                  </p>
+                </div>
               </div>
-            </>
-          )}
 
-          {/* Paso 4: Revisa y envía */}
-          {step === 4 && (
-            <>
-              <h2 className="text-xl font-bold">4. Confirmar candidatura</h2>
-              <p>Por favor, revisa toda la información antes de enviar:</p>
-              <ul className="space-y-2 mt-2">
-                <li>
-                  <strong>Carta:</strong> {coverLetter.substring(0, 50)}…
-                </li>
-                <li>
-                  <strong>Disponibilidad:</strong> {availability}
-                </li>
-                <li>
-                  <strong>CV:</strong> {resumeFile?.name || "No adjuntado"}
-                </li>
-              </ul>
+              {/* Información de contacto */}
+              <div className="grid grid-cols-2">
+                <div>
+                  <h2 className="text-sm font-semibold">Información de contacto</h2>
+                  <div className="relative">
+                    <div className="flex items-center">
+                      <Mail className="h-4 w-4 absolute left-0 text-gray-500" />
+                      <div
+                        className="pl-6 pr-4 py-2 rounded-sm text-sm"
+                      >
+                        {studentData?.email || "Sin email"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="flex items-center">
+                      <Phone className="h-4 w-4 absolute left-0 text-gray-500" />
+                      <div
+                        className="pl-6 pr-4 py-2 rounded-sm text-sm"
+                      >
+                        {studentData?.phone || "Sin telefono"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 absolute left-0 text-gray-500" />
+                      <div
+                        className="pl-6 pr-4 py-2 rounded-sm text-sm"
+                      >
+                        {studentData?.availability || "Sin disponibilidad"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  {/* Documentos */}
+                  <div className="space-y-4 mb-6">
+                    <h3 className="text-sm font-semibold">Documentación subida</h3>
+                    <div className="flex ">
+                      {/* CV Card */}
+                      <a
+                        href={studentData.cv ? URL.createObjectURL(studentData.cv) : '#'}
+                        download={studentData.cv?.name}
+                        className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="bg-gray-100 p-3 rounded-full mb-2">
+                          <FileText className="h-6 w-6 text-gray-500" />
+                        </div>
+                        <span className="block w-full text-gray-700 text-sm truncate text-center">
+                          {studentData.cv?.name || 'CV no subido'}
+                        </span>
+                      </a>
+
+                      {/* Carta de presentación Card */}
+                      <a
+                        href={studentData.file ? URL.createObjectURL(studentData.file) : '#'}
+                        download={studentData.file?.name}
+                        className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                      >
+                        <div className="bg-gray-100 p-3 rounded-full mb-2">
+                          <FileSignature className="h-6 w-6 text-gray-500" />
+                        </div>
+                        <span className="block w-full text-gray-700 text-sm truncate text-center">
+                          {studentData.file?.name || 'Carta no subida'}
+                        </span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
               {error && (
                 <div className="p-2 bg-red-100 text-red-700 rounded">
                   {error}
@@ -618,23 +754,28 @@ export default function SearchClient() {
             </>
           )}
 
-          {/* Paso 5: Éxito */}
-          {step === 5 && (
+          {/* Paso 4: Éxito */}
+          {step === 4 && (
             <>
-              <h2 className="text-xl font-bold text-green-600">
-                ¡Candidatura enviada!
+            <div className="text-center mx-20 space-y-4">
+              <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
+              <h2 className="text-2xl font-bold text-gray-800">
+                ¡Solicitud enviada con éxito!
               </h2>
-              <p>
-                Gracias por tu interés. La empresa recibirá tu solicitud y te
-                contactará.
+              <p className="text-gray-600">
+                Gracias por confiar en nosotros. Tu candidatura ha sido enviada correctamente.
               </p>
-              <div className="flex justify-end">
-                <Button onClick={infoApplyModal.closeModal}>Cerrar</Button>
-              </div>
-            </>
+              <p className="text-gray-600">
+                Revisa el estado de tu solicitud en tu perfil cuando quieras, y recibirás un email con cualquier novedad. ¡Mucha suerte!
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <Button onClick={infoApplyModal.closeModal}>Entendido</Button>
+            </div>
+          </>
           )}
         </div>
-      </Modal>
-    </div>
+      </Modal >
+    </div >
   );
 }
