@@ -32,6 +32,10 @@ Route::prefix('/auth')->group(function () {
 });
 Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
 
+// Group company but it not necessary to be logged
+Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
+Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
 
@@ -46,8 +50,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/company')->group(function () {
         Route::post('/update', [CompanyController::class, 'update'])->name('company.update');
         Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
-        Route::get('/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
-        Route::post('/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
     });
 
     Route::prefix('/institution')->group(function () {
@@ -82,6 +84,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
         Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
     });
+
 });
 
 Route::prefix('/skills')->group(function () {
@@ -92,8 +95,8 @@ Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);
 });
 
-Route::prefix('/page')->group(function (){
-   Route::get('/register', [PagesController::class, 'registerPage']);
-   Route::get('/search', [PagesController::class, 'searchPractices']);
-   Route::get('/profile/company', [PagesController::class, 'profileCompany']);
+Route::prefix('/page')->group(function () {
+    Route::get('/register', [PagesController::class, 'registerPage']);
+    Route::get('/search', [PagesController::class, 'searchPractices']);
+    Route::get('/profile/company', [PagesController::class, 'profileCompany']);
 });

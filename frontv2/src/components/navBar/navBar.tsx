@@ -135,10 +135,10 @@ export default function NavBar() {
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
+                  <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/register">Register</Link>
+                  <Link href="/auth/register">Register</Link>
                 </Button>
               </>
             )}
@@ -151,7 +151,7 @@ export default function NavBar() {
 }
 
 // Componente para el menú desplegable del perfil
-function ProfileDropdown({ userData, logout }) {
+function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
@@ -162,7 +162,7 @@ function ProfileDropdown({ userData, logout }) {
 
   // Cierra el menú si se hace clic fuera de él
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: any) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }

@@ -96,11 +96,11 @@ const Modal = ({
   
   // Use createPortal to render the modal at the document body level
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-md ">
       <div 
         ref={modalRef}
         id={id}
-        className={`bg-white dark:bg-gray-800 rounded-lg shadow-lg ${getSizeClass()} w-full max-h-[90vh] overflow-auto`}
+        className={`bg-white dark:bg-gray-800 rounded-sm shadow-lg ${getSizeClass()} w-full max-h-[90vh] overflow-auto`}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? `${id}-title` : undefined}
@@ -117,7 +117,7 @@ const Modal = ({
             </button>
           </div>
         )}
-        <div className="p-4">
+        <div className="">
           {children}
         </div>
       </div>
