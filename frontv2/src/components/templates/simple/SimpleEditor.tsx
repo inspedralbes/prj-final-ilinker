@@ -2,6 +2,9 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import HardBreak from '@tiptap/extension-hard-break'
 import Typography from '@tiptap/extension-typography'
 import TextAlign from '@tiptap/extension-text-align'
 import TaskList from '@tiptap/extension-task-list'
@@ -34,7 +37,23 @@ interface SimpleEditorProps {
 export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange }) => {
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        document: false,
+        paragraph: false,
+        hardBreak: false
+      }),
+      HardBreak.configure({
+        keepMarks: true,
+        HTMLAttributes: {
+          class: 'my-hard-break',
+        },
+      }),
+      Document,
+      Paragraph.configure({
+        HTMLAttributes: {
+          class: 'editor-paragraph',
+        },
+      }),
       Typography,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       TaskList,
@@ -50,6 +69,14 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto',
+      },
+      handleKeyDown: (view, event) => {
+        // Handle Shift + Enter for soft breaks
+        if (event.key === 'Enter' && event.shiftKey) {
+          view.dispatch(view.state.tr.replaceSelectionWith(view.state.schema.nodes.hardBreak.create()));
+          return true;
+        }
+        return false;
       },
     },
   })
