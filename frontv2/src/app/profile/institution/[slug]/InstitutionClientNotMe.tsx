@@ -158,7 +158,10 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
   const renderAcercaDe = (
     <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
       <h2 className="text-lg font-medium text-gray-900 mb-4">Acerca de</h2>
-      <p className="text-gray-600 text-sm sm:text-base">{institute.basic.about}</p>
+      <div 
+        className="text-gray-600 text-sm sm:text-base"
+        dangerouslySetInnerHTML={{ __html: institute.basic.about }}
+      />
     </div>
   )
 
@@ -171,30 +174,46 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
             <div className="space-y-4">
               <div className="flex items-center">
                 <Building2 className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-500">Tipo de institución</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.type}</p>
-                </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Tipo de institución</p>
+                    <div 
+                      className="text-gray-900 text-sm sm:text-base"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.type }}
+                    />
+                  </div>
               </div>
               <div className="flex items-center">
                 <Users className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
-                <div>
-                  <p className="text-sm text-gray-500">Tamaño</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.size}</p>
-                </div>
+                  <div>
+                    <p className="text-sm text-gray-500">Tamaño</p>
+                    <div 
+                      className="text-gray-900 text-sm sm:text-base"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.size }}
+                    />
+                  </div>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Año de fundación</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.foundedYear}</p>
+                  <div 
+                    className="text-gray-900 text-sm sm:text-base"
+                    dangerouslySetInnerHTML={{ __html: institute.basic.foundedYear }}
+                  />
                 </div>
               </div>
               <div className="flex items-center">
                 <Languages className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Idiomas</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.languages.join(", ")}</p>
+                  <div className="text-gray-900 text-sm sm:text-base">
+                    {institute.basic.languages.map((lang, i) => (
+                      <span key={i}>
+                        <span dangerouslySetInnerHTML={{ __html: lang }} />
+                        {i < institute.basic.languages.length - 1 && ", "}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -203,12 +222,11 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
             <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6 lg:mt-0">Especialidades</h3>
             <div className="flex flex-wrap gap-2">
               {institute.specialties.map((specialty, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800"
-                >
-                  {specialty}
-                </span>
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800"
+                    dangerouslySetInnerHTML={{ __html: specialty }}
+                  />
               ))}
             </div>
           </div>
@@ -222,10 +240,13 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
             <div key={cert.id} className="flex items-start space-x-3">
               <Award className="h-6 w-6 text-gray-400 flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{cert.name}</h3>
-                <p className="text-sm text-gray-500">
-                  Otorgado por {cert.issuedBy} • {cert.year}
-                </p>
+                <div 
+                  className="font-medium text-gray-900 text-sm sm:text-base"
+                  dangerouslySetInnerHTML={{ __html: cert.name }}
+                />
+                <div className="text-sm text-gray-500">
+                  Otorgado por <span dangerouslySetInnerHTML={{ __html: cert.issuedBy }} /> • {cert.year}
+                </div>
               </div>
             </div>
           ))}
@@ -239,9 +260,18 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
             <div key={collab.id} className="flex items-start space-x-3">
               <Briefcase className="h-6 w-6 text-gray-400 flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{collab.company}</h3>
-                <p className="text-sm text-gray-600">{collab.type}</p>
-                <p className="text-sm text-gray-500">{collab.description}</p>
+                <div 
+                  className="font-medium text-gray-900 text-sm sm:text-base"
+                  dangerouslySetInnerHTML={{ __html: collab.company }}
+                />
+                <div 
+                  className="text-sm text-gray-600"
+                  dangerouslySetInnerHTML={{ __html: collab.type }}
+                />
+                <div 
+                  className="text-sm text-gray-500"
+                  dangerouslySetInnerHTML={{ __html: collab.description }}
+                />
               </div>
             </div>
           ))}
@@ -257,7 +287,10 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
         {publications.slice(0, visiblePublications).map((pub) => (
           <Card key={pub.id} className="overflow-hidden">
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">{pub.title}</CardTitle>
+              <CardTitle 
+                className="text-base sm:text-lg"
+                dangerouslySetInnerHTML={{ __html: pub.title }}
+              />
             </CardHeader>
             <CardContent>
               <img
@@ -304,11 +337,20 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                     />
                   </div>
                   <div className="mt-4 sm:mt-0 text-center sm:text-left">
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{institute.basic.name}</h1>
-                    <p className="text-base sm:text-lg text-gray-600">{institute.basic.slogan}</p>
+                    <h1 
+                      className="text-xl sm:text-2xl font-bold text-gray-900"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.name }}
+                    />
+                    <div 
+                      className="text-base sm:text-lg text-gray-600"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.slogan }}
+                    />
                     <p className="text-gray-500 flex items-center justify-center sm:justify-start mt-2">
                       <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm sm:text-base">{institute.basic.location}</span>
+                      <span 
+                        className="text-sm sm:text-base"
+                        dangerouslySetInnerHTML={{ __html: institute.basic.location }}
+                      />
                     </p>
                   </div>
                 </div>
@@ -337,17 +379,25 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex items-center justify-center sm:justify-start">
                     <Globe className="h-5 w-5 text-gray-400 mr-2" />
-                    <a href={`https://${institute.basic.website}`} className="text-blue-600 hover:underline text-sm sm:text-base">
-                      {institute.basic.website}
-                    </a>
+                    <a 
+                      href={`https://${institute.basic.website}`} 
+                      className="text-blue-600 hover:underline text-sm sm:text-base"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.website }}
+                    />
                   </div>
                   <div className="flex items-center justify-center sm:justify-start">
                     <Phone className="h-5 w-5 text-gray-400 mr-2" />
-                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.phone}</span>
+                    <span 
+                      className="text-gray-600 text-sm sm:text-base"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.phone }}
+                    />
                   </div>
                   <div className="flex items-center justify-center sm:justify-start">
                     <Mail className="h-5 w-5 text-gray-400 mr-2" />
-                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.email}</span>
+                    <span 
+                      className="text-gray-600 text-sm sm:text-base"
+                      dangerouslySetInnerHTML={{ __html: institute.basic.email }}
+                    />
                   </div>
                 </div>
               </div>
@@ -359,7 +409,6 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                   <TabsTrigger value="publicaciones" className="text-sm sm:text-base">Publicaciones</TabsTrigger>
                   <TabsTrigger value="empleos" className="text-sm sm:text-base">Empleos</TabsTrigger>
                   <TabsTrigger value="instituto" className="text-sm sm:text-base">Vida en el instituto</TabsTrigger>
-                  <TabsTrigger value="alumnos" className="text-sm sm:text-base">Antiguos alumnos</TabsTrigger>
                 </TabsList>
               </div>
             </div>
@@ -375,19 +424,19 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
             <TabsContent value="empleos">
               <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
                 <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Empleos</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay empleos disponibles actualmente.</p>
+                <div 
+                  className="text-gray-600 text-sm sm:text-base"
+                  dangerouslySetInnerHTML={{ __html: "No hay empleos disponibles actualmente." }}
+                />
               </div>
             </TabsContent>
             <TabsContent value="instituto">
               <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Vida en el instituto</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay información disponible.</p>
-              </div>
-            </TabsContent>
-            <TabsContent value="alumnos">
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Antiguos alumnos</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay información de antiguos alumnos.</p>
+                <div 
+                  className="text-gray-600 text-sm sm:text-base"
+                  dangerouslySetInnerHTML={{ __html: "No hay información disponible." }}
+                />
               </div>
             </TabsContent>
           </div>

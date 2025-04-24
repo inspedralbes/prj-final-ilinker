@@ -28,7 +28,10 @@ import {
   CheckSquare,
   Heading1,
   Heading2,
-  Palette
+  Heading3,
+  Heading4,
+  Heading5,
+  Palette,
 } from 'lucide-react'
 import '@/styles/tiptap.scss'
 
@@ -39,7 +42,7 @@ interface SimpleEditorProps {
 
 export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange }) => {
   const colorTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null!);
-  
+
   useEffect(() => {
     return () => {
       if (colorTimeoutRef.current) {
@@ -49,10 +52,10 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
   }, []);
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        document: false,
-        paragraph: false,
-        hardBreak: false
+      StarterKit,
+      HardBreak.configure({
+        keepMarks: true,
+        HTMLAttributes: { class: 'my-hard-break' },
       }),
       HardBreak.configure({
         keepMarks: true,
@@ -95,12 +98,18 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto preserve-formatting',
+        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto',
       },
       handleKeyDown: (view, event) => {
         // Handle Shift + Enter for soft breaks
         if (event.key === 'Enter' && event.shiftKey) {
           view.dispatch(view.state.tr.replaceSelectionWith(view.state.schema.nodes.hardBreak.create()));
+          return true;
+        }
+        // Handle regular Enter for new paragraphs
+        if (event.key === 'Enter' && !event.shiftKey) {
+          const { $from, $to } = view.state.selection;
+          view.dispatch(view.state.tr.split($from.pos, 1));
           return true;
         }
         return false;
@@ -152,6 +161,28 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
           >
             <Heading2 className="w-5 h-5" />
           </button>
+          <button
+            onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+            className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}`}
+            title="Encabezado 3"
+          >
+            <Heading3 className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => editor?.chain().focus().toggleHeading({ level: 4 }).run()}
+            className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 4 }) ? 'bg-gray-200' : ''}`}
+            title="Encabezado 4"
+          >
+            <Heading4 className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => editor?.chain().focus().toggleHeading({ level: 5 }).run()}
+            className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 5 }) ? 'bg-gray-200' : ''}`}
+            title="Encabezado 3"
+          >
+            <Heading5 className="w-5 h-5" />
+          </button>
+
         </div>
 
         <div className="w-px bg-gray-300 mx-1" />
@@ -210,10 +241,10 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
 
         <div className="flex items-center gap-1 px-1">
           <div className="relative" title="Color de texto">
-            <button 
+            <button
               className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 flex items-center gap-1"
               style={{
-                borderBottom: editor?.getAttributes('textStyle').color 
+                borderBottom: editor?.getAttributes('textStyle').color
                   ? `2px solid ${editor?.getAttributes('textStyle').color}`
                   : 'none'
               }}

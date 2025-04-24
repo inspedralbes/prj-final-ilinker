@@ -249,6 +249,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     </div>
   )
 
+  // Esta función renderiza la sección de Acerca de
   const renderAcercaDe = () => (
     <div className="mt-6 border-t border-gray-200 pt-6">
       <div className="flex justify-between items-center mb-4">
@@ -267,6 +268,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           {renderErrorMessage()}
         </div>
       ) : (
+        // En esta parte el navegador interpretará las etiquetas HTML y mostrara solo el texto
         <div
           className="prose prose-sm sm:prose lg:prose-lg mx-auto"
           dangerouslySetInnerHTML={{ __html: institutionData.about || '' }}
@@ -606,6 +608,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           <div className="mt-4 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <TabsContent value="inicio">
               <div className="mt-6 border-t border-gray-200 pt-6">
+                {/* Esto es el contenido de la sección de Acerca de */}
                 {renderAcercaDe()}
                 <div className="mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
