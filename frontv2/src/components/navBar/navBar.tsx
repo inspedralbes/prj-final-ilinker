@@ -7,6 +7,7 @@ import {
   LandmarkIcon,
   MessageSquareIcon,
   User,
+  GraduationCap
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -43,30 +44,8 @@ export default function NavBar() {
                       : "text-muted-foreground flex flex-col items-center"
                   }`}
                 >
-                  <Building2Icon className="h-5 w-5" />
-                  <span className="text-[12px]">Empresas</span>
-                </Link>
-                <Link
-                  href="/people"
-                  className={`flex flex-col items-center ${
-                    pathname === "/people"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="text-[12px]">Personas</span>
-                </Link>
-                <Link
-                  href="/institutions"
-                  className={`flex flex-col items-center ${
-                    pathname === "/institutions"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <LandmarkIcon className="h-5 w-5" />
-                  <span className="text-[12px]">Personas</span>
+                  <GraduationCap className="h-5 w-5" />
+                  <span className="text-[12px]">Ofertas</span>
                 </Link>
                 <Link
                   href="/messages"

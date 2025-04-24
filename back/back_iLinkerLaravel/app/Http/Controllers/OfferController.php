@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Offer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class OfferController extends Controller
@@ -84,6 +85,22 @@ class OfferController extends Controller
                 'data' => $newOffer,
             ]);
         } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function apply(Request $request){
+        try{
+            Log::info($request);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Oferta registrada correctamente',
+            ]);
+        }catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => $th->getMessage(),

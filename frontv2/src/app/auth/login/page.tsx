@@ -65,13 +65,13 @@ const Login: React.FC = () => {
                     email,
                     password,
                 });
-                console.log("login response", response);
 
                 if (response.status === "success") {
                     router.push("/search");
                     login(response.token, response.user);
                 } else {
                     setApiError("Correu electrònic o contrasenya incorrectes");
+                    hideLoader();
                 }
             } catch (error) {
                 setApiError("Error de conexión con el servidor");
