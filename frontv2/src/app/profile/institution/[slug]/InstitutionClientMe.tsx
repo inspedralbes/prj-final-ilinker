@@ -39,7 +39,7 @@ interface InstitutionClientMeProps {
 export default function InstitutionClientMe({ institution }: InstitutionClientMeProps) {
   const [isEditing, setIsEditing] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [availableSkills, setAvailableSkills] = useState<Array<{id: number, name: string}>>([])
+  const [availableSkills, setAvailableSkills] = useState<Array<{ id: number, name: string }>>([])
   const [institutionData, setInstitutionData] = useState<Institution>({
     ...institution,
     specialties: Array.isArray(institution.specialties) ? institution.specialties : [],
@@ -98,8 +98,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   const handleSave = async () => {
     try {
       setError(null)
-
-      // Validar campos vacíos en specialties
       if (isEditing === "specialties") {
         const emptySpecialties = (institutionData.specialties || []).some(specialty => !specialty);
         if (emptySpecialties) {
@@ -176,10 +174,10 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       }
     } catch (error: any) {
       console.error('Error saving institution:', error)
-      setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
-
+      setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
     }
   }
+
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
     const file = e.target.files?.[0]
@@ -193,11 +191,11 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
 
       // Pasar true como cuarto parámetro para indicar que es FormData
       const response = await apiRequest('institution/update', 'POST', formData, true)
-      
+
       if (response && response.data) {
-        const url = response.data[`${type}_url`] || 
+        const url = response.data[`${type}_url`] ||
           (response.data[type] ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data[type]}` : null)
-          
+
         if (url) {
           if (type === 'logo') {
             setLogoImage(url)
@@ -434,7 +432,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       ) : (
         <div>
           <div className="flex flex-wrap gap-2">
-          {ensureArray(institutionData.specialties).map((specialty, index) => (
+            {ensureArray(institutionData.specialties).map((specialty, index) => (
               <span
                 key={index}
                 className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200"

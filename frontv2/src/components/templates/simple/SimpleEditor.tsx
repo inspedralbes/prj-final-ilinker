@@ -10,8 +10,6 @@ import BulletList from '@tiptap/extension-bullet-list'
 import OrderedList from '@tiptap/extension-ordered-list'
 import ListItem from '@tiptap/extension-list-item'
 import TextAlign from '@tiptap/extension-text-align'
-import TaskList from '@tiptap/extension-task-list'
-import TaskItem from '@tiptap/extension-task-item'
 import Image from '@tiptap/extension-image'
 import Color from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
@@ -25,7 +23,6 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
-  CheckSquare,
   Heading1,
   Heading2,
   Heading3,
@@ -86,8 +83,6 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
       }),
       Typography,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
-      TaskList,
-      TaskItem,
       Image,
       Color,
       TextStyle,
@@ -99,20 +94,6 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
     editorProps: {
       attributes: {
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto',
-      },
-      handleKeyDown: (view, event) => {
-        // Handle Shift + Enter for soft breaks
-        if (event.key === 'Enter' && event.shiftKey) {
-          view.dispatch(view.state.tr.replaceSelectionWith(view.state.schema.nodes.hardBreak.create()));
-          return true;
-        }
-        // Handle regular Enter for new paragraphs
-        if (event.key === 'Enter' && !event.shiftKey) {
-          const { $from, $to } = view.state.selection;
-          view.dispatch(view.state.tr.split($from.pos, 1));
-          return true;
-        }
-        return false;
       },
     },
   })
@@ -201,13 +182,6 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
             title="Lista numerada"
           >
             <ListOrdered className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => editor?.chain().focus().toggleTaskList().run()}
-            className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('taskList') ? 'bg-gray-200' : ''}`}
-            title="Lista de tareas"
-          >
-            <CheckSquare className="w-5 h-5" />
           </button>
         </div>
 
