@@ -78,17 +78,9 @@ export default function OfferDetail() {
   const [offer, setOffer] = useState(mockOffer);
   const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
-  const updateApplicantStatus = (
-    applicantId: number,
-    newStatus: "accepted" | "rejected"
-  ) => {
-    setApplicants(
-      applicants.map((applicant) =>
-        applicant.id === applicantId
-          ? { ...applicant, status: newStatus }
-          : applicant
-      )
-    );
+  const handleStatusUpdate = (id: number, status: 'accepted' | 'rejected') => {
+    console.log(`Applicant ${id} status updated to ${status}`);
+    
   };
 
   useEffect(()=>{
@@ -180,9 +172,13 @@ export default function OfferDetail() {
                 <ApplicantCard
                   key={applicant.id}
                   applicant={applicant}
-                  onStatusUpdate={updateApplicantStatus}
+                  onStatusUpdate={handleStatusUpdate}
                 />
               ))}
+
+              {applicants?.length === 0 && (
+                <p className="text-gray-600">No hay candidatos</p>
+              )}
             </div>
           </div>
         </div>
