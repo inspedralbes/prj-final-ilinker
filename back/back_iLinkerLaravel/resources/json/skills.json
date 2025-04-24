@@ -194,5 +194,8 @@
     { "name": "Métodos de fabricación" },
     { "name": "Mantenimiento predictivo" },
     { "name": "Estandarización" },
-    { "name": "Ingeniería de procesos" }
+    { "name": "Ingeniería de procesos" },
+    { "name": "React" },
+    { "name": "HTML" },
+
 ]
