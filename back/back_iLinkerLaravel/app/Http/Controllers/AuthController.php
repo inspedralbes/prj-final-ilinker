@@ -117,4 +117,22 @@ class AuthController extends Controller
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
     }
+
+    public function check()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            $company = Company::where('user_id', $user->id)->first();
+            $user->company = $company;
+            return response()->json([
+                'status' => 'success',
+                'user' => $user
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no autenticado.'
+            ]);
+        }
+    }
 }

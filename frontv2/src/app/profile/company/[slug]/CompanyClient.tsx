@@ -7,7 +7,7 @@ import CompanyClientMe from "@/app/profile/company/[slug]/CompanyClientMe";
 import CompanyClientNotMe from "@/app/profile/company/[slug]/CompanyClientNotMe";
 import { LoaderContext } from "@/contexts/LoaderContext";
 
-export default function CompanyClient({ slug, company }) {
+export default function CompanyClient({ slug, company }: { slug: string; company: any }) {
   const { userData } = useContext(AuthContext);
   const [myCompany, setMyCompany] = useState(false);
   const [sectors, setSectors] = useState(null);

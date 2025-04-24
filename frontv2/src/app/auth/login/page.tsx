@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image";
-import { useCallback, useContext, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import React from "react"
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,9 @@ const Login: React.FC = () => {
 
     const { showLoader, hideLoader } = useContext(LoaderContext);
 
+    useEffect(()=>{
+        hideLoader();
+    },[])
     const validateEmptyFields = (fields: any) => {
         const empty = {};
         Object.keys(fields).forEach((field) => {
@@ -62,18 +65,19 @@ const Login: React.FC = () => {
                     email,
                     password,
                 });
-                console.log("login response", response);
 
                 if (response.status === "success") {
                     router.push("/search");
                     login(response.token, response.user);
                 } else {
                     setApiError("Correu electrònic o contrasenya incorrectes");
+                    hideLoader();
                 }
             } catch (error) {
                 setApiError("Error de conexión con el servidor");
-            } finally {
                 hideLoader();
+
+            } finally {
             }
         }else{
             hideLoader();

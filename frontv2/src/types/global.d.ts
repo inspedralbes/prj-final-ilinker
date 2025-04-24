@@ -17,6 +17,7 @@ export interface User {
     login: (token: string, userData: User) => void
     logout: () => void
     checkAuth: () => void
+    isLoading: boolean
   }
   
   // Interfaz para una respuesta genérica de la API
