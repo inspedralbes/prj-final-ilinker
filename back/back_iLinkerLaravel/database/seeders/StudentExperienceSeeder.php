@@ -25,6 +25,8 @@ class StudentExperienceSeeder extends Seeder
                 'employee_type' => $experience['employee_type'],
                 'company_address' => $experience['company_address'],
                 'location_type' => $experience['location_type'],
+                'start_date' => $experience['start_date'],
+                'end_date' => $experience['end_date'],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

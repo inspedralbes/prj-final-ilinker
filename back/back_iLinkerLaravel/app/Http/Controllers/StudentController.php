@@ -28,7 +28,14 @@ class StudentController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Student not found']);
         }
 
-        return response()->json(['status' => 'success', 'student' => $student]);
+        // Agrupar las experiencias por company_id
+        $groupedExperience = $student->experience->groupBy('company_id');
+
+        return response()->json([
+            'status' => 'success',
+            'student' => $student,
+            'experience_grouped' => $groupedExperience
+        ]);
 
     }
 

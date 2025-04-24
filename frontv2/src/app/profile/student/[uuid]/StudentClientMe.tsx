@@ -165,13 +165,14 @@ export interface Student {
 interface StudentClientMeProps {
     uuid: String;
     student: Student;
+    experience_group: object;
 }
 
-export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
+export default function StudentClientMe({uuid, student, experience_group}: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
-    const [experienceEdit, setExperienceEdit] = useState(student.experience);
+    const [experienceEdit, setExperienceEdit] = useState(experience_group);
     const [educationEdit, setEducationEdit] = useState(student.education);
     const [projectsEdit, setProjectEdit] = useState(student.projects);
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
@@ -260,25 +261,6 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
         setOpenDialog(false);
     };
 
-    // Agrupar experiencias por compañía para la línea de tiempo
-    const groupedByCompany: Record<number, Experience[]> = {};
-    experienceEdit.forEach(experience => {
-        if (!groupedByCompany[experience.company_id]) {
-            groupedByCompany[experience.company_id] = [];
-        }
-        groupedByCompany[experience.company_id].push(experience);
-    });
-
-    // Obtener la lista de compañías única
-    const companies = Object.entries(groupedByCompany).map(([key, experiences]) => {
-        const companyId = parseInt(key);
-        return {
-            id: companyId,
-            name: experiences[0].company_name,
-            experiences: experiences
-        };
-    });
-
     // Función para mostrar el tipo de ubicación con un icono apropiado
     const renderLocationType = (locationType: string) => {
         switch (locationType) {
@@ -307,7 +289,6 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                 return null;
         }
     }
-
 
     useEffect(() => {
         UpdateChange();
@@ -919,7 +900,8 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                                 <Card className="p-6 mt-6 mb-6">
                                     <div className="flex justify-between items-center mb-4">
 
-                                        <h2 className="text-xl font-semibold mb-4">Experiencia de {studentEdit.name}</h2>
+                                        <h2 className="text-xl font-semibold mb-4">Experiencia
+                                            de {studentEdit.name}</h2>
 
                                         {/* Botón para añadir una nueva oferta */}
                                         <div className="flex justify-end">
@@ -984,157 +966,148 @@ export default function StudentClientMe({uuid, student}: StudentClientMeProps) {
                                                     />
                                                 </div>
                                             ) : (
-                                                <div className="space-y-0 relative">
-                                                    {experienceEdit && experienceEdit.length > 0 ? (
-                                                        <>
-                                                            {/* Línea vertical */}
-                                                            <div
-                                                                className="absolute left-10 top-6 bottom-6 w-0.5 bg-blue-200 z-0"></div>
+                                                <div className="space-y-8">
+                                                    {Object.keys(experience_group).map((expId) => {
+                                                        const experiences = experience_group[expId];
+                                                        const moreExperience = Array.isArray(experiences) && experiences.length > 1;
 
-                                                            {companies.map((company) => (
-                                                                <React.Fragment key={company.id}>
-                                                                    {company.experiences.map((experience, index) => (
-                                                                        <div key={experience.id}
-                                                                             className="relative z-10">
+                                                        // Si no es un array o está vacío, saltamos
+                                                        if (!Array.isArray(experiences) || experiences.length === 0) {
+                                                            return null;
+                                                        }
+
+                                                        const companyName = experiences[0].company_name;
+
+                                                        return (
+                                                            <div key={expId}
+                                                                 className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                                {companyName}
+
+                                                                {moreExperience ? (
+                                                                        // Línea de tiempo para múltiples experiencias
+                                                                        <div className="relative pl-6">
+                                                                            {/* Línea vertical */}
                                                                             <div
-                                                                                className="flex items-start gap-4 mb-8">
-                                                                                {/* Imagen e indicador de línea de tiempo */}
-                                                                                <div className="relative">
-                                                                                    <div
-                                                                                        className="absolute left-10 top-10 w-5 h-5 rounded-full bg-blue-500 transform -translate-x-1/2 border-4 border-white z-20"></div>
-                                                                                    <Image
-                                                                                        src={`/api/placeholder/80/80`}
-                                                                                        alt={`Logo de ${experience.company_name}`}
-                                                                                        className="object-cover rounded-lg shadow-sm"
-                                                                                        width={80}
-                                                                                        height={80}
-                                                                                    />
-                                                                                </div>
+                                                                                className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                                {/* Contenido */}
-                                                                                <div
-                                                                                    className="flex-grow p-4 bg-white rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-all ml-2">
-                                                                                    <div
-                                                                                        className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                                                                                        <div className="flex flex-col">
-                                                                                            <Link
-                                                                                                href={`/profile/company/${experience.company_id}`}
-                                                                                                passHref>
-                            <span className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
-                              {experience.company_name}
-                            </span>
-                                                                                            </Link>
-
-                                                                                            <div
-                                                                                                className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm inline-block font-medium mt-1 w-fit">
-                                                                                                {experience.department}
-                                                                                            </div>
-                                                                                        </div>
-
+                                                                            {/* Experiencias */}
+                                                                            <div className="space-y-6">
+                                                                                {experiences.map((exp) => (
+                                                                                    <div key={exp.id} className="relative">
+                                                                                        {/* Punto en la línea de tiempo */}
                                                                                         <div
-                                                                                            className="flex items-center gap-2 mt-2 sm:mt-0">
-                                                                                            {/* Fechas */}
-                                                                                            <span
-                                                                                                className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-                            {experience.start_date} - {experience.end_date || "Actualidad"}
-                          </span>
+                                                                                            className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
 
-                                                                                            {/* Botones de acción */}
+                                                                                        {/* Contenido de la experiencia */}
+                                                                                        <div
+                                                                                            className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
                                                                                             <div
-                                                                                                className="flex gap-2 ml-2">
-                                                                                                <button
-                                                                                                    onClick={() => EditInfo("experience", experience)}
-                                                                                                    className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                                                                >
-                                                                                                    <Pencil
-                                                                                                        className="h-4 w-4"/>
-                                                                                                </button>
+                                                                                                className="flex justify-between items-start">
+                                                                                                <div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-blue-800">{exp.department}
+                                                                                                    </div>
 
-                                                                                                <button
-                                                                                                    onClick={() => removeExperience(experience)}
-                                                                                                    className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                                                >
-                                                                                                    <Trash
-                                                                                                        className="h-4 w-4"/>
-                                                                                                </button>
+                                                                                                    <div className="font-medium text-gray-600">
+                                                                                                        {exp.start_date} - {exp.end_date}
+                                                                                                    </div>
+
+                                                                                                    <div
+                                                                                                        className="text-sm text-gray-700">{exp.employee_type}
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    className="flex space-x-2">
+                                                                                                    <button
+                                                                                                        onClick={() => onEdit && onEdit(exp)}
+                                                                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                                    >
+                                                                                                        <Pencil
+                                                                                                            className="h-4 w-4"/>
+                                                                                                    </button>
+                                                                                                    <button
+                                                                                                        onClick={() => onDelete && onDelete(exp)}
+                                                                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                                    >
+                                                                                                        <Trash
+                                                                                                            className="h-4 w-4"/>
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                            </div>
+
+                                                                                            <div
+                                                                                                className="mt-2 flex items-center space-x-3">
+                                                                                                {renderLocationType(exp.location_type)}
+                                                                                                {exp.company_address && (
+                                                                                                    <span
+                                                                                                        className="text-sm text-gray-600">
+                                                                                                        {exp.company_address}
+                                                                                                    </span>
+                                                                                                )}
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
-
-                                                                                    {/* Información adicional */}
-                                                                                    <div
-                                                                                        className="mt-2 flex flex-wrap gap-3">
-                                                                                        {/* Tipo de empleado */}
-                                                                                        <span
-                                                                                            className="flex items-center text-sm text-gray-500">
-                          <Clock className="h-3 w-3 mr-1"/>
-                                                                                            {experience.employee_type}
-                        </span>
-
-                                                                                        {/* Tipo de ubicación */}
-                                                                                        {renderLocationType(experience.location_type)}
-                                                                                    </div>
-
-                                                                                    {/* Mostrar habilidades como chips */}
-                                                                                    {experience.skills && experience.skills.length > 0 && (
-                                                                                        <div
-                                                                                            className="flex flex-wrap gap-2 mt-3">
-                                                                                            {experience.skills.map((skill) => (
-                                                                                                <span
-                                                                                                    key={skill.id}
-                                                                                                    className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
-                                                                                                >
-                              {skill.name}
-                            </span>
-                                                                                            ))}
-                                                                                        </div>
-                                                                                    )}
-                                                                                </div>
+                                                                                ))}
                                                                             </div>
                                                                         </div>
-                                                                    ))}
-                                                                </React.Fragment>
-                                                            ))}
-                                                        </>
-                                                    ) : (
-                                                        <div
-                                                            className="py-8 text-center border border-dashed border-gray-300 rounded-lg">
-                                                            <p className="text-gray-500">No hay experiencia laboral
-                                                                especificada</p>
-                                                            <button
-                                                                onClick={() => handleOpenModalAddExperience()}
-                                                                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                                            >
-                                                                + Añadir experiencia
-                                                            </button>
-                                                        </div>
-                                                    )}
 
-                                                    {/* Botón para añadir nueva experiencia */}
-                                                    {experienceEdit && experienceEdit.length > 0 && (
-                                                        <div className="flex justify-center mt-4">
-                                                            <Button
-                                                                variant="outline"
-                                                                className="border-dashed border-blue-300 hover:border-blue-500 hover:bg-blue-50 text-blue-600 flex items-center gap-2"
-                                                                onClick={() => handleOpenModalAddExperience()}
-                                                            >
-                                                                <Plus className="h-4 w-4"/>
-                                                                <span>Añadir experiencia</span>
-                                                            </Button>
-                                                        </div>
-                                                    )}
+                                                                    ) :
+                                                                    (
+                                                                        // Tarjeta única para una sola experiencia
+                                                                        <div className="bg-gray-50 rounded-lg p-4">
+                                                                            {experiences.map((exp) => (
+                                                                                <div key={exp.id}>
+                                                                                    <div
+                                                                                        className="flex justify-between items-start">
+                                                                                        <div>
+                                                                                            <div
+                                                                                                className="font-medium text-gray-800">{exp.department}</div>
+                                                                                            <div
+                                                                                                className="text-sm text-gray-700">{exp.employee_type}</div>
+                                                                                        </div>
 
-                                                    <ConfirmDialog
-                                                        open={openDialog}
-                                                        onOpenChange={setOpenDialog}
-                                                        title="¿Estás seguro?"
-                                                        description="Esta acción eliminará la experiencia laboral permanentemente."
-                                                        onConfirm={handleConfirm}
-                                                        onCancel={handleCancel}
-                                                        confirmText="Continuar"
-                                                        cancelText="Cancelar"
-                                                        icon={<TriangleAlert className="text-yellow-500"/>}
-                                                    />
+                                                                                        <div className="flex space-x-2">
+                                                                                            <button
+                                                                                                onClick={() => onEdit && onEdit(exp)}
+                                                                                                className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                            >
+                                                                                                <Pencil
+                                                                                                    className="h-4 w-4"/>
+                                                                                            </button>
+                                                                                            <button
+                                                                                                onClick={() => onDelete && onDelete(exp)}
+                                                                                                className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                            >
+                                                                                                <Trash
+                                                                                                    className="h-4 w-4"/>
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+
+                                                                                    <div
+                                                                                        className="mt-2 flex flex-wrap gap-3">
+                                                                                        <span
+                                                                                            className="flex items-center text-sm text-gray-500">
+                                                                                            <Clock
+                                                                                                className="h-3 w-3 mr-1"/>
+                                                                                            {exp.employee_type}
+                                                                                        </span>
+                                                                                        {renderLocationType(exp.location_type)}
+                                                                                        {exp.company_address && (
+                                                                                            <span
+                                                                                                className="text-sm text-gray-600">
+                                                                                                {exp.company_address}
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+                                                            </div>
+                                                        )
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
