@@ -16,7 +16,6 @@ interface Institution {
   slogan?: string;
   about?: string;
   location?: string;
-  type?: string;
   academic_sector?: string;
   size?: string;
   founded_year?: string;
@@ -47,7 +46,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     languages: Array.isArray(institution.languages) ? institution.languages : [],
     about: institution.about || '',
     slogan: institution.slogan || '',
-    type: institution.type || '',
+    academic_sector: institution.academic_sector || '',
     size: institution.size || '',
     founded_year: institution.founded_year || '',
     location: institution.location || '',
@@ -128,7 +127,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         case 'details':
           dataToSend = {
             ...dataToSend,
-            type: institutionData.type,
+            academic_sector: institutionData.academic_sector,
             size: institutionData.size,
             founded_year: institutionData.founded_year,
             languages: normalizeArray(institutionData.languages)
@@ -248,7 +247,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   )
 
   // Esta función renderiza la sección de Acerca de
-  const renderAcercaDe = () => (
+  const renderAcercaDe = (showFull = false) => (
     <div className="mt-6 border-t border-gray-200 pt-6">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium text-gray-900">Acerca de</h2>
@@ -272,6 +271,16 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           dangerouslySetInnerHTML={{ __html: institutionData.about || '' }}
         />
       )}
+      
+      {/* Mostrar detalles y especialidades en la pestaña Acerca de */}
+      {showFull && (
+        <div className="mt-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {renderDetails()}
+            {renderSpecialties()}
+          </div>
+        </div>
+      )}
     </div>
   )
 
@@ -294,7 +303,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
               <input
                 type="text"
                 value={institutionData.academic_sector}
-                onChange={(e) => updateInstitution("type", e.target.value)}
+                onChange={(e) => updateInstitution("academic_sector", e.target.value)}
                 className="w-full border rounded px-2 py-1"
               />
             </div>
@@ -616,7 +625,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="acerca">{renderAcercaDe()}</TabsContent>
+            <TabsContent value="acerca">{renderAcercaDe(true)}</TabsContent>
             <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
             <TabsContent value="instituto">{renderEmpleos()}</TabsContent>
           </div>
