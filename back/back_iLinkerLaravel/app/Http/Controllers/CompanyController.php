@@ -54,9 +54,9 @@ class CompanyController extends Controller
         $company->update($data);
 
 
-        $sectors = json_decode($request->input('sectors'), true); // Convertir a array
-        $skills = json_decode($request->input('skills'), true);
-        $offers = json_decode($request->input('offers'), true);
+        $sectors = json_decode($validated['sectors']  ?? '[]', true) ?: [];
+        $skills  = json_decode($validated['skills']   ?? '[]', true) ?: [];
+        $offers  = json_decode($validated['offers']   ?? '[]', true) ?: [];
 
         // Guardar sectores
         foreach ($sectors as $sector) {

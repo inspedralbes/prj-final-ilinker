@@ -44,7 +44,9 @@ export async function apiRequest(
 
     return await response.json();
   } catch (error: any) {
-    console.error(`Error en la petición a ${endpoint}:`, error.message);
-    throw error;
+    return {
+      status: 'error',
+      message: error.message,
+    };
   }
 }

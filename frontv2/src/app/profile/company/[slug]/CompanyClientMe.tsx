@@ -203,6 +203,7 @@ export default function CompanyClientMe({
     const token = Cookies.get("authToken");
 
     try {
+          
       const response = await apiRequest("company/update", "POST", formData);
       console.log(response);
       setCompanyEdited(response.company);

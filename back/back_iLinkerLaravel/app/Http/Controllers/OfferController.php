@@ -4,16 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Offer;
+use App\Models\OfferUser;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OfferController extends Controller
 {
     public function show($id)
     {
-        $offer = Offer::with('usersInterested')->findOrFail($id);
+        $offer = Offer::with('usersInterested', 'company', 'usersInterested.student', 'usersInterested.student.skills', 'usersInterested.student.education')->findOrFail($id);
         return response()->json(
             [
                 'status' => 'success',
@@ -65,6 +68,7 @@ class OfferController extends Controller
             $companyId = Company::where('user_id', Auth::id())->first()->id;
 
             $newOffer = new Offer();
+            $newOffer->uuid = uuid_create();
             $newOffer->company_id = $companyId;
             $newOffer->title = $data['title'];
             $newOffer->skills = json_encode($data['skills']);
@@ -93,8 +97,64 @@ class OfferController extends Controller
     }
 
     public function apply(Request $request){
+        $rules = [
+            'offer_id' => 'required',
+            'user_id' => 'required'
+        ];
+
+        $messages = [
+            'offer_id.required' => 'El campo oferta es obligatorio',
+            'user_id.required' => 'El campo usuario es obligatorio',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Faltan campos obligatorios o tienen errores',
+                'errors' => $validator->errors()
+            ]);
+        }
+
         try{
             Log::info($request);
+            $user = Auth::user();
+            $student = Student::where('user_id', $request->input('user_id'))->first();
+            $offer = Offer::where('id', $request->input('offer_id'))->first();
+
+            Log::info($offer);
+            $offerApplyUser = new OfferUser();
+            $offerApplyUser->offer_id = $request->get('offer_id');
+            $offerApplyUser->user_id = $request->get('user_id');
+
+
+            $folder = "offers/{$offer->uuid}";
+            $disk   = Storage::disk('public');
+
+            // Solo crea la carpeta si no existe
+            if (! $disk->exists($folder)) {
+                $disk->makeDirectory($folder, 0755, true);
+            }
+
+            if ($request->hasFile('cv_attachment')) {
+                $file     = $request->file('cv_attachment');
+                $ext      = $file->getClientOriginalExtension();
+                $fileName = "cv_{$student->uuid}.{$ext}";
+                $filePath = $file->storeAs($folder, $fileName, 'public');
+                $offerApplyUser->cv_attachment = $filePath;
+            }
+
+            if ($request->hasFile('cover_letter_attachment')) {
+                $file     = $request->file('cover_letter_attachment');
+                $ext      = $file->getClientOriginalExtension();
+                $fileName = "cover_letter_{$student->uuid}.{$ext}";
+                $filePath = $file->storeAs($folder, $fileName, 'public');
+                $offerApplyUser->cover_letter_attachment = $filePath;
+            }
+
+            $offerApplyUser->availability = $request->get('availability');
+
+            $offerApplyUser->save();
 
             return response()->json([
                 'status' => 'success',

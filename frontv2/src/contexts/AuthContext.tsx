@@ -5,6 +5,7 @@ import Cookies from 'js-cookie'
 import { User, AuthContextType } from '@/types/global'
 import { LoaderComponent } from '@/components/ui/loader-layout'
 import { apiRequest } from '@/services/requests/apiRequest'
+import { useRouter } from 'next/navigation'
 
 // Valor por defecto del contexto
 const defaultAuthContext: AuthContextType = {
@@ -25,6 +26,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+const router = useRouter();
+
   const [loggedIn, setLoggedIn] = useState<boolean>(false)
   const [userData, setUserData] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(true) // Estado de carga
@@ -34,9 +37,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
     try{
       const response = await apiRequest('auth/check');
-
+      console.log(response)
       if(response.status === 'success'){
         login(token, response.user)
+      }else{
+        logout();
       }
     }catch(e){
       console.error("Error checking auth:", e);

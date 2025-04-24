@@ -14,7 +14,7 @@ interface Applicant {
 }
 
 export default function ApplicantCard({ applicant, onStatusUpdate }: { 
-  applicant: Applicant; 
+  applicant: any; 
   onStatusUpdate: (id: number, status: 'accepted' | 'rejected') => void;
 }) {
   return (
@@ -22,8 +22,8 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: {
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{applicant.name}</h3>
-            <p className="text-sm text-gray-600">{applicant.email}</p>
+            <h3 className="text-lg font-semibold text-gray-900">{applicant.student.name}</h3>
+            <p className="text-sm text-gray-600">{applicant.student.email}</p>
           </div>
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
             ${applicant.status === 'accepted' ? 'bg-green-100 text-green-800' :
@@ -38,46 +38,33 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: {
         <div className="mt-4 space-y-3">
           <div className="flex items-center text-sm text-gray-600">
             <GraduationCap className="flex-shrink-0 mr-1.5 h-5 w-5" />
-            {applicant.education}
+            {applicant.student.education[0].institute}
           </div>
           <div className="flex items-center text-sm text-gray-600">
             <Calendar className="flex-shrink-0 mr-1.5 h-5 w-5" />
-            Aplicó el {new Date(applicant.appliedAt).toLocaleDateString()}
+            Aplicó el {new Date(applicant.created_at).toLocaleDateString()}
           </div>
         </div>
 
         <div className="mt-4">
           <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center">
             <Code2 className="h-4 w-4 mr-1" />
-            Habilidades técnicas
+            Competencias
           </h4>
           <div className="flex flex-wrap gap-2">
-            {applicant.skills.map((skill) => (
+            {applicant.student.skills.map((skill: any) => (
               <span
-                key={skill}
+                key={skill.id}
                 className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700"
               >
-                {skill}
+                {skill.name}
               </span>
             ))}
           </div>
         </div>
 
-        <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-2">Competencias</h4>
-          <div className="flex flex-wrap gap-2">
-            {applicant.competencies.map((competency) => (
-              <span
-                key={competency}
-                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700"
-              >
-                {competency}
-              </span>
-            ))}
-          </div>
-        </div>
 
-        {applicant.status === 'pending' && (
+        {applicant.pivot.status === 'pending' && (
           <div className="mt-6 flex justify-end space-x-2">
             <button
               onClick={() => onStatusUpdate(applicant.id, 'accepted')}

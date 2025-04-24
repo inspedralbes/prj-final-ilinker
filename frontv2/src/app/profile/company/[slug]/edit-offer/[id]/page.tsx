@@ -76,7 +76,7 @@ export default function OfferDetail() {
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { userData } = useContext(AuthContext);
   const [offer, setOffer] = useState(mockOffer);
-  const [applicants, setApplicants] = useState<Applicant[]>(mockApplicants);
+  const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
   const updateApplicantStatus = (
     applicantId: number,
@@ -91,6 +91,10 @@ export default function OfferDetail() {
     );
   };
 
+  useEffect(()=>{
+
+  }, [applicants])
+
   useEffect(() => {
       showLoader();
       if (!userData) {
@@ -103,6 +107,7 @@ export default function OfferDetail() {
           console.log(response)
           response.offer.skills = JSON.parse(response.offer.skills);
           setOffer(response.offer);
+          setApplicants(response.offer.users_interested);
         }
       }).catch((err) =>{
         console.error(err)
@@ -113,27 +118,20 @@ export default function OfferDetail() {
     }, [userData]);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <button
-        onClick={() => console.log("volver a ofertas")}
-        className="mb-6 text-blue-600 hover:text-blue-800 font-medium flex items-center"
-      >
-        ← Volver a ofertas
-      </button>
-
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="bg-white rounded-lg overflow-hidden">
         <div className="p-6">
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold text-gray-900">{offer.title}</h1>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
               <Users className="w-4 h-4 mr-1" />
-              {applicants.length} candidatos
+              {applicants?.length} candidatos
             </span>
           </div>
 
           <div className="mt-4 space-y-2">
             <div className="flex items-center text-gray-600">
               <Building2 className="flex-shrink-0 mr-2 h-5 w-5" />
-              {offer.company}
+              {offer.company?.name}
             </div>
             <div className="flex items-center text-gray-600">
               <MapPin className="flex-shrink-0 mr-2 h-5 w-5" />
@@ -157,7 +155,7 @@ export default function OfferDetail() {
               {offer.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-50 text-blue-700"
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-black text-white"
                 >
                   {skill}
                 </span>
@@ -178,7 +176,7 @@ export default function OfferDetail() {
               Candidatos
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {applicants.map((applicant) => (
+              {applicants?.map((applicant) => (
                 <ApplicantCard
                   key={applicant.id}
                   applicant={applicant}

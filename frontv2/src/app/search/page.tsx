@@ -146,7 +146,27 @@ export default function SearchClient() {
       console.log("candidatura hecha");
       showLoader();
       console.log(studentData);
-      const response = await apiRequest("offers/apply", "POST", studentData);
+
+      // 1) Construye el FormData
+      const formData = new FormData();
+      formData.append("offer_id", studentData.offer_id.toString());
+      formData.append("user_id", studentData.user_id.toString());
+      formData.append("availability", studentData.availability);
+
+      // Solo añades cv si es un File
+      if (studentData.cv_attachment) {
+        formData.append("cv_attachment", studentData.cv_attachment);
+      }
+
+      // Solo añades cover letter si es un File
+      if (studentData.cover_letter_attachment) {
+        formData.append(
+          "cover_letter_attachment",
+          studentData.cover_letter_attachment
+        );
+      }
+
+      const response = await apiRequest("offers/apply", "POST", formData);
       if (response.status !== "success")
         throw new Error(response.message || "Error al enviar");
       next(); // pasa al paso de confirmación
@@ -653,8 +673,8 @@ export default function SearchClient() {
                 <Button
                   onClick={handleNextStepApplyOffer}
                   disabled={
-                    !studentData?.cv ||
-                    !studentData?.file ||
+                    !studentData?.cv_attachment ||
+                    !studentData?.cover_letter_attachment ||
                     !studentData?.availability
                   }
                 >
@@ -736,36 +756,39 @@ export default function SearchClient() {
                       {/* CV Card */}
                       <a
                         href={
-                          studentData.cv
-                            ? URL.createObjectURL(studentData.cv)
+                          studentData.cv_attachment
+                            ? URL.createObjectURL(studentData.cv_attachment)
                             : "#"
                         }
-                        download={studentData.cv?.name}
+                        download={studentData.cv_attachment?.name}
                         className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="bg-gray-100 p-3 rounded-full mb-2">
                           <FileText className="h-6 w-6 text-gray-500" />
                         </div>
                         <span className="block w-full text-gray-700 text-sm truncate text-center">
-                          {studentData.cv?.name || "CV no subido"}
+                          {studentData.cv_attachment?.name || "CV no subido"}
                         </span>
                       </a>
 
                       {/* Carta de presentación Card */}
                       <a
                         href={
-                          studentData.file
-                            ? URL.createObjectURL(studentData.file)
+                          studentData.cover_letter_attachment
+                            ? URL.createObjectURL(
+                                studentData.cover_letter_attachment
+                              )
                             : "#"
                         }
-                        download={studentData.file?.name}
+                        download={studentData.cover_letter_attachment?.name}
                         className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
                       >
                         <div className="bg-gray-100 p-3 rounded-full mb-2">
                           <FileSignature className="h-6 w-6 text-gray-500" />
                         </div>
                         <span className="block w-full text-gray-700 text-sm truncate text-center">
-                          {studentData.file?.name || "Carta no subida"}
+                          {studentData.cover_letter_attachment?.name ||
+                            "Carta no subida"}
                         </span>
                       </a>
                     </div>
