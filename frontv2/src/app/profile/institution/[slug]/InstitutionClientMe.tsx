@@ -55,9 +55,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     email: institution.email || ''
   })
   const [originalData, setOriginalData] = useState<Institution>({ ...institution })
-
-  
-  
   const [logoImage, setLogoImage] = useState(institution.logo_url || '')
   const [coverImage, setCoverImage] = useState(institution.cover_url || '')
 
@@ -95,7 +92,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     setError(null)
   }
 
-  // Utility to normalize comma-separated or array fields
   const normalizeArray = (value: string | string[] | undefined): string[] => {
     if (Array.isArray(value)) return value
     if (typeof value === 'string') {
@@ -187,7 +183,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     }
   }
 
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -221,7 +216,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           }
         }
 
-        // Update the original data to prevent reverting on cancel
         setOriginalData(prev => ({
           ...prev,
           [`${type}_url`]: url,
@@ -269,9 +263,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     </div>
   )
 
-  // Esta función renderiza la sección de Acerca de
   const renderAcercaDe = (showFull = false) => (
-    <div className="mt-6 border-t border-gray-200 pt-6">
+    <div>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-medium text-gray-900">Acerca de</h2>
         <button onClick={() => handleEdit("about")} className="text-blue-600 hover:text-blue-800">
@@ -288,14 +281,12 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           {renderErrorMessage()}
         </div>
       ) : (
-        // En esta parte el navegador interpretará las etiquetas HTML y mostrara solo el texto
         <div
           className="prose prose-sm sm:prose lg:prose-lg mx-auto"
           dangerouslySetInnerHTML={{ __html: institutionData.about || '' }}
         />
       )}
       
-      {/* Mostrar detalles y especialidades en la pestaña Acerca de */}
       {showFull && (
         <div className="mt-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -315,97 +306,106 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   )
 
   const renderDetails = () => (
-    <div>
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Detalles del Instituto</h3>
-      {isEditing === "details" ? (
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <Building2 className="h-5 w-5 text-gray-400 mr-3" />
-            <div className="flex-1">
-              <p className="text-sm text-gray-500">Tipo de institución</p>
-              <input
-                type="text"
-                value={institutionData.academic_sector}
-                onChange={(e) => updateInstitution("academic_sector", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
+    <div className="transform transition-all duration-300 hover:scale-[1.02]">
+      <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Building2 className="h-6 w-6 text-blue-600" />
+            Detalles del Instituto
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isEditing === "details" ? (
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <Building2 className="h-5 w-5 text-gray-400 mr-3" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Tipo de institución</p>
+                  <input
+                    type="text"
+                    value={institutionData.academic_sector}
+                    onChange={(e) => updateInstitution("academic_sector", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-gray-400 mr-3" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Tamaño</p>
+                  <input
+                    type="text"
+                    value={institutionData.size}
+                    onChange={(e) => updateInstitution("size", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-gray-400 mr-3" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Año de fundación</p>
+                  <input
+                    type="text"
+                    value={institutionData.founded_year}
+                    onChange={(e) => updateInstitution("founded_year", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Languages className="h-5 w-5 text-gray-400 mr-3" />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-500">Idiomas (separados por coma)</p>
+                  <input
+                    type="text"
+                    value={Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}
+                    onChange={(e) => updateInstitution("languages", e.target.value)}
+                    className="w-full border rounded px-2 py-1"
+                  />
+                </div>
+              </div>
+              {renderActionButtons()}
+              {renderErrorMessage()}
             </div>
-          </div>
-          <div className="flex items-center">
-            <Users className="h-5 w-5 text-gray-400 mr-3" />
-            <div className="flex-1">
-              <p className="text-sm text-gray-500">Tamaño</p>
-              <input
-                type="text"
-                value={institutionData.size}
-                onChange={(e) => updateInstitution("size", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
+          ) : (
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <Building2 className="h-5 w-5 text-blue-600 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Tipo de institución</p>
+                  <p className="text-gray-900">{institutionData.academic_sector}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-blue-600 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Tamaño</p>
+                  <p className="text-gray-900">{institutionData.size}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-blue-600 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Año de fundación</p>
+                  <p className="text-gray-900">{institutionData.founded_year}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Languages className="h-5 w-5 text-blue-600 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Idiomas</p>
+                  <p className="text-gray-900">{Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}</p>
+                </div>
+              </div>
+              <button onClick={() => handleEdit("details")} className="text-blue-600 hover:text-blue-800">
+                <Pencil className="h-4 w-4 inline mr-1" />
+                Editar detalles
+              </button>
             </div>
-          </div>
-          <div className="flex items-center">
-            <Calendar className="h-5 w-5 text-gray-400 mr-3" />
-            <div className="flex-1">
-              <p className="text-sm text-gray-500">Año de fundación</p>
-              <input
-                type="text"
-                value={institutionData.founded_year}
-                onChange={(e) => updateInstitution("founded_year", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Languages className="h-5 w-5 text-gray-400 mr-3" />
-            <div className="flex-1">
-              <p className="text-sm text-gray-500">Idiomas (separados por coma)</p>
-              <input
-                type="text"
-                value={Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}
-                onChange={(e) => updateInstitution("languages", e.target.value)}
-                className="w-full border rounded px-2 py-1"
-              />
-            </div>
-          </div>
-          {renderActionButtons()}
-          {renderErrorMessage()}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="flex items-center">
-            <Building2 className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Tipo de institución</p>
-              <p className="text-gray-900">{institutionData.academic_sector}</p>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Users className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Tamaño</p>
-              <p className="text-gray-900">{institutionData.size}</p>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Calendar className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Año de fundación</p>
-              <p className="text-gray-900">{institutionData.founded_year}</p>
-            </div>
-          </div>
-          <div className="flex items-center">
-            <Languages className="h-5 w-5 text-gray-400 mr-3" />
-            <div>
-              <p className="text-sm text-gray-500">Idiomas</p>
-              <p className="text-gray-900">{Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}</p>
-            </div>
-          </div>
-          <button onClick={() => handleEdit("details")} className="text-blue-600 hover:text-blue-800">
-            <Pencil className="h-4 w-4 inline mr-1" />
-            Editar detalles
-          </button>
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 
@@ -417,71 +417,81 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
 
   const renderSpecialties = () => (
     <div className="mt-6 md:mt-0">
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Especialidades</h3>
-      {isEditing === "specialties" ? (
-        <div>
-          {ensureArray(institutionData.specialties).map((specialty, index) => (
-            <div key={index} className="flex items-center mb-2">
-              <select
-                value={specialty}
-                onChange={(e) => {
-                  const newSpecialties = [...(institutionData.specialties || [])]
-                  newSpecialties[index] = e.target.value
-                  updateInstitution("specialties", newSpecialties)
-                }}
-                className="flex-1 border rounded px-2 py-1 mr-2"
-              >
-                <option value="">Seleccionar una especialidad</option>
-                {availableSkills.map((skill) => (
-                  <option key={skill.id} value={skill.name}>
-                    {skill.name}
-                  </option>
-                ))}
-              </select>
+      <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-6 w-6 text-blue-600" />
+            Especialidades
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isEditing === "specialties" ? (
+            <div>
+              {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
+                <div key={index} className="flex items-center mb-2">
+                  <select
+                    value={specialty}
+                    onChange={(e) => {
+                      const newSpecialties = [...(institutionData.specialties || [])]
+                      newSpecialties[index] = e.target.value
+                      updateInstitution("specialties", newSpecialties)
+                    }}
+                    className="flex-1 border rounded px-2 py-1 mr-2"
+                  >
+                    <option value="">Seleccionar una especialidad</option>
+                    {availableSkills.map((skill) => (
+                      <option key={skill.id} value={skill.name}>
+                        {skill.name}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={() => {
+                      const newSpecialties = (institutionData.specialties || []).filter((_, i) => i !== index)
+                      updateInstitution("specialties", newSpecialties)
+                    }}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
               <button
                 onClick={() => {
-                  const newSpecialties = (institutionData.specialties || []).filter((_, i) => i !== index)
-                  updateInstitution("specialties", newSpecialties)
+                  updateInstitution("specialties", [...(institutionData.specialties || []), ""])
                 }}
-                className="text-red-600 hover:text-red-800"
+                className="mt-2 text-blue-600 hover:text-blue-800"
               >
-                <X className="h-4 w-4" />
+                <Plus className="h-4 w-4 inline mr-1" />
+                Añadir
+              </button>
+              {renderActionButtons()}
+              {renderErrorMessage()}
+            </div>
+          ) : (
+            <div>
+              <div className="flex flex-wrap gap-2">
+                {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
+                  >
+                    <Award className="h-4 w-4 mr-1.5" />
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+              <button
+                onClick={() => handleEdit("specialties")}
+                className="mt-4 text-blue-600 hover:text-blue-800"
+              >
+                <Pencil className="h-4 w-4 inline mr-1" />
+                Editar especialidades
               </button>
             </div>
-          ))}
-          <button
-            onClick={() => {
-              updateInstitution("specialties", [...(institutionData.specialties || []), ""])
-            }}
-            className="mt-2 text-blue-600 hover:text-blue-800"
-          >
-            <Plus className="h-4 w-4 inline mr-1" />
-            Añadir
-          </button>
-          {renderActionButtons()}
-          {renderErrorMessage()}
-        </div>
-      ) : (
-        <div>
-          <div className="flex flex-wrap gap-2">
-            {ensureArray(institutionData.specialties).map((specialty, index) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200"
-              >
-                {specialty}
-              </span>
-            ))}
-          </div>
-          <button
-            onClick={() => handleEdit("specialties")}
-            className="mt-4 text-blue-600 hover:text-blue-800"
-          >
-            <Pencil className="h-4 w-4 inline mr-1" />
-            Editar especialidades
-          </button>
-        </div>
-      )}
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 
@@ -644,7 +654,6 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           <div className="mt-4 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <TabsContent value="inicio">
               <div className="mt-6 border-t border-gray-200 pt-6">
-                {/* Esto es el contenido de la sección de Acerca de */}
                 {renderAcercaDe()}
                 <div className="mt-8">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
