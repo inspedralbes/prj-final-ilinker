@@ -95,6 +95,18 @@ interface Institute {
 export default function InstitutionClientNotMe({ institution }: InstitutionClientNotMeProps) {
   const [visiblePublications, setVisiblePublications] = useState(3)
   const [isFollowing, setIsFollowing] = useState(false)
+  
+  const defaultLogoImage = "/images/logo.svg"
+  const defaultCoverImage = "/images/default-cover.jpg"
+
+  // Handle image load errors
+  const handleImageError = (type: 'logo' | 'cover') => {
+    const targetImage = type === 'logo' ? defaultLogoImage : defaultCoverImage;
+    const element = document.querySelector(`img[data-type="${type}"]`) as HTMLImageElement;
+    if (element) {
+      element.src = targetImage;
+    }
+  }
 
   if (!institution) {
     return null;
@@ -114,8 +126,8 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
       phone: institution.phone || "",
       email: institution.email || "",
       languages: institution.languages || [],
-      logo: institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f",
-      cover: institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
+      logo: institution.logo_url || defaultLogoImage,
+      cover: institution.cover_url || defaultCoverImage
     },
     specialties: institution.specialties || [],
     certifications: institution.certifications || [],
@@ -290,7 +302,13 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-48 sm:h-64 md:h-80 bg-gray-300">
-        <img src={institute.basic.cover} alt="Cover" className="w-full h-full object-cover" />
+        <img 
+          src={institute.basic.cover} 
+          alt="Cover" 
+          className="w-full h-full object-cover" 
+          onError={() => handleImageError('cover')}
+          data-type="cover"
+        />
       </div>
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -304,6 +322,8 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                       className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
                       src={institute.basic.logo}
                       alt={institute.basic.name}
+                      onError={() => handleImageError('logo')}
+                      data-type="logo"
                     />
                   </div>
                   <div className="mt-4 sm:mt-0 text-center sm:text-left">

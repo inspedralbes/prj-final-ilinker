@@ -51,8 +51,9 @@ Route::prefix('/company')->group(function () {
 Route::prefix('/institution')->group(function () {
     // Public routes
     Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
     Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
-    Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+    Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
     
     // Protected routes that require authentication
     Route::middleware('auth:sanctum')->group(function () {

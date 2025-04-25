@@ -36,7 +36,7 @@ interface Institution {
 async function getInstitution(slug: string): Promise<Institution | null> {
     try {
         const response = await apiRequest(
-            'institution/custom/' + slug,
+            'institution/' + slug,
             'GET'
         );
         console.log('Institution data received:', response);

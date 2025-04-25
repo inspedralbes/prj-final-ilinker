@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class InstitutionController extends Controller
 {
@@ -22,6 +23,7 @@ class InstitutionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|unique:institutions|max:255',
+            'slug' => 'nullable|string|max:255',
             'custom_url' => 'nullable|string|max:255',
             'slogan' => 'nullable|string|max:255',
             'about' => 'nullable|string',
@@ -48,9 +50,22 @@ class InstitutionController extends Controller
 
         try {
             $data = $request->all();
-
+            
             if (Auth::check()) {
                 $data['user_id'] = Auth::id();
+            }
+
+            // Generate slug from name if not provided
+            if (!isset($data['slug']) || empty($data['slug'])) {
+                $data['slug'] = Str::slug($data['name']);
+                
+                // Ensure slug uniqueness
+                $slug = $data['slug'];
+                $counter = 1;
+                while (Institutions::where('slug', $data['slug'])->exists()) {
+                    $data['slug'] = $slug . '-' . $counter;
+                    $counter++;
+                }
             }
 
             $institution = Institutions::create($data);
@@ -71,6 +86,13 @@ class InstitutionController extends Controller
     public function update(Request $request)
     {
         try {
+            if (!Auth::check()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
             if (!$request->has('id')) {
                 return response()->json([
                     'status' => 'error',
@@ -80,7 +102,15 @@ class InstitutionController extends Controller
 
             $institution = Institutions::findOrFail($request->id);
             
-            // si hay archivos de logo o cover se actualizan
+            // Check if authenticated user owns this institution
+            if ($institution->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized to update this institution'
+                ], 403);
+            }
+
+            // si hay archivos de logo o cover se actualizan 
             if ($request->hasFile('logo') || $request->hasFile('cover')) {
                 if ($request->hasFile('logo')) {
                     $fileName = "logo_{$institution->id}." . $request->file('logo')->getClientOriginalExtension();
@@ -124,14 +154,31 @@ class InstitutionController extends Controller
                 }
 
                 $updateData = $request->only([
-                    'name', 'slogan', 'about', 'type', 'location',  
-                    'size', 'founded_year', 'languages', 'specialties',  
+                    'name', 'slogan', 'about', 'type', 'location', 
+                    'size', 'founded_year', 'languages', 'specialties', 
                     'website', 'phone', 'email'
                 ]);
 
                 foreach ($updateData as $key => $value) {
                     if ($value !== null) {
                         $institution->$key = $value;
+                        
+                        // Update slug if name changes
+                        if ($key === 'name') {
+                            $newSlug = Str::slug($value);
+                            $originalSlug = $newSlug;
+                            $counter = 1;
+                            
+                            // Ensure slug uniqueness excluding current institution
+                            while (Institutions::where('slug', $newSlug)
+                                ->where('id', '!=', $institution->id)
+                                ->exists()) {
+                                $newSlug = $originalSlug . '-' . $counter;
+                                $counter++;
+                            }
+                            
+                            $institution->slug = $newSlug;
+                        }
                     }
                 }
 
@@ -140,9 +187,9 @@ class InstitutionController extends Controller
 
             // Prepare response with full URLs
             $responseData = $institution->fresh()->toArray();
-            $baseUrl = url('storage');
-            $responseData['logo_url'] = $institution->logo ? "{$baseUrl}/{$institution->logo}" : null;
-            $responseData['cover_url'] = $institution->cover ? "{$baseUrl}/{$institution->cover}" : null;
+            $baseUrl = config('app.url') . '/storage';
+            $responseData['logo_url'] = $institution->logo ? $baseUrl . '/' . ltrim($institution->logo, '/') : null;
+            $responseData['cover_url'] = $institution->cover ? $baseUrl . '/' . ltrim($institution->cover, '/') : null;
 
             return response()->json([
                 'status' => 'success',
@@ -164,10 +211,10 @@ class InstitutionController extends Controller
         try {
             $institution = Institutions::with('user')->findOrFail($id);
             
-            $baseUrl = url('storage');
+            $baseUrl = config('app.url') . '/storage';
             $responseData = $institution->toArray();
-            $responseData['logo_url'] = $institution->logo ? "{$baseUrl}/{$institution->logo}" : null;
-            $responseData['cover_url'] = $institution->cover ? "{$baseUrl}/{$institution->cover}" : null;
+            $responseData['logo_url'] = $institution->logo ? $baseUrl . '/' . ltrim($institution->logo, '/') : null;
+            $responseData['cover_url'] = $institution->cover ? $baseUrl . '/' . ltrim($institution->cover, '/') : null;
 
             return response()->json([
                 'status' => 'success',
@@ -181,37 +228,47 @@ class InstitutionController extends Controller
         }
     }
 
-    public function getByCustomUrl(string $customUrl)
+    public function getInstitution($slug)
     {
-        try {
-            $institution = Institutions::where('slug', $customUrl)
-                ->orWhere('custom_url', $customUrl)
-                ->with('user')
-                ->first();
+        $institution = Institutions::where('slug', $slug)->with('user')->first();
 
-            if (!$institution) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Institution not found'
-                ], 404);
-            }
-
-            $baseUrl = url('storage');
-            $responseData = $institution->toArray();
-            $responseData['logo_url'] = $institution->logo ? "{$baseUrl}/{$institution->logo}" : null;
-            $responseData['cover_url'] = $institution->cover ? "{$baseUrl}/{$institution->cover}" : null;
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Institution found',
-                'data' => $responseData
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error finding institution: ' . $e->getMessage());
+        if (!$institution) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error finding institution'
-            ], 500);
+                'message' => 'Institution not found'
+            ], 404);
         }
+
+        $baseUrl = config('app.url') . '/storage';
+        $responseData = $institution->toArray();
+        $responseData['logo_url'] = $institution->logo ? $baseUrl . '/' . ltrim($institution->logo, '/') : null;
+        $responseData['cover_url'] = $institution->cover ? $baseUrl . '/' . ltrim($institution->cover, '/') : null;
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $responseData
+        ]);
+    }
+
+    public function getByCustomUrl($customUrl)
+    {
+        $institution = Institutions::where('slug', $customUrl)->orWhere('custom_url', $customUrl)->with('user')->first();
+
+        if (!$institution) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Institution not found'
+            ], 404);
+        }
+
+        $baseUrl = config('app.url') . '/storage';
+        $responseData = $institution->toArray();
+        $responseData['logo_url'] = $institution->logo ? $baseUrl . '/' . ltrim($institution->logo, '/') : null;
+        $responseData['cover_url'] = $institution->cover ? $baseUrl . '/' . ltrim($institution->cover, '/') : null;
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $responseData
+        ]);
     }
 }

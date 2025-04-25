@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useContext, useState } from "react";
 import React from "react"
+import config from "@/types/config";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -28,7 +29,15 @@ const Login: React.FC = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [emptyFields, setEmptyFields] = useState({});
+    interface EmptyFields {
+        email?: string;
+        password?: string;
+        code?: string;
+        newPassword?: string;
+        confirmPassword?: string;
+    }
+    
+    const [emptyFields, setEmptyFields] = useState<EmptyFields>({});
     const [apiError, setApiError] = useState("");
     const { login } = useContext(AuthContext);
     const [showPassword, setShowPassword] = useState(false);
@@ -38,21 +47,31 @@ const Login: React.FC = () => {
 
     const { showLoader, hideLoader } = useContext(LoaderContext);
 
-    const validateEmptyFields = (fields: any) => {
-        const empty = {};
+    const validateEmptyFields = (fields: Record<string, string>) => {
+        const empty: EmptyFields = {};
         Object.keys(fields).forEach((field) => {
             if (!fields[field].trim()) {
-                empty[field] = "Este campo es obligatorio";
+                (empty as any)[field] = "Este campo es obligatorio";
             }
         });
         setEmptyFields(empty);
         return Object.keys(empty).length === 0;
     };
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         showLoader();
         setApiError("");
+        
+        try {
+            // Get CSRF token before login attempt
+            await fetch(`${config.apiUrl}/sanctum/csrf-cookie`, {
+                credentials: 'include'
+            });
+        } catch (error) {
+            console.error('Error getting CSRF token:', error);
+        }
+
 
         const isValid = validateEmptyFields({ email, password });
         console.log(isValid)
@@ -90,7 +109,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleSendRecoveryCode = async (e) => {
+    const handleSendRecoveryCode = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 
@@ -118,7 +137,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleVerifyCode = async (e) => {
+    const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 
@@ -146,7 +165,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleResetPassword = async (e) => {
+    const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 

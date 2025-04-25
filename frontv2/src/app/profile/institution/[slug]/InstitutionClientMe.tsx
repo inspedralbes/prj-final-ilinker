@@ -56,8 +56,18 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   })
   const [originalData, setOriginalData] = useState<Institution>({ ...institution })
 
-  const [logoImage, setLogoImage] = useState(institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f")
-  const [coverImage, setCoverImage] = useState(institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1")
+  
+  
+  const [logoImage, setLogoImage] = useState(institution.logo_url || '')
+  const [coverImage, setCoverImage] = useState(institution.cover_url || '')
+
+  const handleImageError = (type: 'logo' | 'cover') => {
+    if (type === 'logo') {
+      setLogoImage('/images/logo.svg')
+    } else {
+      setCoverImage('/images/default-cover.jpg')
+    }
+  }
 
   useEffect(() => {
     const fetchSkills = async () => {
@@ -181,35 +191,48 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
     const file = e.target.files?.[0]
     if (!file) return
+
     try {
       setError(null)
       const formData = new FormData()
-      // Asegurar que el ID sea una cadena de texto
       formData.append('id', String(institution.id))
       formData.append(type, file)
 
-      // Pasar true como cuarto parámetro para indicar que es FormData
       const response = await apiRequest('institution/update', 'POST', formData, true)
 
-      if (response && response.data) {
-        const url = response.data[`${type}_url`] ||
-          (response.data[type] ? `${process.env.NEXT_PUBLIC_API_URL}/storage/${response.data[type]}` : null)
-
+      if (response?.status === 'success' && response.data) {
+        const url = response.data[`${type}_url`]
+        
         if (url) {
           if (type === 'logo') {
             setLogoImage(url)
-            setInstitutionData(prev => ({ ...prev, logo_url: url, logo: response.data.logo }))
+            setInstitutionData(prev => ({
+              ...prev,
+              logo_url: url,
+              logo: response.data.logo
+            }))
           } else {
             setCoverImage(url)
-            setInstitutionData(prev => ({ ...prev, cover_url: url, cover: response.data.cover }))
+            setInstitutionData(prev => ({
+              ...prev,
+              cover_url: url,
+              cover: response.data.cover
+            }))
           }
         }
+
+        // Update the original data to prevent reverting on cancel
+        setOriginalData(prev => ({
+          ...prev,
+          [`${type}_url`]: url,
+          [type]: response.data[type]
+        }))
       } else {
-        throw new Error(response?.message || 'Image upload failed')
+        throw new Error(response?.message || 'Failed to upload image')
       }
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
+      setError(error.message || 'Error uploading image. Please try again.')
     }
   }
 
@@ -465,7 +488,12 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-60 sm:h-72 md:h-80 lg:h-96 bg-gray-300">
-        <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+        <img 
+          src={coverImage} 
+          alt="Cover" 
+          className="w-full h-full object-cover" 
+          onError={() => handleImageError('cover')}
+        />
         <label className="absolute bottom-4 right-4 cursor-pointer">
           <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "cover")} />
           <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
@@ -483,6 +511,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       className="mx-auto h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
                       src={logoImage}
                       alt={institutionData.name}
+                      onError={() => handleImageError('logo')}
                     />
                     <label className="absolute bottom-2 right-2 cursor-pointer">
                       <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "logo")} />
