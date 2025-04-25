@@ -4,17 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Merge con company_profile">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modificaciones de mi experiencia">
+      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddExperience.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092726_create_student_experiences_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_28_092726_create_student_experiences_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/company.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/company.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/skills.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/skills.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/student_experience.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/student_experience.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CompanyService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CompanyService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -117,6 +117,7 @@
       <workItem from="1744267045066" duration="10265000" />
       <workItem from="1744355041750" duration="6139000" />
       <workItem from="1745390743304" duration="10598000" />
+      <workItem from="1745563524315" duration="6722000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -158,7 +159,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745480891695</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="modificaciones de mi experiencia">
+      <option name="closed" value="true" />
+      <created>1745492371986</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745492371986</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -174,6 +183,7 @@
     <MESSAGE value="Cambios para que el mismo modal funcione para los dos tanto como create o update" />
     <MESSAGE value="Empezar con la parte de experiencia del estudiante" />
     <MESSAGE value="Merge con company_profile" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge con company_profile" />
+    <MESSAGE value="modificaciones de mi experiencia" />
+    <option name="LAST_COMMIT_MESSAGE" value="modificaciones de mi experiencia" />
   </component>
 </project>

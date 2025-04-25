@@ -39,6 +39,7 @@ Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
 Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
+Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');

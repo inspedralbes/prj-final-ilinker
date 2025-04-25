@@ -32,6 +32,7 @@ import React, {useEffect, useState} from "react";
 import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
+import ModalAddExperience from "@/app/profile/student/[uuid]/ModalAddExperience"
 import {apiRequest} from "@/services/requests/apiRequest";
 import {toast} from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/dialog/confirmDialog";
@@ -181,6 +182,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
     const [modalState, setModalState] = useState(false);
+    const [modalExperience, setModalExperience] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
     const [changes, setChanges] = useState(false);
     const [currentStudy, setCurrentStudy] = useState(null);
@@ -193,9 +195,18 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setIsEditing(false);
     }
 
+    const openModalExperience = (experience) => {
+        console.log(experience);
+        setModalExperience(!modalExperience);
+    }
+
     const handleCloseModal = () => {
         setModalState(false)
         setModalModeEdit(false)
+    }
+
+    const handleCloseExperience = () => {
+        setModalExperience(false);
     }
 
     const UpdateChange = async () => {
@@ -908,7 +919,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                             <Button
                                                 variant="default"
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
-                                                onClick={() => handleOpenModalAddStudies()}
+                                                onClick={() => openModalExperience()}
                                             >
                                                 <Plus className="h-5 w-5"/>
                                             </Button>
@@ -981,8 +992,12 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                         return (
                                                             <div key={expId}
                                                                  className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
-                                                                {companyName}
+                                                                <div
+                                                                    className="flex items-center justify-between w-full mb-4">
+                                                                    <div
+                                                                        className="text-lg font-semibold">{companyName}</div>
 
+                                                                </div>
                                                                 {moreExperience ? (
                                                                         // Línea de tiempo para múltiples experiencias
                                                                         <div className="relative pl-6">
@@ -1008,7 +1023,8 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                                         className="font-medium text-blue-800">{exp.department}
                                                                                                     </div>
 
-                                                                                                    <div className="font-medium text-gray-600">
+                                                                                                    <div
+                                                                                                        className="font-medium text-gray-600">
                                                                                                         {exp.start_date} - {exp.end_date}
                                                                                                     </div>
 
@@ -1154,6 +1170,15 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                     studentId={student.id}
                     initialData={currentStudy}
                     isEditing={isEditing}
+                />
+            },
+            {
+                modalExperience && <ModalAddExperience
+                    handleClose={handleCloseExperience}
+                    onSave={UpdateChange}
+                    studentId={student.id}
+                    initialData={{}}
+                    isEditing={false}
                 />
             }
         </>

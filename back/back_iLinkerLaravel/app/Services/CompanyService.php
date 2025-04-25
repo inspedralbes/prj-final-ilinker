@@ -119,6 +119,13 @@ class CompanyService
         return $company;
     }
 
+    public function allCompanys()
+    {
+        $companies = Company::all();
+
+        return $companies;
+    }
+
     public function checkIFCompanyExists($companyData)
     {
         return Company::where('name', '=', $companyData['name'])->exists();
