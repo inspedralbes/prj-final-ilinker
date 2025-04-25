@@ -35,55 +35,50 @@ export default function NavBar() {
               <>
                 <Link
                   href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/search"
+                    ? "text-foreground flex flex-col items-center"
+                    : "text-muted-foreground flex flex-col items-center"
+                    }`}
                 >
                   <Building2Icon className="h-5 w-5" />
                   <span className="text-[12px]">Empresas</span>
                 </Link>
                 <Link
                   href="/people"
-                  className={`flex flex-col items-center ${
-                    pathname === "/people"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/people"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <User className="h-5 w-5" />
                   <span className="text-[12px]">Personas</span>
                 </Link>
                 <Link
                   href="/institutions"
-                  className={`flex flex-col items-center ${
-                    pathname === "/institutions"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/institutions"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <LandmarkIcon className="h-5 w-5" />
                   <span className="text-[12px]">Personas</span>
                 </Link>
                 <Link
                   href="/messages"
-                  className={`flex flex-col items-center ${
-                    pathname === "/messages"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/messages"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <MessageSquareIcon className="h-5 w-5" />
                   <span className="text-[12px]">Mensajes</span>
                 </Link>
                 <Link
                   href="/notifications"
-                  className={`flex flex-col items-center ${
-                    pathname === "/notifications"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/notifications"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <Bell className="h-5 w-5" />
                   <span className="text-[12px]">Notificaciones</span>
@@ -93,33 +88,30 @@ export default function NavBar() {
               <>
                 <Link
                   href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/search"
+                    ? "text-foreground flex flex-col items-center"
+                    : "text-muted-foreground flex flex-col items-center"
+                    }`}
                 >
                   <Building2Icon className="h-5 w-5" />
                   <span className="text-[12px]">Empresas</span>
                 </Link>
                 <Link
                   href="/people"
-                  className={`flex flex-col items-center ${
-                    pathname === "/people"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/people"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <User className="h-5 w-5" />
                   <span className="text-[12px]">Personas</span>
                 </Link>
                 <Link
                   href="/institutions"
-                  className={`flex flex-col items-center ${
-                    pathname === "/institutions"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`flex flex-col items-center ${pathname === "/institutions"
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <LandmarkIcon className="h-5 w-5" />
                   <span className="text-[12px]">Institutos</span>
@@ -151,7 +143,7 @@ export default function NavBar() {
 // Componente para el menú desplegable del perfil
 function ProfileDropdown({ userData, logout }) {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   // Alterna el menú al hacer clic en la imagen
   const toggleDropdown = () => {
@@ -160,8 +152,8 @@ function ProfileDropdown({ userData, logout }) {
 
   // Cierra el menú si se hace clic fuera de él
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -211,6 +203,44 @@ function ProfileDropdown({ userData, logout }) {
               <p className="font-medium">Mi perfil</p>
             </Link>
           </li>
+
+          {/* Opcion "My Institution" */}
+          {userData?.rol === "institutions" ? (
+            <>
+              <li
+                role="menuitem"
+                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                onClick={() => {
+                  setIsOpen(false);
+                  router.push(`/profile/institution/${userData?.institutions.slug}`);
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="w-5 h-5 text-slate-400"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 21v-3.75C3 14.56 4.56 13 6.75 13h10.5C19.44 13 21 14.56 21 17.25V21m-18 0h18M4.5 7h15m-15 4.5h15M9 3h6v4.5H9V3z"
+                  />
+                </svg>
+                <Link
+                  href={`/profile/institution/${userData?.institutions?.slug}`}
+                  className="ml-2">
+                  <p className="font-medium">Mi institución</p>
+                </Link>
+              </li>
+            </>
+          ) : (
+            <></>
+          )}
+
+
           {/* Opción "My Profile" */}
           {userData?.rol === "company" ? (
             <>

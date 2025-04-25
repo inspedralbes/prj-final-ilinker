@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Str;
 
 class InstitutionController extends Controller
 {
@@ -49,9 +48,6 @@ class InstitutionController extends Controller
 
         try {
             $data = $request->all();
-            if (empty($data['slug'])) {
-                $data['slug'] = Str::slug($data['name'], '_');
-            }
 
             if (Auth::check()) {
                 $data['user_id'] = Auth::id();
@@ -84,7 +80,7 @@ class InstitutionController extends Controller
 
             $institution = Institutions::findOrFail($request->id);
             
-            // si hay archivos de logo o cover se actualizan 
+            // si hay archivos de logo o cover se actualizan
             if ($request->hasFile('logo') || $request->hasFile('cover')) {
                 if ($request->hasFile('logo')) {
                     $fileName = "logo_{$institution->id}." . $request->file('logo')->getClientOriginalExtension();
@@ -128,8 +124,8 @@ class InstitutionController extends Controller
                 }
 
                 $updateData = $request->only([
-                    'name', 'slogan', 'about', 'type', 'location', 
-                    'size', 'founded_year', 'languages', 'specialties', 
+                    'name', 'slogan', 'about', 'type', 'location',  
+                    'size', 'founded_year', 'languages', 'specialties',  
                     'website', 'phone', 'email'
                 ]);
 
