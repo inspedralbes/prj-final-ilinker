@@ -15,145 +15,55 @@ import {
   Briefcase,
   Languages,
   ChevronRight,
+  Home,
+  Info,
+  BriefcaseIcon,
+  School,
 } from "lucide-react"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-
+import { EmptyStateCard } from "./EmptyStateCard"
 
 interface Institution {
+  id: string | number;
   name: string;
-  slogan: string;
-  about: string;
-  location: string;
-  size: string;
-  type: string;
-  sector: string;
-  founded_year: string;
-  website: string;
-  phone: string;
-  email: string;
-  languages: string[];
-  logo_url: string;
-  cover_url: string;
-  specialties: string[];
-  certifications: Array<{
-    id: number;
-    name: string;
-    issuedBy: string;
-    year: string;
-  }>;
-}
-
-interface Collaboration {
-  id: number;
-  company: string;
-  type: string;
-  description: string;
-}
-
-interface Publication {
-  id: number;
-  title: string;
-  image: string;
+  slogan?: string;
+  about?: string;
+  location?: string;
+  type?: string;
+  academic_sector?: string;
+  size?: string;
+  founded_year?: string;
+  website?: string;
+  phone?: string;
+  email?: string;
+  logo?: string;
+  logo_url?: string;
+  cover?: string;
+  cover_url?: string;
+  specialties?: string[];
+  certifications?: string[];
+  languages?: string[];
 }
 
 interface InstitutionClientNotMeProps {
   institution: Institution;
 }
 
-interface InstituteBasic {
-  name: string;
-  slogan: string;
-  about: string;
-  location: string;
-  size: string;
-  type: string;
-  sector: string;
-  foundedYear: string;
-  website: string;
-  phone: string;
-  email: string;
-  languages: string[];
-  logo: string;
-  cover: string;
-}
-
-interface Institute {
-  basic: InstituteBasic;
-  specialties: string[];
-  certifications: Array<{
-    id: number;
-    name: string;
-    issuedBy: string;
-    year: string;
-  }>;
-  collaborations: Collaboration[];
-}
-
 export default function InstitutionClientNotMe({ institution }: InstitutionClientNotMeProps) {
-  const [visiblePublications, setVisiblePublications] = useState(3)
   const [isFollowing, setIsFollowing] = useState(false)
-  
-  const defaultLogoImage = "/images/logo.svg"
-  const defaultCoverImage = "/images/default-cover.jpg"
+  const [logoImage, setLogoImage] = useState(institution.logo_url || '/images/logo.svg')
+  const [coverImage, setCoverImage] = useState(institution.cover_url || '/images/default-cover.jpg')
 
-  // Handle image load errors
   const handleImageError = (type: 'logo' | 'cover') => {
-    const targetImage = type === 'logo' ? defaultLogoImage : defaultCoverImage;
-    const element = document.querySelector(`img[data-type="${type}"]`) as HTMLImageElement;
-    if (element) {
-      element.src = targetImage;
+    if (type === 'logo') {
+      setLogoImage('/images/logo.svg')
+    } else {
+      setCoverImage('/images/default-cover.jpg')
     }
   }
-
-  if (!institution) {
-    return null;
-  }
-
-  const institute: Institute = {
-    basic: {
-      name: institution.name || "",
-      slogan: institution.slogan || "",
-      about: institution.about || "",
-      location: institution.location || "",
-      size: institution.size || "",
-      type: institution.type || "",
-      sector: institution.sector || "",
-      foundedYear: institution.founded_year || "",
-      website: institution.website || "",
-      phone: institution.phone || "",
-      email: institution.email || "",
-      languages: institution.languages || [],
-      logo: institution.logo_url || defaultLogoImage,
-      cover: institution.cover_url || defaultCoverImage
-    },
-    specialties: institution.specialties || [],
-    certifications: institution.certifications || [],
-    collaborations: [
-      {
-        id: 1,
-        company: "Barcelona Activa",
-        type: "Prácticas Profesionales",
-        description: "Programa de prácticas para estudiantes de último año",
-      },
-      {
-        id: 2,
-        company: "Barcelona Tech City",
-        type: "Colaboración Educativa",
-        description: "Participación en eventos tecnológicos y mentorías",
-      },
-    ],
-  }
-
-  const publications: Publication[] = [
-    { id: 1, title: "Nuevo curso de desarrollo web", image: "https://picsum.photos/300/200?random=1" },
-    { id: 2, title: "Jornada de puertas abiertas", image: "https://picsum.photos/300/200?random=2" },
-    { id: 3, title: "Colaboración con empresas locales", image: "https://picsum.photos/300/200?random=3" },
-    { id: 4, title: "Éxito en la feria de empleo", image: "https://picsum.photos/300/200?random=4" },
-    { id: 5, title: "Nuevo laboratorio de IA", image: "https://picsum.photos/300/200?random=5" },
-  ]
 
   const handleFollow = () => {
     setIsFollowing(!isFollowing)
@@ -170,9 +80,9 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
   const renderAcercaDe = (
     <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
       <h2 className="text-lg font-medium text-gray-900 mb-4">Acerca de</h2>
-      <div 
+      <div
         className="text-gray-600 text-sm sm:text-base"
-        dangerouslySetInnerHTML={{ __html: institute.basic.about }}
+        dangerouslySetInnerHTML={{ __html: institution.about || '' }}
       />
     </div>
   )
@@ -188,28 +98,30 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                 <Building2 className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Tipo de institución</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.type}</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institution.type || 'No especificado'}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Users className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Tamaño</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.size}</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institution.size || 'No especificado'}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Año de fundación</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.foundedYear}</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institution.founded_year || 'No especificado'}</p>
                 </div>
               </div>
               <div className="flex items-center">
                 <Languages className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500">Idiomas</p>
-                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.languages.join(", ")}</p>
+                  <p className="text-gray-900 text-sm sm:text-base">
+                    {institution.languages?.join(", ") || 'No especificado'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -217,14 +129,14 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
           <div>
             <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6 lg:mt-0">Especialidades</h3>
             <div className="flex flex-wrap gap-2">
-              {institute.specialties.map((specialty, index) => (
+              {institution.specialties?.map((specialty, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800"
                 >
                   {specialty}
                 </span>
-              ))}
+              )) || <p className="text-gray-500">No hay especialidades especificadas</p>}
             </div>
           </div>
         </div>
@@ -233,81 +145,60 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
       <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
         <h2 className="text-lg font-medium text-gray-900 mb-4">Certificaciones y Acreditaciones</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {institute.certifications.map((cert) => (
-            <div key={cert.id} className="flex items-start space-x-3">
+          {institution.certifications?.map((cert, index) => (
+            <div key={index} className="flex items-start space-x-3">
               <Award className="h-6 w-6 text-gray-400 flex-shrink-0" />
               <div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{cert.name}</h3>
-                <p className="text-sm text-gray-500">
-                  Otorgado por {cert.issuedBy} • {cert.year}
-                </p>
+                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{cert}</h3>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-        <h2 className="text-lg font-medium text-gray-900 mb-4">Colaboraciones con Empresas</h2>
-        <div className="space-y-4">
-          {institute.collaborations.map((collab) => (
-            <div key={collab.id} className="flex items-start space-x-3">
-              <Briefcase className="h-6 w-6 text-gray-400 flex-shrink-0" />
-              <div>
-                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{collab.company}</h3>
-                <p className="text-sm text-gray-600">{collab.type}</p>
-                <p className="text-sm text-gray-500">{collab.description}</p>
-              </div>
-            </div>
-          ))}
+          )) || <p className="text-gray-500">No hay certificaciones especificadas</p>}
         </div>
       </div>
     </>
   )
 
+  const renderEmpleos = (
+    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
+      <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Empleos</h2>
+      <EmptyStateCard
+        icon={<BriefcaseIcon className="h-8 w-8 text-gray-400" />}
+        title="No hay empleos disponibles"
+        subtitle="Actualmente no hay ofertas de empleo publicadas."
+      />
+    </div>
+  )
+
+  const renderInstituto = (
+    <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
+      <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Vida en el instituto</h2>
+      <EmptyStateCard
+        icon={<School className="h-8 w-8 text-gray-400" />}
+        title="No hay información disponible"
+        subtitle="No hay contenido sobre la vida en el instituto."
+      />
+    </div>
+  )
+
   const renderPublicaciones = (
     <div className="mt-4 sm:mt-6">
-      <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {publications.slice(0, visiblePublications).map((pub) => (
-          <Card key={pub.id} className="overflow-hidden">
-            <CardHeader>
-              <CardTitle className="text-base sm:text-lg">{pub.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <img
-                src={pub.image}
-                alt={pub.title}
-                className="w-full h-32 sm:h-40 object-cover rounded"
-              />
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      {visiblePublications < publications.length && (
-        <div className="mt-4 text-center">
-          <Button
-            onClick={() => setVisiblePublications(publications.length)}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            Mostrar más publicaciones
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </div>
-      )}
+      <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Publicaciones</h2>
+      <EmptyStateCard
+        icon={<MessageCircle className="h-8 w-8 text-gray-400" />}
+        title="No hay publicaciones"
+        subtitle="No hay publicaciones disponibles en este momento."
+      />
     </div>
   )
 
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-48 sm:h-64 md:h-80 bg-gray-300">
-        <img 
-          src={institute.basic.cover} 
-          alt="Cover" 
-          className="w-full h-full object-cover" 
+        <img
+          src={coverImage}
+          alt="Cover"
+          className="w-full h-full object-cover"
           onError={() => handleImageError('cover')}
-          data-type="cover"
         />
       </div>
 
@@ -320,18 +211,17 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                   <div className="flex-shrink-0 mx-auto sm:mx-0">
                     <img
                       className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={institute.basic.logo}
-                      alt={institute.basic.name}
+                      src={logoImage}
+                      alt={institution.name}
                       onError={() => handleImageError('logo')}
-                      data-type="logo"
                     />
                   </div>
                   <div className="mt-4 sm:mt-0 text-center sm:text-left">
-                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{institute.basic.name}</h1>
-                    <p className="text-base sm:text-lg text-gray-600">{institute.basic.slogan}</p>
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{institution.name}</h1>
+                    <p className="text-base sm:text-lg text-gray-600">{institution.slogan || ''}</p>
                     <p className="text-gray-500 flex items-center justify-center sm:justify-start mt-2">
                       <MapPin className="h-5 w-5 text-gray-400 mr-2" />
-                      <span className="text-sm sm:text-base">{institute.basic.location}</span>
+                      <span className="text-sm sm:text-base">{institution.location || 'Ubicación no especificada'}</span>
                     </p>
                   </div>
                 </div>
@@ -360,59 +250,57 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="flex items-center justify-center sm:justify-start">
                     <Globe className="h-5 w-5 text-gray-400 mr-2" />
-                    <a href={`https://${institute.basic.website}`} className="text-blue-600 hover:underline text-sm sm:text-base">
-                      {institute.basic.website}
+                    <a href={`https://${institution.website}`} className="text-blue-600 hover:underline text-sm sm:text-base">
+                      {institution.website || 'Sitio web no especificado'}
                     </a>
                   </div>
                   <div className="flex items-center justify-center sm:justify-start">
                     <Phone className="h-5 w-5 text-gray-400 mr-2" />
-                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.phone}</span>
+                    <span className="text-gray-600 text-sm sm:text-base">{institution.phone || 'Teléfono no especificado'}</span>
                   </div>
                   <div className="flex items-center justify-center sm:justify-start">
                     <Mail className="h-5 w-5 text-gray-400 mr-2" />
-                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.email}</span>
+                    <span className="text-gray-600 text-sm sm:text-base">{institution.email || 'Email no especificado'}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6 overflow-x-auto">
-                <TabsList className="w-full flex justify-start sm:justify-center">
-                  <TabsTrigger value="inicio" className="text-sm sm:text-base">Inicio</TabsTrigger>
-                  <TabsTrigger value="acerca" className="text-sm sm:text-base">Acerca de</TabsTrigger>
-                  <TabsTrigger value="publicaciones" className="text-sm sm:text-base">Publicaciones</TabsTrigger>
-                  <TabsTrigger value="empleos" className="text-sm sm:text-base">Empleos</TabsTrigger>
-                  <TabsTrigger value="instituto" className="text-sm sm:text-base">Vida en el instituto</TabsTrigger>
-                  <TabsTrigger value="alumnos" className="text-sm sm:text-base">Antiguos alumnos</TabsTrigger>
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
+                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <MessageCircle className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
+                  </TabsTrigger>
                 </TabsList>
               </div>
+
             </div>
           </div>
 
           <div className="mt-4 bg-white rounded-lg shadow-lg p-4 sm:p-6">
             <TabsContent value="inicio">
               {renderInicio}
-              {renderPublicaciones}
             </TabsContent>
             <TabsContent value="acerca">{renderAcercaDe}</TabsContent>
             <TabsContent value="publicaciones">{renderPublicaciones}</TabsContent>
-            <TabsContent value="empleos">
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
-                <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Empleos</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay empleos disponibles actualmente.</p>
-              </div>
-            </TabsContent>
-            <TabsContent value="instituto">
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Vida en el instituto</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay información disponible.</p>
-              </div>
-            </TabsContent>
-            <TabsContent value="alumnos">
-              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
-                <h2 className="text-lg font-medium text-gray-900 mb-4">Antiguos alumnos</h2>
-                <p className="text-gray-600 text-sm sm:text-base">No hay información de antiguos alumnos.</p>
-              </div>
-            </TabsContent>
+            <TabsContent value="empleos">{renderEmpleos}</TabsContent>
+            <TabsContent value="instituto">{renderInstituto}</TabsContent>
           </div>
         </Tabs>
       </div>
