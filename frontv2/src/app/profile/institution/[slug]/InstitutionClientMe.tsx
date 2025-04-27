@@ -580,7 +580,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 </div>
               </div>
 
-              {/* Sección de contacto mejorada */}
+              {/* Sección de contacto */}
               <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
                 <div className="flex flex-wrap justify-center items-center gap-4">
                   {isEditing === "contact" ? (
@@ -623,51 +623,55 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       </div>
                     </div>
                   ) : (
-                    <>
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Globe className="h-5 w-5 text-indigo-500 mr-2" />
-                        <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
-                          {institutionData.website}
-                        </a>
+                    <div className="w-full">
+                      <div className="flex flex-wrap justify-center gap-4">
+                        <div className="flex items-center px-3 py-2 rounded-md">
+                          <Globe className="h-5 w-5 text-indigo-500 mr-2" />
+                          <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                            {institutionData.website}
+                          </a>
+                        </div>
+                        <div className="flex items-center px-3 py-2 rounded-md">
+                          <Phone className="h-5 w-5 text-indigo-500 mr-2" />
+                          <span className="text-gray-600">{institutionData.phone}</span>
+                        </div>
+                        <div className="flex items-center px-3 py-2 rounded-md">
+                          <Mail className="h-5 w-5 text-indigo-500 mr-2" />
+                          <span className="text-gray-600">{institutionData.email}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Phone className="h-5 w-5 text-indigo-500 mr-2" />
-                        <span className="text-gray-600">{institutionData.phone}</span>
+                      <div className="flex justify-center mt-4">
+                        <button
+                          onClick={() => handleEdit("contact")}
+                          className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-md hover:blue-50"
+                        >
+                          <Pencil className="h-4 w-4 inline mr-2" />
+                          Editar información
+                        </button>
                       </div>
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Mail className="h-5 w-5 text-indigo-500 mr-2" />
-                        <span className="text-gray-600">{institutionData.email}</span>
-                      </div>
-                      <button
-                        onClick={() => handleEdit("contact")}
-                        className="text-blue-600 hover:text-blue-800 px-3 py-2"
-                      >
-                        <Pencil className="h-4 w-4 inline mr-1" />
-                        Editar
-                      </button>
-                    </>
+                    </div>
                   )}
                 </div>
               </div>
 
-              {/* Tabs mejorados */}
+              {/* Esta parte es de la sección de tabs */}
               <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4  p-1 rounded-lg bg-gray-50">
+                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
                   <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
                     <Home className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="ml-2 text-sm sm:text-base">Inicio</span>
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
                   </TabsTrigger>
                   <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
                     <Info className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="ml-2 text-sm sm:text-base">Acerca de</span>
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
                   </TabsTrigger>
                   <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
                     <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="ml-2 text-sm sm:text-base">Empleos</span>
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
                   </TabsTrigger>
                   <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
                     <School className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="ml-2 text-sm sm:text-base">Vida en el instituto</span>
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
                   </TabsTrigger>
                 </TabsList>
               </div>
