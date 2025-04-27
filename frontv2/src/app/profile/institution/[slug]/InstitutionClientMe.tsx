@@ -5,6 +5,8 @@ import {
   Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X, Home, Info, BriefcaseIcon, School,
 } from "lucide-react"
 import { SimpleEditor } from "@/components/templates/simple/SimpleEditor"
+import "@/styles/tiptap-content.scss"
+import { EmptyStateCard } from "./EmptyStateCard"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -285,7 +287,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         </div>
       ) : (
         <div
-          className="prose prose-sm sm:prose lg:prose-lg mx-auto"
+          className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
           dangerouslySetInnerHTML={{ __html: institutionData.about || '' }}
         />
       )}
@@ -302,9 +304,32 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   )
 
   const renderEmpleos = () => (
-    <div className="mt-6 border-t border-gray-200 pt-6">
-      <h2 className="text-lg text-[23px] text-gray-900 mb-4">Empleos</h2>
-      <p className="text-gray-600">No hay empleos disponibles actualmente.</p>
+    <div className="mt-6">
+      <EmptyStateCard
+        icon={<Briefcase className="h-12 w-12 text-yellow-400 mx-auto" />}
+        title="No hay empleos ahora mismo."
+        subtitle="Crea una alerta de empleo y te avisaremos cuando se publiquen empleos relevantes."
+      />
+    </div>
+  )
+
+  const renderInstituto = () => (
+    <div className="mt-6">
+      <EmptyStateCard
+        icon={<Users className="h-12 w-12 text-blue-400 mx-auto" />}
+        title="No hay información de vida en el instituto."
+        subtitle="Pronto podrás ver actividades, eventos y más sobre la vida en el instituto."
+      />
+    </div>
+  )
+
+  const renderPublicaciones = () => (
+    <div className="mt-6">
+      <EmptyStateCard
+        icon={<Plus className="h-12 w-12 text-green-400 mx-auto" />}
+        title="No hay publicaciones aún."
+        subtitle="Cuando se publiquen novedades o noticias, aparecerán aquí."
+      />
     </div>
   )
 
@@ -665,6 +690,10 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                     <Info className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
                   </TabsTrigger>
+                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
+                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
+                  </TabsTrigger>
                   <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
                     <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
@@ -692,7 +721,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
             </TabsContent>
             <TabsContent value="acerca">{renderAcercaDe(true)}</TabsContent>
             <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
-            <TabsContent value="instituto">{renderEmpleos()}</TabsContent>
+            <TabsContent value="instituto">{renderInstituto()}</TabsContent>
+            <TabsContent value="publicaciones">{renderPublicaciones()}</TabsContent>
           </div>
         </Tabs>
       </div>

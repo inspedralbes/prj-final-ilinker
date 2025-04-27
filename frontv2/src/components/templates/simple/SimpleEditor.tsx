@@ -28,6 +28,7 @@ import {
   Heading3,
   Heading4,
   Heading5,
+  Heading6,
   Palette,
 } from 'lucide-react'
 import '@/styles/tiptap.scss'
@@ -47,18 +48,19 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
       }
     };
   }, []);
+
   const editor = useEditor({
     extensions: [
       StarterKit,
-      HardBreak.configure({
-        keepMarks: true,
-        HTMLAttributes: { class: 'my-hard-break' },
+      Document,
+      Paragraph.configure({
+        HTMLAttributes: {
+          class: 'editor-paragraph',
+        },
       }),
       HardBreak.configure({
         keepMarks: true,
-        HTMLAttributes: {
-          class: 'my-hard-break',
-        },
+        HTMLAttributes: { class: 'my-hard-break' },
       }),
       BulletList.configure({
         HTMLAttributes: {
@@ -75,16 +77,12 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
           class: 'list-item',
         },
       }),
-      Document,
-      Paragraph.configure({
-        HTMLAttributes: {
-          class: 'editor-paragraph',
-        },
-      }),
       Typography,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Image,
-      Color,
+      Color.configure({
+        types: ['textStyle'],
+      }),
       TextStyle,
     ],
     content,
@@ -159,11 +157,17 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
           <button
             onClick={() => editor?.chain().focus().toggleHeading({ level: 5 }).run()}
             className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 5 }) ? 'bg-gray-200' : ''}`}
-            title="Encabezado 3"
+            title="Encabezado 5"
           >
             <Heading5 className="w-5 h-5" />
           </button>
-
+          <button
+            onClick={() => editor?.chain().focus().toggleHeading({ level: 6 }).run()}
+            className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 6 }) ? 'bg-gray-200' : ''}`}
+            title="Encabezado 6"
+          >
+            <Heading6 className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="w-px bg-gray-300 mx-1" />
@@ -213,32 +217,30 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange })
 
         <div className="w-px bg-gray-300 mx-1" />
 
-        <div className="flex items-center gap-1 px-1">
-          <div className="relative" title="Color de texto">
-            <button
-              className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 flex items-center gap-1"
-              style={{
-                borderBottom: editor?.getAttributes('textStyle').color
-                  ? `2px solid ${editor?.getAttributes('textStyle').color}`
-                  : 'none'
-              }}
-            >
-              <Palette className="w-5 h-5" />
-            </button>
-            <input
-              type="color"
-              className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer transition-none"
-              value={editor?.getAttributes('textStyle').color || '#000000'}
-              onChange={(e) => {
-                if (colorTimeoutRef.current) {
-                  clearTimeout(colorTimeoutRef.current);
-                }
-                colorTimeoutRef.current = setTimeout(() => {
-                  editor?.chain().focus().setColor(e.target.value).run();
-                }, 100);
-              }}
-            />
-          </div>
+        <div className="relative" title="Color de texto">
+          <button
+            className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 flex items-center gap-1"
+            style={{
+              borderBottom: editor?.getAttributes('textStyle').color
+                ? `2px solid ${editor?.getAttributes('textStyle').color}`
+                : 'none'
+            }}
+          >
+            <Palette className="w-5 h-5" />
+          </button>
+          <input
+            type="color"
+            className="absolute left-0 top-0 w-full h-full opacity-0 cursor-pointer"
+            value={editor?.getAttributes('textStyle').color || '#000000'}
+            onChange={(e) => {
+              if (colorTimeoutRef.current) {
+                clearTimeout(colorTimeoutRef.current);
+              }
+              colorTimeoutRef.current = setTimeout(() => {
+                editor?.chain().focus().setColor(e.target.value).run();
+              }, 100);
+            }}
+          />
         </div>
       </div>
       <EditorContent editor={editor} />
