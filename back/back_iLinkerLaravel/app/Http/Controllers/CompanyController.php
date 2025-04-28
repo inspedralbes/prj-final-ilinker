@@ -37,39 +37,26 @@ class CompanyController extends Controller
         Log::info($request->all());
 
         $company = Company::findOrFail($request->id);
-
-        $company->name = $request->name;
-        $company->CIF = $request->CIF;
-        $company->num_people = $request->num_people;
-        $company->short_description = $request->short_description;
-        $company->description = $request->description;
-        $company->email = $request->email;
-        $company->phone = $request->phone;
-        $company->website = $request->website;
-        $company->responsible_phone = $request->responsible_phone;
-        $company->company_position = $request->company_position;
-        $company->address = $request->address;
-        $company->city = $request->city;
-        $company->postal_code = $request->postal_code;
-        $company->country = $request->country;
+        $data = $request->except('id');
 
         if ($request->hasFile('logo')) {
             $fileName = "logo_{$company->id}." . $request->file('logo')->getClientOriginalExtension();
             $path = $request->file('logo')->move(storage_path('app/public/companies'), $fileName);
-            $company->logo = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
+            $data['logo'] = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
         }
 
         if ($request->hasFile('cover_photo')) {
             $fileName = "cover_photo_{$company->id}." . $request->file('cover_photo')->getClientOriginalExtension();
             $path = $request->file('cover_photo')->move(storage_path('app/public/companies'), $fileName);
-            $company->cover_photo = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
+                $data['cover_photo'] = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
         }
 
-        $company->save();
+        $company->update($data);
 
-        $sectors = json_decode($request->input('sectors'), true); // Convertir a array
-        $skills = json_decode($request->input('skills'), true);
-        $offers = json_decode($request->input('offers'), true);
+
+        $sectors = json_decode($validated['sectors']  ?? '[]', true) ?: [];
+        $skills  = json_decode($validated['skills']   ?? '[]', true) ?: [];
+        $offers  = json_decode($validated['offers']   ?? '[]', true) ?: [];
 
         // Guardar sectores
         foreach ($sectors as $sector) {
@@ -125,12 +112,10 @@ class CompanyController extends Controller
     public function checkCompanyUser(Request $request)
     {
         $rules = [
-            'id_user_loged' => 'required',
             'id_company' => 'required',
         ];
 
         $messages = [
-            'id_user_loged.required' => 'El id del usuario es requerido',
             'id_company.required' => 'El id del company es requerido',
         ];
 
@@ -146,9 +131,20 @@ class CompanyController extends Controller
 
         try {
             $idUserLoged = $request->input('id_user_loged');
+
             $idCompany = $request->input('id_company');
 
             $companyToCheck = Company::with(['sectors', 'skills', 'offers'])->findOrFail($idCompany);
+
+            if($idUserLoged === null)
+            {
+                return response()->json([
+                    'status'  => 'success',
+                    'message' => 'El usuario no es dueño de la compañia',
+                    'admin' => false,
+                    'company' => $companyToCheck
+                ]);
+            }
 
             if($companyToCheck->user_id === $idUserLoged){
                 return response()->json([
@@ -157,14 +153,15 @@ class CompanyController extends Controller
                     'admin' => true,
                     'company' => $companyToCheck
                 ]);
-            }else{
-                return response()->json([
-                    'status'  => 'success',
-                    'message' => 'El usuario no es dueño de la compañia',
-                    'admin' => false,
-                    'company' => $companyToCheck
-                ]);
             }
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'El usuario no es dueño de la compañia',
+                'admin' => false,
+                'company' => $companyToCheck
+            ]);
+
 
         }catch (\Exception $e){
             return response()->json([

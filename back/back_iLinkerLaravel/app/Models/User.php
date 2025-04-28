@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use SebastianBergmann\CodeCoverage\Report\Xml\Project;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -85,5 +86,24 @@ class User extends Authenticatable
     public function reportsMade()
     {
         return $this->hasMany(Report::class, 'reported_by_id');
+    }
+    public function education()
+    {
+        return $this->HasMany(StudentEducation::class, 'student_id');
+    }
+
+    public function experience()
+    {
+        return $this->HasMany(StudentExperience::class, 'student_id');
+    }
+
+    public function skills()
+    {
+        return $this->belongsToMany(Skill::class, 'student_skills', 'student_id', 'skill_id');
+    }
+
+    public function projects()
+    {
+        return $this->HasMany(StudentProject::class, 'user_id');
     }
 }

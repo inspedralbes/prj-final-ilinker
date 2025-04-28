@@ -1,5 +1,6 @@
 [
     {
+        "uuid": "default_uuid_01",
         "company_id": 1,
         "title": "Desarrollador Backend PHP",
         "skills": ["PHP", "Laravel", "MySQL", "API REST"],
@@ -13,6 +14,7 @@
         "inscribed": 15
     },
     {
+        "uuid": "default_uuid_02",
         "company_id": 1,
         "title": "Especialista en Marketing Digital",
         "skills": ["SEO", "Google Ads", "Redes Sociales", "Content Marketing"],

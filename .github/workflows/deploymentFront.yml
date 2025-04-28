@@ -1,0 +1,64 @@
+name: Preparant per producció front
+run-name: ${{ github.actor }} està pujant l'aplicació a PROD NEXTJS🚀
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: play2learn
+
+      - name: Build application
+        run: npm run build --if-present
+        working-directory: play2learn
+        
+      - name: Copiar fitxers estàtics
+        run: cp -r public .next/public
+        working-directory: play2learn
+
+      - name: Verificar existència del directori .next
+        run: ls -la .next || echo "⚠️ Directori '.next' no existeix!"
+        working-directory: play2learn
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: play2learn/.next
+          include-hidden-files: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descarregant l'artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: .next
+
+      - name: Verificar contenid del directori descarregat
+        run: ls -la .next || echo "⚠️ No s'ha descarregat res a '.next'!"
+
+      - name: scp a produccio
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/prod_key.pem
+          chmod 600 ~/prod_key.pem
+          scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" .next/standalone/.next/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/.next
+          scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" .next/static/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/.next/static
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" .next/standalone/server.js ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html
+          scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" .next/standalone/package.json ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html
+          scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i "~/prod_key.pem" .next/public/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/html/public
+          rm ~/prod_key.pem
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."

@@ -16,4 +16,14 @@ class Offer extends Model
     {
         return $this->belongsTo(Company::class, 'company_id');
     }
+
+    // En tu modelo Offer:
+    public function usersInterested()
+    {
+        return $this
+            ->belongsToMany(User::class, 'offer_users', 'offer_id', 'user_id')
+            ->withPivot('status')       // <-- aquí le indicas que traiga el campo status
+            ->withTimestamps();         // opcional, si tu pivot tiene created_at/updated_at
+    }
+
 }
