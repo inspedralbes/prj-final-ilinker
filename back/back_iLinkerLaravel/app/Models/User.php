@@ -70,8 +70,20 @@ class User extends Authenticatable
         return $this->hasOne(Student::class, 'user_id');
     }
 
-    public function posts(): HasMany {
+    public function posts(): HasMany
+    {
         return $this->hasMany(Post::class);
     }
 
+    // Usuario ha sido reportado
+    public function reportsReceived()
+    {
+        return $this->hasMany(Report::class, 'reported_user_id');
+    }
+
+    // Usuario ha reportado a otros
+    public function reportsMade()
+    {
+        return $this->hasMany(Report::class, 'reported_by_id');
+    }
 }

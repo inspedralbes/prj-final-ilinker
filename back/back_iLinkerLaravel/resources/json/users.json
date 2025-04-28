@@ -1,5 +1,15 @@
 [
     {
+        "name": "Admin",
+        "surname": "admin",
+        "birthday": "1995-03-10",
+        "email": "admin@gmail.com",
+        "active": false,
+        "email_verified_at": null,
+        "password": "abc.123",
+        "rol": "admin"
+    },
+    {
         "name": "Carlos",
         "surname": "García",
         "birthday": "1990-05-15",

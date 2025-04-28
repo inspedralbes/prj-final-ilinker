@@ -76,3 +76,36 @@ export async function getAllCountries() {
         return { error: error.message }; // Devolvemos un objeto con el error para manejarlo donde se llame esta función
     }
 }
+
+export async function fetchReportedUsers() {
+    const response = await fetch(`${API_BASE_URL}/admin/reported-users`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // Puedes añadir tu token si usas auth:
+        // 'Authorization': `Bearer ${token}`
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error('Error al obtener los usuarios reportados');
+    }
+  
+    return response.json();
+  }
+  
+  export async function deleteReport(reportId) {
+    const response = await fetch(`${API_BASE_URL}/admin/reported-users/${reportId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        // 'Authorization': `Bearer ${token}`
+      },
+    });
+  
+    if (!response.ok) {
+      throw new Error('Error al eliminar el reporte');
+    }
+  
+    return response.json();
+  }

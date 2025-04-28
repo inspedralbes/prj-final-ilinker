@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import Image from "next/image"
 import { AuthContext } from "@/contexts/AuthContext";
 import { useContext, useEffect, useRef, useState } from "react";
+import { ShieldCheck } from "lucide-react"
 
 export default function HeaderDefault() {
     const pathname = usePathname();
@@ -71,6 +72,13 @@ export default function HeaderDefault() {
                                     <Bell className="h-5 w-5" />
                                     <span className="text-[12px]">Notificaciones</span>
                                 </Link>
+                                {userData?.rol === "admin" && (
+                                    <Link href="/admin"
+                                        className={`flex flex-col items-center ${pathname === "/admin" ? "text-foreground" : "text-muted-foreground"}`}>
+                                        <ShieldCheck className="h-5 w-5" />
+                                        <span className="text-[12px]">Admin</span>
+                                    </Link>
+                                )}
                             </>
                         ) : (
                             <>
@@ -185,6 +193,13 @@ export default function HeaderDefault() {
                                     <Bell className="h-5 w-5" />
                                     <span>Notificaciones</span>
                                 </Link>
+                                {userData?.rol === "admin" && (
+                                    <Link href="/admin"
+                                        className={`flex flex-col items-center ${pathname === "/admin" ? "text-foreground" : "text-muted-foreground"}`}>
+                                        <ShieldCheck className="h-5 w-5" />
+                                        <span className="text-[12px]">Admin</span>
+                                    </Link>
+                                )}
                             </>
                         ) : (
                             <>

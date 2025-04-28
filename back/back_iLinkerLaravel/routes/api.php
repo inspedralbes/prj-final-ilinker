@@ -19,6 +19,7 @@ use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\Admin\ReportedUserController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -102,3 +103,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
 });
+
+Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
+    Route::get('/reported-users', [ReportedUserController::class, 'index'])->name('admin.reported-users.index');
+    Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy'])->name('admin.reported-users.destroy');
+});
+
