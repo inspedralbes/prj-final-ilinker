@@ -110,7 +110,9 @@ class UserService
             $userInfo = match ($user->rol) {
                 'company' => User::with('company')->where('id', $id)->first(),
                 'institutions' => User::with('institutions')->where('id', $id)->first(),
-                'student' => User::with('student')->where('id', $id)->first(),
+                'student' => User::with(['student','education', 'experience', 'projects', 'skills' => function ($query) {
+                    $query->select('skills.id', 'skills.name');
+                }])->where('id', $id)->first(),
                 default => null,
             };
 

@@ -1,12 +1,15 @@
 "use client"
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Menu, X, Link } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 const Header: React.FC = () => {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-
+  const {showLoader, hideLoader} = useContext(LoaderContext);
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 10) {
@@ -50,7 +53,10 @@ const Header: React.FC = () => {
           </div>
           
           <div className="hidden md:block">
-            <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300">
+            <button onClick={()=>{
+              showLoader();
+              router.push('/auth/login')
+            }} className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300">
               Comenzar
             </button>
           </div>

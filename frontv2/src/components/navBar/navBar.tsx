@@ -7,6 +7,7 @@ import {
   LandmarkIcon,
   MessageSquareIcon,
   User,
+  GraduationCap
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -19,7 +20,9 @@ export default function NavBar() {
   const pathname = usePathname();
   const { loggedIn, userData, logout } = useContext(AuthContext);
   const router = useRouter();
-
+  if (pathname === "/") {
+    return null;
+  }
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
@@ -40,28 +43,8 @@ export default function NavBar() {
                     : "text-muted-foreground flex flex-col items-center"
                     }`}
                 >
-                  <Building2Icon className="h-5 w-5" />
-                  <span className="text-[12px]">Empresas</span>
-                </Link>
-                <Link
-                  href="/people"
-                  className={`flex flex-col items-center ${pathname === "/people"
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                    }`}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="text-[12px]">Personas</span>
-                </Link>
-                <Link
-                  href="/institutions"
-                  className={`flex flex-col items-center ${pathname === "/institutions"
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                    }`}
-                >
-                  <LandmarkIcon className="h-5 w-5" />
-                  <span className="text-[12px]">Personas</span>
+                  <GraduationCap className="h-5 w-5" />
+                  <span className="text-[12px]">Ofertas</span>
                 </Link>
                 <Link
                   href="/messages"
@@ -125,10 +108,10 @@ export default function NavBar() {
             ) : (
               <>
                 <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
+                  <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/register">Register</Link>
+                  <Link href="/auth/register">Register</Link>
                 </Button>
               </>
             )}
@@ -141,7 +124,7 @@ export default function NavBar() {
 }
 
 // Componente para el menú desplegable del perfil
-function ProfileDropdown({ userData, logout }) {
+function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -152,8 +135,8 @@ function ProfileDropdown({ userData, logout }) {
 
   // Cierra el menú si se hace clic fuera de él
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event: any) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };

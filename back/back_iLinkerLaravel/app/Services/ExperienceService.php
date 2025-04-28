@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\Company;
 use App\Models\StudentExperience;
+use DateTime;
+use Exception;
 
 class ExperienceService
 {
@@ -39,6 +41,27 @@ class ExperienceService
         $experience->department = $data['department'];
         $experience->employee_type = $data['employee_type'];
         $experience->location_type = $data['location_type'];
+
+        if (!empty( $data['start_date'])) {
+            $fecha = DateTime::createFromFormat('d/m/Y',  $data['start_date']);
+            if ($fecha) {
+                $experience->start_date = $fecha->format('Y-m-d'); // Convertir al formato SQL
+            } else {
+                // Manejar error de formato
+                throw new Exception("Formato de fecha inválido: " . $data['start_date']);
+            }
+        }
+
+        if (!empty( $data['end_date'])) {
+            $fecha = DateTime::createFromFormat('d/m/Y',  $data['end_date']);
+            if ($fecha) {
+                $experience->end_date = $fecha->format('Y-m-d'); // Convertir al formato SQL
+            } else {
+                // Manejar error de formato
+                throw new Exception("Formato de fecha inválido: " . $data['end_date']);
+            }
+        }
+
 
         $experience->save();
 

@@ -25,6 +25,8 @@ return new class extends Migration
 
             $table->string('company_address')->nullable();
             $table->enum('location_type', ['hibrido', 'remoto', 'presencial'])->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
             $table->timestamps();
         });
     }

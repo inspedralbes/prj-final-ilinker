@@ -1,7 +1,6 @@
 import Cookies from "js-cookie";
 import config from "@/types/config";
 
-// const routeApi: string = "https://api.play2learn.pro/api";
 const routeApi: string = config.apiUrl;
 
 export async function apiRequest(
@@ -11,29 +10,30 @@ export async function apiRequest(
   isFormData: boolean = false
 ): Promise<any> {
   try {
+    // Solo leer la cookie en cliente
     let token: string | undefined;
-
-    // Solo ejecutar js-cookie en el cliente
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       token = Cookies.get("authToken");
     }
 
-    const options: RequestInit = {
-      method,
-      headers: isFormData
-        ? {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          }
-        : {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-      //   credentials: "include",
+    // Preparamos headers comunes
+    const headers: Record<string, string> = {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
-    if (body) {
-      options.body = isFormData ? body : JSON.stringify(body);
+    const options: RequestInit = {
+      method,
+      headers,
+    };
+
+    if (body instanceof FormData) {
+      // Si es FormData, no ponemos Content-Type: lo infiere el navegador con boundary
+      options.body = body;
+    } else if (body != null) {
+      // Para cualquier otro body, enviamos JSON
+      headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
     }
 
     // Asegurarse de que no haya barras diagonales duplicadas en la URL

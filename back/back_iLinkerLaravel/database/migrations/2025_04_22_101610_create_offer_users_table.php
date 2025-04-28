@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_projects', function (Blueprint $table) {
+        Schema::create('offer_users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('offer_id');
             $table->unsignedBigInteger('user_id');
-            $table->string('name');
-            $table->string('description');
-            $table->string('link')->nullable();
-            $table->json('pictures')->nullable();
-            $table->date('end_project')->nullable();
-
+            $table->foreign('offer_id')->references('id')->on('offers');
             $table->foreign('user_id')->references('id')->on('users');
-
+            $table->enum('status', ['accept', 'rejected', 'pending'])->default('pending');
             $table->timestamps();
         });
     }
@@ -31,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_projects');
+        Schema::dropIfExists('offer_users');
     }
 };

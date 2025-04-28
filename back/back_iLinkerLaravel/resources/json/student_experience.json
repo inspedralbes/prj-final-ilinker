@@ -1,0 +1,46 @@
+[
+    {
+        "student_id": 1,
+        "company_id": 1,
+        "company_name": "Tech Solutions S.L.",
+        "department": "Desarrollo de Software",
+        "employee_type": "Tiempo Completo",
+        "company_address": "Av. Principal 123, Ciudad",
+        "location_type": "remoto",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    },
+    {
+        "student_id": 1,
+        "company_id": 1,
+        "company_name": "Tech Solutions S.L.",
+        "department": "IT Support",
+        "employee_type": "Medio Tiempo",
+        "company_address": "Calle Secundaria 45, Ciudad",
+        "location_type": "presencial",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    },
+    {
+        "student_id": 1,
+        "company_id": 1,
+        "company_name": "Tech Solutions S.L.",
+        "department": "Diseño UX/UI",
+        "employee_type": "Independiente",
+        "company_address": null,
+        "location_type": "hibrido",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    },
+    {
+        "student_id": 1,
+        "company_id": 2,
+        "company_name": "Innovatech Global S.A.",
+        "department": "Desarrollo de Software 2",
+        "employee_type": "Tiempo parcial",
+        "company_address": "Av. Principal 123, Ciudad",
+        "location_type": "remoto",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    }
+]

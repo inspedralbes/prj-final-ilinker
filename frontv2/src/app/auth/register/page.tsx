@@ -11,7 +11,6 @@ import * as yup from "yup";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {useRouter} from "next/navigation";
 import {useToast} from "@/hooks/use-toast";
-import Cookies from "js-cookie";
 import {AuthContext} from "@/contexts/AuthContext";
 import {LoaderContext} from "@/contexts/LoaderContext";
 
@@ -172,7 +171,7 @@ export default function RegisterClient({countries, sectors}) {
         }
         hideLoader();
     }, [userData]);
-    
+
     useEffect(() => {
         switch (methods.watch('rol')) {
             case 'student':
