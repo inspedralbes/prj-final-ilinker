@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useCallback, useContext, useEffect, useState } from "react";
 import React from "react"
-import config from "@/types/config";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -20,6 +19,13 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 
+interface EmptyFields {
+    email?: string;
+    password?: string;
+    code?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+}
 
 const Login: React.FC = () => {
     const router = useRouter();
@@ -29,14 +35,6 @@ const Login: React.FC = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    interface EmptyFields {
-        email?: string;
-        password?: string;
-        code?: string;
-        newPassword?: string;
-        confirmPassword?: string;
-    }
-    
     const [emptyFields, setEmptyFields] = useState<EmptyFields>({});
     const [apiError, setApiError] = useState("");
     const { login } = useContext(AuthContext);
@@ -50,11 +48,11 @@ const Login: React.FC = () => {
     useEffect(()=>{
         hideLoader();
     },[])
-    const validateEmptyFields = (fields: any) => {
-        const empty = {};
+    const validateEmptyFields = (fields: Record<string, string>) => {
+        const empty: EmptyFields = {};
         Object.keys(fields).forEach((field) => {
             if (!fields[field].trim()) {
-                (empty as any)[field] = "Este campo es obligatorio";
+                empty[field as keyof EmptyFields] = "Este campo es obligatorio";
             }
         });
         setEmptyFields(empty);
@@ -65,16 +63,6 @@ const Login: React.FC = () => {
         e.preventDefault();
         showLoader();
         setApiError("");
-        
-        try {
-            // Get CSRF token before login attempt
-            await fetch(`${config.apiUrl}/sanctum/csrf-cookie`, {
-                credentials: 'include'
-            });
-        } catch (error) {
-            console.error('Error getting CSRF token:', error);
-        }
-
 
         const isValid = validateEmptyFields({ email, password });
         console.log(isValid)
