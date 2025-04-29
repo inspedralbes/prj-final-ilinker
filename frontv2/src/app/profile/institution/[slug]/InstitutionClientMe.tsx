@@ -72,16 +72,25 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const response = await apiRequest('skills', 'GET')
-        if (response.status === 'success') {
-          setAvailableSkills(response.skills)
+        console.log('Fetching skills...');
+        const response = await apiRequest('skills', 'GET');
+        console.log('Skills response:', response);
+        
+        if (response.status === 'success' && Array.isArray(response.data)) {
+          setAvailableSkills(response.data);
+          console.log('Skills loaded successfully:', response.data);
+        } else {
+          console.error('Invalid response format:', response);
+          setAvailableSkills([]);
         }
       } catch (error) {
-        console.error('Error fetching skills:', error)
+        console.error('Error fetching skills:', error);
+        setAvailableSkills([]);
+        setError('Error al cargar las especialidades. Por favor, intenta de nuevo más tarde.');
       }
     }
-    fetchSkills()
-  }, [])
+    fetchSkills();
+  }, []);
 
   const handleEdit = (section: string) => {
     setOriginalData({ ...institutionData })
@@ -192,6 +201,18 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Por favor, sube solo archivos de imagen')
+      return
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('La imagen no debe exceder los 5MB')
+      return
+    }
+
     try {
       setError(null)
       const formData = new FormData()
@@ -227,11 +248,11 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           [type]: response.data[type]
         }))
       } else {
-        throw new Error(response?.message || 'Failed to upload image')
+        throw new Error(response?.message || 'Error al subir la imagen')
       }
     } catch (error: any) {
       console.error('Error uploading image:', error)
-      setError(error.message || 'Error uploading image. Please try again.')
+      setError(error.message || 'Error al subir la imagen. Por favor, intenta de nuevo.')
     }
   }
 
@@ -467,11 +488,15 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                     className="flex-1 border rounded px-2 py-1 mr-2"
                   >
                     <option value="">Seleccionar una especialidad</option>
-                    {availableSkills.map((skill) => (
-                      <option key={skill.id} value={skill.name}>
-                        {skill.name}
-                      </option>
-                    ))}
+                    {availableSkills && availableSkills.length > 0 ? (
+                      availableSkills.map((skill) => (
+                        <option key={skill.id} value={skill.name}>
+                          {skill.name}
+                        </option>
+                      ))
+                    ) : (
+                      <option disabled>No hay especialidades disponibles</option>
+                    )}
                   </select>
                   <button
                     onClick={() => {
