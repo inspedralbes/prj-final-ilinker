@@ -112,7 +112,7 @@ export default function ModalAddExperience({
     // Función para guardar la experiencia laboral
     const handleSaveExperience = async () => {
 
-        if (!company.trim() || !startDate || !locationType) {
+        if (!company.trim() || !startDate || !locationType || !companyAddress) {
             toast({
                 title: (
                     <div className="flex items-center gap-2">
@@ -140,7 +140,7 @@ export default function ModalAddExperience({
             end_date: endDate ? format(endDate, "dd/MM/yyyy") : null,
         };
 
-        console.log("JSON")
+        console.log(isEditing ? "ACTUALIZACIÓN:" : "CREACIÓN:");
         console.table(experienceData);
 
 
@@ -148,6 +148,9 @@ export default function ModalAddExperience({
             // Cambiar el endpoint según si estamos creando o actualizando
             const endpoint = isEditing ? "experience/update" : "experience/create";
             const response = await apiRequest(endpoint, "POST", experienceData);
+
+            console.log("Respuesta:", response);
+
 
             if (response.status === "success") {
                 toast({

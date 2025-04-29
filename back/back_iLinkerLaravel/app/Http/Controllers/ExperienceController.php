@@ -59,6 +59,8 @@ class ExperienceController extends Controller
             'employee_type' => 'required',
             'company_address' => 'nullable',
             'location_type' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'nullable',
         ]);
 
         DB::beginTransaction();

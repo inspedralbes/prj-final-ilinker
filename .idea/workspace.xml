@@ -4,16 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modificaciones de mi experiencia">
-      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddExperience.tsx" afterDir="false" />
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Añadir modal para crear una nueva experiencia laboral">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CompanyService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/CompanyService.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ExperienceService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddExperience.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddExperience.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -117,7 +114,10 @@
       <workItem from="1744267045066" duration="10265000" />
       <workItem from="1744355041750" duration="6139000" />
       <workItem from="1745390743304" duration="10598000" />
-      <workItem from="1745563524315" duration="6722000" />
+      <workItem from="1745563524315" duration="7062000" />
+      <workItem from="1745821989016" duration="9853000" />
+      <workItem from="1745910630032" duration="2103000" />
+      <workItem from="1745913296601" duration="7437000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -167,7 +167,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745492371986</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Añadir modal para crear una nueva experiencia laboral">
+      <option name="closed" value="true" />
+      <created>1745571900416</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1745571900416</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -184,6 +192,7 @@
     <MESSAGE value="Empezar con la parte de experiencia del estudiante" />
     <MESSAGE value="Merge con company_profile" />
     <MESSAGE value="modificaciones de mi experiencia" />
-    <option name="LAST_COMMIT_MESSAGE" value="modificaciones de mi experiencia" />
+    <MESSAGE value="Añadir modal para crear una nueva experiencia laboral" />
+    <option name="LAST_COMMIT_MESSAGE" value="Añadir modal para crear una nueva experiencia laboral" />
   </component>
 </project>

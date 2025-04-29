@@ -18,17 +18,18 @@ import {
     Plus,
     BriefcaseBusiness,
     Clock,
-    Building
+    Building,
+    FolderGit2
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Card} from "@/components/ui/card";
+import {Card, CardContent} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
 import {Input} from "@/components/ui/input";
 import Select from "react-select";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Avatar} from "@/components/ui/avatar";
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
@@ -36,6 +37,16 @@ import ModalAddExperience from "@/app/profile/student/[uuid]/ModalAddExperience"
 import {apiRequest} from "@/services/requests/apiRequest";
 import {toast} from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/dialog/confirmDialog";
+import {
+    Carousel,
+    CarouselContent,
+    CarouselItem,
+    CarouselNext,
+    CarouselPrevious,
+} from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
+import {useRef} from "react";
+
 
 export interface User {
     id: number;
@@ -184,10 +195,12 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [modalState, setModalState] = useState(false);
     const [modalExperience, setModalExperience] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
-    const [changes, setChanges] = useState(false);
     const [currentStudy, setCurrentStudy] = useState(null);
+    const [currentExperience, setCurrentExperience] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [educationSelect, setEducationSelect] = useState(null);
+    const [experinceSelect, setExperienceSelect] = useState(null);
+    const [isExperience, setIsExperience] = useState(false);
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
@@ -198,6 +211,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const openModalExperience = (experience) => {
         console.log(experience);
         setModalExperience(!modalExperience);
+        setModalModeEdit(false);
     }
 
     const handleCloseModal = () => {
@@ -207,46 +221,67 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
     const handleCloseExperience = () => {
         setModalExperience(false);
+        setModalModeEdit(false);
     }
 
     const UpdateChange = async () => {
         const response = await apiRequest(`student/` + uuid)
         setEducationEdit(response.student.education);
+        setExperienceEdit(response.experience_grouped);
     }
 
     const EditInfo = (section, education) => {
 
-        setIsEditing(section)
-        setCurrentStudy(education)
+        setIsEditing(section);
+        setCurrentStudy(education);
 
         setModalState(!modalState);
-        setModalModeEdit(false)
+        setModalModeEdit(false);
     }
 
-    const removeStudy = (education) => {
-        setOpenDialog(true)
-        setEducationSelect(education);
+    const EditInfoExp = (section, exp) => {
+        setIsEditing(section);
+        setCurrentExperience(exp);
+
+        setModalExperience(!modalExperience);
+        setModalModeEdit(false);
     }
+
+    const removeSection = (education = null, experience = null) => {
+        setOpenDialog(true);
+        setIsExperience(experience ? true : false);
+        setEducationSelect(education);
+        setExperienceSelect(experience);
+    }
+
 
     const handleConfirm = async () => {
 
         try {
-            const response = await apiRequest('education/delete', 'DELETE', {id: educationSelect.id})
+            const endpoint = educationSelect ? 'education/delete' : 'experience/delete'
+            const idSection = educationSelect ? educationSelect.id : experinceSelect.id;
+            const response = await apiRequest(endpoint, 'DELETE', {id: idSection})
 
             if (response.status === 'success') {
                 toast({
                     title: (
                         <div className="flex items-center gap-2">
                             <CheckCircle className="h-5 w-5 text-green-500"/>
-                            <span>Estudio Eliminado</span>
+                            {educationSelect ? (
+                                <span>Estudio Eliminado</span>
+                            ) : (
+                                <span>Experiencia Eliminada</span>
+                            )}
                         </div>
                     ),
-                    description: "Estudio eliminado correctamente",
+                    description: educationSelect ? "Estudio eliminado correctamente" : "Experiencia eliminada correctamente",
                     variant: "default",
                     duration: 2000
                 })
                 UpdateChange();
                 setOpenDialog(false);
+                setIsExperience(false);
+                educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
             } else {
                 toast({
                     title: (
@@ -255,21 +290,28 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                             <span>Error al eliminar</span>
                         </div>
                     ),
-                    description: "Ha ocurrido un error al intentar eliminar el estudio",
+                    description: educationSelect ? "Ha ocurrido un error al intentar eliminar el estudio" : "Ha ocurrido un error al intentar eliminar la experiencia",
                     variant: "destructive",
                     duration: 2000
                 })
                 setOpenDialog(false);
+                setIsExperience(false);
+                educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
             }
 
         } catch (e) {
             console.log(e)
             setOpenDialog(false);
+            setIsExperience(false);
+            educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
         }
     };
 
     const handleCancel = () => {
         setOpenDialog(false);
+        setIsExperience(false);
+        setEducationSelect(null);
+        setExperienceSelect(null);
     };
 
     // Función para mostrar el tipo de ubicación con un icono apropiado
@@ -300,6 +342,34 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                 return null;
         }
     }
+
+
+    // Nuevo objeto para almacenar el estado actual de los carruseles
+    const [slideIndexes, setSlideIndexes] = useState({});
+
+    // Referencia para los plugins
+    const carouselApiRef = useRef({});
+    const pluginsRef = useRef({});
+
+    // Crear una instancia del plugin Autoplay para cada proyecto
+    projectsEdit.forEach((pro) => {
+        if (!pluginsRef.current[pro.id]) {
+            pluginsRef.current[pro.id] = Autoplay({delay: 3000, stopOnMouseEnter: true});
+        }
+    });
+
+    // Función para manejar el cambio de slide
+    const handleSlideChange = useCallback((projectId) => {
+        if (carouselApiRef.current[projectId]) {
+            const api = carouselApiRef.current[projectId];
+            const currentIndex = api.selectedScrollSnap() + 1; // +1 porque los índices empiezan en 0
+
+            setSlideIndexes(prev => ({
+                ...prev,
+                [projectId]: currentIndex
+            }));
+        }
+    }, []);
 
     useEffect(() => {
         UpdateChange();
@@ -527,6 +597,13 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                     <BriefcaseBusiness className="h-4 w-4"/>
                                     Mi Experiencia
                                 </TabsTrigger>
+                                <TabsTrigger
+                                    value="projects"
+                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                >
+                                    <FolderGit2 className="h-4 w-4"/>
+                                    Mis Proyectos
+                                </TabsTrigger>
                             </TabsList>
 
                             <TabsContent value="inicio" className="mt-6 shadow-lg">
@@ -751,156 +828,95 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                     <div className="gap-6">
                                         {/* Información General */}
                                         <div className="">
-                                            {isEditing === "studies" ? (
-                                                <div className="space-y-3">
+                                            <div className="space-y-4">
+                                                {educationEdit && educationEdit.length > 0 ? (
+                                                    educationEdit.map((studies) => (
+                                                        <Card
+                                                            className="overflow-hidden border border-gray-200 shadow-sm transition-all hover:shadow-md"
+                                                            key={studies.id || studies.institute}>
 
-                                                    <Input
-                                                        value={studentEdit.country}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            website: e.target.value
-                                                        })}
-                                                        placeholder="Sitio web"
-                                                    />
+                                                            <div className="p-5">
+                                                                <div className="flex items-start gap-4">
+                                                                    {/* Imagen a la izquierda */}
+                                                                    <div className="flex-shrink-0">
+                                                                        <Image
+                                                                            src={
+                                                                                studies.institution && studies.institution.logo
+                                                                                    ? studies.institution.logo
+                                                                                    : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiI8bK0w9ZqoX3JybXl_26MloLwBwjdsWLIw&s'
+                                                                            }
+                                                                            alt="Logo del instituto"
+                                                                            className="object-cover rounded"
+                                                                            width={80}
+                                                                            height={80}
+                                                                        />
+                                                                    </div>
 
-                                                    <Select
-                                                        closeMenuOnSelect={false}
-                                                        components={animatedComponents}
-                                                        options={sectors}
-                                                        isSearchable
-                                                        isMulti
-                                                        placeholder="Busca y selecciona..."
-                                                        getOptionLabel={(option) => option.name}
-                                                        getOptionValue={(option) => option.id}
-                                                        onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
-                                                            setStudentEdit({
-                                                                ...studentEdit,
-                                                                sectors: selectedOption
-                                                            })
-                                                        }}
-                                                    />
-                                                    <Input
-                                                        value={studentEdit.postal_code}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            postal_code: e.target.value
-                                                        })}
-                                                        placeholder="Tamaño"
-                                                    />
-                                                    <Input
-                                                        value={studentEdit.birthday}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            birthday: e.target.value
-                                                        })}
-                                                        placeholder="Año de fundación"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-4">
-                                                    {educationEdit && educationEdit.length > 0 ? (
-                                                        educationEdit.map((studies) => (
-                                                            <Card
-                                                                className="overflow-hidden border border-gray-200 shadow-sm transition-all hover:shadow-md"
-                                                                key={studies.id || studies.institute}>
-
-                                                                <div className="p-5">
-                                                                    <div className="flex items-start gap-4">
-                                                                        {/* Imagen a la izquierda */}
-                                                                        <div className="flex-shrink-0">
-                                                                            <Image
-                                                                                src={
-                                                                                    studies.institution && studies.institution.logo
-                                                                                        ? studies.institution.logo
-                                                                                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiI8bK0w9ZqoX3JybXl_26MloLwBwjdsWLIw&s'
-                                                                                }
-                                                                                alt="Logo del instituto"
-                                                                                className="object-cover rounded"
-                                                                                width={80}
-                                                                                height={80}
-                                                                            />
-                                                                        </div>
-
-                                                                        {/* Contenido a la derecha de la imagen */}
-                                                                        <div className="flex-grow">
-                                                                            <div
-                                                                                className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
-                                                                                {studies.institution_id ? (
-                                                                                    <Link
-                                                                                        href={`/profile/institution/${studies.institution.slug}`}
-                                                                                        passHref>
+                                                                    {/* Contenido a la derecha de la imagen */}
+                                                                    <div className="flex-grow">
+                                                                        <div
+                                                                            className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
+                                                                            {studies.institution_id ? (
+                                                                                <Link
+                                                                                    href={`/profile/institution/${studies.institution.slug}`}
+                                                                                    passHref>
                                                                                         <span
                                                                                             className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
                                                                                             {studies.institute}
                                                                                         </span>
-                                                                                    </Link>
-                                                                                ) : (
-                                                                                    <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
-                                                                                )}
+                                                                                </Link>
+                                                                            ) : (
+                                                                                <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
+                                                                            )}
 
-                                                                                <div
-                                                                                    className="flex items-center gap-5">
-                                                                                    {/* Fechas */}
-                                                                                    <span
-                                                                                        className="text-sm text-gray-500">
+                                                                            <div
+                                                                                className="flex items-center gap-5">
+                                                                                {/* Fechas */}
+                                                                                <span
+                                                                                    className="text-sm text-gray-500">
                                                                                         {studies.start_date} - {studies.end_date || "Cursando"}
                                                                                     </span>
 
-                                                                                    {/* Botón de editar */}
-                                                                                    <button
-                                                                                        onClick={() => EditInfo("study", studies)} // asegúrate de tener esta función
-                                                                                        className="text-blue-600 hover:text-blue-800"
-                                                                                    >
-                                                                                        <Pencil className="h-4 w-4"/>
-                                                                                    </button>
+                                                                                {/* Botón de editar */}
+                                                                                <button
+                                                                                    onClick={() => EditInfo("study", studies)} // asegúrate de tener esta función
+                                                                                    className="text-blue-600 hover:text-blue-800"
+                                                                                >
+                                                                                    <Pencil className="h-4 w-4"/>
+                                                                                </button>
 
-                                                                                    {/* Botón de eliminar */}
-                                                                                    <button
-                                                                                        onClick={() => removeStudy(studies)} // asegúrate de tener esta función
-                                                                                        className="text-red-600 hover:text-red-800"
-                                                                                    >
-                                                                                        <Trash className="h-4 w-4"/>
-                                                                                    </button>
-
-                                                                                    <ConfirmDialog
-                                                                                        open={openDialog}
-                                                                                        onOpenChange={setOpenDialog}
-                                                                                        title="¿Estás seguro?"
-                                                                                        description="Esta acción eliminará el estudio permanentemente."
-                                                                                        onConfirm={handleConfirm}
-                                                                                        onCancel={handleCancel}
-                                                                                        confirmText="Continuar"
-                                                                                        cancelText="Cancelar"
-                                                                                        icon={<TriangleAlert
-                                                                                            className="text-yellow-500"/>}
-                                                                                    />
-                                                                                </div>
+                                                                                {/* Botón de eliminar */}
+                                                                                <button
+                                                                                    onClick={() => removeSection(studies, null)} // asegúrate de tener esta función
+                                                                                    className="text-red-600 hover:text-red-800"
+                                                                                >
+                                                                                    <Trash className="h-4 w-4"/>
+                                                                                </button>
                                                                             </div>
-                                                                            <div
-                                                                                className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm inline-block font-medium mt-1">
-                                                                                {studies.degree}
-                                                                            </div>
+                                                                        </div>
+                                                                        <div
+                                                                            className="bg-blue-50 text-blue-700 px-2 py-1 rounded-md text-sm inline-block font-medium mt-1">
+                                                                            {studies.degree}
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </Card>
+                                                            </div>
+                                                        </Card>
 
-                                                        ))
-                                                    ) : (
-                                                        <div
-                                                            className="py-8 text-center border border-dashed border-gray-300 rounded-lg">
-                                                            <p className="text-gray-500">No hay estudios
-                                                                especificados</p>
-                                                            <button
-                                                                onClick={() => handleOpenModalAddStudies()}
-                                                                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                                                + Añadir educación
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                    ))
+                                                ) : (
+                                                    <div
+                                                        className="py-8 text-center border border-dashed border-gray-300 rounded-lg">
+                                                        <p className="text-gray-500">No hay estudios
+                                                            especificados</p>
+                                                        <button
+                                                            onClick={() => handleOpenModalAddStudies()}
+                                                            className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                            + Añadir educación
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
@@ -930,242 +946,275 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                     <div className="gap-6">
                                         {/* Información General */}
                                         <div className="">
-                                            {isEditing === "studies" ? (
-                                                <div className="space-y-3">
+                                            <div className="space-y-8">
+                                                {Object.keys(experienceEdit).map((expId) => {
+                                                    const experiences = experienceEdit[expId];
+                                                    const moreExperience = Array.isArray(experiences) && experiences.length > 1;
 
-                                                    <Input
-                                                        value={studentEdit.country}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            website: e.target.value
-                                                        })}
-                                                        placeholder="Sitio web"
-                                                    />
+                                                    // Si no es un array o está vacío, saltamos
+                                                    if (!Array.isArray(experiences) || experiences.length === 0) {
+                                                        return null;
+                                                    }
 
-                                                    <Select
-                                                        closeMenuOnSelect={false}
-                                                        components={animatedComponents}
-                                                        options={sectors}
-                                                        isSearchable
-                                                        isMulti
-                                                        placeholder="Busca y selecciona..."
-                                                        getOptionLabel={(option) => option.name}
-                                                        getOptionValue={(option) => option.id}
-                                                        onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
-                                                            setStudentEdit({
-                                                                ...studentEdit,
-                                                                sectors: selectedOption
-                                                            })
-                                                        }}
-                                                    />
-                                                    <Input
-                                                        value={studentEdit.postal_code}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            postal_code: e.target.value
-                                                        })}
-                                                        placeholder="Tamaño"
-                                                    />
-                                                    <Input
-                                                        value={studentEdit.birthday}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            birthday: e.target.value
-                                                        })}
-                                                        placeholder="Año de fundación"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="space-y-8">
-                                                    {Object.keys(experience_group).map((expId) => {
-                                                        const experiences = experience_group[expId];
-                                                        const moreExperience = Array.isArray(experiences) && experiences.length > 1;
+                                                    const companyName = experiences[0].company_name;
 
-                                                        // Si no es un array o está vacío, saltamos
-                                                        if (!Array.isArray(experiences) || experiences.length === 0) {
-                                                            return null;
-                                                        }
-
-                                                        const companyName = experiences[0].company_name;
-
-                                                        return (
-                                                            <div key={expId}
-                                                                 className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                    return (
+                                                        <div key={expId}
+                                                             className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                            <div
+                                                                className="flex items-center justify-between w-full mb-4">
                                                                 <div
-                                                                    className="flex items-center justify-between w-full mb-4">
-                                                                    <div
-                                                                        className="text-lg font-semibold">{companyName}</div>
+                                                                    className="text-lg font-semibold">{companyName}</div>
 
-                                                                </div>
-                                                                {moreExperience ? (
-                                                                        // Línea de tiempo para múltiples experiencias
-                                                                        <div className="relative pl-6">
-                                                                            {/* Línea vertical */}
-                                                                            <div
-                                                                                className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                                                            </div>
+                                                            {moreExperience ? (
+                                                                    // Línea de tiempo para múltiples experiencias
+                                                                    <div className="relative pl-6">
+                                                                        {/* Línea vertical */}
+                                                                        <div
+                                                                            className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                            {/* Experiencias */}
-                                                                            <div className="space-y-6">
-                                                                                {experiences.map((exp) => (
-                                                                                    <div key={exp.id} className="relative">
-                                                                                        {/* Punto en la línea de tiempo */}
+                                                                        {/* Experiencias */}
+                                                                        <div className="space-y-6">
+                                                                            {experiences.map((exp) => (
+                                                                                <div key={exp.id} className="relative">
+                                                                                    {/* Punto en la línea de tiempo */}
+                                                                                    <div
+                                                                                        className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+
+                                                                                    {/* Contenido de la experiencia */}
+                                                                                    <div
+                                                                                        className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
                                                                                         <div
-                                                                                            className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
-
-                                                                                        {/* Contenido de la experiencia */}
-                                                                                        <div
-                                                                                            className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
-                                                                                            <div
-                                                                                                className="flex justify-between items-start">
-                                                                                                <div>
-                                                                                                    <div
-                                                                                                        className="font-medium text-blue-800">{exp.department}
-                                                                                                    </div>
-
-                                                                                                    <div
-                                                                                                        className="font-medium text-gray-600">
-                                                                                                        {exp.start_date} - {exp.end_date}
-                                                                                                    </div>
-
-                                                                                                    <div
-                                                                                                        className="text-sm text-gray-700">{exp.employee_type}
-                                                                                                    </div>
+                                                                                            className="flex justify-between items-start">
+                                                                                            <div>
+                                                                                                <div
+                                                                                                    className="font-medium text-blue-800">{exp.department}
                                                                                                 </div>
 
                                                                                                 <div
-                                                                                                    className="flex space-x-2">
-                                                                                                    <button
-                                                                                                        onClick={() => onEdit && onEdit(exp)}
-                                                                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                                                                    >
-                                                                                                        <Pencil
-                                                                                                            className="h-4 w-4"/>
-                                                                                                    </button>
-                                                                                                    <button
-                                                                                                        onClick={() => onDelete && onDelete(exp)}
-                                                                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                                                    >
-                                                                                                        <Trash
-                                                                                                            className="h-4 w-4"/>
-                                                                                                    </button>
+                                                                                                    className="font-medium text-gray-600">
+                                                                                                    {exp.start_date} - {exp.end_date}
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    className="text-sm text-gray-700">{exp.employee_type}
                                                                                                 </div>
                                                                                             </div>
 
                                                                                             <div
-                                                                                                className="mt-2 flex items-center space-x-3">
-                                                                                                {renderLocationType(exp.location_type)}
-                                                                                                {exp.company_address && (
-                                                                                                    <span
-                                                                                                        className="text-sm text-gray-600">
-                                                                                                        {exp.company_address}
-                                                                                                    </span>
-                                                                                                )}
+                                                                                                className="flex space-x-2">
+                                                                                                <button
+                                                                                                    onClick={() => EditInfoExp("experience", exp)}
+                                                                                                    className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                                >
+                                                                                                    <Pencil
+                                                                                                        className="h-4 w-4"/>
+                                                                                                </button>
+                                                                                                <button
+                                                                                                    onClick={() => removeSection(null, exp)}
+                                                                                                    className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                                >
+                                                                                                    <Trash
+                                                                                                        className="h-4 w-4"/>
+                                                                                                </button>
+
                                                                                             </div>
                                                                                         </div>
+
+                                                                                        <div
+                                                                                            className="mt-2 flex items-center space-x-3">
+                                                                                            {renderLocationType(exp.location_type)}
+                                                                                            {exp.company_address && (
+                                                                                                <span
+                                                                                                    className="text-sm text-gray-600">
+                                                                                                        {exp.company_address}
+                                                                                                    </span>
+                                                                                            )}
+                                                                                        </div>
                                                                                     </div>
-                                                                                ))}
-                                                                            </div>
+                                                                                </div>
+                                                                            ))}
                                                                         </div>
+                                                                    </div>
 
-                                                                    ) :
-                                                                    (
-                                                                        // Tarjeta única para una sola experiencia
-                                                                        <div className="bg-gray-50 rounded-lg p-4">
-                                                                            {experiences.map((exp) => (
-                                                                                <div key={exp.id}>
-                                                                                    <div
-                                                                                        className="flex justify-between items-start">
-                                                                                        <div>
-                                                                                            <div
-                                                                                                className="font-medium text-gray-800">{exp.department}</div>
-                                                                                            <div
-                                                                                                className="text-sm text-gray-700">{exp.employee_type}</div>
-                                                                                        </div>
-
-                                                                                        <div className="flex space-x-2">
-                                                                                            <button
-                                                                                                onClick={() => onEdit && onEdit(exp)}
-                                                                                                className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                                                            >
-                                                                                                <Pencil
-                                                                                                    className="h-4 w-4"/>
-                                                                                            </button>
-                                                                                            <button
-                                                                                                onClick={() => onDelete && onDelete(exp)}
-                                                                                                className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                                            >
-                                                                                                <Trash
-                                                                                                    className="h-4 w-4"/>
-                                                                                            </button>
-                                                                                        </div>
+                                                                ) :
+                                                                (
+                                                                    // Tarjeta única para una sola experiencia
+                                                                    <div className="bg-gray-50 rounded-lg p-4">
+                                                                        {experiences.map((exp) => (
+                                                                            <div key={exp.id}>
+                                                                                <div
+                                                                                    className="flex justify-between items-start">
+                                                                                    <div>
+                                                                                        <div
+                                                                                            className="font-medium text-gray-800">{exp.department}</div>
+                                                                                        <div
+                                                                                            className="text-sm text-gray-700">{exp.employee_type}</div>
                                                                                     </div>
 
-                                                                                    <div
-                                                                                        className="mt-2 flex flex-wrap gap-3">
+                                                                                    <div className="flex space-x-2">
+                                                                                        <button
+                                                                                            onClick={() => EditInfoExp("experience", exp)}
+                                                                                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                        >
+                                                                                            <Pencil
+                                                                                                className="h-4 w-4"/>
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => removeSection(null, exp)}
+                                                                                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                        >
+                                                                                            <Trash
+                                                                                                className="h-4 w-4"/>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                <div
+                                                                                    className="mt-2 flex flex-wrap gap-3">
                                                                                         <span
                                                                                             className="flex items-center text-sm text-gray-500">
                                                                                             <Clock
                                                                                                 className="h-3 w-3 mr-1"/>
                                                                                             {exp.employee_type}
                                                                                         </span>
-                                                                                        {renderLocationType(exp.location_type)}
-                                                                                        {exp.company_address && (
-                                                                                            <span
-                                                                                                className="text-sm text-gray-600">
+                                                                                    {renderLocationType(exp.location_type)}
+                                                                                    {exp.company_address && (
+                                                                                        <span
+                                                                                            className="text-sm text-gray-600">
                                                                                                 {exp.company_address}
                                                                                             </span>
-                                                                                        )}
-                                                                                    </div>
+                                                                                    )}
                                                                                 </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    )}
-                                                            </div>
-                                                        )
-                                                    })}
-                                                </div>
-                                            )}
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
                                         </div>
                                     </div>
 
                                 </Card>
                             </TabsContent>
 
-                            <TabsContent value="empleados" className="mt-6">
-                                <Card className="p-6">
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h2 className="text-xl font-semibold">Personas empleadas</h2>
-                                        <div className="text-sm text-gray-500">1,234 empleados</div>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        {[1, 2, 3, 4, 5, 6].map((employee) => (
-                                            <div key={employee} className="flex gap-4 items-center">
-                                                <Avatar className="h-16 w-16">
-                                                    <img
-                                                        src={`https://images.unsplash.com/photo-${1500000000000 + employee}?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-                                                        alt="Employee"
-                                                        className="aspect-square h-full w-full"
-                                                    />
-                                                </Avatar>
-                                                <div>
-                                                    <h3 className="font-semibold">Juan Pérez</h3>
-                                                    <p className="text-gray-600">Software Engineer</p>
-                                                    <p className="text-sm text-gray-500">Madrid, España</p>
-                                                </div>
+                            <TabsContent value="projects" className="mt-6">
+
+                                {/* Card contenedora con menos padding para aprovechar espacio */}
+                                <Card className="p-4">
+                                    {/* Contenedor principal con grid para mejor distribución */}
+                                    <div
+                                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                        {projectsEdit.map((pro) => (
+                                            <div key={pro.id}>
+                                                <Card
+                                                    className="relative overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="relative">
+                                                        {pro.pictures ? (
+                                                            <Carousel
+                                                                plugins={[pluginsRef.current[pro.id]]}
+                                                                className="w-full"
+                                                                onMouseLeave={pluginsRef.current[pro.id].play}
+                                                                onInit={(api) => {
+                                                                    carouselApiRef.current[pro.id] = api;
+                                                                    handleSlideChange(pro.id);
+                                                                }}
+                                                                onSelect={() => handleSlideChange(pro.id)}
+                                                            >
+                                                                <CarouselContent>
+                                                                    {JSON.parse(pro.pictures).map((img, index) => (
+                                                                        <CarouselItem key={index}>
+                                                                            <div className="p-1">
+                                                                                <Card className="border-0 shadow-none">
+                                                                                    <CardContent
+                                                                                        className="flex aspect-square items-center justify-center p-4">
+                                                                                        <img
+                                                                                            key={index}
+                                                                                            src={img}
+                                                                                            alt={`Imagen ${index}`}
+                                                                                            className="w-full h-auto object-cover"
+                                                                                        />
+                                                                                    </CardContent>
+                                                                                </Card>
+                                                                            </div>
+                                                                        </CarouselItem>
+                                                                    ))}
+                                                                </CarouselContent>
+
+
+                                                                <div
+                                                                    className="py-2 text-center text-sm text-muted-foreground">
+                                                                    <span>Slide {slideIndexes[pro.id] || 1} of {JSON.parse(pro.pictures).length}</span>
+                                                                </div>
+
+                                                                {/* Flechas de navegación más pequeñas y discretas */}
+                                                                <div
+                                                                    className="absolute inset-y-0 left-0 flex items-center">
+                                                                    <CarouselPrevious
+                                                                        className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                </div>
+                                                                <div
+                                                                    className="absolute inset-y-0 right-0 flex items-center">
+                                                                    <CarouselNext
+                                                                        className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                </div>
+                                                            </Carousel>
+                                                        ) : (
+                                                            <div>
+                                                                <div
+                                                                    className="flex items-center justify-center aspect-square p-6 text-center text-gray-500 text-sm">
+                                                                    No hay imágenes disponibles.
+                                                                </div>
+
+                                                                <div
+                                                                    className="py-2 text-center text-sm text-muted-foreground">
+                                                                    <span>No hay imagenes</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Información del proyecto con espaciado optimizado */}
+                                                        <div className="p-3">
+                                                            <h3 className="font-semibold text-base">{pro.name}</h3>
+                                                            <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                                                                {pro.description}
+                                                            </p>
+                                                            <div
+                                                                className="flex items-center mt-2 text-xs text-gray-500">
+                                                                <Clock className="h-3 w-3 mr-1"/>
+                                                                <span>Finalizado: {pro.end_project}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Card>
                                             </div>
                                         ))}
                                     </div>
                                 </Card>
+
                             </TabsContent>
                         </Tabs>
                     </div>
                 </div>
             </div>
+            {/* Place the ConfirmDialog here, outside of any tabs */}
+            <ConfirmDialog
+                open={openDialog}
+                onOpenChange={setOpenDialog}
+                title="¿Estás seguro?"
+                description={isExperience ? "Esta acción eliminará la experiencia permanentemente." : "Esta acción eliminará el estudio permanentemente."}
+                onConfirm={handleConfirm}
+                onCancel={handleCancel}
+                confirmText="Continuar"
+                cancelText="Cancelar"
+                icon={<TriangleAlert className="text-yellow-500"/>}
+            />
             {
                 modalState && <ModalAddStudies
                     handleClose={handleCloseModal}
-                    isEditMode={modalModeEdit}
                     onSave={UpdateChange}
                     studentId={student.id}
                     initialData={currentStudy}
@@ -1177,8 +1226,8 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                     handleClose={handleCloseExperience}
                     onSave={UpdateChange}
                     studentId={student.id}
-                    initialData={{}}
-                    isEditing={false}
+                    initialData={currentExperience}
+                    isEditing={isEditing}
                 />
             }
         </>
