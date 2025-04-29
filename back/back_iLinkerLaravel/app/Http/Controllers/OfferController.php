@@ -167,4 +167,97 @@ class OfferController extends Controller
             ]);
         }
     }
+
+    public function applyUpdateStatus(Request $request)
+    {
+        $rules = [
+            'offer_id' => 'required',
+            'user_id' => 'required',
+            'status' => 'required'
+        ];
+
+        $messages = [
+            'offer_id.required' => 'El campo oferta es obligatorio',
+            'user_id.required' => 'El campo usuario es obligatorio',
+            'status.required' => 'El campo status es obligatorio',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Faltan campos obligatorios o tienen errores',
+                'errors' => $validator->errors()
+            ]);
+        }
+
+        try{
+            Log::info($request);
+            $userUpdatedStatus = OfferUser::where('offer_id', $request->offer_id)
+                ->where('user_id', $request->user_id)
+                ->first();
+
+            $userUpdatedStatus->status = $request->status;
+            $userUpdatedStatus->save();
+
+            $offer = $userUpdatedStatus
+                ->offer
+                ->load([
+                    'usersInterested',
+                    'usersAccepted',
+                    'usersPending',
+                    'company',
+                    'usersInterested.student',
+                    'usersInterested.student.skills',
+                    'usersInterested.student.education',
+                ]);
+
+            if($request->status === 'accept'){
+                Log::info("han aceptado al aplicante");
+                $accepted = $offer->usersAccepted;
+                Log::info($accepted);
+                Log::info("Accepted count:", ['count' => $accepted->count()]);
+                if($offer->vacancies <= $accepted->count()){
+                    Log::info("HA LLEGADO AL LIMITE DE ACEPTADOS PARA LA OFERTA");
+                    $offerData = Offer::where('id', $offer->id)->first();
+                    //si la oferta esta en -1 de active significa que llego al maximo de aceptados.
+                    $offerData->active = -1;
+                    $offerData->save();
+
+                    foreach ($offer->usersPending as $userPendig) {
+                        Log::info($userPendig);
+                        $offerUserPending = OfferUser::where('offer_id', $offer->id)
+                            ->where('user_id', $userPendig->id)
+                            ->first();
+                        Log::info($offerUserPending);
+                        $offerUserPending->status = "rejected";
+                        $offerUserPending->save();
+                    }
+                }
+            }
+
+            $offer = $userUpdatedStatus
+                ->offer
+                ->load([
+                    'usersInterested',
+                    'usersAccepted',
+                    'usersPending',
+                    'company',
+                    'usersInterested.student',
+                    'usersInterested.student.skills',
+                    'usersInterested.student.education',
+                ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Oferta actualizada correctamente',
+                'offer' => $offer,
+            ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
 }

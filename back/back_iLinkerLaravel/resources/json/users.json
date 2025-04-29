@@ -3,7 +3,27 @@
         "name": "Carlos",
         "surname": "García",
         "birthday": "1990-05-15",
-        "email": "a23purpatmah@inspedralbes.cat",
+        "email": "student1@gmail.com",
+        "active": true,
+        "email_verified_at": "2024-02-01 12:00:00",
+        "password": "1234",
+        "rol": "student"
+    },
+    {
+        "name": "Juan",
+        "surname": "García",
+        "birthday": "1990-05-15",
+        "email": "student2@gmail.com",
+        "active": true,
+        "email_verified_at": "2024-02-01 12:00:00",
+        "password": "1234",
+        "rol": "student"
+    },
+    {
+        "name": "Manuel",
+        "surname": "Carrasco",
+        "birthday": "1990-05-15",
+        "email": "student3@gmail.com",
         "active": true,
         "email_verified_at": "2024-02-01 12:00:00",
         "password": "1234",

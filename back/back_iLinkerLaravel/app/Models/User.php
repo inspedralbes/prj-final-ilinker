@@ -88,4 +88,54 @@ class User extends Authenticatable
     {
         return $this->HasMany(StudentProject::class, 'user_id');
     }
+
+    // Relación con los chat rooms que el usuario ha creado
+    public function createdChatRooms()
+    {
+        return $this->hasMany(ChatRoom::class, 'created_by');
+    }
+
+    // Relación con los chat rooms a los que pertenece el usuario
+    public function chatRooms()
+    {
+        return $this->belongsToMany(ChatRoom::class, 'chat_room_user')
+            ->withPivot('role', 'last_read_at')
+            ->withTimestamps();
+    }
+
+    // Relación con los mensajes enviados por el usuario
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'sender_id');
+    }
+
+    // Relación con los chats directos donde el usuario es el primer participante
+    public function directChatsAsUserOne()
+    {
+        return $this->hasMany(DirectChat::class, 'user_one_id');
+    }
+
+    // Relación con los chats directos donde el usuario es el segundo participante
+    public function directChatsAsUserTwo()
+    {
+        return $this->hasMany(DirectChat::class, 'user_two_id');
+    }
+
+    // Método para obtener todos los chats directos del usuario
+    public function directChats()
+    {
+        return $this->directChatsAsUserOne->merge($this->directChatsAsUserTwo);
+    }
+
+    // Método para obtener un chat directo con otro usuario específico
+    public function getDirectChatWith($userId)
+    {
+        return DirectChat::where(function ($query) use ($userId) {
+            $query->where('user_one_id', $this->id)
+                ->where('user_two_id', $userId);
+        })->orWhere(function ($query) use ($userId) {
+            $query->where('user_one_id', $userId)
+                ->where('user_two_id', $this->id);
+        })->first();
+    }
 }

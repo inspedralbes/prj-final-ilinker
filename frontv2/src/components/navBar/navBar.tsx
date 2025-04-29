@@ -15,6 +15,7 @@ import Image from "next/image";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import socket from "@/services/websockets/sockets";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -259,6 +260,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             onClick={() => {
               logout();
               setIsOpen(false);
+              socket.emit('logout');
             }}
           >
             <svg

@@ -4,7 +4,7 @@ import { Building2, MapPin, Globe, Users } from "lucide-react";
 import ApplicantCard from "@/components/profile/company/offer/ApplicantCard";
 
 import { useParams } from "next/navigation";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "@/contexts/AuthContext";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
@@ -78,36 +78,54 @@ export default function OfferDetail() {
   const [offer, setOffer] = useState(mockOffer);
   const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
-  const handleStatusUpdate = (id: number, status: 'accepted' | 'rejected') => {
+  const handleStatusUpdate = (id: number, status: "accept" | "rejected") => {
     console.log(`Applicant ${id} status updated to ${status}`);
-    
-  };
-
-  useEffect(()=>{
-
-  }, [applicants])
-
-  useEffect(() => {
-      showLoader();
-      if (!userData) {
-        router.push("/auth/login");
-      }
-
-      apiRequest(`offers/${id}`)
-      .then((response)=>{
-        if(response.status === 'success'){
-          console.log(response)
+    showLoader();
+    apiRequest("offers/apply/update/status", "POST", {
+      user_id: id,
+      offer_id: offer.id,
+      status: status,
+    })
+      .then((response) => {
+        console.log(response);
+        if (response.status === "success") {
           response.offer.skills = JSON.parse(response.offer.skills);
           setOffer(response.offer);
           setApplicants(response.offer.users_interested);
         }
-      }).catch((err) =>{
-        console.error(err)
-      }).finally(()=>{
-        hideLoader();
       })
-  
-    }, [userData]);
+      .catch((error) => {
+        console.error(error);
+      })
+      .finally(() => {
+        hideLoader();
+      });
+  };
+
+  useEffect(() => {}, [applicants]);
+
+  useEffect(() => {
+    showLoader();
+    if (!userData) {
+      router.push("/auth/login");
+    }
+
+    apiRequest(`offers/${id}`)
+      .then((response) => {
+        if (response.status === "success") {
+          console.log(response);
+          response.offer.skills = JSON.parse(response.offer.skills);
+          setOffer(response.offer);
+          setApplicants(response.offer.users_interested);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        hideLoader();
+      });
+  }, [userData]);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="bg-white rounded-lg overflow-hidden">

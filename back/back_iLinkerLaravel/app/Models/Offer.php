@@ -22,8 +22,34 @@ class Offer extends Model
     {
         return $this
             ->belongsToMany(User::class, 'offer_users', 'offer_id', 'user_id')
-            ->withPivot('status')       // <-- aquí le indicas que traiga el campo status
+            ->withPivot(['status', 'cv_attachment', 'cover_letter_attachment', 'availability'])       // <-- aquí le indicas que traiga el campo status
             ->withTimestamps();         // opcional, si tu pivot tiene created_at/updated_at
     }
 
+    public function usersAccepted()
+    {
+        return $this
+            ->belongsToMany(User::class, 'offer_users', 'offer_id', 'user_id')
+            ->withPivot(['status', 'cv_attachment', 'cover_letter_attachment', 'availability'])
+            ->wherePivot('status', 'accept')
+            ->withTimestamps();
+    }
+
+    public function usersDeclined()
+    {
+        return $this
+            ->belongsToMany(User::class, 'offer_users', 'offer_id', 'user_id')
+            ->withPivot(['status', 'cv_attachment', 'cover_letter_attachment', 'availability'])
+            ->wherePivot('status', 'rejected')
+            ->withTimestamps();
+    }
+
+    public function usersPending()
+    {
+        return $this
+            ->belongsToMany(User::class, 'offer_users', 'offer_id', 'user_id')
+            ->withPivot(['status', 'cv_attachment', 'cover_letter_attachment', 'availability'])
+            ->wherePivot('status', 'pending')
+            ->withTimestamps();
+    }
 }

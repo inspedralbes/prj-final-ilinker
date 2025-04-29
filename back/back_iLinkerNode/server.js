@@ -4,7 +4,7 @@ const UserController = require('./Controllers/UserController');
 const SocketController = require('./Controllers/SocketController');
 
 const app = express();
-const port = 3000;
+const port = 3777;
 
 app.use(express.json());
 

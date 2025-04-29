@@ -38,6 +38,7 @@ import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { useRouter } from "next/navigation";
+import config from "@/types/config";
 
 export default function CompanyClientMe({
   company,
@@ -163,8 +164,6 @@ export default function CompanyClientMe({
   const [modalState, setModalState] = useState(false);
   const { hideLoader, showLoader } = useContext(LoaderContext);
 
-  const API_PATH_IMG = "http://localhost:8000/storage/";
-
   const handleEdit = (section: string) => {
     setIsEditing(section);
   };
@@ -283,7 +282,7 @@ export default function CompanyClientMe({
           <img
             src={
               companyEdited?.cover_photo
-                ? `${API_PATH_IMG}${companyEdited.cover_photo}`
+                ? `${config.storageUrl}${companyEdited.cover_photo}`
                 : coverImage
             }
             alt="Cover"
@@ -311,7 +310,7 @@ export default function CompanyClientMe({
                       className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
                       src={
                         companyEdited?.logo
-                          ? `${API_PATH_IMG}${companyEdited.logo}`
+                          ? `${config.storageUrl}${companyEdited.logo}`
                           : logoImage
                       }
                       alt={companyEdited?.logo}

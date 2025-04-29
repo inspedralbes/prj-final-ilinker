@@ -18,7 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AuthContext } from "@/contexts/AuthContext";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
-
+import socket from "@/services/websockets/sockets";
 
 const Login: React.FC = () => {
     const router = useRouter();
@@ -68,6 +68,7 @@ const Login: React.FC = () => {
 
                 if (response.status === "success") {
                     router.push("/search");
+                    socket.emit('login', { userData: response.user });
                     login(response.token, response.user);
                 } else {
                     setApiError("Correu electrònic o contrasenya incorrectes");

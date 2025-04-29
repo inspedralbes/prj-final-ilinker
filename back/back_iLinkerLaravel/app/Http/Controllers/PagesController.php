@@ -48,6 +48,7 @@ class PagesController extends Controller
     {
         try{
             $latestOffers = Offer::with(['company'])
+                ->where('active', 1)
                 ->latest()
                 ->get();
 
