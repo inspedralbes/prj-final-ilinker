@@ -75,11 +75,16 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         const response = await apiRequest('skills/', 'GET')
         console.log('Skills data received:', response);
 
-        if (response.status === 'success') {
-          setAvailableSkills(response.skills)
+        if (response.status === 'success' && response.data && Array.isArray(response.data)) {
+          console.log('Setting skills:', response.data);
+          setAvailableSkills(response.data)
+        } else {
+          console.log('Invalid skills data structure:', response);
+          setAvailableSkills([])
         }
       } catch (error) {
         console.error('Error fetching skills:', error)
+        setAvailableSkills([])
       }
     }
     fetchSkills()
@@ -469,8 +474,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                     className="flex-1 border rounded px-2 py-1 mr-2"
                   >
                     <option value=" ">Seleccionar una especialidad</option>
-
-                    {availableSkills.map((skill) => (
+                    {Array.isArray(availableSkills) && availableSkills.map((skill) => (
                       <option key={skill.id} value={skill.name}>
                         {skill.name}
                       </option>
