@@ -72,7 +72,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const response = await apiRequest('skill/all', 'GET')
+        const response = await apiRequest('skills', 'GET')
         if (response.status === 'success') {
           setAvailableSkills(response.skills)
         }

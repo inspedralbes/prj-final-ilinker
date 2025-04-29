@@ -35,16 +35,28 @@ interface Institution {
 
 async function getInstitution(slug: string): Promise<Institution | null> {
     try {
-        const response = await apiRequest(
-            'institution/' + slug,
-            'GET'
-        );
-        console.log('Institution data received:', response);
-        if (response.status === 'error') {
-            console.error('Error from backend:', response.message);
+        const cookieStore = await cookies();
+        const token = cookieStore.get('authToken')?.value;
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+        const response = await fetch(`${apiUrl}/institution/${slug}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            cache: 'no-store'
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Error from backend:', errorData.message);
             return null;
         }
-        return response.data;
+
+        const data = await response.json();
+        console.log('Institution data received:', data);
+        return data.data;
     } catch (error) {
         console.error('Error fetching institution:', error);
         return null;
@@ -58,7 +70,7 @@ interface PageProps {
 }
 
 export default async function InstitutionPage({ params }: PageProps) {
-    const { slug } = params;
+    const slug = await params.slug;
     const institution = await getInstitution(slug);
     
     console.log('Rendering institution page for:', slug);
