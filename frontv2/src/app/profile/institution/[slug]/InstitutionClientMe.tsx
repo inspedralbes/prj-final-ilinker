@@ -72,7 +72,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const response = await apiRequest('skill/', 'GET')
+        const response = await apiRequest('skills/', 'GET')
+        console.log('Skills data received:', response);
+
         if (response.status === 'success') {
           setAvailableSkills(response.skills)
         }
@@ -466,7 +468,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                     }}
                     className="flex-1 border rounded px-2 py-1 mr-2"
                   >
-                    <option value="">Seleccionar una especialidad</option>
+                    <option value=" ">Seleccionar una especialidad</option>
+
                     {availableSkills.map((skill) => (
                       <option key={skill.id} value={skill.name}>
                         {skill.name}
