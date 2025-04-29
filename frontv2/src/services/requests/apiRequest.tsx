@@ -14,13 +14,21 @@ export async function apiRequest(
     let token: string | undefined;
     if (typeof window !== "undefined") {
       token = Cookies.get("authToken");
+      console.log("Token from cookies:", token); // Debug token
     }
 
     // Preparamos headers comunes
     const headers: Record<string, string> = {
       Accept: "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
+    
+    // Solo agregamos el token si existe
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+      console.log("Authorization header added:", headers.Authorization);
+    }
+
+    console.log("Request headers:", headers); // Debug headers
 
     const options: RequestInit = {
       method,
@@ -36,16 +44,22 @@ export async function apiRequest(
       options.body = JSON.stringify(body);
     }
 
-    // Asegurarse de que no haya barras diagonales duplicadas en la URL
+    // Formatear la URL correctamente
     const baseUrl = routeApi.endsWith('/') ? routeApi.slice(0, -1) : routeApi;
     const apiEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = `${baseUrl}${apiEndpoint}`;
+    
+    console.log("Request URL:", url); // Debug URL
 
     const response = await fetch(url, options);
 
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        console.error("Authentication error: Token invalid or expired");
+        throw new Error("No autorizado. Por favor, inicie sesión de nuevo.");
+      }
       if (response.status === 422 && data.errors) {
         // Handle validation errors
         const errorMessages = Object.values(data.errors).flat().join('\n');

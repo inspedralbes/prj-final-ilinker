@@ -31,17 +31,22 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkAuth = async () => {
     const token = Cookies.get('authToken')
+    
+    if (!token) {
+      setIsLoading(false);
+      return;
+    }
 
-    try{
+    try {
       const response = await apiRequest('auth/check');
-
-      if(response.status === 'success'){
+      
+      if (response.status === 'success') {
         login(token, response.user)
       }
-    }catch(e){
+    } catch(e) {
       console.error("Error checking auth:", e);
       logout();
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   }
