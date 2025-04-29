@@ -1,0 +1,29 @@
+[
+    {
+        "name": "Instituto Pedralbes",
+        "NIF": "D98765432",
+        "responsible_name": "Ana Torres",
+        "responsible_email": "ana.torres@example.com",
+        "location": "Zona Universitat",
+        "city": "Barcelona",
+        "about": "El Institut Pedralbes és un centre públic de Barcelona que ofereix ESO, batxillerat i cicles formatius de grau mitjà i superior, especialment en àmbits com informàtica i administració. El centre col·labora amb empreses per facilitar les pràctiques dels alumnes i promoure la inserció laboral, tant en formació en centres de treball (FCT) com en formació dual.",
+        "slogan": "Innovación y conocimiento",
+        "type": "Educativo",
+        "academic_sector": "Educación Superior",
+        "size": "Mediana",
+        "sector": "Educación",
+        "founded_year": "2000",
+        "languages": ["es", "en"],
+        "logo": "url_del_logo",
+        "cover": "url_del_cover",
+        "website": "http://www.institutopedralbes.com",
+        "phone": 934567890,
+        "email": "info@institutopedralbes.com",
+        "responsible_phone": 600456789,
+        "institution_position": "Centro de excelencia académica",
+        "address": "Avenida de la Universitat, 15",
+        "country": "España",
+        "postal_code": "08025",
+        "user_id": 3
+    }
+]
