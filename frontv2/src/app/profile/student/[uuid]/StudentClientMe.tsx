@@ -33,7 +33,8 @@ import React, {useEffect, useState, useCallback} from "react";
 import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
-import ModalAddExperience from "@/app/profile/student/[uuid]/ModalAddExperience"
+import ModalAddExperience from "@/app/profile/student/[uuid]/ModalAddExperience";
+import ModalAddProjects from "@/app/profile/student/[uuid]/ModalAddProjects";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {toast} from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/dialog/confirmDialog";
@@ -43,6 +44,7 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
+    type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import {useRef} from "react";
@@ -194,13 +196,18 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
     const [modalState, setModalState] = useState(false);
     const [modalExperience, setModalExperience] = useState(false);
+    const [modalProjects, setModalProjects] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
     const [currentStudy, setCurrentStudy] = useState(null);
     const [currentExperience, setCurrentExperience] = useState(null);
+    const [currentProject, setCurrentProject] = useState(null);
     const [openDialog, setOpenDialog] = useState(false);
     const [educationSelect, setEducationSelect] = useState(null);
     const [experinceSelect, setExperienceSelect] = useState(null);
     const [isExperience, setIsExperience] = useState(false);
+    const [carouselStates, setCarouselStates] = useState({});
+
+    const API_PATH_IMG = "http://localhost:8000";
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
@@ -211,6 +218,11 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const openModalExperience = (experience) => {
         console.log(experience);
         setModalExperience(!modalExperience);
+        setModalModeEdit(false);
+    }
+    const openModalProjects = (project) => {
+        console.log(project);
+        setModalProjects(!modalProjects);
         setModalModeEdit(false);
     }
 
@@ -224,10 +236,16 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setModalModeEdit(false);
     }
 
+    const handleCloseProject = () => {
+        setModalProjects(false);
+        setModalModeEdit(false);
+    }
+
     const UpdateChange = async () => {
         const response = await apiRequest(`student/` + uuid)
         setEducationEdit(response.student.education);
         setExperienceEdit(response.experience_grouped);
+        setProjectEdit(response.student.projects);
     }
 
     const EditInfo = (section, education) => {
@@ -244,6 +262,14 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setCurrentExperience(exp);
 
         setModalExperience(!modalExperience);
+        setModalModeEdit(false);
+    }
+
+    const editInfoPro = (section, pro) => {
+        setIsEditing(section);
+        setCurrentProject(pro);
+
+        setModalProjects(!modalProjects);
         setModalModeEdit(false);
     }
 
@@ -344,11 +370,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     }
 
 
-    // Nuevo objeto para almacenar el estado actual de los carruseles
-    const [slideIndexes, setSlideIndexes] = useState({});
-
     // Referencia para los plugins
-    const carouselApiRef = useRef({});
     const pluginsRef = useRef({});
 
     // Crear una instancia del plugin Autoplay para cada proyecto
@@ -358,18 +380,23 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         }
     });
 
-    // Función para manejar el cambio de slide
-    const handleSlideChange = useCallback((projectId) => {
-        if (carouselApiRef.current[projectId]) {
-            const api = carouselApiRef.current[projectId];
-            const currentIndex = api.selectedScrollSnap() + 1; // +1 porque los índices empiezan en 0
 
-            setSlideIndexes(prev => ({
+    // Función para actualizar el estado de un carrusel específico
+    const updateCarouselState = (projectId, api) => {
+        if (!api) return;
+
+        api.on("select", () => {
+            setCarouselStates(prev => ({
                 ...prev,
-                [projectId]: currentIndex
+                [projectId]: {
+                    current: api.selectedScrollSnap() + 1,
+                    count: api.scrollSnapList().length
+                }
             }));
-        }
-    }, []);
+        });
+
+    };
+
 
     useEffect(() => {
         UpdateChange();
@@ -1103,8 +1130,28 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
                             <TabsContent value="projects" className="mt-6">
 
+
                                 {/* Card contenedora con menos padding para aprovechar espacio */}
                                 <Card className="p-4">
+
+                                    <div className="flex justify-between items-center mb-4">
+
+                                        <h2 className="text-xl font-semibold mb-4">Proyectos
+                                            de {studentEdit.name}</h2>
+
+                                        {/* Botón para añadir una nueva oferta */}
+                                        <div className="flex justify-end">
+                                            <Button
+                                                variant="default"
+                                                className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
+                                                onClick={() => openModalProjects()}
+                                            >
+                                                <Plus className="h-5 w-5"/>
+                                            </Button>
+                                        </div>
+
+                                    </div>
+
                                     {/* Contenedor principal con grid para mejor distribución */}
                                     <div
                                         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -1118,11 +1165,9 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                 plugins={[pluginsRef.current[pro.id]]}
                                                                 className="w-full"
                                                                 onMouseLeave={pluginsRef.current[pro.id].play}
-                                                                onInit={(api) => {
-                                                                    carouselApiRef.current[pro.id] = api;
-                                                                    handleSlideChange(pro.id);
+                                                                setApi={(api) => {
+                                                                    updateCarouselState(pro.id, api);
                                                                 }}
-                                                                onSelect={() => handleSlideChange(pro.id)}
                                                             >
                                                                 <CarouselContent>
                                                                     {JSON.parse(pro.pictures).map((img, index) => (
@@ -1133,21 +1178,23 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                         className="flex aspect-square items-center justify-center p-4">
                                                                                         <img
                                                                                             key={index}
-                                                                                            src={img}
+                                                                                            src={API_PATH_IMG + img}
                                                                                             alt={`Imagen ${index}`}
                                                                                             className="w-full h-auto object-cover"
                                                                                         />
+
                                                                                     </CardContent>
                                                                                 </Card>
                                                                             </div>
                                                                         </CarouselItem>
+
                                                                     ))}
                                                                 </CarouselContent>
 
 
                                                                 <div
                                                                     className="py-2 text-center text-sm text-muted-foreground">
-                                                                    <span>Slide {slideIndexes[pro.id] || 1} of {JSON.parse(pro.pictures).length}</span>
+                                                                    <span>Slide {carouselStates[pro.id]?.current || 1} of {JSON.parse(pro.pictures).length}</span>
                                                                 </div>
 
                                                                 {/* Flechas de navegación más pequeñas y discretas */}
@@ -1178,7 +1225,41 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
                                                         {/* Información del proyecto con espaciado optimizado */}
                                                         <div className="p-3">
-                                                            <h3 className="font-semibold text-base">{pro.name}</h3>
+                                                            <div
+                                                                className="flex items-center">
+
+                                                                {pro.link ? (
+                                                                        <a
+                                                                            href={pro.link}
+                                                                            target={"_blank"}
+                                                                        >
+                                                                            <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
+                                                                        </a>
+
+                                                                    ) :
+                                                                    (
+                                                                        <h3 className="font-semibold text-base">{pro.name}</h3>
+                                                                    )
+                                                                }
+                                                                <div className="flex space-x-2 ml-auto">
+                                                                    <button
+                                                                        onClick={() => editInfoPro("experience", pro)}
+                                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                    >
+                                                                        <Pencil
+                                                                            className="h-4 w-4"/>
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => removeSection(null, pro)}
+                                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                    >
+                                                                        <Trash
+                                                                            className="h-4 w-4"/>
+                                                                    </button>
+                                                                </div>
+
+                                                            </div>
+
                                                             <p className="text-xs text-gray-600 line-clamp-2 mt-1">
                                                                 {pro.description}
                                                             </p>
@@ -1188,6 +1269,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                 <span>Finalizado: {pro.end_project}</span>
                                                             </div>
                                                         </div>
+
                                                     </div>
                                                 </Card>
                                             </div>
@@ -1218,6 +1300,15 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                     onSave={UpdateChange}
                     studentId={student.id}
                     initialData={currentStudy}
+                    isEditing={isEditing}
+                />
+            },
+            {
+                modalProjects && <ModalAddProjects
+                    handleClose={handleCloseProject}
+                    onSave={UpdateChange}
+                    studentId={student.id}
+                    initialData={currentProject}
                     isEditing={isEditing}
                 />
             },

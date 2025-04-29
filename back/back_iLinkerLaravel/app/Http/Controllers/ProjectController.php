@@ -18,20 +18,11 @@ class ProjectController extends Controller
     public function create(Request $request)
     {
 
-        $validate = $request->validate([
-            'user_id' => 'required',
-            'name' => 'required',
-            'description' => 'required',
-            'link' => 'required',
-            'pictures' => 'required',
-            'end_project' => 'required',
-        ]);
-
         DB::beginTransaction();
 
         try {
 
-            $project = $this->projectService->createProject($validate);
+            $project = $this->projectService->createProject($request);
 
             if (!$project) {
                 Db::rollBack();
