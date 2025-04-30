@@ -19,5 +19,26 @@
         "city": "Madrid",
         "postal_code": 28001,
         "country": "España"
+    },
+    {
+        "user_id": 2,
+        "name": "Innovatech Global S.A.",
+        "slug": "innovatech-global-s-a",
+        "CIF": "B87654321",
+        "num_people": 120,
+        "logo": "innovatech_logo.png",
+        "short_description": "Empresa dedicada a la innovación tecnológica y transformación digital.",
+        "description": "Innovatech Global ofrece soluciones integrales en inteligencia artificial, big data y automatización de procesos.",
+        "email": "info@innovatechglobal.com",
+        "phone": 911223344,
+        "website": "https://www.innovatechglobal.com",
+        "responsible_name": "Carlos Gómez",
+        "responsible_phone": 699887766,
+        "responsible_email": "carlos.gomez@innovatechglobal.com",
+        "company_position": "Director de Tecnología",
+        "address": "Avenida de la Ciencia 25",
+        "city": "Barcelona",
+        "postal_code": 28001,
+        "country": "España"
     }
 ]

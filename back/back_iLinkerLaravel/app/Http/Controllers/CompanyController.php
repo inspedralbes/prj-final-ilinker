@@ -48,7 +48,7 @@ class CompanyController extends Controller
         if ($request->hasFile('cover_photo')) {
             $fileName = "cover_photo_{$company->id}." . $request->file('cover_photo')->getClientOriginalExtension();
             $path = $request->file('cover_photo')->move(storage_path('app/public/companies'), $fileName);
-                $data['cover_photo'] = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
+            $data['cover_photo'] = "companies/{$fileName}"; // Ruta relativa para servirla correctamente
         }
 
         $company->update($data);
@@ -97,15 +97,31 @@ class CompanyController extends Controller
 
         if (!$company) {
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Company not found'
             ]);
         }
 
         return response()->json([
-            'status'  => 'success',
+            'status' => 'success',
             'company' => $company
         ]);
+    }
+
+    public function allCompanies()
+    {
+        try {
+            $companies = $this->companyService->allCompanys();
+
+            if (!$companies) {
+                return response()->json(['status' => 'error', 'message' => 'Company not found 222']);
+            }
+
+            return response()->json(['status' => 'success', 'companies' => $companies]);
+
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
     }
 
     public function checkCompanyUser(Request $request)
@@ -122,9 +138,9 @@ class CompanyController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => 'Faltan campos obligatorios o tienen errores',
-                'errors'  => $validator->errors()
+                'errors' => $validator->errors()
             ], 422);
         }
 
@@ -135,19 +151,18 @@ class CompanyController extends Controller
 
             $companyToCheck = Company::with(['sectors', 'skills', 'offers'])->findOrFail($idCompany);
 
-            if($idUserLoged === null)
-            {
+            if ($idUserLoged === null) {
                 return response()->json([
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'El usuario no es dueño de la compañia',
                     'admin' => false,
                     'company' => $companyToCheck
                 ]);
             }
 
-            if($companyToCheck->user_id === $idUserLoged){
+            if ($companyToCheck->user_id === $idUserLoged) {
                 return response()->json([
-                    'status'  => 'success',
+                    'status' => 'success',
                     'message' => 'El usuario es dueño de la compañia',
                     'admin' => true,
                     'company' => $companyToCheck
@@ -155,16 +170,16 @@ class CompanyController extends Controller
             }
 
             return response()->json([
-                'status'  => 'success',
+                'status' => 'success',
                 'message' => 'El usuario no es dueño de la compañia',
                 'admin' => false,
                 'company' => $companyToCheck
             ]);
 
 
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => $e->getMessage()
             ]);
         }

@@ -7,8 +7,8 @@
         "employee_type": "Tiempo Completo",
         "company_address": "Av. Principal 123, Ciudad",
         "location_type": "remoto",
-        "created_at": "2025-04-02 12:00:00",
-        "updated_at": "2025-04-02 12:00:00"
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
     },
     {
         "student_id": 1,
@@ -18,8 +18,8 @@
         "employee_type": "Medio Tiempo",
         "company_address": "Calle Secundaria 45, Ciudad",
         "location_type": "presencial",
-        "created_at": "2025-04-02 12:10:00",
-        "updated_at": "2025-04-02 12:10:00"
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
     },
     {
         "student_id": 1,
@@ -29,7 +29,18 @@
         "employee_type": "Independiente",
         "company_address": null,
         "location_type": "hibrido",
-        "created_at": "2025-04-02 12:20:00",
-        "updated_at": "2025-04-02 12:20:00"
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    },
+    {
+        "student_id": 1,
+        "company_id": 2,
+        "company_name": "Innovatech Global S.A.",
+        "department": "Desarrollo de Software 2",
+        "employee_type": "Tiempo parcial",
+        "company_address": "Av. Principal 123, Ciudad",
+        "location_type": "remoto",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
     }
 ]

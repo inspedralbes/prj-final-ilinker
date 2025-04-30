@@ -39,6 +39,8 @@ Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
 // Group company but it not necessary to be logged
 Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
+Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
+Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
@@ -54,7 +56,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/student')->group(function () {
         Route::post('update', [StudentController::class, 'update'])->name('student.update');
         Route::post('delete', [StudentController::class, 'delete'])->name('student.delete');
-        Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
         Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
         Route::post('/getEducationById', [StudentController::class, 'getEducationById'])->name('get.education');
         Route::get('/offer/get-data', [StudentController::class, 'getOfferData'])->name('get.offer.data');

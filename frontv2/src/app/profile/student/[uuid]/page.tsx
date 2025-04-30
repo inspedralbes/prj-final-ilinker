@@ -10,7 +10,7 @@ export default async function StudentPage({ params }: { params: { uuid: string }
     console.log(response)
 
     if(response.status === 'success'){
-        return <StudentClient uuid={uuid} student={response.student}/>
+        return <StudentClient uuid={uuid} student={response.student} experience_group={response.experience_grouped}/>
     }else{
         return <StudentDoesntExist />
     }
