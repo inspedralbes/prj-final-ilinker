@@ -76,6 +76,7 @@ Route::prefix('/institution')->group(function () {
         Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
     });
 });
     Route::prefix('/institution')->group(function () {

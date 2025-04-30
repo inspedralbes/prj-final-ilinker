@@ -272,4 +272,36 @@ class InstitutionController extends Controller
             'data' => $responseData
         ]);
     }
+
+    public function checkOwner(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id',
+                'institution_id' => 'required|exists:institutions,id'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $institution = Institutions::findOrFail($request->institution_id);
+            $isOwner = $institution->user_id === $request->user_id;
+
+            return response()->json([
+                'status' => 'success',
+                'isOwner' => $isOwner
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error checking institution ownership: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error checking institution ownership'
+            ], 500);
+        }
+    }
 }
