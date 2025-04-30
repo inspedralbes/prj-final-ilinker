@@ -191,7 +191,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
                   clipRule="evenodd"
                 />
               </svg>
-              <Link href={`/profile/student/${userData.slug}`} className="ml-2">
+              <Link href={`/profile/student/${userData?.student.uuid}`} className="ml-2">
                 <p className="font-medium">Mi perfil</p>
               </Link>
             </li>

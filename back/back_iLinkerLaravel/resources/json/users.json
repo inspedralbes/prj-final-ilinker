@@ -40,6 +40,16 @@
         "rol": "company"
     },
     {
+        "name": "Clara",
+        "surname": "Martínez",
+        "birthday": "1985-09-22",
+        "email": "clara.martinez@example.com",
+        "active": true,
+        "email_verified_at": "2024-02-02 14:30:00",
+        "password": "1234",
+        "rol": "company"
+    },
+    {
         "name": "Miguel",
         "surname": "Fernández",
         "birthday": "1995-03-10",
