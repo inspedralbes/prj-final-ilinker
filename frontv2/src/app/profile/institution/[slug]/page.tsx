@@ -1,8 +1,10 @@
-import React from "react"
-import { cookies } from 'next/headers'
-import { apiRequest } from "@/services/requests/apiRequest"
-import InstitutionClient from './InstitueClient'
-import InstituteDoesntExist from './InstituteDoesntExist'
+"use client";
+import React, { useContext, useEffect, useState } from "react";
+import { apiRequest } from "@/services/requests/apiRequest";
+import InstitutionClient from "./InstitueClient";
+import InstituteDoesntExist from "./InstituteDoesntExist";
+import { LoaderContext } from "@/contexts/LoaderContext";
+import { useParams } from "next/navigation";
 
 interface Institution {
   id: number;
@@ -33,51 +35,30 @@ interface Institution {
   sector?: string;
 }
 
-async function getInstitution(slug: string): Promise<Institution | null> {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get('authToken')?.value;
-        
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-        const response = await fetch(`${apiUrl}/institution/${slug}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-            },
-            cache: 'no-store'
-        });
+export default function InstitutionPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const { hideLoader, showLoader } = useContext(LoaderContext);
+  const [institution, setInstitution] = useState<Institution | null>(null);
+  useEffect(() => {
+    showLoader();
+    apiRequest(`institution/${slug}`)
+      .then((response) => {
+        setInstitution(response.data);
+        console.log(response.data)
+      })
+      .catch((e) => {
+        console.error(e);
+      })
+      .finally(() => {
+        hideLoader();
+      });
+  }, []);
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('Error from backend:', errorData.message);
-            return null;
-        }
+  console.log("Rendering institution page for:", slug);
 
-        const data = await response.json();
-        console.log('Institution data received:', data);
-        return data.data;
-    } catch (error) {
-        console.error('Error fetching institution:', error);
-        return null;
-    }
-}
+  if (!institution) {
+    return <InstituteDoesntExist />;
+  }
 
-interface PageProps {
-    params: {
-        slug: string;
-    };
-}
-
-export default async function InstitutionPage({ params }: PageProps) {
-    const slug = await params.slug;
-    const institution = await getInstitution(slug);
-    
-    console.log('Rendering institution page for:', slug);
-
-    if (!institution) {
-        return <InstituteDoesntExist />;
-    }
-
-    return <InstitutionClient slug={slug} institution={institution} />;
+  return <InstitutionClient slug={slug} institution={institution} />;
 }

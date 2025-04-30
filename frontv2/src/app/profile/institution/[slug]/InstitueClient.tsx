@@ -7,10 +7,8 @@ import InstitutionClientNotMe from "./InstitutionClientNotMe"
 import { apiRequest } from "@/services/requests/apiRequest"
 import { LoaderContext } from "@/contexts/LoaderContext"
 
-import { Institution } from "'types/institution'"
-
 interface InstitutionClientProps {
-  institution: Institution;
+  institution: any;
   slug: string;
 }
 
@@ -25,7 +23,7 @@ export default function InstitutionClient({ institution, slug }: InstitutionClie
       async function checkInstitutionOwner() {
         try {
           const response = await apiRequest("institution/checkOwner", "POST", {
-            user_id: userData.id,
+            user_id: userData?.id,
             institution_id: institution.id
           })
           setIsOwner(response.isOwner)

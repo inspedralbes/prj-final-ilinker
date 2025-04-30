@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import {
   Pencil, MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Camera, Award, Briefcase, Languages, ChevronRight, X, Home, Info, BriefcaseIcon, School,
 } from "lucide-react"
@@ -11,7 +11,9 @@ import { EmptyStateCard } from "./EmptyStateCard"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { apiRequest } from "@/services/requests/apiRequest"
-
+import config from "@/types/config"
+import { LoaderContext } from "@/contexts/LoaderContext"
+import { AuthContext } from "@/contexts/AuthContext"
 interface Institution {
   id: string | number;
   name: string;
@@ -60,6 +62,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   const [originalData, setOriginalData] = useState<Institution>({ ...institution })
   const [logoImage, setLogoImage] = useState(institution.logo_url || '')
   const [coverImage, setCoverImage] = useState(institution.cover_url || '')
+  const { showLoader, hideLoader } = useContext(LoaderContext);
 
   const handleImageError = (type: 'logo' | 'cover') => {
     if (type === 'logo') {
@@ -111,6 +114,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   }
 
   const handleSave = async () => {
+    showLoader();
     try {
       setError(null)
       if (isEditing === "specialties") {
@@ -192,10 +196,13 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     } catch (error: any) {
       console.error('Error saving institution:', error)
       setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
+    } finally{
+      hideLoader();
     }
   }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'logo' | 'cover') => {
+    showLoader();
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -204,7 +211,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       const formData = new FormData()
       formData.append('id', String(institution.id))
       formData.append(type, file)
-
+      console.log("cambiando")
       const response = await apiRequest('institution/update', 'POST', formData)
 
       if (response?.status === 'success' && response.data) {
@@ -239,6 +246,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     } catch (error: any) {
       console.error('Error uploading image:', error)
       setError(error.message || 'Error uploading image. Please try again.')
+    } finally {
+      hideLoader();
     }
   }
 
@@ -534,7 +543,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-40 sm:h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-300">
         <img
-          src={coverImage}
+          src={config.storageUrl+institutionData.cover}
           alt="Cover"
           className="w-full h-full object-cover"
           onError={() => handleImageError('cover')}
@@ -555,7 +564,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                   <div className="relative flex-shrink-0">
                     <img
                       className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={logoImage}
+                      src={config.storageUrl+institutionData.logo}
                       alt={institutionData.name}
                       onError={() => handleImageError('logo')}
                     />

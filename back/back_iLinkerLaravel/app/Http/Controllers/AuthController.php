@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Institutions;
 use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
@@ -54,6 +55,11 @@ class AuthController extends Controller
                 $user->student = $student;
             }
 
+            if($user->rol === 'institutions'){
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
+            }
+
             return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
         }
 
@@ -102,6 +108,9 @@ class AuthController extends Controller
                     throw new \Exception('Error al crear la institución.');
                 }
                 DB::commit();
+
+                $user['user']['institution'] = $institution;
+
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
             } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
@@ -141,6 +150,11 @@ class AuthController extends Controller
             if($user->rol === 'student'){
                 $student = Student::where('user_id', $user->id)->first();
                 $user->student = $student;
+            }
+
+            if($user->rol === 'institutions'){
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
             }
 
             return response()->json([

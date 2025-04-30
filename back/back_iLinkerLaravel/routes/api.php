@@ -42,6 +42,15 @@ Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompany
 Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
 Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
 
+Route::prefix('/institution')->group(function () {
+    // Public routes
+    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
+    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
+    Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+
+});
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
 
@@ -65,21 +74,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
     });
 
-Route::prefix('/institution')->group(function () {
-    // Public routes
-    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
-    Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
-    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
-    Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
-    
-    // Protected routes that require authentication
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::prefix('/institution')->group(function () {
+        // Protected routes that require authentication
         Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
         Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
     });
-});
     Route::prefix('/institution')->group(function () {
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
@@ -89,7 +90,6 @@ Route::prefix('/institution')->group(function () {
         Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
         Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
         Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
-        Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
     });
 
     Route::prefix('/education')->group(function () {
@@ -110,10 +110,10 @@ Route::prefix('/institution')->group(function () {
         Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
     });
 
-Route::prefix('/skill')->group(function () {
-    Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
-    Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
-});
+    Route::prefix('/skill')->group(function () {
+        Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+        Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
+    });
 
     Route::prefix('/offers')->group(function () {
         Route::get('/{id}', [OfferController::class, 'show'])->name('offer.get');
@@ -128,7 +128,7 @@ Route::prefix('/skill')->group(function () {
         Route::get('/getCourses', [CoursesController::class, 'getCourses'])->name('get.courses');
     });
 
-    Route::prefix('/chats')->group(function (){
+    Route::prefix('/chats')->group(function () {
         Route::get('/my-direct-messages', [ChatController::class, 'getDirectChats'])->name('chat.myMessages');
         Route::get('/get-or-create-direct-chat/{userId}', [ChatController::class, 'getOrCreateDirectChat'])->name('chat.getOrCreateDirectChat');
         Route::get('/suggested-direct-chat', [ChatController::class, 'suggestedDirectChat'])->name('chat.suggestedDirectChat');

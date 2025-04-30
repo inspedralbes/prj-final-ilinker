@@ -51,7 +51,7 @@ class InstitutionController extends Controller
 
         try {
             $data = $request->all();
-            
+
             if (Auth::check()) {
                 $data['user_id'] = Auth::id();
             }
@@ -59,7 +59,7 @@ class InstitutionController extends Controller
             // Generate slug from name if not provided
             if (!isset($data['slug']) || empty($data['slug'])) {
                 $data['slug'] = Str::slug($data['name']);
-                
+
                 // Ensure slug uniqueness
                 $slug = $data['slug'];
                 $counter = 1;
@@ -102,7 +102,7 @@ class InstitutionController extends Controller
             }
 
             $institution = Institutions::findOrFail($request->id);
-            
+
             // Check if authenticated user owns this institution
             if ($institution->user_id !== Auth::id()) {
                 return response()->json([
@@ -111,7 +111,7 @@ class InstitutionController extends Controller
                 ], 403);
             }
 
-            // si hay archivos de logo o cover se actualizan 
+            // si hay archivos de logo o cover se actualizan
             if ($request->hasFile('logo') || $request->hasFile('cover')) {
                 if ($request->hasFile('logo')) {
                     $fileName = "logo_{$institution->id}." . $request->file('logo')->getClientOriginalExtension();
@@ -155,21 +155,21 @@ class InstitutionController extends Controller
                 }
 
                 $updateData = $request->only([
-                    'name', 'slogan', 'about', 'type', 'location', 
-                    'size', 'founded_year', 'languages', 'specialties', 
+                    'name', 'slogan', 'about', 'type', 'location',
+                    'size', 'founded_year', 'languages', 'specialties',
                     'website', 'phone', 'email'
                 ]);
 
                 foreach ($updateData as $key => $value) {
                     if ($value !== null) {
                         $institution->$key = $value;
-                        
+
                         // Update slug if name changes
                         if ($key === 'name') {
                             $newSlug = Str::slug($value);
                             $originalSlug = $newSlug;
                             $counter = 1;
-                            
+
                             // Ensure slug uniqueness excluding current institution
                             while (Institutions::where('slug', $newSlug)
                                 ->where('id', '!=', $institution->id)
@@ -177,7 +177,7 @@ class InstitutionController extends Controller
                                 $newSlug = $originalSlug . '-' . $counter;
                                 $counter++;
                             }
-                            
+
                             $institution->slug = $newSlug;
                         }
                     }
@@ -211,7 +211,7 @@ class InstitutionController extends Controller
     {
         try {
             $institution = Institutions::with('user')->findOrFail($id);
-            
+
             $baseUrl = config('app.url') . '/storage';
             $responseData = $institution->toArray();
             $responseData['logo_url'] = $institution->logo ? $baseUrl . '/' . ltrim($institution->logo, '/') : null;

@@ -42,7 +42,7 @@ const router = useRouter();
 
     try {
       const response = await apiRequest('auth/check');
-      
+      console.log(response)
       if (response.status === 'success') {
         login(token, response.user)
       }else{
