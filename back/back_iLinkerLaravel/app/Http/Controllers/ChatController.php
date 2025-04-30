@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\ChatRoom;
+use App\Models\Company;
 use App\Models\DirectChat;
 use App\Models\Message;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
 
 class ChatController extends Controller
 {
@@ -162,6 +167,7 @@ class ChatController extends Controller
         });
 
         return response()->json([
+            'status' => 'success',
             'direct_chats' => $formattedChats
         ]);
     }
@@ -202,47 +208,78 @@ class ChatController extends Controller
     }
 
     // Enviar un mensaje directo a otro usuario
-    public function sendDirectMessage(Request $request, $userId)
+    public function sendDirectMessage(Request $request)
     {
-        $request->validate([
-            'content' => 'required|string'
-        ]);
+        // 1) Definir reglas y mensajes
+        $rules = [
+            'content'    => 'required|string',
+            'user_ids'   => 'required|array|min:1',
+            'user_ids.*' => 'integer|distinct|exists:users,id',
+        ];
 
-        $user = Auth::user();
-        $otherUser = User::findOrFail($userId);
+        $messages = [
+            'content.required'     => 'El contenido es obligatorio.',
+            'user_ids.required'    => 'Debes indicar al menos un destinatario.',
+            'user_ids.array'       => 'Los destinatarios deben enviarse como array.',
+            'user_ids.min'         => 'Debes indicar al menos un destinatario.',
+            'user_ids.*.integer'   => 'Cada destinatario debe ser un ID numérico.',
+            'user_ids.*.distinct'  => 'No pueden repetirse destinatarios.',
+            'user_ids.*.exists'    => 'El usuario :input no existe.',
+        ];
 
-        // Obtener o crear chat directo
-        $directChat = $user->getDirectChatWith($userId);
+        // 2) Crear validador
+        $validator = Validator::make($request->all(), $rules, $messages);
 
-        if (!$directChat) {
-            $directChat = DirectChat::create([
-                'user_one_id' => $user->id,
-                'user_two_id' => $otherUser->id
-            ]);
+        // 3) Si falla, devolver JSON con errores
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        // Crear mensaje
-        $message = new Message([
-            'sender_id' => $user->id,
-            'content' => $request->content,
-        ]);
+        // 4) Validación exitosa: recuperamos los datos validados
+        $validated    = $validator->validated();
+        $content = $validated['content'];
+        $recipientIds = $validated['user_ids'];
 
-        $directChat->messages()->save($message);
+        $me = Auth::user();
+        $sent = [];
 
-        // Actualizar fecha del chat
-        $directChat->touch();
+        foreach ($recipientIds as $otherId) {
+            // 2) Obtener o crear chat directo
+            $directChat = $me->getDirectChatWith($otherId)
+                ?: DirectChat::create([
+                    'user_one_id' => min($me->id, $otherId),
+                    'user_two_id' => max($me->id, $otherId),
+                ]);
 
-        // Cargar el remitente
-        $message->load('sender');
+            // 3) Crear y guardar el mensaje
+            $message = new Message([
+                'sender_id' => $me->id,
+                'content'   => $content,
+            ]);
+            $directChat->messages()->save($message);
 
-        // Aquí se podría implementar la emisión a través de websockets
-        // event(new NewDirectMessageEvent($directChat, $message));
+            // 4) Actualizar timestamp del chat
+            $directChat->touch();
+
+            // 5) Cargar relacion 'sender' para incluir datos en la respuesta
+            $message->load('sender');
+
+            $sent[] = [
+                'recipient_id' => $otherId,
+                'chat_id'      => $directChat->id,
+                'message'      => $message,
+            ];
+        }
 
         return response()->json([
-            'message' => 'Message sent successfully',
-            'data' => $message
+            'status' => 'success',
+            'sent'   => $sent,
         ], 201);
     }
+
 
     // Marcar un chat directo como leído
     public function markDirectChatAsRead($chatId)
@@ -262,5 +299,82 @@ class ChatController extends Controller
         return response()->json([
             'message' => 'Chat marked as read'
         ]);
+    }
+
+    public function suggestedDirectChat()
+    {
+        try {
+            $me = Auth::user();
+
+            // 1) IDs de mis skills según mi rol
+            if ($me->rol === 'company') {
+                $model      = Company::with('skills');
+                $identifier = 'user_id';
+            } else {
+                $model      = Student::with('skills');
+                $identifier = 'user_id';
+            }
+
+            $mine       = $model->where($identifier, $me->id)->firstOrFail();
+            $mySkillIds = $mine->skills->pluck('id')->toArray();
+
+            // Closure genérico para formatear Student o Company
+            $formatter = fn($item, string $type) => [
+                'id'      => $item->id,
+                'uuid'    => $item->uuid ?? null,
+                'slug'    => $item->slug ?? null,
+                'user_id' => $item->user_id,
+                'name'    => $item->name,
+                'skills'  => $item->skills->pluck('name')->toArray(),
+                'avatar'  => $item->photo_pic ?? $item->logo,
+                'type'    => $type,
+            ];
+
+            // 2) Usuarios sugeridos que compartan al menos un skill Y estén activos
+            $studentsQuery = Student::with('skills')
+                ->where('user_id', '!=', $me->id)
+                ->whereHas('skills', fn($q) => $q->whereIn('skills.id', $mySkillIds))
+                ->whereHas('user', fn($q) => $q->where('active', 1));
+
+            $companiesQuery = Company::with('skills')
+                ->where('user_id', '!=', $me->id)
+                ->whereHas('skills', fn($q) => $q->whereIn('skills.id', $mySkillIds))
+                ->whereHas('user', fn($q) => $q->where('active', 1));
+
+            $suggestedStudents  = $studentsQuery->get()->map(fn($s) => $formatter($s, 'student'));
+            $suggestedCompanies = $companiesQuery->get()->map(fn($c) => $formatter($c, 'company'));
+            $suggestedAll       = $suggestedStudents->merge($suggestedCompanies)->values();
+
+            // 3) “Más contactos”: todos los demás excluyendo los ya sugeridos y que estén activos
+            $excludedUserIds = array_merge(
+                [$me->id],
+                $suggestedAll->pluck('user_id')->toArray()
+            );
+
+            $moreStudents = Student::with('skills')
+                ->whereHas('user', fn($q) => $q->where('active', 1))
+                ->whereNotIn('user_id', $excludedUserIds)
+                ->get()
+                ->map(fn($s) => $formatter($s, 'student'));
+
+            $moreCompanies = Company::with('skills')
+                ->whereHas('user', fn($q) => $q->where('active', 1))
+                ->whereNotIn('user_id', $excludedUserIds)
+                ->get()
+                ->map(fn($c) => $formatter($c, 'company'));
+
+            $moreContacts = $moreStudents->merge($moreCompanies)->values();
+
+            return response()->json([
+                'status'        => 'success',
+                'suggested_all' => $suggestedAll,
+                'more_contacts' => $moreContacts,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

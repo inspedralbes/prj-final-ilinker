@@ -14,17 +14,25 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { useModal } from "@/hooks/use-modal";
+import { useToast } from "@/hooks/use-toast";
+import Modal from "@/components/ui/modal";
 
 interface SuggestedUser {
   id: string;
+  uuid: string | null;
+  slug: string | null;
+  user_id: string;
   name: string;
-  role: string;
   skills: string[];
-  avatar: string;
+  avatar: string | null;
+  type: "company" | "student";
 }
 
 const suggestedUsers: SuggestedUser[] = [
@@ -53,18 +61,26 @@ const suggestedUsers: SuggestedUser[] = [
 
 const Messages: React.FC = () => {
   const [activeTab, setActiveTab] = useState("inbox");
-    const [isComposing, setIsComposing] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-    const [selectedChat, setSelectedChat] = useState<string | null>(null);
-    const router = useRouter();
-    const { showLoader, hideLoader } = useContext(LoaderContext);
-    const { userData } = useContext(AuthContext);
-    const chats = [
-        {
-            id: "1",
-            name: "Ana Martínez",
-            lastMessage: "Hola, ¿cómo estás?",
+  const [isComposing, setIsComposing] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [chats, setChats] = useState<any[]>([]);
+  const [suggestedAll, setSuggestedAll] = useState<SuggestedUser[]>([]);
+  const [contacts, setContacts] = useState<SuggestedUser[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
+  const [messageModal, setMessageModal] = useState("");
+  const newMessageDirectModal = useModal();
+
+  const router = useRouter();
+  const { toast } = useToast();
+  const { showLoader, hideLoader } = useContext(LoaderContext);
+  const { userData } = useContext(AuthContext);
+  const mockChats = [
+    {
+      id: "1",
+      name: "Ana Martínez",
+      lastMessage: "Hola, ¿cómo estás?",
       time: "12:30",
       avatar:
         "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
@@ -81,13 +97,111 @@ const Messages: React.FC = () => {
     },
   ];
 
-  useEffect(()=>{
+  useEffect(() => {
     showLoader();
     if (!userData) {
       router.push("/auth/login");
     }
-    hideLoader();
-  }, [userData, router])
+
+    // Request for messages
+    apiRequest("chats/my-direct-messages")
+      .then((response) => {
+        if (response.status === "success") {
+          console.log(response);
+          setChats(response.direct_chats);
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        hideLoader();
+      });
+  }, [userData, router]);
+
+  const handleOpenNewMessage = () => {
+    showLoader();
+    apiRequest("chats/suggested-direct-chat")
+      .then((response) => {
+        console.log(response);
+        if (response.status === "success") {
+          setSuggestedAll(response.suggested_all);
+          setContacts(response.more_contacts);
+        } else {
+          toast({
+            title: "Error",
+            description: "No se encontraron sugerencias",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: "Error",
+          description: "No se encontraron sugerencias",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        hideLoader();
+      });
+    newMessageDirectModal.openModal();
+  };
+
+  const handleSelectUser = (user: any) => {
+    setSelectedUsers(prev => {
+      // evita duplicados
+      if (prev.find(u => u.user_id === user.user_id)) return prev;
+      return [...prev, user];
+    });
+  };
+
+  const handleRemoveUser = (userId: string) => {
+    setSelectedUsers(prev => prev.filter(u => u.user_id !== userId));
+  };
+
+  const handleSendMessage = ()=>{
+    showLoader();
+
+    console.log("ENVIAR MENSAJE");
+    console.log(selectedUsers);
+
+    apiRequest('chats/send-direct-chat', 
+        "POST", 
+        {
+            user_ids: selectedUsers.map(u => u.user_id),
+            content: messageModal
+        }
+    ).then((response)=>{
+        console.log(response);
+        if (response.status === "success") {
+            toast({
+                title: "Success",
+                description: "Mensaje enviado correctamente",
+                variant: "success",
+            });
+            newMessageDirectModal.closeModal();
+        } else {
+            toast({
+                title: "Error",
+                description: "No se pudo enviar el mensaje",
+                variant: "destructive",
+            });
+        }
+    }).catch((error) => {
+        console.log(error);
+        toast({
+            title: "Error",
+            description: "No se pudo enviar el mensaje",
+            variant: "destructive",
+        });
+    }).finally(() => {
+        newMessageDirectModal.closeModal();
+        hideLoader();
+    });
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col bg-white border mt-5">
@@ -109,7 +223,7 @@ const Messages: React.FC = () => {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => setIsComposing(true)}
+                onClick={() => handleOpenNewMessage()}
                 className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300 flex items-center"
               >
                 <PenSquare className="w-5 h-5 mr-2" />
@@ -232,13 +346,13 @@ const Messages: React.FC = () => {
                   }`}
                 >
                   <img
-                    src={chat.avatar}
-                    alt={chat.name}
+                    src={chat.user.profile_pic}
+                    alt={chat.user.name}
                     className="w-12 h-12 rounded-full object-cover mr-4"
                   />
                   <div className="flex-1 text-left">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-medium">{chat.name}</h3>
+                      <h3 className="font-medium">{chat.user.name}</h3>
                       <span className="text-sm text-gray-500">{chat.time}</span>
                     </div>
                     <p
@@ -251,6 +365,24 @@ const Messages: React.FC = () => {
                   </div>
                 </button>
               ))}
+
+              {chats.length <= 0 && (
+                <div className="flex flex-col items-center justify-center flex-1 p-6 space-y-4">
+                  <div className="flex flex-col items-center">
+                    <MessageSquare className="w-12 h-12 text-gray-400 mb-3" />
+                    <p className="text-gray-600 text-sm text-center">
+                      Aún no tienes conversaciones.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleOpenNewMessage()}
+                    className="flex items-center space-x-2 border border-black text-black px-5 py-2 rounded-lg hover:bg-black hover:text-white transition-colors duration-200"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span className="text-sm">Nuevo mensaje</span>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -270,7 +402,7 @@ const Messages: React.FC = () => {
                   Elige una conversación de la lista o inicia una nueva
                 </p>
                 <button
-                  onClick={() => setIsComposing(true)}
+                  onClick={() => handleOpenNewMessage()}
                   className="bg-black text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-colors duration-300 flex items-center"
                 >
                   <Send className="w-5 h-5 mr-2" />
@@ -314,79 +446,137 @@ const Messages: React.FC = () => {
         </div>
 
         {/* New Message Modal */}
-        {isComposing && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg w-full max-w-2xl">
-              <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                <h3 className="text-lg font-bold">Nuevo mensaje</h3>
-                <button
-                  onClick={() => setIsComposing(false)}
-                  className="text-gray-500 hover:text-black"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+        <Modal
+          isOpen={newMessageDirectModal.isOpen}
+          onClose={newMessageDirectModal.closeModal}
+          id="new-message-direct-modal"
+          size="lg"
+          title="Nuevo mensaje directo"
+          closeOnOutsideClick={false}
+        >
+          <div className="bg-white rounded-lg w-full max-w-2xl">
+            <div className="p-4">
+              {/* Tags arriba del input */}
+              {selectedUsers.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {selectedUsers.map((user) => (
+                    <div
+                      key={user.user_id}
+                      className="flex items-center bg-gray-100 text-gray-800 px-2 py-1 rounded-full"
+                    >
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-5 h-5 rounded-full object-cover mr-2"
+                      />
+                      <span className="text-xs font-medium mr-1">
+                        {user.name}
+                      </span>
+                      <button
+                        onClick={() => handleRemoveUser(user.user_id)}
+                        className="w-4 h-4 flex items-center justify-center text-gray-500 hover:text-gray-700"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Escribe uno o varios nombres"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
+                />
               </div>
 
-              <div className="p-4">
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    placeholder="Escribe uno o varios nombres"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                  />
-                </div>
-
-                {/* Suggestions */}
-                <div className="mb-4">
-                  <h4 className="text-sm font-bold text-gray-500 mb-2">
-                    Sugerido
-                  </h4>
-                  <div className="space-y-2">
-                    {suggestedUsers.map((user) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-                      >
-                        <img
-                          src={user.avatar}
-                          alt={user.name}
-                          className="w-10 h-10 rounded-full object-cover mr-3"
-                        />
-                        <div>
-                          <h5 className="font-medium">{user.name}</h5>
-                          <p className="text-sm text-gray-500">{user.role}</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            {user.skills.map((skill, index) => (
-                              <span
-                                key={index}
-                                className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
-                              >
-                                {skill}
-                              </span>
-                            ))}
-                          </div>
+              {/* Suggestions */}
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-500 mb-2">
+                  Sugerido
+                </h4>
+                <div className="space-y-2">
+                  {suggestedAll.map((user) => (
+                    <div
+                      key={user.user_id}
+                      className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleSelectUser(user)}
+                    >
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                      <div>
+                        <h5 className="font-medium">{user.name}</h5>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {user.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                            >
+                              {skill}
+                            </span>
+                          ))}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                <textarea
-                  placeholder="Escribe tu mensaje..."
-                  className="w-full h-32 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
-                ></textarea>
-
-                <div className="flex justify-end mt-4">
-                  <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300">
-                    Enviar
-                  </button>
+              <div className="mb-4">
+                <h4 className="text-sm font-bold text-gray-500 mb-2">
+                  Mas contactos
+                </h4>
+                <div className="space-y-2">
+                  {contacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleSelectUser(contact)}
+                    >
+                      <img
+                        src={contact.avatar}
+                        alt={contact.name}
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                      <div>
+                        <h5 className="font-medium">{contact.name}</h5>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {contact.skills.map((skill, index) => (
+                            <span
+                              key={index}
+                              className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded"
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
+              </div>
+
+              <textarea
+                value={messageModal}
+                onChange={(e) => setMessageModal(e.target.value)}
+                placeholder="Escribe tu mensaje..."
+                className="w-full h-32 p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent resize-none"
+              ></textarea>
+              <div className="flex justify-end mt-4">
+                <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300"
+                    onClick={handleSendMessage}>
+                  Enviar
+                </button>
               </div>
             </div>
           </div>
-        )}
+        </Modal>
       </div>
     </div>
   );

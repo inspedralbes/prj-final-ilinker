@@ -7,7 +7,7 @@ import {
   LandmarkIcon,
   MessageSquareIcon,
   User,
-  GraduationCap
+  GraduationCap,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,6 +15,7 @@ import Image from "next/image";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import config from "@/types/config";
 import socket from "@/services/websockets/sockets";
 
 export default function NavBar() {
@@ -157,13 +158,13 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
       <div onClick={toggleDropdown}>
         <Image
           src={
-            userData?.photo_pic ||
+            config.storageUrl + (userData?.company && userData?.company?.logo || userData?.student?.photo_pic) ||
             "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
           }
           alt="Profile"
           width={40}
           height={40}
-          className="rounded-full cursor-pointer"
+          className="rounded-sm cursor-pointer"
         />
       </div>
       {isOpen && (
@@ -172,27 +173,30 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
           className="absolute right-0 z-10 mt-2 min-w-[180px] overflow-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg"
         >
           {/* Opción "My Profile" */}
-          <li
-            role="menuitem"
-            className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-            onClick={() => setIsOpen(false)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              className="w-5 h-5 text-slate-400"
+        {userData?.rol !== "company" && userData?.rol !== 'institution' && (
+            <li
+              role="menuitem"
+              className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+              onClick={() => setIsOpen(false)}
             >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <Link href={`/profile/student/${userData.slug}`} className="ml-2">
-              <p className="font-medium">Mi perfil</p>
-            </Link>
-          </li>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                className="w-5 h-5 text-slate-400"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <Link href={`/profile/student/${userData.slug}`} className="ml-2">
+                <p className="font-medium">Mi perfil</p>
+              </Link>
+            </li>
+          )}
+
           {/* Opción "My Profile" */}
           {userData?.rol === "company" ? (
             <>
@@ -260,7 +264,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             onClick={() => {
               logout();
               setIsOpen(false);
-              socket.emit('logout');
+              socket.emit("logout");
             }}
           >
             <svg

@@ -173,7 +173,6 @@ export default function CompanyClientMe({
     setIsEditing(null);
 
     const formData = new FormData();
-
     // Asegurarse de que los datos no sean nulos
     Object.entries(companyEdited).forEach(([key, value]) => {
       if (key !== "logo" && key !== "cover_photo" && Array.isArray(value)) {

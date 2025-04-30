@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
@@ -110,6 +111,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::prefix('/courses')->group(function () {
         Route::get('/getCourses', [CoursesController::class, 'getCourses'])->name('get.courses');
+    });
+
+    Route::prefix('/chats')->group(function (){
+        Route::get('/my-direct-messages', [ChatController::class, 'getDirectChats'])->name('chat.myMessages');
+        Route::get('/get-or-create-direct-chat/{userId}', [ChatController::class, 'getOrCreateDirectChat'])->name('chat.getOrCreateDirectChat');
+        Route::get('/suggested-direct-chat', [ChatController::class, 'suggestedDirectChat'])->name('chat.suggestedDirectChat');
+        Route::post('/send-direct-chat', [ChatController::class, 'sendDirectMessage'])->name('chat.sendDirectMessage');
     });
 });
 
