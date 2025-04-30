@@ -65,6 +65,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [CompanyController::class, 'delete'])->name('company.delete');
     });
 
+Route::prefix('/institution')->group(function () {
+    // Public routes
+    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
+    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
+    Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+    
+    // Protected routes that require authentication
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
+        Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
+    });
+});
     Route::prefix('/institution')->group(function () {
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
@@ -95,11 +110,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('/delete', [ProjectController::class, 'delete'])->name('delete.project');
     });
 
-    Route::prefix('/skill')->group(function () {
-        Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
-        Route::delete('/delete', [SkillController::class, 'delete'])->name('delete.skill');
-        Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
-    });
+Route::prefix('/skill')->group(function () {
+    Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
+    Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
+});
 
     Route::prefix('/offers')->group(function () {
         Route::get('/{id}', [OfferController::class, 'show'])->name('offer.get');

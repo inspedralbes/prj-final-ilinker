@@ -1,466 +1,359 @@
-"use client";
+"use client"
 
-import { useState } from 'react';
-import { Search, MapPin, Users, Calendar, BookmarkIcon, MessageCircle, Share2, ThumbsUp, GraduationCap, Building2, Clock, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  MapPin,
+  Building2,
+  Globe,
+  Mail,
+  Phone,
+  Calendar,
+  Users,
+  MessageCircle,
+  Share2,
+  Award,
+  Briefcase,
+  Languages,
+  ChevronRight,
+} from "lucide-react"
 
-// Mock data
-const institutData = {
-  institute: {
-    name: "Institut Pedralbes",
-    description: "Centro público de educación secundaria y formación profesional situado en Barcelona, especializado en tecnología e informática.",
-    logo: "/images/logo.svg",
-    type: "Centro Público",
-    address: "Av. d'Esplugues, 36-42, 08034 Barcelona",
-    contact: {
-      email: "institutpedralbes@xtec.cat",
-      phone: "932 033 332",
-      website: "https://www.institutpedralbes.cat"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
+
+export default function InstitutionClientNotMe({ institution }) {
+  const [visiblePublications, setVisiblePublications] = useState(3)
+  const [isFollowing, setIsFollowing] = useState(false)
+
+  if (!institution) {
+    return null;
+  }
+
+  const institute = {
+    basic: {
+      name: institution.name || "",
+      slogan: institution.slogan || "",
+      about: institution.about || "",
+      location: institution.location || "",
+      size: institution.size || "",
+      type: institution.type || "",
+      sector: institution.sector || "",
+      foundedYear: institution.founded_year || "",
+      website: institution.website || "",
+      phone: institution.phone || "",
+      email: institution.email || "",
+      languages: institution.languages || [],
+      logo: institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f",
+      cover: institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
     },
-    levels: ["ESO", "Bachillerato", "Formación Profesional"],
-    socialMedia: {
-      twitter: "@InsPedralbes",
-      instagram: "@inspedralbes"
-    }
-  },
-  educationalOffering: [
-    {
-      id: "fp-daw",
-      title: "Desarrollo de Aplicaciones Web",
-      department: "Informática",
-      type: "Grado Superior",
-      duration: "2 años (2000 horas)",
-      schedule: "Mañana / Tarde",
-      logo: "/images/daw-logo.svg",
-      tags: ["Programación", "Web", "JavaScript", "PHP", "Java"],
-      description: "Forma profesionales capaces de desarrollar, implementar y mantener aplicaciones web, con independencia del modelo empleado y utilizando tecnologías específicas.",
-      modules: [
-        "Programación",
-        "Bases de Datos",
-        "Lenguajes de Marcas",
-        "Desarrollo Web Cliente",
-        "Desarrollo Web Servidor"
-      ],
-      jobOpportunities: [
-        "Desarrollador Web",
-        "Programador Frontend",
-        "Programador Backend",
-        "Desarrollador Full Stack"
-      ]
-    },
-    {
-      id: "fp-asix",
-      title: "Administración de Sistemas Informáticos en Red",
-      department: "Informática",
-      type: "Grado Superior",
-      duration: "2 años (2000 horas)",
-      schedule: "Mañana / Tarde",
-      logo: "/images/asix-logo.svg",
-      tags: ["Redes", "Sistemas", "Linux", "Windows Server", "Virtualización"],
-      description: "Forma profesionales capaces de configurar, administrar y mantener sistemas informáticos en red, garantizando la funcionalidad, integridad y servicios del sistema.",
-      modules: [
-        "Sistemas Operativos",
-        "Redes",
-        "Servicios de Red",
-        "Seguridad",
-        "Administración de Sistemas"
-      ],
-      jobOpportunities: [
-        "Administrador de Sistemas",
-        "Técnico de Redes",
-        "Administrador de Servidores",
-        "Responsable de Seguridad"
-      ]
-    }
+    specialties: institution.specialties || [],
+    certifications: institution.certifications || [],
+    collaborations: [
+      {
+        id: 1,
+        company: "Barcelona Activa",
+        type: "Prácticas Profesionales",
+        description: "Programa de prácticas para estudiantes de último año",
+      },
+      {
+        id: 2,
+        company: "Barcelona Tech City",
+        type: "Colaboración Educativa",
+        description: "Participación en eventos tecnológicos y mentorías",
+      },
+    ],
+  }
+
+  const publications = [
+    { id: 1, title: "Nuevo curso de desarrollo web", image: "https://picsum.photos/300/200?random=1" },
+    { id: 2, title: "Jornada de puertas abiertas", image: "https://picsum.photos/300/200?random=2" },
+    { id: 3, title: "Colaboración con empresas locales", image: "https://picsum.photos/300/200?random=3" },
+    { id: 4, title: "Éxito en la feria de empleo", image: "https://picsum.photos/300/200?random=4" },
+    { id: 5, title: "Nuevo laboratorio de IA", image: "https://picsum.photos/300/200?random=5" },
   ]
-};
 
-const students = [
-  {
-    id: 1,
-    name: "Juan Pérez",
-    avatar: "/images/user1.jpg",
-    course: "Desarrollo de Aplicaciones Web",
-  },
-  {
-    id: 2,
-    name: "Ana Gómez",
-    avatar: "/images/user2.jpg",
-    course: "Administración de Sistemas Informáticos en Red",
-  },
-  {
-    id: 3,
-    name: "Carlos López",
-    avatar: "/images/user3.jpg",
-    course: "Desarrollo de Aplicaciones Web",
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing)
+    // Aquí iría la lógica para seguir/dejar de seguir al instituto
   }
-];
 
-const publications = [
-  {
-    id: 1,
-    title: "Jornada de Puertas Abiertas 2024",
-    date: "2024-02-15",
-    author: "Dirección del Centro",
-    image: "/images/open-day.jpg",
-    excerpt: "Este sábado celebramos nuestra jornada anual de puertas abiertas. Ven a conocer nuestras instalaciones y oferta formativa.",
-    likes: 45,
-    comments: 12
-  },
-  {
-    id: 2,
-    title: "Éxito en el Hackathon de Ciberseguridad",
-    date: "2024-02-10",
-    author: "Departamento de Informática",
-    image: "/images/hackathon.jpg",
-    excerpt: "Nuestros estudiantes de ASIX obtuvieron el primer premio en el hackathon regional de ciberseguridad.",
-    likes: 72,
-    comments: 8
-  },
-  {
-    id: 3,
-    title: "Nuevo Laboratorio de Desarrollo Web",
-    date: "2024-02-05",
-    author: "Coordinación DAW",
-    image: "/images/lab.jpg",
-    excerpt: "Inauguramos un nuevo espacio dedicado al desarrollo web con equipamiento de última generación.",
-    likes: 56,
-    comments: 15
+  const handleContact = () => {
+    // Aquí iría la lógica para contactar al instituto
   }
-];
 
-export default function InstitutPedralbes() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [expandedCourses, setExpandedCourses] = useState({});
-  const [activeTab, setActiveTab] = useState("publications");
-  const { institute, educationalOffering } = institutData;
+  const handleShare = () => {
+    // Aquí iría la lógica para compartir el perfil
+  }
 
-  // Search filter functions
-  const filteredPublications = publications.filter(publication => {
-    const searchString = searchTerm.toLowerCase();
-    return (
-      publication.title.toLowerCase().includes(searchString) ||
-      publication.author.toLowerCase().includes(searchString) ||
-      publication.excerpt.toLowerCase().includes(searchString)
-    );
-  });
+  // Renderizado de secciones
+  const renderAcercaDe = (
+    <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+      <h2 className="text-lg font-medium text-gray-900 mb-4">Acerca de</h2>
+      <p className="text-gray-600 text-sm sm:text-base">{institute.basic.about}</p>
+    </div>
+  )
 
-  const filteredCourses = educationalOffering.filter(course => {
-    const searchString = searchTerm.toLowerCase();
-    return (
-      course.title.toLowerCase().includes(searchString) ||
-      course.department.toLowerCase().includes(searchString) ||
-      course.type.toLowerCase().includes(searchString) ||
-      course.description.toLowerCase().includes(searchString) ||
-      course.tags.some(tag => tag.toLowerCase().includes(searchString)) ||
-      course.modules.some(module => module.toLowerCase().includes(searchString)) ||
-      course.jobOpportunities.some(job => job.toLowerCase().includes(searchString))
-    );
-  });
-
-  const toggleCourse = (courseId) => {
-    setExpandedCourses(prev => ({
-      ...prev,
-      [courseId]: !prev[courseId]
-    }));
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    setSearchTerm("");
-  };
-
-  return (
-    <div className="container mx-auto px-4 py-6 max-w-7xl">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column */}
-        <div className="lg:col-span-1">
-          <Card className="p-6">
+  const renderInicio = (
+    <>
+      {/* Detalles del Instituto */}
+      <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Detalles del Instituto</h3>
             <div className="space-y-4">
-              <div className="flex flex-col items-center space-y-4">
-                <img src={institute.logo} alt={`Logo ${institute.name}`} className="rounded-lg w-32 h-32 object-cover" />
-                <div className="text-center">
-                  <h2 className="font-semibold text-xl">{institute.name}</h2>
-                  <p className="text-muted-foreground">{institute.type}</p>
+              <div className="flex items-center">
+                <Building2 className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Tipo de institución</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.type}</p>
                 </div>
               </div>
-              <hr className="my-4" />
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.address}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.type}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.levels.join(", ")}</span>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Tamaño</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.size}</p>
                 </div>
               </div>
-              <hr className="my-4" />
-              <nav className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Oferta Formativa
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <GraduationCap className="mr-2 h-4 w-4" />
-                  Formación Profesional
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Calendario Escolar
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contacto
-                </Button>
-              </nav>
-            </div>
-          </Card>
-
-          {/* Students Section */}
-          <Card className="mt-6">
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Estudiantes del Instituto</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                {students.map((student) => (
-                  <div
-                    key={student.id}
-                    className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <img
-                        src={student.avatar}
-                        alt={student.name}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                      />
-                    </div>
-                    <div className="flex-grow min-w-0">
-                      <h4 className="font-semibold text-sm truncate">{student.name}</h4>
-                      <p className="text-sm text-muted-foreground truncate">{student.course}</p>
-                    </div>
-                  </div>
-                ))}
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Año de fundación</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.foundedYear}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Languages className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Idiomas</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.languages.join(", ")}</p>
+                </div>
               </div>
             </div>
-          </Card>
-        </div>
-
-        {/* Main content */}
-        <div className="lg:col-span-2">
-          {/* Tab Navigation */}
-          <div className="flex space-x-2 mb-6">
-            <Button
-              variant={activeTab === "publications" ? "default" : "outline"}
-              onClick={() => handleTabChange("publications")}
-              className="flex-1 sm:flex-none"
-            >
-              Publicaciones
-            </Button>
-            <Button
-              variant={activeTab === "courses" ? "default" : "outline"}
-              onClick={() => handleTabChange("courses")}
-              className="flex-1 sm:flex-none"
-            >
-              Ciclos Formativos
-            </Button>
           </div>
-
-          {/* Search Bar */}
-          <Card className="mb-6">
-            <CardContent className="p-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                <Input
-                  placeholder={
-                    activeTab === "publications"
-                      ? "Buscar por título, autor o contenido..."
-                      : "Buscar por nombre, departamento, módulos o tags..."
-                  }
-                  className="pl-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {activeTab === "publications" ? (
-            // Publications Grid with Search Results
-            <>
-              {filteredPublications.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <p className="text-muted-foreground">No se encontraron publicaciones que coincidan con tu búsqueda.</p>
-                </Card>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredPublications.map((publication) => (
-                    <Card key={publication.id} className="overflow-hidden h-full">
-                      <div className="relative h-40 w-full">
-                        <img
-                          src={publication.image}
-                          alt={publication.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h3 className="text-lg font-semibold mb-1">{publication.title}</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Por {publication.author} • {formatDate(publication.date)}
-                            </p>
-                          </div>
-                        </div>
-                        <p className="mb-4 text-sm">{publication.excerpt}</p>
-                        <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
-                            <ThumbsUp className="h-4 w-4 mr-1" />
-                            {publication.likes}
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            {publication.comments}
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Share2 className="h-4 w-4 mr-1" />
-                            Compartir
-                          </Button>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            // Courses Content with Search Results
-            <>
-              <Card className="mb-6 p-6">
-                <h3 className="text-xl font-semibold mb-4">Sobre el {institute.name}</h3>
-                <p className="text-muted-foreground">
-                  {institute.description}
-                </p>
-              </Card>
-
-              {filteredCourses.length === 0 ? (
-                <Card className="p-6 text-center">
-                  <p className="text-muted-foreground">No se encontraron ciclos formativos que coincidan con tu búsqueda.</p>
-                </Card>
-              ) : (
-                // ... (previous code remains the same until the courses mapping)
-
-                <div className="space-y-4">
-                  {filteredCourses.map((course) => (
-                    <Card key={course.id} className="p-6">
-                      <div className="flex flex-col md:flex-row items-start md:space-x-4">
-                        <img
-                          src={course.logo}
-                          alt={`${course.title} logo`}
-                          className="w-16 h-16 rounded mb-4 md:mb-0 object-cover"
-                        />
-                        <div className="flex-1">
-                          <h3 className="text-xl font-semibold">{course.title}</h3>
-                          <p className="text-muted-foreground">{course.department}</p>
-                          <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                            <span className="flex items-center">
-                              <GraduationCap className="h-4 w-4 mr-1" />
-                              {course.type}
-                            </span>
-                            <span className="flex items-center">
-                              <Clock className="h-4 w-4 mr-1" />
-                              {course.duration}
-                            </span>
-                          </div>
-                          <p className="mt-4">{course.description}</p>
-
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleCourse(course.id)}
-                            className="mt-4"
-                          >
-                            {expandedCourses[course.id] ? (
-                              <>Ver menos <ChevronUp className="ml-2 h-4 w-4" /></>
-                            ) : (
-                              <>Ver más <ChevronDown className="ml-2 h-4 w-4" /></>
-                            )}
-                          </Button>
-
-                          {expandedCourses[course.id] && (
-                            <div className="mt-4 space-y-4">
-                              <div className="flex flex-wrap gap-2">
-                                {course.tags.map((tag) => (
-                                  <span
-                                    key={tag}
-                                    className="px-3 py-1 bg-slate-100 rounded-full text-sm"
-                                  >
-                                    {tag}
-                                  </span>
-                                ))}
-                              </div>
-
-                              <div>
-                                <h4 className="font-semibold mb-2">Módulos principales:</h4>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                  {course.modules.map((module, index) => (
-                                    <li key={index}>{module}</li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div>
-                                <h4 className="font-semibold mb-2">Salidas profesionales:</h4>
-                                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                  {course.jobOpportunities.map((job, index) => (
-                                    <li key={index}>{job}</li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              <div className="flex flex-wrap gap-2">
-                                <Button variant="outline" size="sm">
-                                  <ThumbsUp className="h-4 w-4 mr-2" />
-                                  Me interesa
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                  <MessageCircle className="h-4 w-4 mr-2" />
-                                  Consultar
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                  <Share2 className="h-4 w-4 mr-2" />
-                                  Compartir
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                  <BookmarkIcon className="h-4 w-4 mr-2" />
-                                  Guardar
-                                </Button>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </>
-          )}
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6 lg:mt-0">Especialidades</h3>
+            <div className="flex flex-wrap gap-2">
+              {institute.specialties.map((specialty, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800"
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Certificaciones */}
+      <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Certificaciones y Acreditaciones</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {institute.certifications.map((cert) => (
+            <div key={cert.id} className="flex items-start space-x-3">
+              <Award className="h-6 w-6 text-gray-400 flex-shrink-0" />
+              <div>
+                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{cert.name}</h3>
+                <p className="text-sm text-gray-500">
+                  Otorgado por {cert.issuedBy} • {cert.year}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Colaboraciones */}
+      <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Colaboraciones con Empresas</h2>
+        <div className="space-y-4">
+          {institute.collaborations.map((collab) => (
+            <div key={collab.id} className="flex items-start space-x-3">
+              <Briefcase className="h-6 w-6 text-gray-400 flex-shrink-0" />
+              <div>
+                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{collab.company}</h3>
+                <p className="text-sm text-gray-600">{collab.type}</p>
+                <p className="text-sm text-gray-500">{collab.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+
+  const renderPublicaciones = (
+    <div className="mt-4 sm:mt-6">
+      <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {publications.map((pub) => (
+          <Card key={pub.id} className="overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-base sm:text-lg">{pub.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <img
+                src={pub.image}
+                alt={pub.title}
+                className="w-full h-32 sm:h-40 object-cover rounded"
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
-  );
+  )
+
+  const renderCompanyPublications = (
+    <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+      <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones de Empresa</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {publications.slice(0, visiblePublications).map((pub) => (
+          <Card key={pub.id} className="overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-base sm:text-lg">{pub.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <img
+                src={pub.image}
+                alt={pub.title}
+                className="w-full h-32 sm:h-40 object-cover rounded"
+              />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      {visiblePublications < publications.length && (
+        <div className="mt-4 text-center">
+          <Button
+            onClick={() => setVisiblePublications(publications.length)}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            Mostrar más publicaciones
+            <ChevronRight className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      {/* Cover Photo */}
+      <div className="relative h-48 sm:h-64 md:h-80 bg-gray-300">
+        <img src={institute.basic.cover} alt="Cover" className="w-full h-full object-cover" />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Tabs defaultValue="inicio" className="w-full">
+          {/* Card superior con la info del instituto y la barra de Tabs */}
+          <div className="relative -mt-16 sm:-mt-24 md:-mt-32">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col sm:flex-row sm:space-x-5">
+                  <div className="flex-shrink-0 mx-auto sm:mx-0">
+                    <img
+                      className="h-32 w-32 sm:h-40 sm:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
+                      src={institute.basic.logo}
+                      alt={institute.basic.name}
+                    />
+                  </div>
+                  <div className="mt-4 sm:mt-0 text-center sm:text-left">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{institute.basic.name}</h1>
+                    <p className="text-base sm:text-lg text-gray-600">{institute.basic.slogan}</p>
+                    <p className="text-gray-500 flex items-center justify-center sm:justify-start mt-2">
+                      <MapPin className="h-5 w-5 text-gray-400 mr-2" />
+                      <span className="text-sm sm:text-base">{institute.basic.location}</span>
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-6 sm:mt-0 flex justify-center">
+                  <div className="flex flex-wrap justify-center gap-2">
+                    <Button variant="outline" onClick={handleContact} className="text-sm">
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Contactar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleFollow}
+                      className={`text-sm ${isFollowing ? "bg-blue-50" : ""}`}
+                    >
+                      <Users className="h-4 w-4 mr-2" />
+                      {isFollowing ? "Siguiendo" : "Seguir"}
+                    </Button>
+                    <Button variant="outline" onClick={handleShare} className="text-sm">
+                      <Share2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información de contacto */}
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="flex items-center justify-center sm:justify-start">
+                    <Globe className="h-5 w-5 text-gray-400 mr-2" />
+                    <a href={`https://${institute.basic.website}`} className="text-blue-600 hover:underline text-sm sm:text-base">
+                      {institute.basic.website}
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-center sm:justify-start">
+                    <Phone className="h-5 w-5 text-gray-400 mr-2" />
+                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.phone}</span>
+                  </div>
+                  <div className="flex items-center justify-center sm:justify-start">
+                    <Mail className="h-5 w-5 text-gray-400 mr-2" />
+                    <span className="text-gray-600 text-sm sm:text-base">{institute.basic.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Barra de Tabs */}
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6 overflow-x-auto">
+                <TabsList className="w-full flex justify-start sm:justify-center">
+                  <TabsTrigger value="inicio" className="text-sm sm:text-base">Inicio</TabsTrigger>
+                  <TabsTrigger value="acerca" className="text-sm sm:text-base">Acerca de</TabsTrigger>
+                  <TabsTrigger value="publicaciones" className="text-sm sm:text-base">Publicaciones</TabsTrigger>
+                  <TabsTrigger value="empleos" className="text-sm sm:text-base">Empleos</TabsTrigger>
+                  <TabsTrigger value="instituto" className="text-sm sm:text-base">Vida en el instituto</TabsTrigger>
+                  <TabsTrigger value="alumnos" className="text-sm sm:text-base">Antiguos alumnos</TabsTrigger>
+                </TabsList>
+              </div>
+            </div>
+          </div>
+
+          {/* Card inferior con el contenido de las pestañas */}
+          <div className="mt-4 bg-white rounded-lg shadow-lg p-4 sm:p-6">
+            <TabsContent value="inicio">
+              {renderInicio}
+              {renderCompanyPublications}
+            </TabsContent>
+            <TabsContent value="acerca">{renderAcercaDe}</TabsContent>
+            <TabsContent value="publicaciones">{renderPublicaciones}</TabsContent>
+            <TabsContent value="empleos">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
+                <h2 className="text-lg sm:text-[23px] text-gray-900 mb-4">Empleos</h2>
+                <p className="text-gray-600 text-sm sm:text-base">No hay empleos disponibles actualmente.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="instituto">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Vida en el instituto</h2>
+                <p className="text-gray-600 text-sm sm:text-base">No hay información disponible.</p>
+              </div>
+            </TabsContent>
+            <TabsContent value="alumnos">
+              <div className="mt-4 sm:mt-6 pt-4 sm:pt-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Antiguos alumnos</h2>
+                <p className="text-gray-600 text-sm sm:text-base">No hay información de antiguos alumnos.</p>
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
+    </div>
+  )
 }

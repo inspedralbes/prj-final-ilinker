@@ -24,6 +24,7 @@ class Institutions extends Model
         'sector',
         'founded_year',
         'languages',
+        'specialties',
         'logo',
         'cover',
         'website',
@@ -40,7 +41,8 @@ class Institutions extends Model
     ];
 
     protected $casts = [
-        'languages' => 'array'
+        'languages' => 'array',
+        'specialties' => 'array'
     ];
 
     /**

@@ -2,47 +2,55 @@ import Cookies from "js-cookie";
 
 const routeApi = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/").replace(/\/+$/, "") + "/";
 
-export async function apiRequest(endpoint, method = "GET", body = null) {
+export async function apiRequest(endpoint, method = "GET", body = null, isFormData = false) {
     try {
-      let token = null;
-  
-      if (typeof window !== "undefined") {
-        // Estamos en el cliente
-        token = Cookies.get("authToken");
-      }
-  
-      // Si el body es FormData, no se debe establecer el Content-Type
-      const isFormData = body instanceof FormData;
-  
-      const options = {
-        method,
-        headers: {
-          "Accept": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        // credentials: "include",
-      };
-  
-      // Si no es FormData, agregar el cuerpo como JSON
-      if (body && !isFormData) {
-        options.headers["Content-Type"] = "application/json";
-        options.body = JSON.stringify(body);
-      } else if (body && isFormData) {
-        // Si es FormData, no se necesita especificar el Content-Type
-        options.body = body;
-      }
-  
-      const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
-      const url = `${routeApi}${cleanEndpoint}`;
-  
-      const response = await fetch(url, options);
-  
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
-      }
-  
-      return await response.json();
+        let token = null;
+
+        if (typeof window !== "undefined") {
+            // Estamos en el cliente
+            token = Cookies.get("authToken");
+        }
+
+        const options = {
+            method,
+            headers: {
+                "Accept": "application/json",
+                ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            credentials: "include",
+        };
+
+        if (body) {
+            if (isFormData) {
+                // For FormData (file uploads), don't set Content-Type (browser will set it with boundary)
+                options.body = body;
+            } else {
+                options.headers["Content-Type"] = "application/json";
+                options.body = JSON.stringify(body);
+            }
+        }
+
+        const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
+        const url = `${routeApi}${cleanEndpoint}`;
+
+
+        const response = await fetch(url, options);
+
+        // if (!response.ok) {
+        //     throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
+        // }
+        const data = await response.json();
+        
+        if (!response.ok) {
+            const error = new Error(data.message || `Error en la respuesta: ${response.status}`);
+            error.response = {
+                status: response.status,
+                data: data
+            };
+            throw error;
+        }
+
+        return data;
     } catch (error) {
       console.error(`Error en la petición a ${endpoint}:`, error.message);
       throw error;

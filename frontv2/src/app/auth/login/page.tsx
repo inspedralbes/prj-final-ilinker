@@ -20,6 +20,14 @@ import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import socket from "@/services/websockets/sockets";
 
+interface EmptyFields {
+    email?: string;
+    password?: string;
+    code?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+}
+
 const Login: React.FC = () => {
     const router = useRouter();
     const [formState, setFormState] = useState("login");
@@ -28,7 +36,7 @@ const Login: React.FC = () => {
     const [verificationCode, setVerificationCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
-    const [emptyFields, setEmptyFields] = useState({});
+    const [emptyFields, setEmptyFields] = useState<EmptyFields>({});
     const [apiError, setApiError] = useState("");
     const { login } = useContext(AuthContext);
     const [showPassword, setShowPassword] = useState(false);
@@ -41,18 +49,18 @@ const Login: React.FC = () => {
     useEffect(()=>{
         hideLoader();
     },[])
-    const validateEmptyFields = (fields: any) => {
-        const empty = {};
+    const validateEmptyFields = (fields: Record<string, string>) => {
+        const empty: EmptyFields = {};
         Object.keys(fields).forEach((field) => {
             if (!fields[field].trim()) {
-                empty[field] = "Este campo es obligatorio";
+                empty[field as keyof EmptyFields] = "Este campo es obligatorio";
             }
         });
         setEmptyFields(empty);
         return Object.keys(empty).length === 0;
     };
 
-    const handleLogin = async (e) => {
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         showLoader();
         setApiError("");
@@ -95,7 +103,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleSendRecoveryCode = async (e) => {
+    const handleSendRecoveryCode = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 
@@ -123,7 +131,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleVerifyCode = async (e) => {
+    const handleVerifyCode = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 
@@ -151,7 +159,7 @@ const Login: React.FC = () => {
         }
     };
 
-    const handleResetPassword = async (e) => {
+    const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setApiError("");
 
