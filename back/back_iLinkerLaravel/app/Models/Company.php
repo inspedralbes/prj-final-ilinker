@@ -39,7 +39,7 @@ class Company extends Model
 
     public function skills()
     {
-        return $this->hasManyThrough(Sector::class, CompanySkills::class, 'company_id', 'id', 'id', 'skill_id');
+        return $this->hasManyThrough(Skill::class, CompanySkills::class, 'company_id', 'id', 'id', 'skill_id');
     }
 
     public function offers()

@@ -204,10 +204,12 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [openDialog, setOpenDialog] = useState(false);
     const [educationSelect, setEducationSelect] = useState(null);
     const [experinceSelect, setExperienceSelect] = useState(null);
+    const [projectsSelect, setProjectSelect] = useState(null);
     const [isExperience, setIsExperience] = useState(false);
     const [carouselStates, setCarouselStates] = useState({});
 
-    const API_PATH_IMG = "http://localhost:8000";
+    const API_PATH_IMG = "http://localhost:8000/storage/projects/";
+
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
@@ -219,11 +221,13 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         console.log(experience);
         setModalExperience(!modalExperience);
         setModalModeEdit(false);
+        setIsEditing(false);
     }
     const openModalProjects = (project) => {
         console.log(project);
         setModalProjects(!modalProjects);
         setModalModeEdit(false);
+        setIsEditing(false);
     }
 
     const handleCloseModal = () => {
@@ -273,19 +277,20 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setModalModeEdit(false);
     }
 
-    const removeSection = (education = null, experience = null) => {
+    const removeSection = (education = null, experience = null, projects = null) => {
         setOpenDialog(true);
-        setIsExperience(experience ? true : false);
+        setIsExperience(!!experience);
         setEducationSelect(education);
         setExperienceSelect(experience);
+        setProjectSelect(projects);
     }
 
 
     const handleConfirm = async () => {
 
         try {
-            const endpoint = educationSelect ? 'education/delete' : 'experience/delete'
-            const idSection = educationSelect ? educationSelect.id : experinceSelect.id;
+            const endpoint = educationSelect ? 'education/delete' : projectsSelect ? 'projects/delete' : 'experience/delete'
+            const idSection = educationSelect ? educationSelect.id : projectsSelect ? projectsSelect.id : experinceSelect.id;
             const response = await apiRequest(endpoint, 'DELETE', {id: idSection})
 
             if (response.status === 'success') {
@@ -300,14 +305,18 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                             )}
                         </div>
                     ),
-                    description: educationSelect ? "Estudio eliminado correctamente" : "Experiencia eliminada correctamente",
+                    description:
+                        educationSelect ? "Estudio eliminado correctamente"
+                            : projectsSelect ? "Proyecto eliminado correctamente"
+                                : "Experiencia eliminada correctamente",
+
                     variant: "default",
                     duration: 2000
                 })
                 UpdateChange();
                 setOpenDialog(false);
                 setIsExperience(false);
-                educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
+                educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
             } else {
                 toast({
                     title: (
@@ -316,20 +325,23 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                             <span>Error al eliminar</span>
                         </div>
                     ),
-                    description: educationSelect ? "Ha ocurrido un error al intentar eliminar el estudio" : "Ha ocurrido un error al intentar eliminar la experiencia",
+                    description:
+                        educationSelect ? "Ha ocurrido un error al intentar eliminar el estudio"
+                            : projectsSelect ? "Ha ocurrido un error al intentar eliminar el proyecto"
+                                : "Ha ocurrido un error al intentar eliminar la experiencia",
                     variant: "destructive",
                     duration: 2000
                 })
                 setOpenDialog(false);
                 setIsExperience(false);
-                educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
+                educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
             }
 
         } catch (e) {
             console.log(e)
             setOpenDialog(false);
             setIsExperience(false);
-            educationSelect ? setEducationSelect(null) : setExperienceSelect(null);
+            educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
         }
     };
 
@@ -338,6 +350,17 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setIsExperience(false);
         setEducationSelect(null);
         setExperienceSelect(null);
+    }
+
+    const slugify = (text) => {
+        return text
+            .toLowerCase()
+            .normalize("NFD")                     // separa letras y acentos
+            .replace(/[\u0300-\u036f]/g, "")     // elimina los acentos
+            .replace(/\s+/g, "-")                // reemplaza espacios por guiones
+            .replace(/[^\w\-]+/g, "")            // elimina caracteres especiales
+            .replace(/\-\-+/g, "-")              // reemplaza múltiples guiones por uno
+            .replace(/^-+|-+$/g, "");            // elimina guiones al inicio/final
     };
 
     // Función para mostrar el tipo de ubicación con un icono apropiado
@@ -914,7 +937,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
                                                                                 {/* Botón de eliminar */}
                                                                                 <button
-                                                                                    onClick={() => removeSection(studies, null)} // asegúrate de tener esta función
+                                                                                    onClick={() => removeSection(studies, null, null)} // asegúrate de tener esta función
                                                                                     className="text-red-600 hover:text-red-800"
                                                                                 >
                                                                                     <Trash className="h-4 w-4"/>
@@ -1039,7 +1062,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                                         className="h-4 w-4"/>
                                                                                                 </button>
                                                                                                 <button
-                                                                                                    onClick={() => removeSection(null, exp)}
+                                                                                                    onClick={() => removeSection(null, exp, null)}
                                                                                                     className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                                                 >
                                                                                                     <Trash
@@ -1089,7 +1112,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                                 className="h-4 w-4"/>
                                                                                         </button>
                                                                                         <button
-                                                                                            onClick={() => removeSection(null, exp)}
+                                                                                            onClick={() => removeSection(null, exp, null)}
                                                                                             className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                                         >
                                                                                             <Trash
@@ -1178,11 +1201,10 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                         className="flex aspect-square items-center justify-center p-4">
                                                                                         <img
                                                                                             key={index}
-                                                                                            src={API_PATH_IMG + img}
+                                                                                            src={API_PATH_IMG + slugify(pro.name) + "/" + img}
                                                                                             alt={`Imagen ${index}`}
                                                                                             className="w-full h-auto object-cover"
                                                                                         />
-
                                                                                     </CardContent>
                                                                                 </Card>
                                                                             </div>
@@ -1243,14 +1265,14 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                 }
                                                                 <div className="flex space-x-2 ml-auto">
                                                                     <button
-                                                                        onClick={() => editInfoPro("experience", pro)}
+                                                                        onClick={() => editInfoPro("projects", pro)}
                                                                         className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
                                                                     >
                                                                         <Pencil
                                                                             className="h-4 w-4"/>
                                                                     </button>
                                                                     <button
-                                                                        onClick={() => removeSection(null, pro)}
+                                                                        onClick={() => removeSection(null, null, pro)}
                                                                         className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                     >
                                                                         <Trash
@@ -1287,7 +1309,13 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                 open={openDialog}
                 onOpenChange={setOpenDialog}
                 title="¿Estás seguro?"
-                description={isExperience ? "Esta acción eliminará la experiencia permanentemente." : "Esta acción eliminará el estudio permanentemente."}
+                description={
+                    isExperience
+                        ? "Esta acción eliminará la experiencia permanentemente."
+                        : projectsSelect
+                            ? "Esta acción eliminará el proyecto permanentemente."
+                            : "Esta acción eliminará el estudio permanentemente."
+                }
                 onConfirm={handleConfirm}
                 onCancel={handleCancel}
                 confirmText="Continuar"

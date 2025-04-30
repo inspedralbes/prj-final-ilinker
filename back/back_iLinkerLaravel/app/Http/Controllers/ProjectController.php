@@ -40,19 +40,11 @@ class ProjectController extends Controller
 
     public function update(Request $request)
     {
-        $validate = $request->validate([
-            'id' => 'required',
-            'name' => 'required',
-            'description' => 'required',
-            'link' => 'required',
-            'pictures' => 'required',
-            'end_project' => 'required',
-        ]);
 
         DB::beginTransaction();
 
         try {
-            $project = $this->projectService->updateProject($validate);
+            $project = $this->projectService->updateProject($request);
 
             if (!$project) {
                 Db::rollBack();

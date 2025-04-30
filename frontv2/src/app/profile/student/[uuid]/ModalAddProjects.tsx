@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {useState, useEffect} from "react";
+import {cn} from "@/lib/utils";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Separator} from "@/components/ui/separator";
+import {Calendar} from "@/components/ui/calendar";
+import {Popover, PopoverContent, PopoverTrigger} from "@/components/ui/popover";
 import {
     Briefcase,
     CalendarIcon,
@@ -18,10 +18,10 @@ import {
     CheckCircle,
     Info
 } from "lucide-react";
-import { format } from "date-fns";
-import { Textarea } from "@/components/ui/textarea";
-import { apiRequest } from "@/services/requests/apiRequest";
-import { useToast } from "@/hooks/use-toast";
+import {format} from "date-fns";
+import {Textarea} from "@/components/ui/textarea";
+import {apiRequest} from "@/services/requests/apiRequest";
+import {useToast} from "@/hooks/use-toast";
 import Cookies from "js-cookie";
 
 interface ModalProjectsProps {
@@ -44,11 +44,11 @@ export default function ModalAddProjects({
     const [link, setLink] = useState<string>("");
     const [endDate, setEndDate] = useState<Date | undefined>();
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
-    const { toast } = useToast();
+    const {toast} = useToast();
     const [projectId, setProjectId] = useState<string | null>(null);
 
     const [currentPictureFile, setCurrentPictureFile] = useState<File | null>(null);
-    const [pictures, setPictures] = useState<File[]>([]); // o File[] si prefieres trabajar con los archivos directamente
+    const [pictures, setPictures] = useState<ImageItem[]>([]); // o File[] si prefieres trabajar con los archivos directamente
 
     // Inicializar los campos si estamos en modo edición
     useEffect(() => {
@@ -64,9 +64,32 @@ export default function ModalAddProjects({
             console.log("IMAGENES")
             console.table(initialData.pictures);
 
-            // Establecer imágenes
-            if (initialData.pictures && Array.isArray(JSON.parse(initialData.pictures))) {
-                setPictures(JSON.parse(initialData.pictures))
+            // Establecer imágenes existentes
+            if (initialData.pictures) {
+                try {
+                    // Asegurarnos de que trabajamos con un array, no con un string
+                    let parsedPictures;
+                    if (typeof initialData.pictures === 'string') {
+                        parsedPictures = JSON.parse(initialData.pictures);
+                    } else if (Array.isArray(initialData.pictures)) {
+                        parsedPictures = initialData.pictures;
+                    } else {
+                        parsedPictures = [];
+                    }
+
+                    if (Array.isArray(parsedPictures)) {
+                        // Convertir cada nombre de imagen a un objeto ImageItem
+                        const imageItems = parsedPictures.map(pictureName => ({
+                            isFile: false,
+                            name: pictureName,
+                            path: pictureName
+                        }));
+
+                        setPictures(imageItems);
+                    }
+                } catch (error) {
+                    console.error("Error al parsear las imágenes:", error);
+                }
             }
 
             // Establecer fecha de finalización
@@ -78,11 +101,15 @@ export default function ModalAddProjects({
     }, [isEditing, initialData]);
 
 
-
     const addPictureFile = () => {
         if (!currentPictureFile) return;
 
-        setPictures([...pictures, currentPictureFile]);
+        // Añadir el nuevo archivo como un objeto ImageItem
+        setPictures([...pictures, {
+            isFile: true,
+            file: currentPictureFile,
+            name: currentPictureFile.name
+        }]);
 
         // Limpia
         setCurrentPictureFile(null);
@@ -99,7 +126,7 @@ export default function ModalAddProjects({
             toast({
                 title: (
                     <div className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-gray-500" />
+                        <Info className="h-5 w-5 text-gray-500"/>
                         <span>Error</span>
                     </div>
                 ),
@@ -118,13 +145,27 @@ export default function ModalAddProjects({
         formData.append("link", link.trim() || "");
         formData.append("end_project", endDate ? format(endDate, "dd/MM/yyyy") : "");
 
-        pictures.forEach((file, index) => {
-            formData.append("pictures[]", file); // Enviar como array
-        });
+
+        // Recopilar los nombres de las imágenes existentes
+        const existingImages = pictures
+            .filter(item => !item.isFile)
+            .map(item => item.path);
+
+        // Añadir la lista de nombres de imágenes existentes
+        formData.append('existing_pictures', JSON.stringify(existingImages));
+
+        // Añadir los archivos de imágenes nuevas
+        pictures
+            .filter(item => item.isFile && item.file)
+            .forEach(item => {
+                if (item.file) {
+                    formData.append('pictures[]', item.file);
+                }
+            });
 
 
         console.log(isEditing ? "ACTUALIZACIÓN PROYECTO:" : "CREACIÓN PROYECTO:");
-        console.table(formData);
+        console.table(Array.from(formData.entries()));
 
         try {
             // Cambiar el endpoint según si estamos creando o actualizando
@@ -137,7 +178,7 @@ export default function ModalAddProjects({
                 toast({
                     title: (
                         <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500" />
+                            <CheckCircle className="h-5 w-5 text-green-500"/>
                             <span>{isEditing ? "Proyecto actualizado" : "Proyecto guardado"}</span>
                         </div>
                     ),
@@ -166,7 +207,7 @@ export default function ModalAddProjects({
                 toast({
                     title: (
                         <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-white-500" />
+                            <AlertTriangle className="h-5 w-5 text-white-500"/>
                             <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
                         </div>
                     ),
@@ -183,11 +224,13 @@ export default function ModalAddProjects({
                 duration: 2000
             });
         }
+
     };
 
     return (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="modal-content bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div
+                className="modal-content bg-white p-6 rounded-lg shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
                 <div className="flex justify-between items-center mb-4">
                     {isEditing ? (
                         <h2 className="text-xl font-bold">Editar Proyecto</h2>
@@ -198,11 +241,11 @@ export default function ModalAddProjects({
                         onClick={handleClose}
                         className="text-gray-500 hover:text-gray-700"
                     >
-                        <X className="h-5 w-5" />
+                        <X className="h-5 w-5"/>
                     </button>
                 </div>
 
-                <Separator className="mb-4" />
+                <Separator className="mb-4"/>
 
                 <div className="space-y-4">
                     {/* Nombre del Proyecto */}
@@ -211,7 +254,7 @@ export default function ModalAddProjects({
                             Nombre del Proyecto <span className="text-red-500">*</span>
                         </label>
                         <div className="flex items-center relative">
-                            <Briefcase className="h-4 w-4 absolute left-3 text-gray-500" />
+                            <Briefcase className="h-4 w-4 absolute left-3 text-gray-500"/>
                             <Input
                                 value={projectName}
                                 onChange={(e) => setProjectName(e.target.value)}
@@ -241,7 +284,7 @@ export default function ModalAddProjects({
                             <span className="text-xs text-gray-500 ml-1">(opcional)</span>
                         </label>
                         <div className="flex items-center relative">
-                            <LinkIcon className="h-4 w-4 absolute left-3 text-gray-500" />
+                            <LinkIcon className="h-4 w-4 absolute left-3 text-gray-500"/>
                             <Input
                                 value={link}
                                 onChange={(e) => setLink(e.target.value)}
@@ -286,15 +329,33 @@ export default function ModalAddProjects({
                                 <p className="text-sm font-medium mb-2">Imágenes añadidas ({pictures.length})</p>
                                 <div className="space-y-2">
                                     {pictures.map((file, index) => (
-                                        <div key={index} className="flex items-center justify-between bg-white p-2 rounded-md border text-sm">
-                                            <div className="truncate max-w-[350px]">{file.name}</div> {/* Mostrar el nombre del archivo */}
+                                        <div key={index}
+                                             className="flex items-center justify-between bg-white p-2 rounded-md border text-sm">
+
+                                            <div
+                                                className="truncate max-w-[350px]">
+                                                {file.isFile ? (
+                                                    <span className="flex items-center">
+                                                        <Image className="h-4 w-4 mr-1 text-blue-500" />
+                                                        <span className="truncate">{file.name}</span>
+                                                        <span className="text-xs text-blue-500 ml-1">(Nuevo)</span>
+                                                    </span>
+                                                ) : (
+                                                    <span className="flex items-center">
+                                                        <Image className="h-4 w-4 mr-1 text-green-500" />
+                                                        <span className="truncate">{file.name}</span>
+                                                        <span className="text-xs text-green-500 ml-1">(Existente)</span>
+                                                    </span>
+                                                )}
+                                            </div>
+
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => removePictureFile(index)} // Actualizamos la función de eliminación
                                                 className="h-7 w-7 p-0"
                                             >
-                                                <X className="h-4 w-4 text-red-500" />
+                                                <X className="h-4 w-4 text-red-500"/>
                                             </Button>
                                         </div>
                                     ))}
@@ -319,7 +380,7 @@ export default function ModalAddProjects({
                                         !endDate && "text-muted-foreground"
                                     )}
                                 >
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    <CalendarIcon className="mr-2 h-4 w-4"/>
                                     {endDate ? format(endDate, "PPP") : "Seleccionar fecha de finalización..."}
                                 </Button>
                             </PopoverTrigger>
