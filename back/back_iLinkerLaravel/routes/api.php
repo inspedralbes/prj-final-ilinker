@@ -140,8 +140,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
 });
 
-Route::prefix('admin')->middleware(['auth', 'can:admin'])->group(function () {
-    Route::get('/reported-users', [ReportedUserController::class, 'index'])->name('admin.reported-users.index');
-    Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy'])->name('admin.reported-users.destroy');
+// Rutas de administración (corregidas)
+Route::prefix('admin')->group(function () {
+    Route::get('/reported-users', [ReportedUserController::class, 'index']);
+    Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy']);
+    Route::delete('/delete-user/{userId}', [ReportedUserController::class, 'deleteUser']);
+    Route::post('/ban-user/{userId}', [ReportedUserController::class, 'banUser']);
 });
 

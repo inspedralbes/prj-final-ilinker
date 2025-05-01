@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             StudentExperienceSeeder::class,
             StudentSkillsSeeder::class,
             StudentProjectSeeder::class,
+            RepotrsSeeder::class,
         ]);
     }
 }

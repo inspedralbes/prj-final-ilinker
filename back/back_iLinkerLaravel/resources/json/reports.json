@@ -1,0 +1,14 @@
+[
+    {
+      "id": 1,
+      "reportedUser": {
+        "id": 2,
+        "name": "Juan Pérez"
+      },
+      "reporter": {
+        "id": 1,
+        "name": "Laura Gómez"
+      },
+      "reason": "Comportamiento inapropiado en la plataforma."
+    }
+  ]
