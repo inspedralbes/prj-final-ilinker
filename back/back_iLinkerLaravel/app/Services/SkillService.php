@@ -50,4 +50,9 @@ class SkillService
         return $skills;
 
     }
+
+    public function getAllSkills()
+    {
+        return Skill::all();
+    }
 }

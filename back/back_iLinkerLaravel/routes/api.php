@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
@@ -42,6 +43,17 @@ Route::post('auth/google', [GoogleController::class, 'loginWithGoogle']);
 // Group company but it not necessary to be logged
 Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('company.getCompany');
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
+Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
+Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
+
+Route::prefix('/institution')->group(function () {
+    // Public routes
+    Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
+    Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
+    Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
+    Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+
+});
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
@@ -57,7 +69,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/student')->group(function () {
         Route::post('update', [StudentController::class, 'update'])->name('student.update');
         Route::post('delete', [StudentController::class, 'delete'])->name('student.delete');
-        Route::get('/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
         Route::post('/deactivate', [StudentController::class, 'deactivate'])->name('student.deactivate');
         Route::post('/getEducationById', [StudentController::class, 'getEducationById'])->name('get.education');
         Route::get('/offer/get-data', [StudentController::class, 'getOfferData'])->name('get.offer.data');
@@ -68,6 +79,13 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::prefix('/institution')->group(function () {
+        // Protected routes that require authentication
+        Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
+        Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
+    });
+    Route::prefix('/institution')->group(function () {
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
         Route::get('/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
@@ -76,7 +94,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
         Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
         Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
-        Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
     });
 
     Route::prefix('/education')->group(function () {
@@ -99,7 +116,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::prefix('/skill')->group(function () {
         Route::post('/create', [SkillController::class, 'create'])->name('create.skill');
-        Route::delete('/delete', [SkillController::class, 'delete'])->name('delete.skill');
         Route::post('/assignment', [SkillController::class, 'assignment'])->name('assignment.skill');
     });
 
@@ -109,10 +125,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/update', [OfferController::class, 'update'])->name('offers.update');
         Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
         Route::post('/apply', [OfferController::class, 'apply'])->name('offers.apply');
+        Route::post('/apply/update/status', [OfferController::class, 'applyUpdateStatus'])->name('offers.rejected');
     });
 
     Route::prefix('/courses')->group(function () {
         Route::get('/getCourses', [CoursesController::class, 'getCourses'])->name('get.courses');
+    });
+
+    Route::prefix('/chats')->group(function () {
+        Route::get('/my-direct-messages', [ChatController::class, 'getDirectChats'])->name('chat.myMessages');
+        Route::get('/get-or-create-direct-chat/{userId}', [ChatController::class, 'getOrCreateDirectChat'])->name('chat.getOrCreateDirectChat');
+        Route::get('/suggested-direct-chat', [ChatController::class, 'suggestedDirectChat'])->name('chat.suggestedDirectChat');
+        Route::post('/send-direct-chat', [ChatController::class, 'sendDirectMessage'])->name('chat.sendDirectMessage');
     });
 });
 

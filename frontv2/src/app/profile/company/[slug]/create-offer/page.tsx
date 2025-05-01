@@ -206,9 +206,9 @@ export default function CreateOffer() {
                       `}
                     >
                       <Globe className="h-4 w-4 mr-2" />
-                      {type === "remote"
+                      {type === "remoto"
                         ? "Remoto"
-                        : type === "hybrid"
+                        : type === "hibrido"
                         ? "Híbrido"
                         : "Presencial"}
                     </button>

@@ -12,7 +12,7 @@ import {format} from "date-fns";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {useToast} from "@/hooks/use-toast"
-import {AlertTriangle, CheckCircle, Info} from "lucide-react";
+import {AlertTriangle, CheckCircle, Info } from "lucide-react";
 import {white} from "next/dist/lib/picocolors"; // Puedes usar cualquier icono de lucide-react
 
 
@@ -79,12 +79,13 @@ export default function ModalAddStudies({
             // Establecer fechas
             if (initialData.start_date) {
                 // Convertir string a Date (asumiendo formato dd/MM/yyyy)
-                const [day, month, year] = initialData.start_date.split('/');
+                const [year, month, day] = initialData.start_date.split('-');
+                console.log(year, month, day);
                 setStartDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
             }
 
             if (initialData.end_date && initialData.end_date !== "Presente") {
-                const [day, month, year] = initialData.end_date.split('/');
+                const [year, month, day] = initialData.end_date.split('-');
                 setEndDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
             }
         }
@@ -241,7 +242,7 @@ export default function ModalAddStudies({
                 <div className="flex justify-between items-center mb-4">
                     {isEditing ? (
                         <h2 className="text-xl font-bold">Editar Estudio</h2>
-                    ): (
+                    ) : (
                         <h2 className="text-xl font-bold">Añadir Nuevo Estudio</h2>
 
                     )}
@@ -266,7 +267,12 @@ export default function ModalAddStudies({
                                 <Building2 className="h-4 w-4 absolute left-3 text-gray-500"/>
                                 <Input
                                     value={institute}
-                                    onChange={(e) => setInstitute(e.target.value)}
+                                    onChange={(e) => {
+                                        setInstitute(e.target.value);
+                                        if (selectedInstitute && selectedInstitute.name !== e.target.value) {
+                                            setSelectedInstitute(null);
+                                        }
+                                    }}
                                     placeholder="Buscar institución educativa..."
                                     className="pl-9"
                                 />
@@ -333,7 +339,12 @@ export default function ModalAddStudies({
                                 <GraduationCap className="h-4 w-4 absolute left-3 text-gray-500"/>
                                 <Input
                                     value={degree}
-                                    onChange={(e) => setDegree(e.target.value)}
+                                    onChange={(e) => {
+                                        setDegree(e.target.value);
+                                        if (selectDegree && selectDegree.name !== e.target.value) {
+                                            setSelectDegree(null);
+                                        }
+                                    }}
                                     placeholder="Buscar curso..."
                                     className="pl-9"
                                 />

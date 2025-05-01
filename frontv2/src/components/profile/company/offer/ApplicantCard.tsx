@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Building2, MapPin, CheckCircle2, XCircle, GraduationCap, Code2, Calendar, Mail, Clock, FileText, FileSpreadsheet, User, Phone, Clock3 } from 'lucide-react';
+import config from '@/types/config';
 
 interface Skill {
   id: number;
@@ -33,8 +34,8 @@ interface Applicant {
 }
 
 interface ApplicantCardProps {
-  applicant: any;
-  onStatusUpdate: (id: number, status: 'accepted' | 'rejected') => void;
+  applicant: Applicant;
+  onStatusUpdate: (id: number, status: 'accept' | 'rejected') => void;
 }
 
 export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCardProps) {
@@ -54,7 +55,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
   // Get status badge color
   const getStatusColor = (status: string) => {
     switch(status) {
-      case 'accepted':
+      case 'accept':
         return 'bg-green-50 text-green-700 border-green-200';
       case 'rejected':
         return 'bg-red-50 text-red-700 border-red-200';
@@ -66,7 +67,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
   // Get status label
   const getStatusLabel = (status: string) => {
     switch(status) {
-      case 'accepted':
+      case 'accept':
         return 'Aceptado';
       case 'rejected':
         return 'Rechazado';
@@ -83,7 +84,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
     >
       {/* Status indicator at top */}
       <div className={`h-1.5 ${
-        applicant.pivot.status === 'accepted' ? 'bg-green-500' : 
+        applicant.pivot.status === 'accept' ? 'bg-green-500' : 
         applicant.pivot.status === 'rejected' ? 'bg-red-500' : 
         'bg-amber-500'
       }`} />
@@ -135,10 +136,10 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
               </a>
             </div>
           )}
-          {applicant.student.availability && (
+          {applicant.pivot.availability && (
             <div className="flex items-center text-sm text-gray-600">
               <Clock3 className="flex-shrink-0 mr-2 h-4 w-4 text-gray-400" />
-              <span>{applicant.student.availability}</span>
+              <span>{applicant.pivot.availability}</span>
             </div>
           )}
         </div>
@@ -149,7 +150,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
             <GraduationCap className="flex-shrink-0 mt-0.5 mr-2 h-5 w-5 text-gray-500" />
             <div>
               <p className="text-xs uppercase tracking-wide text-gray-500 font-medium mb-1">Educación</p>
-              <p className="text-sm text-gray-800">{applicant.student.education[0].institute}</p>
+              <p className="text-sm text-gray-800">{applicant.student.education[0]?.institute}</p>
             </div>
           </div>
           
@@ -163,15 +164,15 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
           </div>
 
           {/* Documents section */}
-          {(applicant.student.cv_url || applicant.student.cover_letter_url) && (
+          {(applicant.pivot.cv_attachment || applicant.pivot.cover_letter_attachment) && (
             <div className="flex items-start">
               <FileText className="flex-shrink-0 mt-0.5 mr-2 h-5 w-5 text-gray-500" />
               <div className="space-y-2">
                 <p className="text-xs uppercase tracking-wide text-gray-500 font-medium mb-1">Documentos</p>
                 <div className="space-y-2">
-                  {applicant.student.cv_url && (
+                  {applicant.pivot.cv_attachment && (
                     <a
-                      href={applicant.student.cv_url}
+                      href={config.storageUrl + applicant.pivot.cv_attachment}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -180,9 +181,9 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
                       Curriculum Vitae
                     </a>
                   )}
-                  {applicant.student.cover_letter_url && (
+                  {applicant.pivot.cover_letter_attachment && (
                     <a
-                      href={applicant.student.cover_letter_url}
+                      href={config.storageUrl + applicant.pivot.cover_letter_attachment}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors"
@@ -204,7 +205,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
             Competencias
           </h4>
           <div className="flex flex-wrap gap-2">
-            {applicant.student.skills.map((skill: any) => (
+            {applicant.student.skills.map((skill) => (
               <span
                 key={skill.id}
                 className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100 transition-colors hover:bg-blue-100"
@@ -226,7 +227,7 @@ export default function ApplicantCard({ applicant, onStatusUpdate }: ApplicantCa
               Rechazar
             </button>
             <button
-              onClick={() => onStatusUpdate(applicant.id, 'accepted')}
+              onClick={() => onStatusUpdate(applicant.id, 'accept')}
               className="inline-flex items-center px-3 py-2 border border-transparent text-xs font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
             >
               <CheckCircle2 className="h-4 w-4 mr-1.5" />

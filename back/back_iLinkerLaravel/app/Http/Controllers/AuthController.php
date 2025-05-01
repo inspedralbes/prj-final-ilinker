@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Institutions;
+use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
 use App\Services\StudentService;
@@ -43,9 +45,21 @@ class AuthController extends Controller
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            $company = Company::where('user_id', $user->id)->first();
+            if($user->rol === "company"){
+                $company = Company::where('user_id', $user->id)->first();
+                $user->company = $company;
+            }
 
-            $user->company = $company;
+            if($user->rol === 'student'){
+                $student = Student::where('user_id', $user->id)->first();
+                $user->student = $student;
+            }
+
+            if($user->rol === 'institutions'){
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
+            }
+
             return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
         }
 
@@ -94,6 +108,9 @@ class AuthController extends Controller
                     throw new \Exception('Error al crear la institución.');
                 }
                 DB::commit();
+
+                $user['user']['institution'] = $institution;
+
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
             } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
@@ -101,6 +118,9 @@ class AuthController extends Controller
                     throw new \Exception('Error al crear el estudiante.');
                 }
                 DB::commit();
+
+                $user['user']['student'] = $student;
+
                 return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
             } else {
                 throw new \Exception('El rol no está especificado.');
@@ -122,8 +142,21 @@ class AuthController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
-            $company = Company::where('user_id', $user->id)->first();
-            $user->company = $company;
+            if($user->rol === "company"){
+                $company = Company::where('user_id', $user->id)->first();
+                $user->company = $company;
+            }
+
+            if($user->rol === 'student'){
+                $student = Student::where('user_id', $user->id)->first();
+                $user->student = $student;
+            }
+
+            if($user->rol === 'institutions'){
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
+            }
+
             return response()->json([
                 'status' => 'success',
                 'user' => $user

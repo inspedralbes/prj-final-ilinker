@@ -108,19 +108,3 @@ export async function fetchReportedUsers() {
     };
   }
 }
-
-// Función para eliminar un reporte
-export async function deleteReport(reportId: number) {
-  try {
-    await apiRequest(`admin/reported-users/${reportId}`, 'DELETE');
-    return {
-      status: 'success',
-      message: 'Reporte eliminado correctamente'
-    };
-  } catch (error: any) {
-    return {
-      status: 'error',
-      message: error.message,
-    };
-  }
-}

@@ -7,8 +7,8 @@ import {
   GraduationCap,
   LandmarkIcon,
   MessageSquareIcon,
-  ShieldCheck,
-  User
+  User,
+  GraduationCap
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -134,13 +134,15 @@ function ProfileDropdown({ userData, logout }: ProfileDropdownProps) {
       <div onClick={toggleDropdown}>
         <Image
           src={
-            userData?.photo_pic ||
+            config.storageUrl +
+              ((userData?.company && userData?.company?.logo) ||
+                userData?.student?.photo_pic) ||
             "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
           }
           alt="Profile"
           width={40}
           height={40}
-          className="rounded-full cursor-pointer"
+          className="rounded-sm cursor-pointer"
         />
       </div>
       {isOpen && (

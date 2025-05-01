@@ -39,11 +39,16 @@ class Company extends Model
 
     public function skills()
     {
-        return $this->hasManyThrough(Sector::class, CompanySkills::class, 'company_id', 'id', 'id', 'skill_id');
+        return $this->hasManyThrough(Skill::class, CompanySkills::class, 'company_id', 'id', 'id', 'skill_id');
     }
 
     public function offers()
     {
         return $this->hasMany(Offer::class, 'company_id', 'id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
