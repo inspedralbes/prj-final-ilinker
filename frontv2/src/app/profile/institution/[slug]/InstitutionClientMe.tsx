@@ -354,7 +354,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-blue-600" />
+            <Building2 className="h-6 w-6 text-gray-800" />
             Detalles del Instituto
           </CardTitle>
         </CardHeader>
@@ -415,28 +415,28 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
           ) : (
             <div className="space-y-4">
               <div className="flex items-center">
-                <Building2 className="h-5 w-5 text-blue-600 mr-3" />
+                <Building2 className="h-5 w-5 text-gray-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Tipo de institución</p>
                   <p className="text-gray-900">{institutionData.academic_sector}</p>
                 </div>
               </div>
               <div className="flex items-center">
-                <Users className="h-5 w-5 text-blue-600 mr-3" />
+                <Users className="h-5 w-5 text-gray-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Tamaño</p>
                   <p className="text-gray-900">{institutionData.size}</p>
                 </div>
               </div>
               <div className="flex items-center">
-                <Calendar className="h-5 w-5 text-blue-600 mr-3" />
+                <Calendar className="h-5 w-5 text-gray-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Año de fundación</p>
                   <p className="text-gray-900">{institutionData.founded_year}</p>
                 </div>
               </div>
               <div className="flex items-center">
-                <Languages className="h-5 w-5 text-blue-600 mr-3" />
+                <Languages className="h-5 w-5 text-gray-600 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Idiomas</p>
                   <p className="text-gray-900">{Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}</p>
@@ -464,7 +464,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-blue-600" />
+            <Award className="h-6 w-6 text-gray-800" />
             Especialidades
           </CardTitle>
         </CardHeader>
@@ -518,18 +518,18 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
                   <span
                     key={index}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
+                    className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
                   >
-                    <Award className="h-4 w-4 mr-1.5" />
+                    <Award className="h-4 w-4 mr-1.5 text-gray-600" />
                     {specialty}
                   </span>
                 ))}
               </div>
               <button
                 onClick={() => handleEdit("specialties")}
-                className="mt-4 text-blue-600 hover:text-blue-800"
+                className="mt-4 text-gray-600 hover:text-gray-800"
               >
-                <Pencil className="h-4 w-4 inline mr-1" />
+                <Pencil className="h-4 w-4 inline mr-1 text-gray-600" />
                 Editar especialidades
               </button>
             </div>
@@ -610,9 +610,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                         </p>
                         <button
                           onClick={() => handleEdit("basic")}
-                          className="mt-2 flex items-center text-blue-600 hover:text-blue-800"
+                          className="mt-2 flex items-center text-gray-600 hover:text-gray-800"
                         >
-                          <Pencil className="h-4 w-4 mr-1" />
+                          <Pencil className="h-4 w-4 mr-1 text-gray-600" />
                           Editar información básica
                         </button>
                       </div>
@@ -666,27 +666,27 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                   ) : (
                     <div className="w-full">
                       <div className="flex flex-wrap justify-center gap-4">
-                        <div className="flex items-center px-3 py-2 rounded-md">
-                          <Globe className="h-5 w-5 text-indigo-500 mr-2" />
+                        <div className="flex items-center">
+                          <Globe className="h-5 w-5 text-gray-600 mr-2" />
                           <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                             {institutionData.website}
                           </a>
                         </div>
-                        <div className="flex items-center px-3 py-2 rounded-md">
-                          <Phone className="h-5 w-5 text-indigo-500 mr-2" />
+                        <div className="flex items-center">
+                          <Phone className="h-5 w-5 text-gray-600 mr-2" />
                           <span className="text-gray-600">{institutionData.phone}</span>
                         </div>
-                        <div className="flex items-center px-3 py-2 rounded-md">
-                          <Mail className="h-5 w-5 text-indigo-500 mr-2" />
+                        <div className="flex items-center">
+                          <Mail className="h-5 w-5 text-gray-600 mr-2" />
                           <span className="text-gray-600">{institutionData.email}</span>
                         </div>
                       </div>
                       <div className="flex justify-center mt-4">
                         <button
                           onClick={() => handleEdit("contact")}
-                          className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-md hover:blue-50"
+                          className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-md hover:bg-blue-50"
                         >
-                          <Pencil className="h-4 w-4 inline mr-2" />
+                          <Pencil className="h-4 w-4 inline mr-2 text-blue-600" />
                           Editar información
                         </button>
                       </div>
@@ -698,24 +698,24 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
               {/* Esta parte es de la sección de tabs */}
               <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
                 <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
-                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
                   </TabsTrigger>
-                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
                   </TabsTrigger>
-                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
                   </TabsTrigger>
-                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
                   </TabsTrigger>
-                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
+                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                     <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
                   </TabsTrigger>
                 </TabsList>
