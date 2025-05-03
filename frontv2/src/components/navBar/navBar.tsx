@@ -8,6 +8,7 @@ import {
   MessageSquareIcon,
   User,
   GraduationCap,
+  FileEdit,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -48,6 +49,17 @@ export default function NavBar() {
                 >
                   <GraduationCap className="h-5 w-5" />
                   <span className="text-[12px]">Ofertas</span>
+                </Link>
+                <Link
+                  href="/publications"
+                  className={`flex flex-col items-center ${
+                    pathname === "/publications"
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <FileEdit className="h-5 w-5" />
+                  <span className="text-[12px]">Publicaciones</span>
                 </Link>
                 <Link
                   href="/messages"
