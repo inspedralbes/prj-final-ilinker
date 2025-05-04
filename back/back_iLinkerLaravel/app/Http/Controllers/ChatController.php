@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChatRoom;
 use App\Models\Company;
 use App\Models\DirectChat;
+use App\Models\Institutions;
 use App\Models\Message;
 use App\Models\Student;
 use App\Models\User;
@@ -148,9 +149,12 @@ class ChatController extends Controller
             $otherUser = $chat->getOtherUser($user->id);
             $unreadCount = $chat->unreadMessagesCount($user->id);
 
-            $lastMessage = $chat->messages()
-                ->orderBy('created_at', 'desc')
+            $lastMessage = $chat
+                ->messages()
+                ->latest()          // alias de orderBy('created_at','desc')
+                ->reorder('created_at', 'desc')  // fuerza que sólo quede este ORDER BY
                 ->first();
+
 
             $formattedChats[] = [
                 'id' => $chat->id,
@@ -178,6 +182,22 @@ class ChatController extends Controller
         $user = Auth::user();
         $otherUser = User::findOrFail($userId);
 
+        if($otherUser->rol === "company"){
+            $company = Company::where('user_id', $otherUser->id)->first();
+            $otherUser->company = $company;
+        }
+
+        if($otherUser->rol === 'student'){
+            $student = Student::where('user_id', $otherUser->id)->first();
+            $otherUser->student = $student;
+        }
+
+        if($user->rol === 'institutions'){
+            $institution = Institutions::where('user_id', $otherUser->id)->first();
+            $otherUser->institution = $institution;
+        }
+
+
         // Verificar si ya existe un chat directo entre estos usuarios
         $directChat = $user->getDirectChatWith($userId);
 
@@ -199,6 +219,7 @@ class ChatController extends Controller
         $directChat->markAsReadByUser($user->id);
 
         return response()->json([
+            'status' => 'success',
             'direct_chat' => [
                 'id' => $directChat->id,
                 'user' => $otherUser,
@@ -267,6 +288,7 @@ class ChatController extends Controller
             // 5) Cargar relacion 'sender' para incluir datos en la respuesta
             $message->load('sender');
 
+
             $sent[] = [
                 'recipient_id' => $otherId,
                 'chat_id'      => $directChat->id,
@@ -274,10 +296,56 @@ class ChatController extends Controller
             ];
         }
 
+        // 6) Recoger direct chats
+
+        // Obtener todos los chats directos donde el usuario es participante
+        $directChats = DirectChat::where('user_one_id', $me->id)
+            ->orWhere('user_two_id', $me->id)
+            ->get();
+
+        $formattedChats = [];
+
+        foreach ($directChats as $chat) {
+            $otherUser = $chat->getOtherUser($me->id);
+            $unreadCount = $chat->unreadMessagesCount($me->id);
+
+            $lastMessage = $chat
+                ->messages()
+                ->latest()          // alias de orderBy('created_at','desc')
+                ->reorder('created_at', 'desc')  // fuerza que sólo quede este ORDER BY
+                ->first();
+
+            $formattedChats[] = [
+                'id' => $chat->id,
+                'user' => $otherUser,
+                'unread_count' => $unreadCount,
+                'last_message' => $lastMessage,
+                'updated_at' => $chat->updated_at
+            ];
+        }
+
+        // Ordenar por el último mensaje
+        usort($formattedChats, function ($a, $b) {
+            return $b['updated_at'] <=> $a['updated_at'];
+        });
+
+        // Si solo hay un destinatario, devolvemos directamente el mensaje para actualización en tiempo real
+        $dataChat = null;
+        if (count($sent) === 1) {
+           $dataChat = [
+                'status'  => 'success',
+                'chat_id' => $sent[0]['chat_id'],
+                'recipient_id' => $sent[0]['recipient_id'],
+                'message' => $sent[0]['message'],
+           ];
+        }
+
         return response()->json([
             'status' => 'success',
-            'sent'   => $sent,
-        ], 201);
+            'direct_chats' => $formattedChats,
+            'dataChat' => $dataChat,
+        ]);
+
     }
 
 

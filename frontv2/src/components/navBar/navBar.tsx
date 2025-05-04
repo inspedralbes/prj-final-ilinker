@@ -166,7 +166,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
           alt="Profile"
           width={40}
           height={40}
-          className="rounded-sm cursor-pointer"
+          className="rounded-sm cursor-pointer h-10 w-10 object-cover"
         />
       </div>
       {isOpen && (

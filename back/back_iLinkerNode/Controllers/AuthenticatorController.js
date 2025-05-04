@@ -18,7 +18,7 @@ class AuthenticatorController {
             };
             
             // Verificamos si ya existe este usuario
-            const existingUserIndex = users.findIndex(u => u.username === userD.name);
+            const existingUserIndex = users.findIndex(u => u.idUser === userD.id);
             if (existingUserIndex !== -1) {
                 // Si el usuario ya existe, actualizamos su socketId y status
                 users[existingUserIndex].socketId = socket.id;
