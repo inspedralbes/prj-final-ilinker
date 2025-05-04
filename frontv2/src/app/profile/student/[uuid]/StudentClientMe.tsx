@@ -27,6 +27,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {Textarea} from "@/components/ui/textarea";
 import {Input} from "@/components/ui/input";
 import Select from "react-select";
+import AsyncSelect from 'react-select/async';
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Avatar} from "@/components/ui/avatar";
@@ -59,6 +60,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import {addDays, format} from "date-fns"
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
 
 
 export interface User {
@@ -469,6 +471,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
 
     useEffect(() => {
+        console.log(skillsEdit);
         UpdateChange();
     }, []);
 
@@ -783,23 +786,6 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                         placeholder="Sitio web"
                                                     />
 
-                                                    <Select
-                                                        closeMenuOnSelect={false}
-                                                        components={animatedComponents}
-                                                        options={skillsEdit}
-                                                        isSearchable
-                                                        isMulti
-                                                        placeholder="Busca y selecciona..."
-                                                        getOptionLabel={(option) => option.name}
-                                                        getOptionValue={(option) => option.id}
-                                                        onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
-                                                            setStudentEdit({
-                                                                ...studentEdit,
-                                                                sectors: selectedOption
-                                                            })
-                                                        }}
-                                                    />
                                                     <Input
                                                         value={studentEdit.postal_code}
                                                         onChange={(e) => setStudentEdit({
@@ -852,18 +838,21 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                             <h3 className="font-semibold mb-2">Especialidades</h3>
                                             {isEditing === "description" ? (
                                                 <>
-                                                    <Select
-                                                        closeMenuOnSelect={false}
-                                                        components={animatedComponents}
-                                                        options={skillsEdit}
-                                                        isSearchable
+                                                    <AsyncSelect
                                                         isMulti
-                                                        placeholder="Busca y selecciona..."
+                                                        cacheOptions
+                                                        defaultOptions
+                                                        placeholder="Busca y selecciona habilidades..."
+                                                        value={skillsEdit} // Array de objetos con { id, name, ... }
                                                         getOptionLabel={(option) => option.name}
                                                         getOptionValue={(option) => option.id}
-                                                        onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
-                                                            setStudentEdit({...studentEdit, skills: selectedOption})
+                                                        loadOptions={async (inputValue) => {
+                                                            const response = await fetch(`/api/skills?search=${inputValue}`);
+                                                            const data = await response.json();
+                                                            return data; // debe ser array de objetos { id, name }
+                                                        }}
+                                                        onChange={(selectedOptions) => {
+                                                            setStudentEdit({ ...studentEdit, skills: selectedOptions });
                                                         }}
                                                     />
                                                 </>
@@ -894,7 +883,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                         options={skillsEdit}
                                                         isSearchable
                                                         isMulti
-                                                        placeholder="Busca y selecciona..."
+                                                        placeholder="Idiomas y selecciona..."
                                                         getOptionLabel={(option) => option.name}
                                                         getOptionValue={(option) => option.id}
                                                         onChange={(selectedOption) => {
