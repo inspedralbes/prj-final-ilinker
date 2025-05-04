@@ -12,7 +12,7 @@ import {Avatar} from "@/components/ui/avatar";
 import React, {useState} from "react";
 import Image from "next/image";
 import Link from "next/link"
-import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
+import ModalAddStudies from "@/app/profile/student/[uuid]/modals/ModalAddStudies";
 
 export interface User {
     id: number;

@@ -41,6 +41,7 @@ Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('co
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
 Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
+Route::get('institution/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
 
 Route::prefix('/institution')->group(function () {
     // Public routes
@@ -84,7 +85,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('/institution')->group(function () {
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
-        Route::get('/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
         Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
         Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
         Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');

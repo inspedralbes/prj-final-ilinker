@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useContext} from "react";
 import {cn} from "@/lib/utils";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {apiRequest} from "@/services/requests/apiRequest";
 import {useToast} from "@/hooks/use-toast"
 import {AlertTriangle, CheckCircle, Info } from "lucide-react";
 import {white} from "next/dist/lib/picocolors"; // Puedes usar cualquier icono de lucide-react
+import {LoaderContext} from "@/contexts/LoaderContext";
 
 
 interface ModalInstitutionsProps {
@@ -51,6 +52,7 @@ export default function ModalAddStudies({
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
     const {toast} = useToast();
     const [educationId, setEducationId] = useState<string | null>(null);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
 
     // Inicializar los campos si estamos en modo edición
     useEffect(() => {
@@ -166,6 +168,7 @@ export default function ModalAddStudies({
         console.table(educationData);
 
         try {
+            showLoader();
             // Cambiar el endpoint según si estamos creando o actualizando
             const endpoint = isEditing ? "education/update" : "education/create";
             const response = await apiRequest(endpoint, "POST", educationData);
@@ -191,6 +194,7 @@ export default function ModalAddStudies({
                     onSave(educationData);
                 }
 
+                hideLoader();
                 handleClose();
 
                 // Limpiar el formulario
@@ -213,6 +217,7 @@ export default function ModalAddStudies({
                     variant: "destructive",
                     duration: 2000
                 });
+                hideLoader();
             }
         } catch (error) {
             toast({
@@ -221,6 +226,7 @@ export default function ModalAddStudies({
                 variant: "destructive",
                 duration: 2000
             });
+            hideLoader();
         }
     };
 

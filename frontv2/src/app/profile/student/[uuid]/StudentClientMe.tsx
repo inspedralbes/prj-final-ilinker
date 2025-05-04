@@ -19,7 +19,8 @@ import {
     BriefcaseBusiness,
     Clock,
     Building,
-    FolderGit2
+    FolderGit2,
+    CalendarIcon
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -29,12 +30,12 @@ import Select from "react-select";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Avatar} from "@/components/ui/avatar";
-import React, {useEffect, useState, useCallback} from "react";
+import React, {useEffect, useState, useCallback, useContext} from "react";
 import Image from "next/image";
 import Link from "next/link"
-import ModalAddStudies from "@/app/profile/student/[uuid]/ModalAddStudies";
-import ModalAddExperience from "@/app/profile/student/[uuid]/ModalAddExperience";
-import ModalAddProjects from "@/app/profile/student/[uuid]/ModalAddProjects";
+import ModalAddStudies from "@/app/profile/student/[uuid]/modals/ModalAddStudies";
+import ModalAddExperience from "@/app/profile/student/[uuid]/modals/ModalAddExperience";
+import ModalAddProjects from "@/app/profile/student/[uuid]/modals/ModalAddProjects";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {toast} from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/dialog/confirmDialog";
@@ -48,6 +49,16 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import {useRef} from "react";
+import {LoaderContext} from "@/contexts/LoaderContext";
+import makeAnimated from "react-select/animated";
+import {Calendar} from "@/components/ui/calendar"
+import {cn} from "@/lib/utils"
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover"
+import {addDays, format} from "date-fns"
 
 
 export interface User {
@@ -207,6 +218,9 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [projectsSelect, setProjectSelect] = useState(null);
     const [isExperience, setIsExperience] = useState(false);
     const [carouselStates, setCarouselStates] = useState({});
+    const {showLoader, hideLoader} = useContext(LoaderContext);
+    const animatedComponents = makeAnimated();
+    const [date, setDate] = React.useState<Date>()
 
     const API_PATH_IMG = "http://localhost:8000/storage/projects/";
 
@@ -217,13 +231,13 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setIsEditing(false);
     }
 
-    const openModalExperience = (experience) => {
+    const openModalExperience = (experience: object) => {
         console.log(experience);
         setModalExperience(!modalExperience);
         setModalModeEdit(false);
         setIsEditing(false);
     }
-    const openModalProjects = (project) => {
+    const openModalProjects = (project: object) => {
         console.log(project);
         setModalProjects(!modalProjects);
         setModalModeEdit(false);
@@ -252,7 +266,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setProjectEdit(response.student.projects);
     }
 
-    const EditInfo = (section, education) => {
+    const EditInfo = (section: string, education: object) => {
 
         setIsEditing(section);
         setCurrentStudy(education);
@@ -261,7 +275,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setModalModeEdit(false);
     }
 
-    const EditInfoExp = (section, exp) => {
+    const EditInfoExp = (section: string, exp: object) => {
         setIsEditing(section);
         setCurrentExperience(exp);
 
@@ -269,7 +283,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setModalModeEdit(false);
     }
 
-    const editInfoPro = (section, pro) => {
+    const editInfoPro = (section: string, pro: object) => {
         setIsEditing(section);
         setCurrentProject(pro);
 
@@ -287,6 +301,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
 
     const handleConfirm = async () => {
+        showLoader();
 
         try {
             const endpoint = educationSelect ? 'education/delete' : projectsSelect ? 'projects/delete' : 'experience/delete'
@@ -313,6 +328,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                     variant: "default",
                     duration: 2000
                 })
+                hideLoader();
                 UpdateChange();
                 setOpenDialog(false);
                 setIsExperience(false);
@@ -331,13 +347,15 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                 : "Ha ocurrido un error al intentar eliminar la experiencia",
                     variant: "destructive",
                     duration: 2000
-                })
+                });
+                hideLoader();
                 setOpenDialog(false);
                 setIsExperience(false);
                 educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
             }
 
         } catch (e) {
+            hideLoader();
             console.log(e)
             setOpenDialog(false);
             setIsExperience(false);
@@ -352,7 +370,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         setExperienceSelect(null);
     }
 
-    const slugify = (text) => {
+    const slugify = (text: string) => {
         return text
             .toLowerCase()
             .normalize("NFD")                     // separa letras y acentos
@@ -405,7 +423,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
 
     // Función para actualizar el estado de un carrusel específico
-    const updateCarouselState = (projectId, api) => {
+    const updateCarouselState = (projectId: number, api: any) => {
         if (!api) return;
 
         api.on("select", () => {
@@ -419,6 +437,35 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         });
 
     };
+
+    const handleEdit = (section: string) => {
+        setIsEditing(section);
+    };
+
+    // Asegúrate que esto está dentro de tu componente:
+    let parsedLanguages: { language: string; level: string }[] = [];
+
+    try {
+        parsedLanguages = studentEdit?.languages
+            ? JSON.parse(studentEdit.languages)
+            : [];
+    } catch (error) {
+        console.error("Error al parsear languages:", error);
+    }
+
+
+    const handleSave = () => {
+        const formattedData = {
+            ...studentEdit,
+            birthday: studentEdit.birthday
+                ? format(studentEdit.birthday, "dd/MM/yyyy")
+                : null,
+        };
+
+        console.log("PERFIL");
+        console.table(formattedData)
+
+    }
 
 
     useEffect(() => {
@@ -602,7 +649,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                             </div>
                         </div>
 
-                        <Tabs defaultValue="inicio" className="w-full mt-5">
+                        <Tabs defaultValue="acerca" className="w-full mt-5">
                             <TabsList
                                 className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
                                 {/*<TabsTrigger*/}
@@ -739,7 +786,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                     <Select
                                                         closeMenuOnSelect={false}
                                                         components={animatedComponents}
-                                                        options={sectors}
+                                                        options={skillsEdit}
                                                         isSearchable
                                                         isMulti
                                                         placeholder="Busca y selecciona..."
@@ -761,21 +808,42 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                         })}
                                                         placeholder="Tamaño"
                                                     />
-                                                    <Input
-                                                        value={studentEdit.birthday}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            birthday: e.target.value
-                                                        })}
-                                                        placeholder="Año de fundación"
-                                                    />
+
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant={"outline"}
+                                                                className={cn(
+                                                                    "w-[240px] justify-start text-left font-normal",
+                                                                    !studentEdit.birthday && "text-muted-foreground"
+                                                                )}
+                                                            >
+                                                                <CalendarIcon/>
+                                                                {studentEdit.birthday ? format(studentEdit.birthday, "dd/MM/yyyy") :
+                                                                    <span>Pick a date</span>}
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={studentEdit.birthday}
+                                                                onSelect={(date) => setStudentEdit({
+                                                                    ...studentEdit,
+                                                                    birthday: date
+                                                                })}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+
                                                 </div>
                                             ) : (
                                                 <ul className="space-y-2 text-gray-600">
-                                                    <li><strong>Sitio web:</strong> {studentEdit.address}</li>
-
-                                                    <li><strong>Codigo Postal:</strong> {studentEdit.postal_code}
-                                                    </li>
+                                                    <li><strong>País:</strong> {studentEdit.country}</li>
+                                                    <li><strong>Ciudad:</strong> {studentEdit.city}</li>
+                                                    <li><strong>Nacionalidad:</strong> {studentEdit.nationality}</li>
+                                                    <li><strong>Dirección:</strong> {studentEdit.address}</li>
+                                                    <li><strong>Codigo Postal:</strong> {studentEdit.postal_code}</li>
                                                     <li><strong>Año de nacimiento:</strong> {studentEdit.birthday}</li>
                                                 </ul>
                                             )}
@@ -787,7 +855,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                     <Select
                                                         closeMenuOnSelect={false}
                                                         components={animatedComponents}
-                                                        options={skills}
+                                                        options={skillsEdit}
                                                         isSearchable
                                                         isMulti
                                                         placeholder="Busca y selecciona..."
@@ -811,6 +879,47 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                     ) : (
                                                         <span className="text-gray-500">No especificado</span>
                                                     )}
+                                                </div>
+                                            </>)
+                                            }
+                                        </div>
+
+                                        <div>
+                                            <h3 className="font-semibold mb-2">Idiomas</h3>
+                                            {isEditing === "description" ? (
+                                                <>
+                                                    <Select
+                                                        closeMenuOnSelect={false}
+                                                        components={animatedComponents}
+                                                        options={skillsEdit}
+                                                        isSearchable
+                                                        isMulti
+                                                        placeholder="Busca y selecciona..."
+                                                        getOptionLabel={(option) => option.name}
+                                                        getOptionValue={(option) => option.id}
+                                                        onChange={(selectedOption) => {
+                                                            console.log(selectedOption);
+                                                            setStudentEdit({...studentEdit, skills: selectedOption})
+                                                        }}
+                                                    />
+                                                </>
+                                            ) : (<>
+                                                <div className="flex flex-wrap gap-2 text-gray-600">
+                                                    {parsedLanguages.length > 0 ? (
+                                                        <div className="flex flex-wrap gap-2 mb-2">
+                                                            {parsedLanguages.map((lan, idx) => (
+                                                                <Badge
+                                                                    key={idx}
+                                                                    className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md"
+                                                                >
+                                                                    {lan.language}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-gray-500">No especificado</span>
+                                                    )}
+
                                                 </div>
                                             </>)
                                             }
@@ -956,8 +1065,8 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                     ))
                                                 ) : (
                                                     <div
-                                                        className="py-8 text-center border border-dashed border-gray-300 rounded-lg">
-                                                        <p className="text-gray-500">No hay estudios
+                                                        className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
+                                                        <p className="text-black">No hay estudios
                                                             especificados</p>
                                                         <button
                                                             onClick={() => handleOpenModalAddStudies()}
@@ -996,60 +1105,118 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                     <div className="gap-6">
                                         {/* Información General */}
                                         <div className="">
-                                            <div className="space-y-8">
-                                                {Object.keys(experienceEdit).map((expId) => {
-                                                    const experiences = experienceEdit[expId];
-                                                    const moreExperience = Array.isArray(experiences) && experiences.length > 1;
+                                            {experienceEdit &&
+                                            Object.keys(experienceEdit).length > 0 &&
+                                            Object.keys(experienceEdit).some(key =>
+                                                Array.isArray(experienceEdit[key]) &&
+                                                experienceEdit[key].length > 0) ?
+                                                (
+                                                    <div className="space-y-8">
+                                                        {Object.keys(experienceEdit).map((expId) => {
+                                                            const experiences = experienceEdit[expId];
+                                                            const moreExperience = Array.isArray(experiences) && experiences.length > 1;
 
-                                                    // Si no es un array o está vacío, saltamos
-                                                    if (!Array.isArray(experiences) || experiences.length === 0) {
-                                                        return null;
-                                                    }
+                                                            // Si no es un array o está vacío, saltamos
+                                                            if (!Array.isArray(experiences) || experiences.length === 0) {
+                                                                return null;
+                                                            }
 
-                                                    const companyName = experiences[0].company_name;
+                                                            const companyName = experiences[0].company_name;
 
-                                                    return (
-                                                        <div key={expId}
-                                                             className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
-                                                            <div
-                                                                className="flex items-center justify-between w-full mb-4">
-                                                                <div
-                                                                    className="text-lg font-semibold">{companyName}</div>
-
-                                                            </div>
-                                                            {moreExperience ? (
-                                                                    // Línea de tiempo para múltiples experiencias
-                                                                    <div className="relative pl-6">
-                                                                        {/* Línea vertical */}
+                                                            return (
+                                                                <div key={expId}
+                                                                     className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                                    <div
+                                                                        className="flex items-center justify-between w-full mb-4">
                                                                         <div
-                                                                            className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                                                                            className="text-lg font-semibold">{companyName}</div>
 
-                                                                        {/* Experiencias */}
-                                                                        <div className="space-y-6">
-                                                                            {experiences.map((exp) => (
-                                                                                <div key={exp.id} className="relative">
-                                                                                    {/* Punto en la línea de tiempo */}
-                                                                                    <div
-                                                                                        className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+                                                                    </div>
+                                                                    {moreExperience ? (
+                                                                            // Línea de tiempo para múltiples experiencias
+                                                                            <div className="relative pl-6">
+                                                                                {/* Línea vertical */}
+                                                                                <div
+                                                                                    className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                                    {/* Contenido de la experiencia */}
-                                                                                    <div
-                                                                                        className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
+                                                                                {/* Experiencias */}
+                                                                                <div className="space-y-6">
+                                                                                    {experiences.map((exp) => (
+                                                                                        <div key={exp.id}
+                                                                                             className="relative">
+                                                                                            {/* Punto en la línea de tiempo */}
+                                                                                            <div
+                                                                                                className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+
+                                                                                            {/* Contenido de la experiencia */}
+                                                                                            <div
+                                                                                                className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
+                                                                                                <div
+                                                                                                    className="flex justify-between items-start">
+                                                                                                    <div>
+                                                                                                        <div
+                                                                                                            className="font-medium text-blue-800">{exp.department}
+                                                                                                        </div>
+
+                                                                                                        <div
+                                                                                                            className="font-medium text-gray-600">
+                                                                                                            {exp.start_date} - {exp.end_date}
+                                                                                                        </div>
+
+                                                                                                        <div
+                                                                                                            className="text-sm text-gray-700">{exp.employee_type}
+                                                                                                        </div>
+                                                                                                    </div>
+
+                                                                                                    <div
+                                                                                                        className="flex space-x-2">
+                                                                                                        <button
+                                                                                                            onClick={() => EditInfoExp("experience", exp)}
+                                                                                                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                                        >
+                                                                                                            <Pencil
+                                                                                                                className="h-4 w-4"/>
+                                                                                                        </button>
+                                                                                                        <button
+                                                                                                            onClick={() => removeSection(null, exp, null)}
+                                                                                                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                                        >
+                                                                                                            <Trash
+                                                                                                                className="h-4 w-4"/>
+                                                                                                        </button>
+
+                                                                                                    </div>
+                                                                                                </div>
+
+                                                                                                <div
+                                                                                                    className="mt-2 flex items-center space-x-3">
+                                                                                                    {renderLocationType(exp.location_type)}
+                                                                                                    {exp.company_address && (
+                                                                                                        <span
+                                                                                                            className="text-sm text-gray-600">
+                                                                                                        {exp.company_address}
+                                                                                                    </span>
+                                                                                                    )}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            </div>
+
+                                                                        ) :
+                                                                        (
+                                                                            // Tarjeta única para una sola experiencia
+                                                                            <div className="bg-gray-50 rounded-lg p-4">
+                                                                                {experiences.map((exp) => (
+                                                                                    <div key={exp.id}>
                                                                                         <div
                                                                                             className="flex justify-between items-start">
                                                                                             <div>
                                                                                                 <div
-                                                                                                    className="font-medium text-blue-800">{exp.department}
-                                                                                                </div>
-
+                                                                                                    className="font-medium text-gray-800">{exp.department}</div>
                                                                                                 <div
-                                                                                                    className="font-medium text-gray-600">
-                                                                                                    {exp.start_date} - {exp.end_date}
-                                                                                                </div>
-
-                                                                                                <div
-                                                                                                    className="text-sm text-gray-700">{exp.employee_type}
-                                                                                                </div>
+                                                                                                    className="text-sm text-gray-700">{exp.employee_type}</div>
                                                                                             </div>
 
                                                                                             <div
@@ -1068,83 +1235,45 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                                                                     <Trash
                                                                                                         className="h-4 w-4"/>
                                                                                                 </button>
-
                                                                                             </div>
                                                                                         </div>
 
                                                                                         <div
-                                                                                            className="mt-2 flex items-center space-x-3">
-                                                                                            {renderLocationType(exp.location_type)}
-                                                                                            {exp.company_address && (
-                                                                                                <span
-                                                                                                    className="text-sm text-gray-600">
-                                                                                                        {exp.company_address}
-                                                                                                    </span>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            ))}
-                                                                        </div>
-                                                                    </div>
-
-                                                                ) :
-                                                                (
-                                                                    // Tarjeta única para una sola experiencia
-                                                                    <div className="bg-gray-50 rounded-lg p-4">
-                                                                        {experiences.map((exp) => (
-                                                                            <div key={exp.id}>
-                                                                                <div
-                                                                                    className="flex justify-between items-start">
-                                                                                    <div>
-                                                                                        <div
-                                                                                            className="font-medium text-gray-800">{exp.department}</div>
-                                                                                        <div
-                                                                                            className="text-sm text-gray-700">{exp.employee_type}</div>
-                                                                                    </div>
-
-                                                                                    <div className="flex space-x-2">
-                                                                                        <button
-                                                                                            onClick={() => EditInfoExp("experience", exp)}
-                                                                                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                                                        >
-                                                                                            <Pencil
-                                                                                                className="h-4 w-4"/>
-                                                                                        </button>
-                                                                                        <button
-                                                                                            onClick={() => removeSection(null, exp, null)}
-                                                                                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                                        >
-                                                                                            <Trash
-                                                                                                className="h-4 w-4"/>
-                                                                                        </button>
-                                                                                    </div>
-                                                                                </div>
-
-                                                                                <div
-                                                                                    className="mt-2 flex flex-wrap gap-3">
+                                                                                            className="mt-2 flex flex-wrap gap-3">
                                                                                         <span
                                                                                             className="flex items-center text-sm text-gray-500">
                                                                                             <Clock
                                                                                                 className="h-3 w-3 mr-1"/>
                                                                                             {exp.employee_type}
                                                                                         </span>
-                                                                                    {renderLocationType(exp.location_type)}
-                                                                                    {exp.company_address && (
-                                                                                        <span
-                                                                                            className="text-sm text-gray-600">
+                                                                                            {renderLocationType(exp.location_type)}
+                                                                                            {exp.company_address && (
+                                                                                                <span
+                                                                                                    className="text-sm text-gray-600">
                                                                                                 {exp.company_address}
                                                                                             </span>
-                                                                                    )}
-                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ))}
                                                                             </div>
-                                                                        ))}
-                                                                    </div>
-                                                                )}
-                                                        </div>
-                                                    )
-                                                })}
-                                            </div>
+                                                                        )}
+                                                                </div>
+                                                            )
+                                                        })}
+                                                    </div>
+                                                ) :
+                                                (
+                                                    <div
+                                                        className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
+                                                        <p className="text-black">No hay experiencia especificada</p>
+                                                        <button
+                                                            onClick={() => openModalExperience()}
+                                                            className="mt-2 text-blue-400 hover:text-blue-600 text-sm font-medium">
+                                                            + Añadir experiencia
+                                                        </button>
+                                                    </div>
+                                                )}
                                         </div>
                                     </div>
 
@@ -1155,7 +1284,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
 
                                 {/* Card contenedora con menos padding para aprovechar espacio */}
-                                <Card className="p-4">
+                                <Card className="p-6 mt-6 mb-6">
 
                                     <div className="flex justify-between items-center mb-4">
 
@@ -1175,136 +1304,155 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
 
                                     </div>
 
-                                    {/* Contenedor principal con grid para mejor distribución */}
-                                    <div
-                                        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {projectsEdit.map((pro) => (
-                                            <div key={pro.id}>
-                                                <Card
-                                                    className="relative overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
-                                                    <div className="relative">
-                                                        {pro.pictures ? (
-                                                            <Carousel
-                                                                plugins={[pluginsRef.current[pro.id]]}
-                                                                className="w-full"
-                                                                onMouseLeave={pluginsRef.current[pro.id].play}
-                                                                setApi={(api) => {
-                                                                    updateCarouselState(pro.id, api);
-                                                                }}
-                                                            >
-                                                                <CarouselContent>
-                                                                    {JSON.parse(pro.pictures).map((img, index) => (
-                                                                        <CarouselItem key={index}>
-                                                                            <div className="p-1">
-                                                                                <Card className="border-0 shadow-none">
-                                                                                    <CardContent
-                                                                                        className="flex aspect-square items-center justify-center p-4">
-                                                                                        <img
-                                                                                            key={index}
-                                                                                            src={API_PATH_IMG + slugify(pro.name) + "/" + img}
-                                                                                            alt={`Imagen ${index}`}
-                                                                                            className="w-full h-auto object-cover"
-                                                                                        />
-                                                                                    </CardContent>
-                                                                                </Card>
-                                                                            </div>
-                                                                        </CarouselItem>
-
-                                                                    ))}
-                                                                </CarouselContent>
-
-
-                                                                <div
-                                                                    className="py-2 text-center text-sm text-muted-foreground">
-                                                                    <span>Slide {carouselStates[pro.id]?.current || 1} of {JSON.parse(pro.pictures).length}</span>
-                                                                </div>
-
-                                                                {/* Flechas de navegación más pequeñas y discretas */}
-                                                                <div
-                                                                    className="absolute inset-y-0 left-0 flex items-center">
-                                                                    <CarouselPrevious
-                                                                        className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
-                                                                </div>
-                                                                <div
-                                                                    className="absolute inset-y-0 right-0 flex items-center">
-                                                                    <CarouselNext
-                                                                        className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
-                                                                </div>
-                                                            </Carousel>
-                                                        ) : (
-                                                            <div>
-                                                                <div
-                                                                    className="flex items-center justify-center aspect-square p-6 text-center text-gray-500 text-sm">
-                                                                    No hay imágenes disponibles.
-                                                                </div>
-
-                                                                <div
-                                                                    className="py-2 text-center text-sm text-muted-foreground">
-                                                                    <span>No hay imagenes</span>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Información del proyecto con espaciado optimizado */}
-                                                        <div className="p-3">
-                                                            <div
-                                                                className="flex items-center">
-
-                                                                {pro.link ? (
-                                                                        <a
-                                                                            href={pro.link}
-                                                                            target={"_blank"}
-                                                                        >
-                                                                            <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
-                                                                        </a>
-
-                                                                    ) :
-                                                                    (
-                                                                        <h3 className="font-semibold text-base">{pro.name}</h3>
-                                                                    )
-                                                                }
-                                                                <div className="flex space-x-2 ml-auto">
-                                                                    <button
-                                                                        onClick={() => editInfoPro("projects", pro)}
-                                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                    {projectsEdit && projectsEdit.length > 0 ?
+                                        (
+                                            <div
+                                                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                                {projectsEdit.map((pro) => (
+                                                    <div key={pro.id}>
+                                                        <Card
+                                                            className="relative overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
+                                                            <div className="relative">
+                                                                {pro.pictures ? (
+                                                                    <Carousel
+                                                                        plugins={[pluginsRef.current[pro.id]]}
+                                                                        className="w-full"
+                                                                        onMouseLeave={pluginsRef.current[pro.id].play}
+                                                                        setApi={(api) => {
+                                                                            updateCarouselState(pro.id, api);
+                                                                        }}
                                                                     >
-                                                                        <Pencil
-                                                                            className="h-4 w-4"/>
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => removeSection(null, null, pro)}
-                                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                    >
-                                                                        <Trash
-                                                                            className="h-4 w-4"/>
-                                                                    </button>
+                                                                        <CarouselContent>
+                                                                            {JSON.parse(pro.pictures).map((img, index) => (
+                                                                                <CarouselItem key={index}>
+                                                                                    <div className="p-1">
+                                                                                        <Card
+                                                                                            className="border-0 shadow-none">
+                                                                                            <CardContent
+                                                                                                className="flex aspect-square items-center justify-center p-4">
+                                                                                                <img
+                                                                                                    key={index}
+                                                                                                    src={API_PATH_IMG + slugify(pro.name) + "/" + img}
+                                                                                                    alt={`Imagen ${index}`}
+                                                                                                    className="w-full h-auto object-cover"
+                                                                                                />
+                                                                                            </CardContent>
+                                                                                        </Card>
+                                                                                    </div>
+                                                                                </CarouselItem>
+
+                                                                            ))}
+                                                                        </CarouselContent>
+
+
+                                                                        <div
+                                                                            className="py-2 text-center text-sm text-muted-foreground">
+                                                                            <span>Slide {carouselStates[pro.id]?.current || 1} of {JSON.parse(pro.pictures).length}</span>
+                                                                        </div>
+
+                                                                        {/* Flechas de navegación más pequeñas y discretas */}
+                                                                        <div
+                                                                            className="absolute inset-y-0 left-0 flex items-center">
+                                                                            <CarouselPrevious
+                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                        </div>
+                                                                        <div
+                                                                            className="absolute inset-y-0 right-0 flex items-center">
+                                                                            <CarouselNext
+                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                        </div>
+                                                                    </Carousel>
+                                                                ) : (
+                                                                    <div>
+                                                                        <div
+                                                                            className="flex items-center justify-center aspect-square p-6 text-center text-gray-500 text-sm">
+                                                                            No hay imágenes disponibles.
+                                                                        </div>
+
+                                                                        <div
+                                                                            className="py-2 text-center text-sm text-muted-foreground">
+                                                                            <span>No hay imagenes</span>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                {/* Información del proyecto con espaciado optimizado */}
+                                                                <div className="p-3">
+                                                                    <div
+                                                                        className="flex items-center">
+
+                                                                        {pro.link ? (
+                                                                                <a
+                                                                                    href={pro.link}
+                                                                                    target={"_blank"}
+                                                                                >
+                                                                                    <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
+                                                                                </a>
+
+                                                                            ) :
+                                                                            (
+                                                                                <h3 className="font-semibold text-base">{pro.name}</h3>
+                                                                            )
+                                                                        }
+                                                                        <div className="flex space-x-2 ml-auto">
+                                                                            <button
+                                                                                onClick={() => editInfoPro("projects", pro)}
+                                                                                className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                            >
+                                                                                <Pencil
+                                                                                    className="h-4 w-4"/>
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={() => removeSection(null, null, pro)}
+                                                                                className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                            >
+                                                                                <Trash
+                                                                                    className="h-4 w-4"/>
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                                                                        {pro.description}
+                                                                    </p>
+                                                                    <div
+                                                                        className="flex items-center mt-2 text-xs text-gray-500">
+                                                                        <Clock className="h-3 w-3 mr-1 text-red-500"/>
+                                                                        <span>Finalizado: {pro.end_project ? pro.end_project : "En progreso"}</span>
+                                                                    </div>
                                                                 </div>
 
                                                             </div>
-
-                                                            <p className="text-xs text-gray-600 line-clamp-2 mt-1">
-                                                                {pro.description}
-                                                            </p>
-                                                            <div
-                                                                className="flex items-center mt-2 text-xs text-gray-500">
-                                                                <Clock className="h-3 w-3 mr-1"/>
-                                                                <span>Finalizado: {pro.end_project}</span>
-                                                            </div>
-                                                        </div>
-
+                                                        </Card>
                                                     </div>
-                                                </Card>
+                                                ))}
                                             </div>
-                                        ))}
-                                    </div>
+                                        ) :
+                                        (
+                                            <div
+                                                className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
+                                                <p className="text-black">No hay proyectos
+                                                    especificados</p>
+                                                <button
+                                                    onClick={() => openModalProjects()}
+                                                    className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                    + Añadir proyecto
+                                                </button>
+                                            </div>
+                                        )}
+
+
                                 </Card>
 
                             </TabsContent>
+
                         </Tabs>
                     </div>
                 </div>
             </div>
-            {/* Place the ConfirmDialog here, outside of any tabs */}
+            {/* Place the ConfirmDialog here, outside of any tabs */
+            }
             <ConfirmDialog
                 open={openDialog}
                 onOpenChange={setOpenDialog}

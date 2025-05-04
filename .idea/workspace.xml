@@ -4,13 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Añadir modal para crear una nueva experiencia laboral">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Arreglos del perfil de estudiante">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ProjectController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ProjectController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Company.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Company.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ProjectService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/ProjectService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddProjects.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddProjects.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddExperience.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/ModalAddExperience.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddProjects.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/ModalAddProjects.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/ModalAddStudies.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/ModalAddStudies.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/ui/popover.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/ui/popover.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,12 +46,12 @@
     &quot;assignee&quot;: &quot;Deraybcbc&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
-    &quot;accountId&quot;: &quot;5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
+    "accountId": "2a1c8b5b-7e5e-41f1-a3e4-282a7218eb84"
   }
-}</component>
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -66,7 +71,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -79,18 +84,18 @@
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="F:\DAW\prj-final-ilinker\frontv2\src\app\profile\student\[uuid]\modals" />
       <recent name="C:\Users\deray\Documents\Cosas\iLinker\ilinker\src\app\profile\student\[uuid]" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\profile\company\[slug]" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app" />
-      <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src" />
     </key>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
-        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
+        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
       </set>
     </attachedChunks>
   </component>
@@ -192,6 +197,7 @@
     <MESSAGE value="Merge con company_profile" />
     <MESSAGE value="modificaciones de mi experiencia" />
     <MESSAGE value="Añadir modal para crear una nueva experiencia laboral" />
-    <option name="LAST_COMMIT_MESSAGE" value="Añadir modal para crear una nueva experiencia laboral" />
+    <MESSAGE value="Arreglos del perfil de estudiante" />
+    <option name="LAST_COMMIT_MESSAGE" value="Arreglos del perfil de estudiante" />
   </component>
 </project>

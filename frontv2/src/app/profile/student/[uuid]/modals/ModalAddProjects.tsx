@@ -1,6 +1,6 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, useContext} from "react";
 import {cn} from "@/lib/utils";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
@@ -22,6 +22,7 @@ import {format} from "date-fns";
 import {Textarea} from "@/components/ui/textarea";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {useToast} from "@/hooks/use-toast";
+import {LoaderContext} from "@/contexts/LoaderContext";
 import Cookies from "js-cookie";
 
 interface ModalProjectsProps {
@@ -49,6 +50,7 @@ export default function ModalAddProjects({
 
     const [currentPictureFile, setCurrentPictureFile] = useState<File | null>(null);
     const [pictures, setPictures] = useState<ImageItem[]>([]); // o File[] si prefieres trabajar con los archivos directamente
+    const { showLoader, hideLoader } = useContext(LoaderContext);
 
     // Inicializar los campos si estamos en modo edición
     useEffect(() => {
@@ -168,6 +170,7 @@ export default function ModalAddProjects({
         console.table(Array.from(formData.entries()));
 
         try {
+            showLoader();
             // Cambiar el endpoint según si estamos creando o actualizando
             const endpoint = isEditing ? "projects/update" : "projects/create";
             const response = await apiRequest(endpoint, "POST", formData)
@@ -193,6 +196,7 @@ export default function ModalAddProjects({
                     onSave(formData);
                 }
 
+                hideLoader();
                 handleClose();
 
                 // Limpiar el formulario
@@ -215,6 +219,7 @@ export default function ModalAddProjects({
                     variant: "destructive",
                     duration: 2000
                 });
+                hideLoader();
             }
         } catch (error) {
             toast({
@@ -223,6 +228,7 @@ export default function ModalAddProjects({
                 variant: "destructive",
                 duration: 2000
             });
+            hideLoader();
         }
 
     };
