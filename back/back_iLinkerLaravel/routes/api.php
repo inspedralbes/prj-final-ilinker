@@ -20,6 +20,8 @@ use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
+use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\PublicationsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -133,6 +135,19 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-or-create-direct-chat/{userId}', [ChatController::class, 'getOrCreateDirectChat'])->name('chat.getOrCreateDirectChat');
         Route::get('/suggested-direct-chat', [ChatController::class, 'suggestedDirectChat'])->name('chat.suggestedDirectChat');
         Route::post('/send-direct-chat', [ChatController::class, 'sendDirectMessage'])->name('chat.sendDirectMessage');
+    });
+
+    // Publication Routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/publications', [PublicationsController::class, 'index']);
+        Route::post('/publications', [PublicationsController::class, 'store']);
+        Route::get('/publications/{id}', [PublicationsController::class, 'show']);
+        Route::put('/publications/{id}', [PublicationsController::class, 'update']);
+        Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
+        // Obtener publicaciones del usuario actual 
+        Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
+        Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
+        
     });
 });
 
