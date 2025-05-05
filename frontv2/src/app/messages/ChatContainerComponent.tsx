@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BookMarked, Check, PenSquare, Save, Send, Star } from "lucide-react";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { toast } from "@/hooks/use-toast";
@@ -47,6 +47,10 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const isUserTwo = selectedChatData?.direct_chat?.user_two_id === senderId;
 
   // Sacamos en una variable si está “guardado” según el usuario
+  const isBookMarked = isUserTwo
+    ? selectedChatData?.direct_chat?.is_bookmarked_user_two
+    : selectedChatData?.direct_chat?.is_bookmarked_user_one;
+
   const isSaved = isUserTwo
     ? selectedChatData?.direct_chat?.is_saved_user_two
     : selectedChatData?.direct_chat?.is_saved_user_one;
@@ -116,7 +120,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => {});
+      .finally(() => { });
   };
 
   const handleBookMarkedChat = () => {
@@ -132,7 +136,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => {});
+      .finally(() => { });
   };
 
   return (
@@ -154,24 +158,41 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           <button
             className={clsx("p-2 rounded-lg transition-colors duration-300", {
               // Si está guardado, fondo dorado claro y icono amarillo oscuro:
-              "bg-yellow-100 hover:bg-yellow-200": isSaved,
+              "bg-yellow-100 hover:bg-yellow-200": isBookMarked,
               // Si no, gris habitual:
-              "bg-transparent hover:bg-gray-300": !isSaved,
+              "bg-transparent hover:bg-gray-300": !isBookMarked,
             })}
             onClick={handleSavedChat}
           >
             <Star
               className={clsx("w-5 h-5 transition-colors duration-300", {
-                "text-yellow-500": isSaved,
-                "text-black": !isSaved,
+                "text-yellow-500": isBookMarked,
+                "text-black": !isBookMarked,
               })}
             />
           </button>
+          {/* Botón “BookMarked” actualizado para usar la misma lógica */}
           <button
-            className="text-black p-2 rounded-lg hover:bg-gray-300 transition-colors duration-300"
+            className={clsx(
+              "p-2 rounded-lg transition-colors duration-300",
+              {
+                // Si está guardado, fondo dorado claro:
+                "bg-yellow-100 hover:bg-yellow-200": isSaved,
+                // Si no, fondo transparente
+                "bg-transparent hover:bg-gray-300": !isSaved,
+              }
+            )}
             onClick={() => handleBookMarkedChat()}
           >
-            <BookMarked className="w-5 h-5" />
+            <BookMarked
+              className={clsx(
+                "w-5 h-5 transition-colors duration-300",
+                {
+                  "text-yellow-500": isSaved,
+                  "text-black": !isSaved,
+                }
+              )}
+            />
           </button>
         </div>
       </div>

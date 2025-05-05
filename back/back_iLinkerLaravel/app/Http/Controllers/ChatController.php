@@ -156,12 +156,21 @@ class ChatController extends Controller
                 ->reorder('created_at', 'desc')  // fuerza que sólo quede este ORDER BY
                 ->first();
 
+            if($user->id === $chat->user_one_id){
+                $isSaved = $chat->is_saved_user_one;
+                $isBookedMarked = $chat->is_bookmarked_user_one;
+            }else{
+                $isSaved = $chat->is_saved_user_two;
+                $isBookedMarked = $chat->is_bookmarked_user_two;
+            }
 
             $formattedChats[] = [
                 'id' => $chat->id,
                 'user' => $otherUser,
                 'unread_count' => $unreadCount,
                 'last_message' => $lastMessage,
+                'isBookedMarked' => $isBookedMarked,
+                'isSaved' => $isSaved,
                 'updated_at' => $chat->updated_at
             ];
         }
@@ -219,12 +228,11 @@ class ChatController extends Controller
         // Marcar mensajes como leídos
         $directChat->markAsReadByUser($user->id);
 
+        $directChat->user = $otherUser;
+
         return response()->json([
             'status' => 'success',
-            'direct_chat' => [
-                'id' => $directChat->id,
-                'user' => $otherUser,
-            ],
+            'direct_chat' => $directChat,
             'messages' => $messages
         ]);
     }

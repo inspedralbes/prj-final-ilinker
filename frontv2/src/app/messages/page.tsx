@@ -45,12 +45,14 @@ const Messages: React.FC = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [selectedChatData, setSelectedChatData] = useState<any | null>(null);
+  const [allChats, setAllChats] = useState<any[]>([]);
   const [chats, setChats] = useState<any[]>([]);
   const [suggestedAll, setSuggestedAll] = useState<SuggestedUser[]>([]);
   const [contacts, setContacts] = useState<SuggestedUser[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [messageModal, setMessageModal] = useState("");
   const newMessageDirectModal = useModal();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
   const { toast } = useToast();
@@ -77,6 +79,7 @@ const Messages: React.FC = () => {
         if (response.status === "success") {
           console.log(response);
           setChats(response.direct_chats);
+          setAllChats(response.direct_chats);
         }
       })
       .catch((error) => {
@@ -235,6 +238,19 @@ const Messages: React.FC = () => {
     });
   }
 
+  const handleFilterChats = (item: any) => {
+    if(item.id === "inbox"){
+      setChats(allChats);
+    }else if(item.id === "unread"){
+      setChats(allChats.filter((chat) => chat.unread_count > 0));
+    }else if(item.id === "marked"){
+      setChats(allChats.filter((chat) => chat.isBookedMarked));
+    }else if(item.id === "saved"){
+      setChats(allChats.filter((chat) => chat.isSaved));
+    }
+    setActiveTab(item.id);
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col bg-white border mt-5 h-[calc(100vh-100px)]">
@@ -246,13 +262,18 @@ const Messages: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Buscar mensajes"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setChats(allChats.filter((chat) => chat.user.name.toLowerCase().includes(e.target.value.toLowerCase())))
+                    setSearchQuery(e.target.value)
+                  }}
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
+              {/* <button className="p-2 hover:bg-gray-100 rounded-full">
                 <MoreVertical className="w-5 h-5" />
-              </button>
+              </button> */}
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -283,19 +304,19 @@ const Messages: React.FC = () => {
           >
             <nav className="flex-1 overflow-hidden space-y-1 p-2">
               {[
-                { id: "inbox", icon: <Inbox />, label: "Buzón", count: chats.length },
-                { id: "unread", icon: <Mail />, label: "No leídos", count: chats.filter((chat) => !chat.is_read).length },
-                { id: "marked", icon: <Star />, label: "Marcados", count: 0 },
+                { id: "inbox", icon: <Inbox />, label: "Buzón", count: allChats.length },
+                { id: "unread", icon: <Mail />, label: "No leídos", count: allChats.filter((chat) => chat.unread_count > 0).length },
+                { id: "marked", icon: <Star />, label: "Marcados", count: allChats.filter((chat) => chat.isBookedMarked).length },
                 {
                   id: "saved",
                   icon: <BookMarked />,
                   label: "Guardados",
-                  count: 0,
+                  count: allChats.filter((chat) => chat.isSaved).length,
                 },
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => handleFilterChats(item)}
                   className={`
             w-full flex items-center justify-between p-3 rounded-lg
             transition-colors duration-200
