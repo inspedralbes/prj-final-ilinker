@@ -60,7 +60,7 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import {addDays, format} from "date-fns"
-import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList} from "@/components/ui/command";
+import {name} from "ts-interface-checker";
 
 
 export interface User {
@@ -193,9 +193,10 @@ interface StudentClientMeProps {
     uuid: String;
     student: Student;
     experience_group: object;
+    skills: object;
 }
 
-export default function StudentClientMe({uuid, student, experience_group}: StudentClientMeProps) {
+export default function StudentClientMe({uuid, student, experience_group, skills}: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
@@ -204,6 +205,7 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [projectsEdit, setProjectEdit] = useState(student.projects);
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
     const [userEdit, setUserEdit] = useState(student.user);
+    const [allSkills, setAllSkills] = useState(skills);
     const [isEditing, setIsEditing] = useState(null);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
@@ -222,7 +224,14 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
     const [carouselStates, setCarouselStates] = useState({});
     const {showLoader, hideLoader} = useContext(LoaderContext);
     const animatedComponents = makeAnimated();
-    const [date, setDate] = React.useState<Date>()
+    const [openEndDate, setOpenEndDate] = useState<boolean>(false);
+    const [nameLanguage, setNameLanguage] = useState("");
+    const level = [
+        {name: "Nativo"},
+        {name: "Intermedio"},
+        {name: "Experto"}
+    ];
+    const [optionLevel, setOptionLevel] = useState('');
 
     const API_PATH_IMG = "http://localhost:8000/storage/projects/";
 
@@ -465,13 +474,28 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
         };
 
         console.log("PERFIL");
-        console.table(formattedData)
+        console.table(formattedData);
 
+        console.log("Skills Save");
+        console.table(skillsEdit);
+
+    }
+
+    const addLanguage = () => {
+        console.log("Nombre");
+        console.log(nameLanguage);
+
+        console.log("level");
+        console.log(optionLevel);
+        const json = {
+            "language": nameLanguage,
+            "level": optionLevel[0]
+        }
+        setStudentEdit({...studentEdit, languages: json});
     }
 
 
     useEffect(() => {
-        console.log(skillsEdit);
         UpdateChange();
     }, []);
 
@@ -781,9 +805,36 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                         value={studentEdit.country}
                                                         onChange={(e) => setStudentEdit({
                                                             ...studentEdit,
-                                                            website: e.target.value
+                                                            country: e.target.value
                                                         })}
-                                                        placeholder="Sitio web"
+                                                        placeholder="País"
+                                                    />
+
+                                                    <Input
+                                                        value={studentEdit.city}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            city: e.target.value
+                                                        })}
+                                                        placeholder="Ciudad"
+                                                    />
+
+                                                    <Input
+                                                        value={studentEdit.nationality}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            nationality: e.target.value
+                                                        })}
+                                                        placeholder="Nacionalidad"
+                                                    />
+
+                                                    <Input
+                                                        value={studentEdit.address}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            address: e.target.value
+                                                        })}
+                                                        placeholder="Dirección"
                                                     />
 
                                                     <Input
@@ -792,15 +843,15 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                             ...studentEdit,
                                                             postal_code: e.target.value
                                                         })}
-                                                        placeholder="Tamaño"
+                                                        placeholder="Codigo Postal"
                                                     />
 
-                                                    <Popover>
+                                                    <Popover open={openEndDate} onOpenChange={setOpenEndDate}>
                                                         <PopoverTrigger asChild>
                                                             <Button
                                                                 variant={"outline"}
                                                                 className={cn(
-                                                                    "w-[240px] justify-start text-left font-normal",
+                                                                    "w-full justify-start text-left font-normal",
                                                                     !studentEdit.birthday && "text-muted-foreground"
                                                                 )}
                                                             >
@@ -813,10 +864,13 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                                             <Calendar
                                                                 mode="single"
                                                                 selected={studentEdit.birthday}
-                                                                onSelect={(date) => setStudentEdit({
-                                                                    ...studentEdit,
-                                                                    birthday: date
-                                                                })}
+                                                                onSelect={(date) => {
+                                                                    setStudentEdit({
+                                                                        ...studentEdit,
+                                                                        birthday: date
+                                                                    });
+                                                                    setOpenEndDate(false);
+                                                                }}
                                                                 initialFocus
                                                             />
                                                         </PopoverContent>
@@ -838,21 +892,20 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                             <h3 className="font-semibold mb-2">Especialidades</h3>
                                             {isEditing === "description" ? (
                                                 <>
-                                                    <AsyncSelect
+
+                                                    <Select
+                                                        closeMenuOnSelect={false}
+                                                        components={animatedComponents}
+                                                        options={allSkills}
+                                                        isSearchable
                                                         isMulti
-                                                        cacheOptions
-                                                        defaultOptions
-                                                        placeholder="Busca y selecciona habilidades..."
-                                                        value={skillsEdit} // Array de objetos con { id, name, ... }
+                                                        value={skillsEdit}
+                                                        placeholder="busca y selecciona..."
                                                         getOptionLabel={(option) => option.name}
                                                         getOptionValue={(option) => option.id}
-                                                        loadOptions={async (inputValue) => {
-                                                            const response = await fetch(`/api/skills?search=${inputValue}`);
-                                                            const data = await response.json();
-                                                            return data; // debe ser array de objetos { id, name }
-                                                        }}
-                                                        onChange={(selectedOptions) => {
-                                                            setStudentEdit({ ...studentEdit, skills: selectedOptions });
+                                                        onChange={(selectedOption) => {
+                                                            console.log(selectedOption);
+                                                            setSkillsEdit(selectedOption);
                                                         }}
                                                     />
                                                 </>
@@ -877,20 +930,47 @@ export default function StudentClientMe({uuid, student, experience_group}: Stude
                                             <h3 className="font-semibold mb-2">Idiomas</h3>
                                             {isEditing === "description" ? (
                                                 <>
-                                                    <Select
-                                                        closeMenuOnSelect={false}
-                                                        components={animatedComponents}
-                                                        options={skillsEdit}
-                                                        isSearchable
-                                                        isMulti
-                                                        placeholder="Idiomas y selecciona..."
-                                                        getOptionLabel={(option) => option.name}
-                                                        getOptionValue={(option) => option.id}
-                                                        onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
-                                                            setStudentEdit({...studentEdit, skills: selectedOption})
-                                                        }}
-                                                    />
+                                                    <div>
+                                                        {parsedLanguages.length > 0 ? (
+                                                            <div className="flex flex-wrap gap-2 mb-2">
+                                                                {parsedLanguages.map((lan, idx) => (
+                                                                    <Badge
+                                                                        key={idx}
+                                                                        className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md"
+                                                                    >
+                                                                        {lan.language}
+                                                                    </Badge>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-gray-500">No especificado</span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-wrap">
+                                                        <Input
+                                                            value={nameLanguage}
+                                                            onChange={(e) => setNameLanguage(e.target.value)}
+                                                            placeholder="Lenguaje"
+                                                        />
+                                                        <Select
+                                                            closeMenuOnSelect={false}
+                                                            components={animatedComponents}
+                                                            options={level}
+                                                            isSearchable
+                                                            isMulti
+                                                            placeholder="Nivel"
+                                                            getOptionLabel={(option) => option.name}
+                                                            getOptionValue={(option) => option.id}
+                                                            onChange={(selectedOption) => {
+                                                                console.log(selectedOption);
+                                                                setOptionLevel(selectedOption.map((sel) => sel.name));
+                                                            }}
+                                                        />
+
+                                                        <div className="flex justify-end mt-4">
+                                                            <Button onClick={() => addLanguage()}>Añadir</Button>
+                                                        </div>
+                                                    </div>
                                                 </>
                                             ) : (<>
                                                 <div className="flex flex-wrap gap-2 text-gray-600">
