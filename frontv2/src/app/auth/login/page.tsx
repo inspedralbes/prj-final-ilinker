@@ -48,6 +48,14 @@ const Login: React.FC = () => {
 
     useEffect(()=>{
         hideLoader();
+
+        socket.on('login_success', ({user, token, message})=>{
+            console.log(message);
+        });
+
+        return ()=>{
+            socket.off('login_success')
+        }
     },[])
     const validateEmptyFields = (fields: Record<string, string>) => {
         const empty: EmptyFields = {};
@@ -77,7 +85,7 @@ const Login: React.FC = () => {
                 if (response.status === "success") {
                     router.push("/search");
                     socket.emit('login', { userData: response.user });
-                    login(response.token, response.user);
+                    login(response.token, response.user, response.notifications);
                 } else {
                     setApiError("Correu electrònic o contrasenya incorrectes");
                     hideLoader();

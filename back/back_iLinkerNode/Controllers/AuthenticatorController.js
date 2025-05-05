@@ -3,36 +3,34 @@
 class AuthenticatorController {
     static login(socket, io, users) {
         // Retornamos una función que será el manejador del evento
-        return (userData) => {
+        return ({userData, token}) => {
             console.log('User login:', userData);
-            const userD = userData.userData
             
             // No hacemos verificación aquí porque se hace en el frontend
             const user = {
-                idUser: userD.id,
+                idUser: userData.id,
                 socketId: socket.id,
-                username: userD.name,
-                status: 'online',
+                username: userData.name,
+                token: token,
                 // Otros datos que vengan del frontend
-                ...userD
+                ...userData
             };
-            
             // Verificamos si ya existe este usuario
-            const existingUserIndex = users.findIndex(u => u.idUser === userD.id);
+            const existingUserIndex = users.findIndex(u => u.idUser === userData.id);
             if (existingUserIndex !== -1) {
                 // Si el usuario ya existe, actualizamos su socketId y status
                 users[existingUserIndex].socketId = socket.id;
-                users[existingUserIndex].status = 'online';
-                console.log(`User ${userD.name} reconnected`);
+                console.log(`User ${userData.name} reconnected`);
             } else {
                 // Si no existe, lo agregamos al array
                 users.push(user);
-                console.log(`User ${userD.name} added to users list`);
+                console.log(`User ${userData.name} added to users list`);
             }
             
             // Enviamos confirmación al usuario
             socket.emit('login_success', {
                 user: user,
+                token: token,
                 message: 'Successfully logged in'
             });
             

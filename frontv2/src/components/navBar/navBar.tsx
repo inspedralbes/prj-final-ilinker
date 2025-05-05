@@ -17,6 +17,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import config from "@/types/config";
 import socket from "@/services/websockets/sockets";
+import NotificationDropDown from "./NotificationDropDown";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -60,17 +61,8 @@ export default function NavBar() {
                   <MessageSquareIcon className="h-5 w-5" />
                   <span className="text-[12px]">Mensajes</span>
                 </Link>
-                <Link
-                  href="/notifications"
-                  className={`flex flex-col items-center ${
-                    pathname === "/notifications"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <Bell className="h-5 w-5" />
-                  <span className="text-[12px]">Notificaciones</span>
-                </Link>
+
+                <NotificationDropDown />
               </>
             ) : (
               <>
@@ -246,7 +238,9 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
                 className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
                 onClick={() => {
                   setIsOpen(false);
-                  router.push(`/profile/institution/${userData?.institution.slug}`);
+                  router.push(
+                    `/profile/institution/${userData?.institution.slug}`
+                  );
                 }}
               >
                 <svg
@@ -332,3 +326,4 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
     </div>
   );
 }
+

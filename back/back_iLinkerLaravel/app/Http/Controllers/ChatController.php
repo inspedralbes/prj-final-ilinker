@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\DirectChat;
 use App\Models\Institutions;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -322,6 +323,15 @@ class ChatController extends Controller
                 'last_message' => $lastMessage,
                 'updated_at' => $chat->updated_at
             ];
+
+            // 7) Crear notificacion de nuevo mensaje
+            $newNotification = new Notification();
+            $newNotification->user_id = $otherUser->id;
+            $newNotification->type = "new_message";
+            $newNotification->title = "Haz recibido un nuevo mensaje";
+            $newNotification->message = $content;
+            $newNotification->icon = "MessageCircle";
+            $newNotification->save();
         }
 
         // Ordenar por el último mensaje
@@ -339,6 +349,8 @@ class ChatController extends Controller
                 'message' => $sent[0]['message'],
            ];
         }
+
+
 
         return response()->json([
             'status' => 'success',
@@ -444,5 +456,44 @@ class ChatController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function bookMarkDirectChat($directChatId){
+        $user = Auth::user();
+
+        $directChat = DirectChat::findOrFail($directChatId);
+        if($user->id === $directChat->user_one_id)
+        {
+            $directChat->is_bookmarked_user_one = 1;
+            $directChat->save();
+        }else{
+            $directChat->is_bookmarked_user_two = 1;
+            $directChat->save();
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'direct_chat' => $directChat,
+        ]);
+    }
+
+    public function savedDirectChat($directChatId){
+        $user = Auth::user();
+
+        $directChat = DirectChat::findOrFail($directChatId);
+        if($user->id === $directChat->user_one_id)
+        {
+            $directChat->is_saved_user_one = 1;
+            $directChat->save();
+        }else{
+            $directChat->is_saved_user_two = 1;
+            $directChat->save();
+        }
+
+
+        return response()->json([
+            'status' => 'success',
+            'direct_chat' => $directChat,
+        ]);
     }
 }

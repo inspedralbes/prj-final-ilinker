@@ -235,24 +235,6 @@ const Messages: React.FC = () => {
     });
   }
 
-  function getUserAvatar(user: {
-    rol: string;
-    student?: { photo_pic?: string };
-    company?: { logo?: string };
-    institution?: { logo?: string };
-  }): string {
-    switch (user.rol) {
-      case "student":
-        return user.student?.photo_pic ?? "";
-      case "company":
-        return user.company?.logo ?? "";
-      case "institution":
-        return user.institution?.logo ?? "";
-      default:
-        return "";
-    }
-  }
-
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col bg-white border mt-5 h-[calc(100vh-100px)]">
@@ -301,14 +283,8 @@ const Messages: React.FC = () => {
           >
             <nav className="flex-1 overflow-hidden space-y-1 p-2">
               {[
-                { id: "inbox", icon: <Inbox />, label: "Buzón", count: 2 },
-                { id: "unread", icon: <Mail />, label: "No leídos", count: 1 },
-                {
-                  id: "contacts",
-                  icon: <Users />,
-                  label: "Mis contactos",
-                  count: 0,
-                },
+                { id: "inbox", icon: <Inbox />, label: "Buzón", count: chats.length },
+                { id: "unread", icon: <Mail />, label: "No leídos", count: chats.filter((chat) => !chat.is_read).length },
                 { id: "marked", icon: <Star />, label: "Marcados", count: 0 },
                 {
                   id: "saved",

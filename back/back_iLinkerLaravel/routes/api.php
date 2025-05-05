@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\StudentController;
@@ -53,6 +54,17 @@ Route::prefix('/institution')->group(function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
+
+    Route::prefix('/notifications')->group(function () {
+        // Obtener todas las notificaciones
+        Route::get('/', [NotificationController::class, 'index']);
+        // Obtener solo notificaciones no leídas
+        Route::get('/unread', [NotificationController::class, 'unread']);
+        // Marcar una notificación específica como leída
+        Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
+        // Marcar todas las notificaciones como leídas
+        Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+    });
 
     Route::prefix('/users')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('user.update');
@@ -133,6 +145,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/get-or-create-direct-chat/{userId}', [ChatController::class, 'getOrCreateDirectChat'])->name('chat.getOrCreateDirectChat');
         Route::get('/suggested-direct-chat', [ChatController::class, 'suggestedDirectChat'])->name('chat.suggestedDirectChat');
         Route::post('/send-direct-chat', [ChatController::class, 'sendDirectMessage'])->name('chat.sendDirectMessage');
+        Route::get('/bookmarked/{directChatId}', [ChatController::class, 'bookMarkDirectChat'])->name('chat.bookMarkDirectChat');
+        Route::get('/saved/{directChatId}', [ChatController::class, 'savedDirectChat'])->name('chat.savedDirectChat');
     });
 });
 
