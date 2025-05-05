@@ -6,6 +6,7 @@ use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
@@ -17,10 +18,22 @@ class StudentController extends Controller
         $this->studentService = $studentService;
     }
 
+
+    public function update(Request $request)
+    {
+        Log::info("FRONT", $request->all());
+
+
+        $student = $this->studentService->updateStudent($request->student, $request->skills);
+
+        return response()->json(['status' => 'success', 'student' => $student]);
+
+    }
+
     public function getStudent($uuid)
     {
 
-        $student = Student::with(['user','education.institution', 'experience', 'projects', 'skills' => function ($query) {
+        $student = Student::with(['user', 'education.institution', 'experience', 'projects', 'skills' => function ($query) {
             $query->select('skills.id', 'skills.name');
         }])->where('uuid', $uuid)->first();
 
@@ -39,7 +52,8 @@ class StudentController extends Controller
 
     }
 
-    public function getEducationById(Request $request){
+    public function getEducationById(Request $request)
+    {
 
 
         $student = Student::with(['education.institution'])->where('uuid', $request->uuid)->first();
@@ -53,7 +67,7 @@ class StudentController extends Controller
 
     public function getOfferData()
     {
-        try{
+        try {
             $user = Auth::user();
 
             $student = Student::with('education')
@@ -61,7 +75,7 @@ class StudentController extends Controller
                 ->first();
 
             return response()->json(['status' => 'success', 'student' => $student]);
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }

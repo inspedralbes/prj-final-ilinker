@@ -20,7 +20,8 @@ import {
     Clock,
     Building,
     FolderGit2,
-    CalendarIcon
+    CalendarIcon,
+    AlertCircle
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -226,12 +227,19 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const animatedComponents = makeAnimated();
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
     const [nameLanguage, setNameLanguage] = useState("");
+    // Estado para manejo de errores
+    const [error, setError] = useState("");
     const level = [
-        {name: "Nativo"},
-        {name: "Intermedio"},
-        {name: "Experto"}
+        {id: 1, name: 'Básico'},
+        {id: 2, name: 'Intermedio'},
+        {id: 3, name: 'Avanzado'},
+        {id: 4, name: 'Nativo'}
     ];
-    const [optionLevel, setOptionLevel] = useState('');
+
+    const [optionLevel, setOptionLevel] = useState([]);
+    // Estado para la edición
+    const [editingIndex, setEditingIndex] = useState(-1);
+
 
     const API_PATH_IMG = "http://localhost:8000/storage/projects/";
 
@@ -272,6 +280,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
     const UpdateChange = async () => {
         const response = await apiRequest(`student/` + uuid)
+        setStudentEdit(response.student)
         setEducationEdit(response.student.education);
         setExperienceEdit(response.experience_grouped);
         setProjectEdit(response.student.projects);
@@ -464,35 +473,162 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         console.error("Error al parsear languages:", error);
     }
 
+    const handleImageUpload = (
+        event: React.ChangeEvent<HTMLInputElement>,
+        type: string
+    ) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
 
-    const handleSave = () => {
+        if (type !== "photo_pic" && type !== "cover_photo") {
+            console.error("Tipo incorrecto:", type);
+            return;
+        }
+
+        console.log("Actualizando:", type, file);
+
+        setStudentEdit((prev: any) => ({
+            ...prev,
+            [type]: file,
+        }));
+
+        console.log("A")
+        console.log(studentEdit)
+        //handleSave();
+
+        //setStudentEdit((prev) => prev + 1); // Forzar cambio
+
+
+    };
+
+
+
+    const handleSave = async () => {
         const formattedData = {
             ...studentEdit,
             birthday: studentEdit.birthday
                 ? format(studentEdit.birthday, "dd/MM/yyyy")
                 : null,
         };
+        console.log(formattedData)
 
-        console.log("PERFIL");
-        console.table(formattedData);
+        const jsonData = {
+            student: formattedData,
+            skills: skillsEdit
+        }
+/*
+        try {
+            showLoader();
+            const response = await apiRequest("student/update", "POST", jsonData);
 
-        console.log("Skills Save");
-        console.table(skillsEdit);
+            if (response.status === 'success') {
+                console.log(response);
+                setIsEditing(null)
+                UpdateChange();
+                hideLoader();
+            } else {
+                console.log("MAL")
+                hideLoader();
+            }
 
+        } catch (e) {
+            console.log(e)
+            hideLoader();
+        }
+*/
     }
+
+    const handleCancelEdit = () => {
+        setIsEditing(null)
+    }
+
+    // Función para comprobar si un idioma ya existe
+    const languageExists = (languageName, excludeIndex = -1) => {
+        const normalizedName = slugify(languageName);
+        return parsedLanguages.some((language, index) => {
+            // Saltamos la comprobación para el idioma que estamos editando
+            if (index === excludeIndex) return false;
+
+            // Comparamos con los nombres normalizados
+            return slugify(language.language) === normalizedName;
+        });
+    };
 
     const addLanguage = () => {
-        console.log("Nombre");
-        console.log(nameLanguage);
+        if (!nameLanguage.trim()) return;
 
-        console.log("level");
-        console.log(optionLevel);
+        // Verificamos si el idioma ya existe (excepto si estamos editando el mismo)
+        if (languageExists(nameLanguage, editingIndex)) {
+            setError("Este idioma ya existe en la lista. Por favor, introduce un idioma diferente.");
+            return;
+        }
+
+        if (optionLevel.length > 1) {
+            setError("Solo se puede eligir un nivel")
+            return;
+        }
+
+        setError("");
+
         const json = {
-            "language": nameLanguage,
+            "language": nameLanguage.trim(),
             "level": optionLevel[0]
         }
-        setStudentEdit({...studentEdit, languages: json});
+        console.log("NUEVO");
+        console.table(json);
+
+        if (editingIndex >= 0) {
+            // Modo edición: actualizamos el idioma existente
+            const updatedLanguages = [...parsedLanguages];
+            updatedLanguages[editingIndex] = json;
+            setStudentEdit({
+                ...studentEdit,
+                languages: JSON.stringify(updatedLanguages),
+            });
+            setEditingIndex(-1); // Salir del modo edición
+        } else {
+            parsedLanguages = [...parsedLanguages, json];
+            // Modo añadir: agregamos un nuevo idioma
+            setStudentEdit({
+                ...studentEdit,
+                languages: JSON.stringify(parsedLanguages),
+            });
+        }
+
+        setNameLanguage("");
+        setOptionLevel([])
     }
+
+    // Función para eliminar un idioma
+    const deleteLanguage = (index) => {
+        const updatedLanguages = parsedLanguages.filter((_, idx) => idx !== index);
+        setStudentEdit({
+            ...studentEdit,
+            languages: JSON.stringify(updatedLanguages),
+        });
+
+        // Si estábamos editando este idioma, salimos del modo edición
+        if (editingIndex === index) {
+            setEditingIndex(-1);
+            setNameLanguage('');
+            setOptionLevel([]);
+        }
+    };
+
+    // Función para iniciar la edición de un idioma
+    const startEditingLanguage = (index) => {
+        const languageToEdit = parsedLanguages[index];
+        setNameLanguage(languageToEdit.language);
+        setOptionLevel(languageToEdit.level);
+        setEditingIndex(index);
+    };
+
+    // Función para cancelar la edición
+    const cancelEditingLanguage = () => {
+        setEditingIndex(-1);
+        setNameLanguage('');
+        setOptionLevel([]);
+    };
 
 
     useEffect(() => {
@@ -538,7 +674,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                 type="file"
                                                 className="hidden"
                                                 accept="image/*"
-                                                onChange={(e) => handleImageUpload(e, 'logo')}
+                                                onChange={(e) => handleImageUpload(e, 'photo_pic')}
                                             />
                                             <Camera
                                                 className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70"/>
@@ -549,50 +685,50 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <div className="space-y-3">
                                                 <input
                                                     type="text"
-                                                    value={institute.basic.name}
-                                                    onChange={(e) => updateInstitute('basic', {
-                                                        ...institute.basic,
+                                                    value={studentEdit.name}
+                                                    onChange={(e) => setStudentEdit({
+                                                        ...studentEdit,
                                                         name: e.target.value
                                                     })}
                                                     className="text-xl font-bold text-gray-900 border rounded px-2 py-1 w-full"
                                                 />
                                                 <input
                                                     type="text"
-                                                    value={institute.basic.slogan}
-                                                    onChange={(e) => updateInstitute('basic', {
-                                                        ...institute.basic,
-                                                        slogan: e.target.value
+                                                    value={studentEdit.surname}
+                                                    onChange={(e) => setStudentEdit({
+                                                        ...studentEdit,
+                                                        surname: e.target.value
                                                     })}
                                                     className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
                                                 />
                                                 <div className="flex items-center space-x-2">
                                                     <MapPin className="h-5 w-5 text-gray-400"/>
-                                                    <input
+                                                    <Input
                                                         type="text"
-                                                        value={institute.basic.location}
-                                                        onChange={(e) => updateInstitute('basic', {
-                                                            ...institute.basic,
-                                                            location: e.target.value
+                                                        value={studentEdit.address}
+                                                        onChange={(e) => setStudentEdit({
+                                                            ...studentEdit,
+                                                            address: e.target.value
                                                         })}
                                                         className="text-gray-600 border rounded px-2 py-1 flex-1"
                                                     />
                                                 </div>
-                                                <button
-                                                    onClick={handleSave}
-                                                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                                                >
-                                                    Guardar
-                                                </button>
+
+                                                <div className="flex justify-content-start gap-4 mt-4">
+                                                    <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                                                            onClick={handleCancelEdit}>Cancelar</Button>
+                                                    <Button onClick={handleSave}>Guardar</Button>
+                                                </div>
                                             </div>
                                         ) : (
                                             <div>
-                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{student?.name + " " + student.surname || "No tenemos este dato"}</h1>
-                                                <p className={`text-lg text-gray-600 ${!student?.name ? 'hidden' : ''}`}>
-                                                    {student?.name} SOY YO
+                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{studentEdit?.name + " " + studentEdit.surname || "No tenemos este dato"}</h1>
+                                                <p className={`text-lg text-gray-600 ${!studentEdit?.name ? 'hidden' : ''}`}>
+                                                    {studentEdit?.name} SOY YO
                                                 </p>
                                                 <p className="text-gray-500 flex items-center mt-2">
                                                     <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
-                                                    {student?.address}
+                                                    {studentEdit?.address}
                                                 </p>
                                                 <button
                                                     onClick={() => handleEdit('basic')}
@@ -656,22 +792,22 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                 {isEditing === 'about' ? (
                                     <div>
                                     <textarea
-                                        value={institute.basic.about}
-                                        onChange={(e) => updateInstitute('basic', {
-                                            ...institute.basic,
-                                            about: e.target.value
+                                        value={studentEdit.desctiption}
+                                        onChange={(e) => setStudentEdit({
+                                            ...studentEdit,
+                                            desctiption: e.target.value
                                         })}
                                         className="w-full h-32 p-2 border rounded"
                                     />
-                                        <button
+                                        <Button
                                             onClick={handleSave}
-                                            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                            className="mt-2 px-4 py-2 text-white rounded"
                                         >
                                             Guardar
-                                        </button>
+                                        </Button>
                                     </div>
                                 ) : (
-                                    <div dangerouslySetInnerHTML={{__html: studentEdit.description}}/>
+                                    <div dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
                                 )}
                             </div>
                         </div>
@@ -778,7 +914,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <div className="mb-6">
                                                 <Textarea
                                                     className="min-h-[150px]"
-                                                    value={studentEdit.description}
+                                                    value={studentEdit.desctiption}
                                                     onChange={(e) =>
                                                         setStudentEdit({
                                                             ...studentEdit,
@@ -791,7 +927,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         </>
                                     ) : (<>
                                         <div className="mb-6"
-                                             dangerouslySetInnerHTML={{__html: studentEdit.description}}/>
+                                             dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
                                     </>)}
 
                                     <div className="grid grid-cols-2 gap-6">
@@ -884,7 +1020,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                     <li><strong>Nacionalidad:</strong> {studentEdit.nationality}</li>
                                                     <li><strong>Dirección:</strong> {studentEdit.address}</li>
                                                     <li><strong>Codigo Postal:</strong> {studentEdit.postal_code}</li>
-                                                    <li><strong>Año de nacimiento:</strong> {studentEdit.birthday}</li>
+                                                    <li><strong>Año de
+                                                        nacimiento:</strong> {studentEdit.birthday ? format(studentEdit.birthday, "dd/MM/yyyy") : ""}
+                                                    </li>
                                                 </ul>
                                             )}
                                         </div>
@@ -892,7 +1030,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <h3 className="font-semibold mb-2">Especialidades</h3>
                                             {isEditing === "description" ? (
                                                 <>
-
                                                     <Select
                                                         closeMenuOnSelect={false}
                                                         components={animatedComponents}
@@ -932,63 +1069,119 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                 <>
                                                     <div>
                                                         {parsedLanguages.length > 0 ? (
-                                                            <div className="flex flex-wrap gap-2 mb-2">
+                                                            <div className="flex flex-col gap-2 mb-4">
                                                                 {parsedLanguages.map((lan, idx) => (
-                                                                    <Badge
-                                                                        key={idx}
-                                                                        className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md"
-                                                                    >
-                                                                        {lan.language}
-                                                                    </Badge>
+                                                                    <div key={idx}
+                                                                         className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                        <Badge
+                                                                            className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
+                                                                            {lan.language}
+                                                                        </Badge>
+                                                                        <span
+                                                                            className="text-sm text-gray-600">{lan.level}</span>
+                                                                        <div className="ml-auto flex gap-10">
+                                                                            <button
+
+                                                                                onClick={() => startEditingLanguage(idx)}
+                                                                                className="text-blue-600 hover:text-blue-800"
+                                                                            >
+                                                                                <Pencil className="h-4 w-4"/>
+                                                                            </button>
+                                                                            <button
+
+                                                                                onClick={() => deleteLanguage(idx)}
+                                                                                className="text-red-600 hover:text-red-800"
+                                                                            >
+                                                                                <Trash className="h-4 w-4"/>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
                                                                 ))}
                                                             </div>
                                                         ) : (
-                                                            <span className="text-gray-500">No especificado</span>
+                                                            <span
+                                                                className="text-gray-500 block mb-4">No especificado</span>
                                                         )}
                                                     </div>
-                                                    <div className="flex flex-wrap">
-                                                        <Input
-                                                            value={nameLanguage}
-                                                            onChange={(e) => setNameLanguage(e.target.value)}
-                                                            placeholder="Lenguaje"
-                                                        />
-                                                        <Select
-                                                            closeMenuOnSelect={false}
-                                                            components={animatedComponents}
-                                                            options={level}
-                                                            isSearchable
-                                                            isMulti
-                                                            placeholder="Nivel"
-                                                            getOptionLabel={(option) => option.name}
-                                                            getOptionValue={(option) => option.id}
-                                                            onChange={(selectedOption) => {
-                                                                console.log(selectedOption);
-                                                                setOptionLevel(selectedOption.map((sel) => sel.name));
-                                                            }}
-                                                        />
 
-                                                        <div className="flex justify-end mt-4">
-                                                            <Button onClick={() => addLanguage()}>Añadir</Button>
+                                                    <div className="flex flex-col gap-4 p-4 border rounded-lg">
+                                                        <h3 className="font-medium">
+                                                            {editingIndex >= 0 ? 'Editar idioma' : 'Añadir nuevo idioma'}
+                                                        </h3>
+
+                                                        {error && (
+                                                            <div
+                                                                className="flex items-center p-2 mb-2 bg-red-50 text-red-700 rounded border border-red-200">
+                                                                <AlertCircle size={16} className="mr-2"/>
+                                                                <span className="text-sm">{error}</span>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                            <Input
+                                                                value={nameLanguage}
+                                                                onChange={(e) => {
+                                                                    setNameLanguage(e.target.value);
+                                                                    setError(""); // Limpiar el error cuando el usuario empieza a escribir
+                                                                }}
+                                                                placeholder="Idioma"
+                                                                className="w-full"
+                                                            />
+
+                                                            <Select
+                                                                closeMenuOnSelect={false}
+                                                                components={animatedComponents}
+                                                                options={level}
+                                                                isSearchable
+                                                                isMulti
+                                                                placeholder="Nivel"
+                                                                getOptionLabel={(option) => option.name}
+                                                                getOptionValue={(option) => option.id}
+                                                                value={level.filter(opt => optionLevel.includes(opt.name))}
+                                                                onChange={(selectedOption) => {
+                                                                    setOptionLevel(selectedOption.map((sel) => sel.name));
+                                                                }}
+                                                                className="w-full"
+                                                            />
+                                                        </div>
+
+                                                        <div className="flex justify-end gap-2 mt-2">
+                                                            {editingIndex >= 0 && (
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={cancelEditingLanguage}
+                                                                >
+                                                                    Cancelar
+                                                                </Button>
+                                                            )}
+                                                            <Button
+                                                                onClick={addLanguage}
+                                                            >
+                                                                {editingIndex >= 0 ? 'Actualizar' : 'Añadir'}
+                                                            </Button>
                                                         </div>
                                                     </div>
                                                 </>
                                             ) : (<>
                                                 <div className="flex flex-wrap gap-2 text-gray-600">
                                                     {parsedLanguages.length > 0 ? (
-                                                        <div className="flex flex-wrap gap-2 mb-2">
+                                                        <div className="flex flex-col gap-2 mb-4">
                                                             {parsedLanguages.map((lan, idx) => (
-                                                                <Badge
-                                                                    key={idx}
-                                                                    className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md"
-                                                                >
-                                                                    {lan.language}
-                                                                </Badge>
+                                                                <div key={idx}
+                                                                     className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                    <Badge
+                                                                        className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
+                                                                        {lan.language}
+                                                                    </Badge>
+                                                                    <span
+                                                                        className="text-sm text-gray-600">{lan.level}</span>
+                                                                </div>
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-gray-500">No especificado</span>
+                                                        <span
+                                                            className="text-gray-500 block mb-4">No especificado</span>
                                                     )}
-
                                                 </div>
                                             </>)
                                             }
@@ -997,9 +1190,13 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                     </div>
                                     {/* Botón Guardar */}
                                     {isEditing && (
-                                        <div className="flex justify-end mt-4">
-                                            <Button onClick={() => handleSave()}>Guardar</Button>
-                                        </div>
+                                        <>
+                                            <div className="flex justify-end gap-4 mt-4">
+                                                <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                                                        onClick={handleCancelEdit}>Cancelar</Button>
+                                                <Button onClick={handleSave}>Guardar</Button>
+                                            </div>
+                                        </>
                                     )}
                                 </Card>
                             </TabsContent>

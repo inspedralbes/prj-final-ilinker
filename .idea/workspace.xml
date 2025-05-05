@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Arreglos del perfil de estudiante">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,7 +64,8 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "ts.external.directory.path": "C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
