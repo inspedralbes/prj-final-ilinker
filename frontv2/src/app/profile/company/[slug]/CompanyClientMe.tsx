@@ -20,6 +20,7 @@ import {
   BookmarkPlus,
   GraduationCap,
   X,
+  UserPlus,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -39,6 +40,10 @@ import Link from "next/link";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { useRouter } from "next/navigation";
 import config from "@/types/config";
+import Modal from "@/components/ui/modal";
+import { useModal } from "@/hooks/use-modal";
+import { useToast } from "@/hooks/use-toast";
+
 
 export default function CompanyClientMe({
   company,
@@ -73,96 +78,9 @@ export default function CompanyClientMe({
 
   const [companyEdited, setCompanyEdited] = useState(company);
 
-  const [institute, setInstitute] = useState({
-    basic: {
-      name: "Institut Pedralbes",
-      customUrl: "institut-pedralbes",
-      slogan: "Formando los profesionales del futuro",
-      about:
-        "El Institut Pedralbes es un centro público de formación profesional líder en Barcelona, especializado en tecnología e informática. Nuestra misión es proporcionar una educación de calidad que prepare a los estudiantes para los desafíos del mundo laboral moderno.",
-      location: "Av. d'Esplugues, 36-42, 08034 Barcelona",
-      size: "50-200 empleados",
-      type: "Centro Público de Formación Profesional",
-      sector: "Educación Secundaria y Formación Profesional",
-      foundedYear: "1975",
-      website: "www.institutpedralbes.cat",
-      phone: "+34 932 033 332",
-      email: "secretaria@institutpedralbes.cat",
-      languages: ["Catalán", "Castellano", "Inglés"],
-    },
-    specialties: [
-      "Desarrollo de Aplicaciones Web",
-      "Administración de Sistemas",
-      "Ciberseguridad",
-      "Inteligencia Artificial",
-      "Desarrollo de Videojuegos",
-    ],
-    hashtags: [
-      "#FPInformática",
-      "#EducaciónTecnológica",
-      "#InnovacionEducativa",
-    ],
-    additionalLocations: [
-      {
-        id: 1,
-        address: "Carrer de la Tecnologia, 15",
-        city: "Barcelona",
-        country: "España",
-      },
-    ],
-    certifications: [
-      {
-        id: 1,
-        name: "Centro Certificado Microsoft Imagine Academy",
-        issuedBy: "Microsoft",
-        year: "2023",
-      },
-      {
-        id: 2,
-        name: "Cisco Networking Academy",
-        issuedBy: "Cisco",
-        year: "2022",
-      },
-    ],
-    collaborations: [
-      {
-        id: 1,
-        company: "Barcelona Activa",
-        type: "Prácticas Profesionales",
-        description: "Programa de prácticas para estudiantes de último año",
-      },
-      {
-        id: 2,
-        company: "Barcelona Tech City",
-        type: "Colaboración Educativa",
-        description: "Participación en eventos tecnológicos y mentorías",
-      },
-    ],
-    milestones: [
-      {
-        id: 1,
-        year: "1975",
-        title: "Fundación del Instituto",
-        description: "Apertura del centro educativo",
-      },
-      {
-        id: 2,
-        year: "2000",
-        title: "Inicio de Formación Profesional en Informática",
-        description:
-          "Implementación de los primeros ciclos formativos de grado superior en informática",
-      },
-      {
-        id: 3,
-        year: "2020",
-        title: "Centro de Excelencia Digital",
-        description:
-          "Reconocimiento como centro de referencia en formación tecnológica",
-      },
-    ],
-  });
   const [modalState, setModalState] = useState(false);
   const { hideLoader, showLoader } = useContext(LoaderContext);
+  const { toast } = useToast();
 
   const handleEdit = (section: string) => {
     setIsEditing(section);
@@ -270,6 +188,65 @@ export default function CompanyClientMe({
     setModalState(false);
     setModalModeEdit(false);
     setJobData(null);
+  };
+
+  const followersModal = useModal();
+
+  const [companyFollowersAll, setCompanyFollowersAll] = useState([]);
+  const [companyFollowers, setCompanyFollowers] = useState([]);
+  const [searchFollowerQuery, setSearchFollowerQuery] = useState('');
+  const handleOpenModalFollowers = () => {
+    showLoader();
+
+    apiRequest(`followers/${companyEdited.user_id}`)
+      .then((response) => {
+        console.log(response);
+        if (response.status === "success") {
+          setCompanyFollowersAll(response.followers);
+          setCompanyFollowers(response.followers);
+          followersModal.openModal();
+        } else {
+          toast({
+            title: "Error",
+            description: "Error al obtener los seguidores.",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+        toast({
+          title: "Error",
+          description: "Error al obtener los seguidores.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        hideLoader();
+      });
+  }
+
+  const handleSearchFollower = (query: string) => {
+    setSearchFollowerQuery(query);
+    const filteredFollowers = companyFollowersAll.filter((follower: any) => {
+      return follower.name.toLowerCase().includes(query.toLowerCase());
+    });
+    setCompanyFollowers(filteredFollowers);
+  };
+
+  const handleRedirectToFollowerProfile = (follower: any) => {
+    showLoader();
+    switch (follower.rol) {
+      case 'student':
+        router.push(`/profile/student/${follower.student.uuid}`);
+        break;
+      case 'company':
+        router.push(`/profile/company/${follower.company.slug}`);
+        break;
+      case 'institutions':
+        router.push(`/profile/institution/${follower.institutions.slug}`);
+        break;
+    }
   };
 
   return (
@@ -387,9 +364,21 @@ export default function CompanyClientMe({
                       Contactar
                     </button>
 
-                    <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                      <Share2 className="h-5 w-5 text-gray-400" />
+                    {/* Botón de Seguir */}
+                    <button
+                      onClick={() => handleFollowCompany(companyEdited?.user_id)}
+                      disabled={true}
+                      className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${true ? 'bg-gray-400 border-gray-400' : 'bg-black border-black hover:bg-gray-800 transition-colors duration-300'
+                        }`}
+                    >
+                      <UserPlus className="h-5 w-5 mr-2" />
+                      {true ? 'Siguiendo' : 'Seguir'}
                     </button>
+
+                    {/* Followers count */}
+                    <div onClick={() => handleOpenModalFollowers()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      {companyEdited?.followers} {companyEdited?.followers === 1 ? 'seguidor' : 'seguidores'}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -631,7 +620,7 @@ export default function CompanyClientMe({
                           <li>
                             <strong>Industria:</strong>{" "}
                             {companyEdited.sectors &&
-                            companyEdited.sectors.length > 0 ? (
+                              companyEdited.sectors.length > 0 ? (
                               companyEdited.sectors.map((sector) => (
                                 <Badge key={sector.id} className="mr-2">
                                   {sector.name} {/* Renderiza solo el nombre */}
@@ -681,7 +670,7 @@ export default function CompanyClientMe({
                         <>
                           <div className="flex flex-wrap gap-2 text-gray-600">
                             {companyEdited.skills &&
-                            companyEdited.skills.length > 0 ? (
+                              companyEdited.skills.length > 0 ? (
                               companyEdited.skills.map((skill) => (
                                 <Badge
                                   key={skill.id}
@@ -716,9 +705,8 @@ export default function CompanyClientMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${
-                            1500000000000 + post
-                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${1500000000000 + post
+                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -823,13 +811,13 @@ export default function CompanyClientMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                    <p className="text-lg font-semibold text-gray-600 mb-2">
-                      No hay ofertas disponibles
-                    </p>
-                  </div>
-                )}
+                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                      <p className="text-lg font-semibold text-gray-600 mb-2">
+                        No hay ofertas disponibles
+                      </p>
+                    </div>
+                  )}
               </TabsContent>
 
               <TabsContent value="empleados" className="mt-6">
@@ -845,9 +833,8 @@ export default function CompanyClientMe({
                       <div key={employee} className="flex gap-4 items-center">
                         <Avatar className="h-16 w-16">
                           <img
-                            src={`https://images.unsplash.com/photo-${
-                              1500000000000 + employee
-                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                            src={`https://images.unsplash.com/photo-${1500000000000 + employee
+                              }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                             alt="Employee"
                             className="aspect-square h-full w-full"
                           />
@@ -875,6 +862,52 @@ export default function CompanyClientMe({
           selectedInfoJob={jobData}
         />
       )}
+
+<Modal
+        isOpen={followersModal.isOpen}
+        onClose={followersModal.closeModal}
+        id="followers-modal"
+        size="lg"
+        title={`Seguidores de ${company.name}`}
+        closeOnOutsideClick={false}
+      >
+        <div className="flex flex-col space-y-4 p-5">
+          <p className="text-gray-600">
+            Lista de seguidores de la empresa
+          </p>
+          <Input
+            placeholder="Buscar seguidores..."
+            value={searchFollowerQuery}
+            onChange={(e) => handleSearchFollower(e.target.value)}
+          />
+          <div className="flex flex-col space-y-4">
+            {companyFollowers?.map((follower: any) => (
+              <div key={follower.id} className="flex items-center space-x-2 cursor-pointer"
+              onClick={() => handleRedirectToFollowerProfile(follower)}>
+                <img
+                  className="w-12 h-12 rounded-full"
+                  src={follower.avatar}
+                  alt={follower.name}
+                />
+                <div>
+                  <p className="font-semibold">{follower.name}</p>
+                  <p className="text-sm text-gray-600">
+                    {follower.email}
+                  </p>
+                </div>
+              </div>
+            ))}
+
+            {
+              companyFollowers?.length === 0 || !companyFollowers && (
+                <p className="text-gray-600">
+                  No hay seguidores
+                </p>
+              )
+            }
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

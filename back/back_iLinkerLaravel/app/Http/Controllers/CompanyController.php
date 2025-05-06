@@ -83,7 +83,12 @@ class CompanyController extends Controller
             }
         }
 
-        $company = Company::with(['sectors', 'skills', 'offers'])->findOrFail($company->id);
+        $company = Company::with(['sectors', 'skills', 'offers', 'offers.company', 'offers.usersInterested'])->findOrFail($company->id);
+
+        $companyFollowers = User::findOrFail($company->user_id)
+            ->followers->count();
+
+        $company->followers = $companyFollowers;
         return response()->json([
             'message' => 'Empresa actualizada correctamente',
             'company' => $company
@@ -150,6 +155,11 @@ class CompanyController extends Controller
             $idCompany = $request->input('id_company');
 
             $companyToCheck = Company::with(['sectors', 'skills', 'offers', 'offers.company', 'offers.usersInterested'])->findOrFail($idCompany);
+
+            $companyFollowers = User::findOrFail($companyToCheck->user_id)
+                ->followers->count();
+
+            $companyToCheck->followers = $companyFollowers;
 
             if ($idUserLoged === null) {
                 return response()->json([

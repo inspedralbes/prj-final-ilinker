@@ -2,10 +2,12 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
+use App\Http\Controllers\FollowerController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\UserSettingsController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
@@ -42,6 +44,8 @@ Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('co
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
 Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
+Route::get('/followers/{user_id}', [FollowerController::class, 'getFollowersUser']);
+
 
 Route::prefix('/institution')->group(function () {
     // Public routes
@@ -149,6 +153,24 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/bookmarked/{directChatId}', [ChatController::class, 'bookMarkDirectChat'])->name('chat.bookMarkDirectChat');
         Route::get('/saved/{directChatId}', [ChatController::class, 'savedDirectChat'])->name('chat.savedDirectChat');
     });
+
+    // Rutas de seguidores
+    Route::post('/follow', [FollowerController::class, 'follow']);
+    Route::delete('/unfollow/{user_id}', [FollowerController::class, 'unfollow']);
+    Route::put('/follow/approve/{follower_id}', [FollowerController::class, 'approveFollowRequest']);
+    Route::delete('/follow/reject/{follower_id}', [FollowerController::class, 'rejectFollowRequest']);
+    Route::post('/block', [FollowerController::class, 'blockUser']);
+    Route::delete('/unblock/{user_id}', [FollowerController::class, 'unblockUser']);
+    Route::get('/following', [FollowerController::class, 'getFollowing']);
+    Route::get('/follow/check/{user_id}', [FollowerController::class, 'followCheck']);
+    Route::get('/my-followers', [FollowerController::class, 'getMyFollowers']);
+    Route::get('/follow-requests/pending', [FollowerController::class, 'getPendingFollowRequests']);
+    Route::get('/follow-requests/sent', [FollowerController::class, 'getPendingSentRequests']);
+    Route::get('/blocked', [FollowerController::class, 'getBlockedUsers']);
+
+    // Rutas para configuración de la cuenta
+    Route::put('/settings/toggle-account-privacy', [UserSettingsController::class, 'toggleAccountPrivacy']);
+    Route::get('/settings/account-status', [UserSettingsController::class, 'getAccountStatus']);
 });
 
 Route::prefix('/skills')->group(function () {
