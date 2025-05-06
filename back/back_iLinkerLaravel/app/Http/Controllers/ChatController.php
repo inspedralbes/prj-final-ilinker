@@ -472,10 +472,10 @@ class ChatController extends Controller
         $directChat = DirectChat::findOrFail($directChatId);
         if($user->id === $directChat->user_one_id)
         {
-            $directChat->is_bookmarked_user_one = 1;
+            $directChat->is_bookmarked_user_one = !$directChat->is_bookmarked_user_one;
             $directChat->save();
         }else{
-            $directChat->is_bookmarked_user_two = 1;
+            $directChat->is_bookmarked_user_two = !$directChat->is_bookmarked_user_two;
             $directChat->save();
         }
 
@@ -491,10 +491,10 @@ class ChatController extends Controller
         $directChat = DirectChat::findOrFail($directChatId);
         if($user->id === $directChat->user_one_id)
         {
-            $directChat->is_saved_user_one = 1;
+            $directChat->is_saved_user_one = !$directChat->is_saved_user_one;
             $directChat->save();
         }else{
-            $directChat->is_saved_user_two = 1;
+            $directChat->is_saved_user_two = !$directChat->is_saved_user_two;
             $directChat->save();
         }
 

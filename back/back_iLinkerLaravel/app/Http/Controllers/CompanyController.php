@@ -149,7 +149,7 @@ class CompanyController extends Controller
 
             $idCompany = $request->input('id_company');
 
-            $companyToCheck = Company::with(['sectors', 'skills', 'offers'])->findOrFail($idCompany);
+            $companyToCheck = Company::with(['sectors', 'skills', 'offers', 'offers.company', 'offers.usersInterested'])->findOrFail($idCompany);
 
             if ($idUserLoged === null) {
                 return response()->json([

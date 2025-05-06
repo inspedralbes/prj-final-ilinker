@@ -74,30 +74,8 @@ export default function NavBar() {
                       : "text-muted-foreground flex flex-col items-center"
                   }`}
                 >
-                  <Building2Icon className="h-5 w-5" />
-                  <span className="text-[12px]">Empresas</span>
-                </Link>
-                <Link
-                  href="/people"
-                  className={`flex flex-col items-center ${
-                    pathname === "/people"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <User className="h-5 w-5" />
-                  <span className="text-[12px]">Personas</span>
-                </Link>
-                <Link
-                  href="/institutions"
-                  className={`flex flex-col items-center ${
-                    pathname === "/institutions"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <LandmarkIcon className="h-5 w-5" />
-                  <span className="text-[12px]">Institutos</span>
+                  <GraduationCap className="h-5 w-5" />
+                  <span className="text-[12px]">Ofertas</span>
                 </Link>
               </>
             )}
@@ -269,28 +247,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             <></>
           )}
 
-          {/* Opción "Help" */}
-          <li
-            role="menuitem"
-            className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-            onClick={() => setIsOpen(false)}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              className="w-5 h-5 text-slate-400"
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0ZM8.94 6.94a.75.75 0 1 1-1.061-1.061 3 3 0 1 1 2.871 5.026v.345a.75.75 0 0 1-1.5 0v-.5c0-.72.57-1.172 1.081-1.287A1.5 1.5 0 1 0 8.94 6.94ZM10 15a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                clipRule="evenodd"
-              />
-            </svg>
-            <Link href="/help" className="ml-2">
-              <p className="font-medium">Ayuda</p>
-            </Link>
-          </li>
+        
           <hr className="my-2 border-slate-200" role="separator" />
           {/* Opción "Sign Out" */}
           <li

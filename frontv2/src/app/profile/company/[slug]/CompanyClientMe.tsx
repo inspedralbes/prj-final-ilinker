@@ -201,7 +201,6 @@ export default function CompanyClientMe({
     const token = Cookies.get("authToken");
 
     try {
-          
       const response = await apiRequest("company/update", "POST", formData);
       console.log(response);
       setCompanyEdited(response.company);
@@ -515,15 +514,8 @@ export default function CompanyClientMe({
               </div>
             </div>
 
-            <Tabs defaultValue="inicio" className="w-full mt-5">
+            <Tabs defaultValue="acerca" className="w-full mt-5">
               <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
-                {/*<TabsTrigger*/}
-                {/*    value="inicio"*/}
-                {/*    className="  flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                {/*>*/}
-                {/*    <HomeIcon className="h-4 w-4"/>*/}
-                {/*    Inicio*/}
-                {/*</TabsTrigger>*/}
                 <TabsTrigger
                   value="acerca"
                   className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
@@ -531,13 +523,6 @@ export default function CompanyClientMe({
                   <UserIcon className="h-4 w-4" />
                   Acerca de
                 </TabsTrigger>
-                {/*<TabsTrigger*/}
-                {/*    value="publicaciones"*/}
-                {/*    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                {/*>*/}
-                {/*    <NewspaperIcon className="h-4 w-4"/>*/}
-                {/*    Publicaciones*/}
-                {/*</TabsTrigger>*/}
                 <TabsTrigger
                   value="ofertas"
                   className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
@@ -545,44 +530,7 @@ export default function CompanyClientMe({
                   <BriefcaseIcon className="h-4 w-4" />
                   Ofertas
                 </TabsTrigger>
-                {/*<TabsTrigger*/}
-                {/*    value="empleados"*/}
-                {/*    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                {/*>*/}
-                {/*    <UsersIcon className="h-4 w-4"/>*/}
-                {/*    Personas empleadas*/}
-                {/*</TabsTrigger>*/}
               </TabsList>
-
-              {/* <TabsContent value="inicio" className="mt-6 shadow-lg">
-                                <Card className="p-6">
-                                    <h2 className="text-xl font-semibold mb-4">Página principal</h2>
-                                    <div className="space-y-4">
-                                        <div className="bg-blue-50 p-4 rounded-lg">
-                                            <h3 className="font-semibold text-blue-800">Destacados</h3>
-                                            <p className="text-blue-600 mt-2">
-                                                Tech Company ha sido reconocida como una de las mejores empresas para
-                                                trabajar en 2024
-                                            </p>
-                                        </div>
-                                        <div className="border-t pt-4">
-                                            <h3 className="font-semibold mb-2">Actividad reciente</h3>
-                                            <div className="space-y-4">
-                                                {[1, 2, 3].map((i) => (
-                                                    <div key={i} className="flex gap-4">
-                                                        <div
-                                                            className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0"/>
-                                                        <div>
-                                                            <p className="font-medium">Nuevo logro alcanzado</p>
-                                                            <p className="text-sm text-gray-500">Hace {i} días</p>
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </TabsContent> */}
 
               <TabsContent value="acerca" className="mt-6">
                 <Card className="p-6">
@@ -801,7 +749,7 @@ export default function CompanyClientMe({
                 {/* Botón para añadir una nueva oferta */}
                 <div className="flex justify-end">
                   <Button
-                    className="bg-blue-600 text-white"
+                    className="bg-black text-white"
                     onClick={() => handleOpenModalAddOffer()} // Asumiendo que tienes una función para manejar el modal de añadir oferta
                   >
                     Añadir Oferta
@@ -812,13 +760,15 @@ export default function CompanyClientMe({
                 </div>
 
                 {/* Mapear las ofertas existentes */}
-                {companyEdited.offers.map((job, i) => (
+                {companyEdited?.offers?.map((job, i) => (
                   <Card
                     key={job.id}
                     className={`p-6 hover:border-primary/50 transition-colors cursor-pointer `}
                     onClick={() => {
                       showLoader();
-                      router.push(`/profile/company/${company.slug}/edit-offer/${job.id}`);
+                      router.push(
+                        `/profile/company/${company.slug}/edit-offer/${job.id}`
+                      );
                     }}
                   >
                     {/* Contenido del card */}
@@ -861,10 +811,25 @@ export default function CompanyClientMe({
                         })}
                       </span>
                       <Separator orientation="vertical" className="h-4" />
-                      <span>{job.usersInterested?.length ? job.usersInterested.length : 0} applicants</span>
+                      <span>
+                        {job.usersInterested?.length
+                          ? job.usersInterested.length
+                          : 0}{" "}
+                        applicants
+                      </span>
                     </div>
                   </Card>
                 ))}
+
+                {(!companyEdited?.offers ||
+                  companyEdited.offers.length === 0) && (
+                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                    <p className="text-lg font-semibold text-gray-600 mb-2">
+                      No hay ofertas disponibles
+                    </p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="empleados" className="mt-6">

@@ -134,6 +134,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [OfferController::class, 'delete'])->name('offers.delete');
         Route::post('/apply', [OfferController::class, 'apply'])->name('offers.apply');
         Route::post('/apply/update/status', [OfferController::class, 'applyUpdateStatus'])->name('offers.rejected');
+        Route::get('/apply-check/{offer_id}', [OfferController::class, 'applyCheck'])->name('offers.applyCheck');
     });
 
     Route::prefix('/courses')->group(function () {
