@@ -150,13 +150,13 @@ class User extends Authenticatable
     // Relacion con los comentarios realizados por este usuario
     public function publicationComments()
     {
-        return $this->hasMany(PublicationsComment::class);
+        return $this->hasMany(PublicationComment::class);
     }
 
     // Relacion con los likes dandos por este usuario
     public function publicationLikes()
     {
-        return $this->hasMany(PublicationsLike::class);
+        return $this->hasMany(PublicationLike::class);
     }
 
     // Relación con las publicaciones que le han gustado a este usuario
