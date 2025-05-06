@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Publications;
 use App\Models\PublicationComment;
+use App\Models\PublicationMedia;
+use App\Models\PublicationLike;
 use Illuminate\Support\Facades\File;
 
 class PublicationsSeeder extends Seeder
@@ -26,14 +28,27 @@ class PublicationsSeeder extends Seeder
         foreach ($jsonData['publications'] as $publicationData) {
             // Crear la publicación
             $publication = Publications::create([
-                'user_id' => 1, // Asignar al primer usuario por defecto
+                'user_id' => $publicationData['user_id'],
                 'content' => $publicationData['content'],
                 'location' => $publicationData['location'],
                 'comments_enabled' => $publicationData['comments_enabled'],
                 'status' => $publicationData['status'],
                 'has_media' => isset($publicationData['media']),
-                'likes_count' => 0
+                'likes_count' => isset($publicationData['likes']) ? count($publicationData['likes']) : 0,
+                'comments_count' => isset($publicationData['comments']) ? count($publicationData['comments']) : 0
             ]);
+
+            // Crear los medios asociados
+            if (isset($publicationData['media'])) {
+                foreach ($publicationData['media'] as $mediaData) {
+                    PublicationMedia::create([
+                        'publication_id' => $publication->id,
+                        'file_path' => $mediaData['url'],
+                        'media_type' => $mediaData['type'],
+                        'display_order' => $mediaData['display_order']
+                    ]);
+                }
+            }
 
             // Crear los comentarios asociados
             if (isset($publicationData['comments'])) {
@@ -45,8 +60,16 @@ class PublicationsSeeder extends Seeder
                     ]);
                 }
             }
-        }
 
-        $this->command->info('Publicaciones y comentarios creados exitosamente.');
+            // Crear los likes asociados
+            if (isset($publicationData['likes'])) {
+                foreach ($publicationData['likes'] as $userId) {
+                    PublicationLike::create([
+                        'publication_id' => $publication->id,
+                        'user_id' => $userId
+                    ]);
+                }
+            }
+        }
     }
-} 
+}

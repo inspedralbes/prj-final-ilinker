@@ -1,14 +1,21 @@
 {
     "publications": [
         {
+            "user_id": 3,
             "content": "¡Acabo de descubrir esta increíble herramienta para desarrolladores! #coding #webdev",
             "location": "Madrid, España",
             "comments_enabled": true,
             "status": "published",
             "media": [
                 {
-                    "url": "https://picsum.photos/800/600",
-                    "type": "image"
+                    "url": "https://picsum.photos/800/600?random=1",
+                    "type": "image",
+                    "display_order": 1
+                },
+                {
+                    "url": "https://picsum.photos/800/600?random=2",
+                    "type": "image",
+                    "display_order": 2
                 }
             ],
             "comments": [
@@ -20,17 +27,20 @@
                     "content": "Lo uso todos los días, es una herramienta impresionante",
                     "user_id": 3
                 }
-            ]
+            ],
+            "likes": [1, 2, 5, 4]
         },
         {
+            "user_id": 3,
             "content": "Compartiendo mi último proyecto de desarrollo web con Laravel y Vue.js",
             "location": "Barcelona, España",
             "comments_enabled": true,
             "status": "published",
             "media": [
                 {
-                    "url": "https://picsum.photos/800/600",
-                    "type": "image"
+                    "url": "https://picsum.photos/800/600?random=3",
+                    "type": "image",
+                    "display_order": 1
                 }
             ],
             "comments": [
@@ -38,17 +48,25 @@
                     "content": "¡Excelente combinación de tecnologías!",
                     "user_id": 1
                 }
-            ]
+            ],
+            "likes": [2, 3, 5]
         },
         {
+            "user_id": 3,
             "content": "Recursos útiles para aprender programación en 2024",
             "location": "Valencia, España",
             "comments_enabled": true,
             "status": "published",
             "media": [
                 {
-                    "url": "https://picsum.photos/800/600",
-                    "type": "image"
+                    "url": "https://picsum.photos/800/600?random=4",
+                    "type": "image",
+                    "display_order": 1
+                },
+                {
+                    "url": "https://picsum.photos/800/600?random=5",
+                    "type": "image",
+                    "display_order": 2
                 }
             ],
             "comments": [
@@ -60,7 +78,8 @@
                     "content": "¿Alguien ha probado freeCodeCamp?",
                     "user_id": 2
                 }
-            ]
+            ],
+            "likes": [2, 4, 6, 1, 5]
         }
     ]
 } 
