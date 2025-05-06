@@ -10,7 +10,15 @@ export default function AdminPage() {
   const handleRedirectToReports = () => {
     router.push("/admin/reported-users"); // Asegúrate de incluir el "/" inicial
   };
-
+  const handleRedirectToCompanies = () => {
+    router.push("/admin/companies"); // Asegúrate de incluir el "/" inicial
+  };
+  const handleRedirectToInstitutes = () => {
+    router.push("/admin/school");
+  };
+  const handleRedirectToUsers = () => {
+    router.push("/admin/estudents");
+  };
 
   return (
     <div className="container mx-auto px-6 py-10 max-w-7xl">
@@ -19,16 +27,35 @@ export default function AdminPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {/* Card: Gestionar Usuarios */}
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col items-start">
-          <h2 className="text-2xl font-semibold mb-3">Gestionar Usuarios</h2>
+          <h2 className="text-2xl font-semibold mb-3">Gestionar Estudiantes</h2>
           <p className="text-gray-500 mb-6">Ver, editar o eliminar usuarios registrados en el sistema.</p>
-          <Button variant="default" className="mt-auto w-full">Ir a Usuarios</Button>
+          <Button variant="default" className="mt-auto w-full" onClick={handleRedirectToUsers}>Ir a Usuarios</Button>
         </div>
 
         {/* Card: Gestionar Empresas */}
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col items-start">
           <h2 className="text-2xl font-semibold mb-3">Gestionar Empresas</h2>
           <p className="text-gray-500 mb-6">Administrar información de las empresas registradas.</p>
-          <Button variant="default" className="mt-auto w-full">Ir a Empresas</Button>
+          <Button
+            variant="default"
+            className="mt-auto w-full"
+            onClick={handleRedirectToCompanies}
+          >
+            Ir a Empresas
+          </Button>
+        </div>
+
+        {/* Card: Gestionar Institutos */}
+        <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col items-start">
+          <h2 className="text-2xl font-semibold mb-3">Gestionar Institutos</h2>
+          <p className="text-gray-500 mb-6">Administrar información de los institutos registrados.</p>
+          <Button
+            variant="default"
+            className="mt-auto w-full"
+            onClick={handleRedirectToInstitutes}
+          >
+            Ir a Institutos
+          </Button>
         </div>
 
         {/* Card: Reportes y Análisis */}

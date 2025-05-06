@@ -24,6 +24,10 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Admin\ReportedUserController;
+use App\Http\Controllers\Admin\AdminCompanyController;
+use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminInstitutionController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -170,5 +174,17 @@ Route::prefix('admin')->group(function () {
     Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy']);
     Route::delete('/delete-user/{userId}', [ReportedUserController::class, 'deleteUser']);
     Route::post('/ban-user/{userId}', [ReportedUserController::class, 'banUser']);
+    Route::get('/companies', [AdminCompanyController::class, 'index']);
+    Route::get('/companies/{id}', [AdminCompanyController::class, 'show']);
+    Route::put('/companies/{id}', [AdminCompanyController::class, 'update']);
+    Route::delete('/companies/{id}', [AdminCompanyController::class, 'destroy']);
+    Route::get('/students', [AdminStudentController::class, 'index']);
+    Route::get('/students/{id}', [AdminStudentController::class, 'show']);
+    Route::put('/students/{id}', [AdminStudentController::class, 'update']);
+    Route::delete('/students/{id}', [AdminStudentController::class, 'destroy']);
+    Route::get('/institutions', [AdminInstitutionController::class, 'index']);
+    Route::get('/institutions/{id}', [AdminInstitutionController::class, 'show']);
+    Route::put('/institutions/{id}', [AdminInstitutionController::class, 'update']);
+    Route::delete('/institutions/{id}', [AdminInstitutionController::class, 'destroy']);
 });
 
