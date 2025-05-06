@@ -21,10 +21,29 @@ class StudentController extends Controller
 
     public function update(Request $request)
     {
-        Log::info("FRONT", $request->all());
+        Log::info("Recibiendo solicitud de actualización", $request->all());
 
+        $studentData = json_decode($request->student, true);
+        $skillsData = json_decode($request->skills, true);
+        $userData = json_decode($request->user, true);
 
-        $student = $this->studentService->updateStudent($request->student, $request->skills);
+        if ($request->hasFile('photo_pic') || $request->hasFile('cover_photo')) {
+
+            // Preparar los archivos para pasarlos al service
+            $files = [];
+
+            if ($request->hasFile('photo_pic')) {
+                $files['photo_pic'] = $request->file('photo_pic');
+            }
+
+            if ($request->hasFile('cover_photo')) {
+                $files['cover_photo'] = $request->file('cover_photo');
+            }
+
+            $student = $this->studentService->updateStudent($studentData, $skillsData, $userData,  $files);
+        }else{
+            $student = $this->studentService->updateStudent($studentData, $skillsData, $userData);
+        }
 
         return response()->json(['status' => 'success', 'student' => $student]);
 

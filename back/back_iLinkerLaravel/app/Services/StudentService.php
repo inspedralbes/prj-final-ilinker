@@ -8,6 +8,8 @@ use App\Models\User;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class StudentService
 {
@@ -44,7 +46,7 @@ class StudentService
         return $students;
     }
 
-    public function updateStudent($data, $skills)
+    public function updateStudent($data, $skills, $userData, $files = null)
     {
 
         $students = Student::findOrFail($data['id']);
@@ -76,6 +78,47 @@ class StudentService
         $students->postal_code = $data['postal_code'];
         $students->languages = is_string($data['languages']) ? $data['languages'] : json_encode($data['languages'], JSON_UNESCAPED_UNICODE);
 
+        // Procesar los archivos si existen
+        if ($files) {
+            // Manejar la foto de perfil
+            if (isset($files['photo_pic'])) {
+                $file = $files['photo_pic'];
+                $filename = $file->getClientOriginalName();
+
+                Log::info("FOTo perfil", ['name' => $filename] );
+
+                // Guardar el archivo en el almacenamiento
+                $path = $file->storeAs("students/photos/{$students->uuid}", $filename, 'public');
+
+                // Actualizar la ruta en los datos del estudiante
+                $students->photo_pic = $filename;
+
+                // Opcional: Eliminar archivo anterior si existe
+                if ($students->photo_pic && Storage::disk('public')->exists($students->photo_pic)) {
+                    Storage::disk('public')->delete($students->photo_pic);
+                }
+            }
+
+            // Manejar la foto de portada
+            if (isset($files['cover_photo'])) {
+                $file = $files['cover_photo'];
+                $filename = $file->getClientOriginalName();
+
+                Log::info("cover foto", ['name' => $filename] );
+
+                // Guardar el archivo en el almacenamiento
+                $path = $file->storeAs("students/covers/{$students->uuid}", $filename, 'public');
+
+                // Actualizar la ruta en los datos del estudiante
+                $students->cover_photo = $filename;
+
+                // Opcional: Eliminar archivo anterior si existe
+                if ($students->cover_photo && Storage::disk('public')->exists($students->cover_photo)) {
+                    Storage::disk('public')->delete($students->cover_photo);
+                }
+            }
+        }
+
         $students->save();
 
         $user = User::findOrFail($data['user_id']);
@@ -89,6 +132,8 @@ class StudentService
                 throw new Exception("Formato de fecha inválido: " . $data['birthday']);
             }
         }
+
+        $user->email = $userData['email'];
 
         $user->save();
 

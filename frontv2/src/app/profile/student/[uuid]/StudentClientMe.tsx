@@ -61,7 +61,9 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import {addDays, format} from "date-fns"
-import {name} from "ts-interface-checker";
+import config from "@/types/config";
+import {AuthContext} from "@/contexts/AuthContext";
+import Cookies from "js-cookie";
 
 
 export interface User {
@@ -210,24 +212,30 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [isEditing, setIsEditing] = useState(null);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
+    const {userData, login} = useContext(AuthContext);
+    const token = Cookies.get('authToken')
+
     const [modalState, setModalState] = useState(false);
     const [modalExperience, setModalExperience] = useState(false);
     const [modalProjects, setModalProjects] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
+
     const [currentStudy, setCurrentStudy] = useState(null);
     const [currentExperience, setCurrentExperience] = useState(null);
     const [currentProject, setCurrentProject] = useState(null);
+
     const [openDialog, setOpenDialog] = useState(false);
+
     const [educationSelect, setEducationSelect] = useState(null);
     const [experinceSelect, setExperienceSelect] = useState(null);
     const [projectsSelect, setProjectSelect] = useState(null);
+
     const [isExperience, setIsExperience] = useState(false);
     const [carouselStates, setCarouselStates] = useState({});
     const {showLoader, hideLoader} = useContext(LoaderContext);
     const animatedComponents = makeAnimated();
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
     const [nameLanguage, setNameLanguage] = useState("");
-    // Estado para manejo de errores
     const [error, setError] = useState("");
     const level = [
         {id: 1, name: 'Básico'},
@@ -235,14 +243,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         {id: 3, name: 'Avanzado'},
         {id: 4, name: 'Nativo'}
     ];
-
     const [optionLevel, setOptionLevel] = useState([]);
-    // Estado para la edición
     const [editingIndex, setEditingIndex] = useState(-1);
-
-
-    const API_PATH_IMG = "http://localhost:8000/storage/projects/";
-
+    const [imageChangeCount, setImageChangeCount] = useState(0);
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
@@ -284,6 +287,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         setEducationEdit(response.student.education);
         setExperienceEdit(response.experience_grouped);
         setProjectEdit(response.student.projects);
+        setUserEdit(response.student.user);
+        login(token, userEdit);
     }
 
     const EditInfo = (section: string, education: object) => {
@@ -492,50 +497,59 @@ export default function StudentClientMe({uuid, student, experience_group, skills
             [type]: file,
         }));
 
-        console.log("A")
-        console.log(studentEdit)
-        //handleSave();
-
-        //setStudentEdit((prev) => prev + 1); // Forzar cambio
-
-
+        setImageChangeCount((prev) => prev + 1); // Forzar cambio
     };
 
 
-
     const handleSave = async () => {
+        showLoader();
+
         const formattedData = {
             ...studentEdit,
             birthday: studentEdit.birthday
                 ? format(studentEdit.birthday, "dd/MM/yyyy")
                 : null,
         };
-        console.log(formattedData)
 
-        const jsonData = {
-            student: formattedData,
-            skills: skillsEdit
+        const formData = new FormData();
+
+        formData.append('student', JSON.stringify(formattedData));
+        formData.append('skills', JSON.stringify(skillsEdit));
+        formData.append('user', JSON.stringify(userEdit));
+
+        // Asegurarse de que los archivos se agreguen correctamente
+        if (studentEdit.photo_pic instanceof File) {
+            formData.append("photo_pic", studentEdit.photo_pic);
         }
-/*
-        try {
-            showLoader();
-            const response = await apiRequest("student/update", "POST", jsonData);
 
-            if (response.status === 'success') {
+        if (studentEdit.cover_photo instanceof File) {
+            formData.append("cover_photo", studentEdit.cover_photo);
+        }
+
+        console.log("COSAS")
+        console.table(formattedData);
+
+        console.log("user");
+        console.table(userEdit);
+
+
+        try {
+
+            const response = await apiRequest("student/update", "POST", formData);
+
+            if (await response.status === 'success') {
                 console.log(response);
                 setIsEditing(null)
                 UpdateChange();
-                hideLoader();
             } else {
                 console.log("MAL")
-                hideLoader();
             }
-
+            hideLoader();
         } catch (e) {
             console.log(e)
             hideLoader();
         }
-*/
+
     }
 
     const handleCancelEdit = () => {
@@ -632,8 +646,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
 
     useEffect(() => {
-        UpdateChange();
-    }, []);
+        handleSave();
+    }, [imageChangeCount]);
 
 
     return (
@@ -642,7 +656,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                 {/* Cover Photo */}
                 <div className="relative h-80 bg-gray-300">
                     <img
-                        src={studentEdit?.cover_photo ? `http://localhost:8000/storage/${studentEdit.cover_photo}` : coverImage}
+                        src={studentEdit?.cover_photo ? `${config.storageUrl + `students/covers/${studentEdit.uuid}/` + studentEdit.cover_photo}` : coverImage}
                         alt="Cover"
                         className="w-full h-full object-cover"
                     />
@@ -666,8 +680,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                     <div className="relative flex-shrink-0">
                                         <img
                                             className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                                            src={studentEdit?.photo_pic ? `http://localhost:8000/storage/${studentEdit.photo_pic}` : logoImage}
-                                            alt={studentEdit?.photo_pic}
+                                            src={studentEdit?.photo_pic ? `${config.storageUrl + `students/photos/${studentEdit.uuid}/` + studentEdit.photo_pic}` : logoImage}
+                                            alt="photo_pic"
                                         />
                                         <label className="absolute bottom-2 right-2 cursor-pointer">
                                             <input
@@ -759,23 +773,94 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                             {/* Basic Information */}
                             <div className="mt-6 border-t border-gray-200 pt-6">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="flex items-center">
-                                        <Globe className="h-5 w-5 text-gray-400 mr-2"/>
-                                        <a href={student?.country || ""} className="text-blue-600 hover:underline">
-                                            {student?.country || "No hay website vinculada"}
-                                        </a>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Phone className="h-5 w-5 text-gray-400 mr-2"/>
-                                        <span className="text-gray-600">{student?.phone}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Mail className="h-5 w-5 text-gray-400 mr-2"/>
-                                        <span
-                                            className="text-gray-600">{userEdit?.email || "Sin dirección de correo"}</span>
-                                    </div>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-lg font-medium text-gray-900">
+                                        Información de contacto
+                                    </h2>
+                                    <button
+                                        onClick={() => handleEdit("basic-2")}
+                                        className="text-blue-600 hover:text-blue-800"
+                                    >
+                                        <Pencil className="h-4 w-4"/>
+                                    </button>
                                 </div>
+                                {isEditing === "basic-2" ? (
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div className="flex items-center">
+                                                <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Input
+                                                    type="text"
+                                                    name="website"
+                                                    placeholder="Website de la compañia"
+                                                    value={studentEdit.country}
+                                                    onChange={(e) =>
+                                                        setStudentEdit({
+                                                            ...studentEdit,
+                                                            country: e.target.value
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Input
+                                                    type="text"
+                                                    name="phone"
+                                                    placeholder="Numero de la compañia"
+                                                    value={studentEdit.phone}
+                                                    onChange={(e) =>
+                                                        setStudentEdit({
+                                                            ...studentEdit,
+                                                            phone: e.target.value
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Input
+                                                    type="email"
+                                                    name="company_email"
+                                                    placeholder="Email de la compañia"
+                                                    value={userEdit.email || ""}
+                                                    onChange={(e) =>
+                                                        setUserEdit({
+                                                            ...userEdit,
+                                                            email: e.target.value
+                                                        })
+                                                    }
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex justify-content-start gap-4 mt-4">
+                                            <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                                                    onClick={handleCancelEdit}>Cancelar</Button>
+                                            <Button onClick={handleSave}>Guardar</Button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="flex items-center">
+                                            <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <a
+                                                href={studentEdit?.country || ""}
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                {studentEdit?.country || "No hay website vinculada"}
+                                            </a>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <span className="text-gray-600">{studentEdit?.phone}</span>
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <span
+                                                className="text-gray-600">{studentEdit.user.email || "Sin dirección de correo"}</span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* About Section */}
@@ -1598,11 +1683,12 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                                                 className="flex aspect-square items-center justify-center p-4">
                                                                                                 <img
                                                                                                     key={index}
-                                                                                                    src={API_PATH_IMG + slugify(pro.name) + "/" + img}
+                                                                                                    src={config.storageUrl + "projects/" + slugify(pro.name) + "/" + img}
                                                                                                     alt={`Imagen ${index}`}
                                                                                                     className="w-full h-auto object-cover"
                                                                                                 />
                                                                                             </CardContent>
+
                                                                                         </Card>
                                                                                     </div>
                                                                                 </CarouselItem>
