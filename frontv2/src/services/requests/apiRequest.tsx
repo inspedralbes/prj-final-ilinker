@@ -42,7 +42,11 @@ export async function apiRequest(
       throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
     }
 
-    return await response.json();
+   
+    return {
+      status: 'success',
+      data: await response.json(),
+    }
   } catch (error: any) {
     return {
       status: 'error',
