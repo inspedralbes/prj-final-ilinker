@@ -35,18 +35,18 @@ public function user()
 // Relación con los medios asociados a la publicación
 public function media()
 {
-    return $this->hasMany(PublicationsMedia::class);
+    return $this->hasMany(PublicationMedia::class);
 }
 
 // Relación con los comentarios de la publicación
 public function comments()
 {
-    return $this->hasMany(PublicationsComment::class);
+    return $this->hasMany(PublicationComment::class);
 }
 
 // Relación con los likes de la publicación
 public function likes()
 {
-    return $this->hasMany(PublicationsLike::class);
+    return $this->hasMany(PublicationLike::class);
 }
 }

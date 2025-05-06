@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Publications;
 use Illuminate\Http\Request;
-use App\Models\PublicationsLike;
-use App\Models\PublicationsMedia;
+use App\Models\PublicationLike;
+use App\Models\PublicationMedia;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -205,7 +205,7 @@ class PublicationsController extends Controller
                 $file->move(storage_path('app/public/publications'), $fileName);
 
                 // Crear registro de media
-                $media = PublicationsMedia::create([
+                $media = PublicationMedia::create([
                     'publication_id' => $publication->id,
                     'file_path' => 'publications/' . $fileName,
                     'media_type' => $mediaType,
@@ -234,7 +234,7 @@ class PublicationsController extends Controller
     {
         $publication = Publications::findOrFail($publicationId);
 
-        $existingLike = PublicationsLike::where('publication_id', $publicationId)
+        $existingLike = PublicationLike::where('publication_id', $publicationId)
             ->where('user_id', Auth::id())
             ->first();
 
@@ -249,7 +249,7 @@ class PublicationsController extends Controller
                 'likes_count' => $publication->likes_count
             ]);
         } else {
-            PublicationsLike::create([
+            PublicationLike::create([
                 'publication_id' => $publicationId,
                 'user_id' => Auth::id()
             ]);

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PublicationsComment extends Model
+class PublicationComment extends Model
 {
     use HasFactory;
 
@@ -28,11 +28,11 @@ class PublicationsComment extends Model
 
     public function parent()
     {
-        return $this->belongsTo(PublicationsComment::class, 'parent_comment_id');
+        return $this->belongsTo(PublicationComment::class, 'parent_comment_id');
     }
 
     public function replies()
     {
-        return $this->hasMany(PublicationsComment::class, 'parent_comment_id');
+        return $this->hasMany(PublicationComment::class, 'parent_comment_id');
     }
 }

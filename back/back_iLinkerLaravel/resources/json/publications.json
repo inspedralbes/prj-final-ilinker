@@ -1,0 +1,66 @@
+{
+    "publications": [
+        {
+            "content": "¡Acabo de descubrir esta increíble herramienta para desarrolladores! #coding #webdev",
+            "location": "Madrid, España",
+            "comments_enabled": true,
+            "status": "published",
+            "media": [
+                {
+                    "url": "https://picsum.photos/800/600",
+                    "type": "image"
+                }
+            ],
+            "comments": [
+                {
+                    "content": "¡Muy interesante! ¿Has tenido la oportunidad de probarlo?",
+                    "user_id": 2
+                },
+                {
+                    "content": "Lo uso todos los días, es una herramienta impresionante",
+                    "user_id": 3
+                }
+            ]
+        },
+        {
+            "content": "Compartiendo mi último proyecto de desarrollo web con Laravel y Vue.js",
+            "location": "Barcelona, España",
+            "comments_enabled": true,
+            "status": "published",
+            "media": [
+                {
+                    "url": "https://picsum.photos/800/600",
+                    "type": "image"
+                }
+            ],
+            "comments": [
+                {
+                    "content": "¡Excelente combinación de tecnologías!",
+                    "user_id": 1
+                }
+            ]
+        },
+        {
+            "content": "Recursos útiles para aprender programación en 2024",
+            "location": "Valencia, España",
+            "comments_enabled": true,
+            "status": "published",
+            "media": [
+                {
+                    "url": "https://picsum.photos/800/600",
+                    "type": "image"
+                }
+            ],
+            "comments": [
+                {
+                    "content": "Gracias por compartir estos recursos",
+                    "user_id": 1
+                },
+                {
+                    "content": "¿Alguien ha probado freeCodeCamp?",
+                    "user_id": 2
+                }
+            ]
+        }
+    ]
+} 
