@@ -14,7 +14,14 @@ class PublicationsController extends Controller
 {
     public function index()
     {
-        $publications = Publications::with(['user:id,name', 'media'])->where('status', 'published')->orderBy('created_at', 'desc')->paginate(10);
+        $publications = Publications::with(['user:id,name', 'media'])
+            ->where(function($query) {
+                $query->where('visibility', 'public')
+                    ->orWhere('user_id', Auth::id());
+            })
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return response()->json([
             'status' => 'success',
@@ -28,6 +35,7 @@ class PublicationsController extends Controller
             'content' => 'required_without:media|string|nullable',
             'location' => 'nullable|string',
             'comments_enabled' => 'boolean',
+            'visibility' => 'in:public,private',
             'status' => 'in:published,draft,archived',
             'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
         ]);
@@ -46,6 +54,7 @@ class PublicationsController extends Controller
                 'user_id' => Auth::id(),
                 'content' => $request->content,
                 'location' => $request->location,
+                'visibility' => $request->visibility,
                 'comments_enabled' => $request->input('comments_enabled', true),
                 'status' => $request->input('status', 'published'),
                 'has_media' => $request->hasFile('media')
@@ -76,6 +85,13 @@ class PublicationsController extends Controller
         $publication = Publications::with(['user:id,name', 'media', 'comments.user:id,name'])
             ->findOrFail($id);
 
+        if ($publication->visibility === 'private' && $publication->user_id !== Auth::id()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You do not have permission to view this publication'
+            ], 403);
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $publication
@@ -97,6 +113,7 @@ class PublicationsController extends Controller
             'content' => 'required_without:media|string|nullable',
             'location' => 'nullable|string',
             'comments_enabled' => 'boolean',
+            'visibility' => 'in:public,private',
             'status' => 'in:published,draft,archived',
             'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
         ]);
@@ -114,6 +131,7 @@ class PublicationsController extends Controller
                 'content' => $request->input('content', $publication->content),
                 'location' => $request->input('location', $publication->location),
                 'comments_enabled' => $request->input('comments_enabled', $publication->comments_enabled),
+                'visibility' => $request->input('visibility', $publication->visibility),
                 'status' => $request->input('status', $publication->status),
                 'has_media' => $publication->has_media || $request->hasFile('media')
             ]);

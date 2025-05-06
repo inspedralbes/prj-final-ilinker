@@ -51,9 +51,9 @@ export default function NavBar() {
                   <span className="text-[12px]">Ofertas</span>
                 </Link>
                 <Link
-                  href="/publications"
+                  href="/publicacion"
                   className={`flex flex-col items-center ${
-                    pathname === "/publications"
+                    pathname === "/publicacion"
                       ? "text-foreground"
                       : "text-muted-foreground"
                   }`}

@@ -13,6 +13,7 @@ class Publications extends Model
     protected $fillable = [
         'user_id',
         'content',
+        'visibility',
         'location',
         'has_media',
         'comments_enabled',

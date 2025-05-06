@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users');
             $table->text('content')->nullable(); 
+            $table->enum('visibility', ['public', 'private'])->default('public');
             $table->string('location')->nullable(); 
             $table->boolean('has_media')->default(false); 
             $table->boolean('comments_enabled')->default(true);
