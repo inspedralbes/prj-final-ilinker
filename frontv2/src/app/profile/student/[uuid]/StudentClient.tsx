@@ -11,9 +11,10 @@ interface StudentClientProps {
     uuid: string;
     student: object;
     experience_group: object;
+    offerUser: object
 }
 
-export default function StudentClient({uuid, student, experience_group}: StudentClientProps) {
+export default function StudentClient({uuid, student, experience_group, offerUser}: StudentClientProps) {
     const [myStudent, setMyStudent] = useState<boolean>(false);
     const {userData} = useContext(AuthContext);
     const [allSkills, setAllSkills] = useState(null);
@@ -57,7 +58,7 @@ export default function StudentClient({uuid, student, experience_group}: Student
     return (
         <div>
             {myStudent ? (
-                <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills}/>
+                <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills} offerUser={offerUser}/>
             ) : (
                 <StundentClientNotMe student={student}/>
             )}

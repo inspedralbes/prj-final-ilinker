@@ -85,7 +85,7 @@ class StudentService
                 $file = $files['photo_pic'];
                 $filename = $file->getClientOriginalName();
 
-                Log::info("FOTo perfil", ['name' => $filename] );
+                Log::info("FOTo perfil", ['name' => $filename]);
 
                 // Guardar el archivo en el almacenamiento
                 $path = $file->storeAs("students/photos/{$students->uuid}", $filename, 'public');
@@ -104,7 +104,7 @@ class StudentService
                 $file = $files['cover_photo'];
                 $filename = $file->getClientOriginalName();
 
-                Log::info("cover foto", ['name' => $filename] );
+                Log::info("cover foto", ['name' => $filename]);
 
                 // Guardar el archivo en el almacenamiento
                 $path = $file->storeAs("students/covers/{$students->uuid}", $filename, 'public');
@@ -132,6 +132,10 @@ class StudentService
                 throw new Exception("Formato de fecha inválido: " . $data['birthday']);
             }
         }
+
+        $user->photo_pic = $students->photo_pic;
+        $user->name = $data['name'];
+        $user->surname = $data['surname'];
 
         $user->email = $userData['email'];
 

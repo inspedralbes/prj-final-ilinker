@@ -22,6 +22,7 @@
     "@radix-ui/react-slot": "^1.2.0",
     "@radix-ui/react-tabs": "^1.1.8",
     "@radix-ui/react-toast": "^1.2.11",
+    "@radix-ui/react-tooltip": "^1.2.6",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-color": "^2.11.7",
     "@tiptap/extension-hard-break": "^2.11.7",

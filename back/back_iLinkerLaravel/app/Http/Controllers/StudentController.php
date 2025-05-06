@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Offer;
+use App\Models\OfferUser;
 use App\Models\Student;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
@@ -40,8 +42,8 @@ class StudentController extends Controller
                 $files['cover_photo'] = $request->file('cover_photo');
             }
 
-            $student = $this->studentService->updateStudent($studentData, $skillsData, $userData,  $files);
-        }else{
+            $student = $this->studentService->updateStudent($studentData, $skillsData, $userData, $files);
+        } else {
             $student = $this->studentService->updateStudent($studentData, $skillsData, $userData);
         }
 
@@ -60,13 +62,19 @@ class StudentController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Student not found']);
         }
 
+        $offer = OfferUser::with('offer')
+            ->where('user_id', $student->user()->first()->id)
+            ->get();
+
+
         // Agrupar las experiencias por company_id
         $groupedExperience = $student->experience->groupBy('company_id');
 
         return response()->json([
             'status' => 'success',
             'student' => $student,
-            'experience_grouped' => $groupedExperience
+            'experience_grouped' => $groupedExperience,
+            'offerUser' => $offer
         ]);
 
     }
@@ -94,6 +102,22 @@ class StudentController extends Controller
                 ->first();
 
             return response()->json(['status' => 'success', 'student' => $student]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    public function getOfferUser()
+    {
+
+        try {
+            $user = Auth::user();
+
+            $offer = OfferUser::with('offer')
+                ->where('user_id', $user->id)
+                ->get();
+
+            return response()->json(['status' => 'success', 'offerUser' => $offer]);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }

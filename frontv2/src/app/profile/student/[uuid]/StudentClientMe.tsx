@@ -19,9 +19,13 @@ import {
     BriefcaseBusiness,
     Clock,
     Building,
-    FolderGit2,
+    FolderCode,
+    FolderTree,
     CalendarIcon,
-    AlertCircle
+    AlertCircle,
+    Eye,
+    RefreshCw,
+    FileText
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -64,6 +68,13 @@ import {addDays, format} from "date-fns"
 import config from "@/types/config";
 import {AuthContext} from "@/contexts/AuthContext";
 import Cookies from "js-cookie";
+import {SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 
 export interface User {
@@ -197,9 +208,10 @@ interface StudentClientMeProps {
     student: Student;
     experience_group: object;
     skills: object;
+    offerUser: object;
 }
 
-export default function StudentClientMe({uuid, student, experience_group, skills}: StudentClientMeProps) {
+export default function StudentClientMe({uuid, student, experience_group, skills, offerUser}: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
@@ -208,6 +220,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [projectsEdit, setProjectEdit] = useState(student.projects);
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
     const [userEdit, setUserEdit] = useState(student.user);
+    const [offersEdit, setOfferEdit] = useState(offerUser);
     const [allSkills, setAllSkills] = useState(skills);
     const [isEditing, setIsEditing] = useState(null);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
@@ -288,7 +301,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         setExperienceEdit(response.experience_grouped);
         setProjectEdit(response.student.projects);
         setUserEdit(response.student.user);
-        login(token, userEdit);
     }
 
     const EditInfo = (section: string, education: object) => {
@@ -355,6 +367,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                 })
                 hideLoader();
                 UpdateChange();
+                login(token, userEdit);
                 setOpenDialog(false);
                 setIsExperience(false);
                 educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
@@ -526,13 +539,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
             formData.append("cover_photo", studentEdit.cover_photo);
         }
 
-        console.log("COSAS")
-        console.table(formattedData);
-
-        console.log("user");
-        console.table(userEdit);
-
-
         try {
 
             const response = await apiRequest("student/update", "POST", formData);
@@ -588,8 +594,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
             "language": nameLanguage.trim(),
             "level": optionLevel[0]
         }
-        console.log("NUEVO");
-        console.table(json);
 
         if (editingIndex >= 0) {
             // Modo edición: actualizamos el idioma existente
@@ -646,6 +650,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
 
     useEffect(() => {
+        console.log("Offers");
+        console.table(offerUser)
         handleSave();
     }, [imageChangeCount]);
 
@@ -946,8 +952,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                     value="projects"
                                     className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
                                 >
-                                    <FolderGit2 className="h-4 w-4"/>
+                                    <FolderCode className="h-4 w-4"/>
                                     Mis Proyectos
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="offer"
+                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                >
+                                    <FolderTree className="h-4 w-4"/>
+                                    Mis ofertas
                                 </TabsTrigger>
                             </TabsList>
 
@@ -1795,6 +1808,217 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         )}
 
 
+                                </Card>
+
+                            </TabsContent>
+
+                            <TabsContent value="offer" className="mt-6">
+
+                                {/* Card contenedora con menos padding para aprovechar espacio */}
+                                {/* Card contenedora con menos padding para aprovechar espacio */}
+                                <Card className="p-6 mt-6 mb-6">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h2 className="text-xl font-semibold mb-4">Mis Solicitudes</h2>
+
+
+                                        {/* Filtro de estado (opcional) */}
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm text-gray-500">Filtrar por:</span>
+                                            <Select defaultValue="all">
+                                                <SelectTrigger className="w-[150px] h-8 text-sm">
+                                                    <SelectValue placeholder="Todos los estados"/>
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="all">Todos</SelectItem>
+                                                    <SelectItem value="pending">Pendiente</SelectItem>
+                                                    <SelectItem value="interview">Entrevista</SelectItem>
+                                                    <SelectItem value="accept">Aceptada</SelectItem>
+                                                    <SelectItem value="rejected">Rechazada</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+
+                                    {offersEdit ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {offersEdit.map((application) => {
+                                                // Definir colores según el estado
+                                                let statusColor = "";
+                                                let statusBgColor = "";
+                                                let statusText = "";
+
+                                                switch (application.status) {
+                                                    case "pending":
+                                                        statusColor = "text-yellow-700";
+                                                        statusBgColor = "bg-yellow-100";
+                                                        statusText = "Pendiente";
+                                                        break;
+                                                    case "interview":
+                                                        statusColor = "text-blue-700";
+                                                        statusBgColor = "bg-blue-100";
+                                                        statusText = "Entrevista";
+                                                        break;
+                                                    case "accept":
+                                                        statusColor = "text-green-700";
+                                                        statusBgColor = "bg-green-100";
+                                                        statusText = "Aceptada";
+                                                        break;
+                                                    case "rejected":
+                                                        statusColor = "text-red-700";
+                                                        statusBgColor = "bg-red-100";
+                                                        statusText = "Rechazada";
+                                                        break;
+                                                    default:
+                                                        statusColor = "text-gray-700";
+                                                        statusBgColor = "bg-gray-100";
+                                                        statusText = "Desconocido";
+                                                }
+
+                                                // Extraer fecha formateada de created_at
+                                                const applicationDate = new Date(application.created_at);
+                                                const formattedDate = applicationDate.toLocaleDateString('es-ES', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                });
+
+                                                // Extraer fecha formateada de updated_at
+                                                const updateDate = new Date(application.updated_at);
+                                                const formattedUpdateDate = updateDate.toLocaleDateString('es-ES', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric'
+                                                });
+
+                                                return (
+                                                    <Card key={application.id}
+                                                          className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
+                                                        {/* Barra de estado en la parte superior */}
+                                                        <div
+                                                            className={`${statusBgColor} p-2 flex justify-between items-center`}><span className={`font-medium ${statusColor} text-sm`}>{statusText}</span>
+                                                            <span className="text-xs text-gray-600">{formattedDate}</span>
+                                                        </div>
+
+                                                        <div className="p-4">
+                                                            <div className="flex justify-between items-start">
+                                                                <div>
+                                                                    <h3 className="font-semibold text-base">{application.offer.title}</h3>
+                                                                    <p className="text-sm text-gray-500 mt-1">ID
+                                                                        Empresa: {application.offer.company_id}</p>
+                                                                </div>
+
+                                                                <div className="flex space-x-1">
+                                                                    <Button variant="ghost" size="icon"
+                                                                            className="h-7 w-7">
+                                                                        <Eye className="h-4 w-4"/>
+                                                                    </Button>
+
+                                                                    <Button variant="ghost" size="icon"
+                                                                            className="h-7 w-7">
+                                                                        <RefreshCw className="h-4 w-4"/>
+                                                                    </Button>
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="mt-3 space-y-2">
+                                                                <div
+                                                                    className="flex items-center text-xs text-gray-600">
+                                                                    <MapPin className="h-3.5 w-3.5 mr-1.5"/>
+                                                                    <span>{application.offer.city}, {application.offer.postal_code}</span>
+                                                                </div>
+
+                                                                <div
+                                                                    className="flex items-center text-xs text-gray-600">
+                                                                    <CalendarIcon className="h-3.5 w-3.5 mr-1.5"/>
+                                                                    <span>Aplicada: {formattedDate}</span>
+                                                                </div>
+
+                                                                {application.updated_at && (
+                                                                    <div
+                                                                        className="flex items-center text-xs text-gray-600">
+                                                                        <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                        <span>Última actualización: {formattedUpdateDate}</span>
+                                                                    </div>
+                                                                )}
+
+                                                                {application.availability && (
+                                                                    <div
+                                                                        className="flex items-center text-xs text-gray-600">
+                                                                        <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                        <span>Disponibilidad: {application.availability}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Indicadores de documentos adjuntos */}
+                                                            <div className="mt-3 pt-3 border-t border-gray-100">
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {application.cv_attachment && (
+                                                                        <span
+                                                                            className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs flex items-center">
+                        <FileText className="h-3 w-3 mr-1"/>
+                        CV
+                      </span>
+                                                                    )}
+                                                                    {application.cover_letter_attachment && (
+                                                                        <span
+                                                                            className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center">
+                        <FileText className="h-3 w-3 mr-1"/>
+                        Carta
+                      </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Acciones */}
+                                                            <div className="mt-4 flex justify-between items-center">
+                                                                <div
+                                                                    className={`px-2 py-1 rounded-full text-xs ${statusBgColor} ${statusColor}`}>
+                                                                    {statusText}
+                                                                </div>
+
+                                                                <div className="flex space-x-1">
+                                                                    <Button variant="outline" size="sm"
+                                                                            className="text-xs h-7">
+                                                                        Actualizar
+                                                                    </Button>
+                                                                    <Button variant="default" size="sm"
+                                                                            className="text-xs h-7 bg-blue-600 hover:bg-blue-700">
+                                                                        Ver oferta
+                                                                    </Button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </Card>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div
+                                            className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
+                                            <p className="text-black">No te has inscrito a ninguna oferta todavía</p>
+                                            <Link href="/offers"
+                                                  className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                Ver ofertas disponibles
+                                            </Link>
+                                        </div>
+                                    )}
+
+                                    {/*/!* Paginación (opcional) *!/*/}
+                                    {/*{offerUser && offerUser.length > 0 && (*/}
+                                    {/*    <div className="flex justify-center mt-6">*/}
+                                    {/*        <div className="flex items-center space-x-2">*/}
+                                    {/*            <Button variant="outline" size="sm" disabled={currentPage === 1}>*/}
+                                    {/*                <ChevronLeft className="h-4 w-4" />*/}
+                                    {/*            </Button>*/}
+                                    {/*            <span className="text-sm">Página {currentPage} de {totalPages}</span>*/}
+                                    {/*            <Button variant="outline" size="sm" disabled={currentPage === totalPages}>*/}
+                                    {/*                <ChevronRight className="h-4 w-4" />*/}
+                                    {/*            </Button>*/}
+                                    {/*        </div>*/}
+                                    {/*    </div>*/}
+                                    {/*)}*/}
                                 </Card>
 
                             </TabsContent>
