@@ -373,6 +373,7 @@ export default function CompanyClientNotMe({
         })
         .finally(() => {
           hideLoader();
+          setIsFollowingLoading(false);
         });
     } catch (error) {
       console.log(error);

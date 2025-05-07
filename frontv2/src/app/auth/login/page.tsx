@@ -82,6 +82,7 @@ const Login: React.FC = () => {
                     password,
                 });
 
+                console.log(response)
                 if (response.status === "success") {
                     router.push("/search");
                     socket.emit('login', { userData: response.user });

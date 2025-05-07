@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class FollowerController extends Controller
@@ -271,6 +272,11 @@ class FollowerController extends Controller
     {
         $user = Auth::user();
         $followers = $user->followers;
+
+        foreach ($followers as $follower){
+            $follower->follow = $user->followCheck($follower->id);
+            Log::info($follower);
+        }
 
         return response()->json([
             'status' => 'success',

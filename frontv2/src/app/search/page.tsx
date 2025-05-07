@@ -296,6 +296,15 @@ export default function SearchClient() {
     console.log("seleccionado");
     setSelectedJob(null);
     try {
+      //verificar primeramente si esta logg in
+      if(!userData){
+        setSelectedJob(job);
+        if (window.innerWidth < 768) {
+          setIsJobDetailOpen(true);
+        }
+        return;
+      }
+
       //verificar si ya esta optando a esta oferta
       apiRequest(`offers/apply-check/${job.id}`)
         .then((response) => {

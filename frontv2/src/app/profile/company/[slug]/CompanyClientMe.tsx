@@ -22,6 +22,8 @@ import {
   X,
   UserPlus,
   Inbox,
+  UserMinus,
+  UserX
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -852,17 +854,43 @@ export default function CompanyClientMe({
             {companyFollowers?.map((follower: any) => (
               <div
                 key={follower.id}
-                className="flex items-center space-x-2 cursor-pointer"
+                className="flex items-center justify-between space-x-2 cursor-pointer"
                 onClick={() => handleRedirectToFollowerProfile(follower)}
               >
-                <img
-                  className="w-12 h-12 rounded-full"
-                  src={follower.avatar}
-                  alt={follower.name}
-                />
-                <div>
-                  <p className="font-semibold">{follower.name}</p>
-                  <p className="text-sm text-gray-600">{follower.email}</p>
+                <div className="flex items-center space-x-2">
+                  <img
+                    className="w-12 h-12 rounded-full"
+                    src={follower.student ? 
+                      follower.student.profile_pic : 
+                      follower.company ? follower.company.logo : 
+                      follower.institutions?.logo}
+                    alt={follower.student ? 
+                      follower.student.name : 
+                      follower.company ? follower.company.name : 
+                      follower.institutions?.name}
+                  />
+                  <div>
+                    <p className="font-semibold">{follower.student ? 
+                      follower.student.name : 
+                      follower.company ? follower.company.name : 
+                      follower.institutions?.name}</p>
+                    <p className="text-sm text-gray-600">{follower.student ? 
+                      follower.email : 
+                      follower.company ? follower.company.email : 
+                      follower.institutions?.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Button variant="ghost" size="icon">
+                    <UserMinus className="h-5 w-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <UserPlus className="h-5 w-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon">
+                    <UserX className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
             ))}
