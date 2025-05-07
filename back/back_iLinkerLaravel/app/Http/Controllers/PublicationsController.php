@@ -2,59 +2,67 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Publications;
-use Illuminate\Http\Request;
-use App\Models\PublicationLike;
+use App\Models\Publication;
 use App\Models\PublicationMedia;
-use App\Http\Controllers\Controller;
+use App\Models\PublicationLike;
+use App\Models\PublicationComment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PublicationsController extends Controller
 {
     public function index()
     {
-        $publications = Publications::with(['user:id,name', 'media'])
-            ->where(function($query) {
-                $query->where('visibility', 'public')
-                    ->orWhere('user_id', Auth::id());
-            })
+        try {
+            $publications = Publication::with([
+                'user:id,name',
+                'media',
+                'comments.user:id,name',
+                'likes'
+            ])
             ->where('status', 'published')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $publications
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'data' => $publications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving publications',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'content' => 'required_without:media|string|nullable',
-            'location' => 'nullable|string',
-            'comments_enabled' => 'boolean',
-            'visibility' => 'in:public,private',
-            'status' => 'in:published,draft,archived',
-            'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-            // Crear publicación
-            $publication = Publications::create([
+            $validator = Validator::make($request->all(), [
+                'content' => 'required_without:media|string|nullable',
+                'location' => 'nullable|string',
+                'comments_enabled' => 'boolean',
+                'status' => 'in:published,draft,archived',
+                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $publication = Publication::create([
                 'user_id' => Auth::id(),
                 'content' => $request->content,
                 'location' => $request->location,
-                'visibility' => $request->visibility,
                 'comments_enabled' => $request->input('comments_enabled', true),
                 'status' => $request->input('status', 'published'),
                 'has_media' => $request->hasFile('media')
@@ -74,64 +82,72 @@ class PublicationsController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error creating publication: ' . $e->getMessage()
+                'message' => 'Error creating publication',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
-    // Obtiene una publicación por su ID
     public function show($id)
     {
-        $publication = Publications::with(['user:id,name', 'media', 'comments.user:id,name'])
-            ->findOrFail($id);
+        try {
+            $publication = Publication::with([
+                'user:id,name',
+                'media',
+                'comments.user:id,name',
+                'likes'
+            ])->findOrFail($id);
 
-        if ($publication->visibility === 'private' && $publication->user_id !== Auth::id()) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $publication
+            ]);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You do not have permission to view this publication'
-            ], 403);
+                'message' => 'Publication not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving publication',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $publication
-        ]);
     }
 
     public function update(Request $request, $id)
     {
-        $publication = Publications::findOrFail($id);
-
-        if ($publication->user_id != Auth::id()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to update this publication'
-            ], 403);
-        }
-
-        $validator = Validator::make($request->all(), [
-            'content' => 'required_without:media|string|nullable',
-            'location' => 'nullable|string',
-            'comments_enabled' => 'boolean',
-            'visibility' => 'in:public,private',
-            'status' => 'in:published,draft,archived',
-            'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:10240', // 10MB max
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validation error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
+            $publication = Publication::findOrFail($id);
+
+            if ($publication->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized to update this publication'
+                ], 403);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'content' => 'nullable|string',
+                'location' => 'nullable|string',
+                'comments_enabled' => 'boolean',
+                'status' => 'in:published,draft,archived',
+                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
             $publication->update([
                 'content' => $request->input('content', $publication->content),
                 'location' => $request->input('location', $publication->location),
                 'comments_enabled' => $request->input('comments_enabled', $publication->comments_enabled),
-                'visibility' => $request->input('visibility', $publication->visibility),
                 'status' => $request->input('status', $publication->status),
                 'has_media' => $publication->has_media || $request->hasFile('media')
             ]);
@@ -147,140 +163,198 @@ class PublicationsController extends Controller
                 'message' => 'Publication updated successfully',
                 'data' => $publication
             ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Publication not found'
+            ], 404);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Error updating publication: ' . $e->getMessage()
+                'message' => 'Error updating publication',
+                'error' => $e->getMessage()
             ], 500);
         }
     }
 
     public function destroy($id)
     {
-        $publication = Publications::findOrFail($id);
+        try {
+            $publication = Publication::findOrFail($id);
 
-        if ($publication->user_id != Auth::id()) {
+            if ($publication->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized to delete this publication'
+                ], 403);
+            }
+
+            // Delete associated media files
+            foreach ($publication->media as $media) {
+                Storage::disk('public')->delete($media->file_path);
+                $media->delete();
+            }
+
+            // Delete associated likes and comments
+            $publication->likes()->delete();
+            $publication->comments()->delete();
+
+            $publication->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Publication deleted successfully'
+            ]);
+        } catch (ModelNotFoundException $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'No esta autorizado para eliminar esta publicación'
-            ], 403);
+                'message' => 'Publication not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error deleting publication',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        foreach ($publication->media as $media) {
-            $filePath = storage_path('app/public/' . $media->file_path);
-            if (file_exists($filePath)) {
-                unlink($filePath);
-            }
-        }
-
-        $publication->delete();
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Publicación eliminada exitosamente'
-        ]);
     }
 
-    // obtener mis publicaciones que he creado
-    public function myPublications()
-    {
-        $publications = Publications::with(['media'])
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $publications
-        ]);
-    }
-
-    private function handleMediaUpload($files, Publications $publication)
+    private function handleMediaUpload($files, Publication $publication)
     {
         if (!is_array($files)) {
             $files = [$files];
         }
 
         $order = $publication->media()->max('display_order') ?? 0;
-        $uploadedFiles = [];
 
-        try {
-            foreach ($files as $file) {
-                $order++;
+        foreach ($files as $file) {
+            $order++;
+            $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
+            $fileName = "pub_{$publication->id}_{$order}_" . time() . '.' . $file->getClientOriginalExtension();
+            
+            // Store file in public disk
+            $file->storeAs('publications', $fileName, 'public');
 
-                // Validar tamaño del archivo (máximo 10MB)
-                if ($file->getSize() > 10 * 1024 * 1024) {
-                    throw new \Exception('File size exceeds 10MB limit');
-                }
-
-                // Determinar tipo de archivo
-                $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
-
-                // Crear nombre de archivo con ID de publicación y marca de tiempo
-                $fileName = "pub_{$publication->id}_{$order}_" . time() . '.' . $file->getClientOriginalExtension();
-
-                // Mover archivo a almacenamiento
-                $file->move(storage_path('app/public/publications'), $fileName);
-
-                // Crear registro de media
-                $media = PublicationMedia::create([
-                    'publication_id' => $publication->id,
-                    'file_path' => 'publications/' . $fileName,
-                    'media_type' => $mediaType,
-                    'display_order' => $order
-                ]);
-
-                $uploadedFiles[] = $media;
-            }
-
-            return $uploadedFiles;
-        } catch (\Exception $e) {
-            // Si hay un error, eliminar cualquier archivo subido
-            foreach ($uploadedFiles as $media) {
-                $filePath = storage_path('app/public/' . $media->file_path);
-                if (file_exists($filePath)) {
-                    unlink($filePath);
-                }
-                $media->delete();
-            }
-            throw $e;
+            PublicationMedia::create([
+                'publication_id' => $publication->id,
+                'file_path' => 'publications/' . $fileName,
+                'media_type' => $mediaType,
+                'display_order' => $order
+            ]);
         }
     }
 
-    // togglelike es para dar like a una publicacion y deslike
+    public function removeMedia($publicationId, $mediaId)
+    {
+        try {
+            $publication = Publication::findOrFail($publicationId);
+
+            if ($publication->user_id !== Auth::id()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Unauthorized to modify this publication'
+                ], 403);
+            }
+
+            $media = PublicationMedia::where('publication_id', $publicationId)
+                ->where('id', $mediaId)
+                ->firstOrFail();
+
+            // Delete file from storage
+            Storage::disk('public')->delete($media->file_path);
+            $media->delete();
+
+            if ($publication->media()->count() === 0) {
+                $publication->update(['has_media' => false]);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Media removed successfully'
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Publication or media not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error removing media',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function myPublications()
+    {
+        try {
+            $publications = Publication::with([
+                'media',
+                'comments.user:id,name',
+                'likes'
+            ])
+            ->where('user_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $publications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving your publications',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function toggleLike($publicationId)
     {
-        $publication = Publications::findOrFail($publicationId);
+        try {
+            $publication = Publication::findOrFail($publicationId);
 
-        $existingLike = PublicationLike::where('publication_id', $publicationId)
-            ->where('user_id', Auth::id())
-            ->first();
+            $existingLike = PublicationLike::where('publication_id', $publicationId)
+                ->where('user_id', Auth::id())
+                ->first();
 
-        if ($existingLike) {
-            $existingLike->delete();
-            $publication->decrement('likes_count');
+            if ($existingLike) {
+                $existingLike->delete();
+                $publication->decrement('likes_count');
 
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication unliked successfully',
+                    'liked' => false,
+                    'likes_count' => $publication->likes_count
+                ]);
+            } else {
+                PublicationLike::create([
+                    'publication_id' => $publicationId,
+                    'user_id' => Auth::id()
+                ]);
+                $publication->increment('likes_count');
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication liked successfully',
+                    'liked' => true,
+                    'likes_count' => $publication->likes_count
+                ]);
+            }
+        } catch (ModelNotFoundException $e) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Publication unliked successfully',
-                'liked' => false,
-                'likes_count' => $publication->likes_count
-            ]);
-        } else {
-            PublicationLike::create([
-                'publication_id' => $publicationId,
-                'user_id' => Auth::id()
-            ]);
-            $publication->increment('likes_count');
-
+                'status' => 'error',
+                'message' => 'Publication not found'
+            ], 404);
+        } catch (\Exception $e) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Publication liked successfully',
-                'liked' => true,
-                'likes_count' => $publication->likes_count
-            ]);
+                'status' => 'error',
+                'message' => 'Error toggling like',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
-    
 }

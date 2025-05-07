@@ -16,7 +16,7 @@ class PublicationLike extends Model
 
     public function publication()
     {
-        return $this->belongsTo(Publications::class, 'publication_id');
+        return $this->belongsTo(Publication::class, 'publication_id');
     }
 
     public function user()

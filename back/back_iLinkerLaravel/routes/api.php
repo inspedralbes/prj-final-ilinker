@@ -69,17 +69,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
         // Marcar todas las notificaciones como leídas
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
-
-
-        // Publication Routes
-        Route::get('/publications', [PublicationsController::class, 'index']);
-        Route::post('/publications', [PublicationsController::class, 'store']);
-        Route::get('/publications/{id}', [PublicationsController::class, 'show']);
-        Route::put('/publications/{id}', [PublicationsController::class, 'update']);
-        Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
-        // Obtener publicaciones del usuario actual 
-        Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
-        Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
         
     });
 
@@ -186,7 +175,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/settings/account-status', [UserSettingsController::class, 'getAccountStatus']);
 });
 
-
+Route::middleware('auth:sanctum')->group(function () {
+    // Rutas de publicaciones
+    Route::get('/publications', [PublicationsController::class, 'index']);
+    Route::post('/publications', [PublicationsController::class, 'store']);
+    Route::get('/publications/{id}', [PublicationsController::class, 'show']);
+    Route::put('/publications/{id}', [PublicationsController::class, 'update']);
+    Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
+    // Publicaciones del usuario actual 
+    Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
+    // Likes
+    Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
+    // Comentarios
+    Route::post('/publications/{publicationId}/comments', [PublicationsController::class, 'addComment']);
+    Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsController::class, 'deleteComment']);
+});
 
 Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);

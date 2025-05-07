@@ -19,6 +19,6 @@ class PublicationMedia extends Model
     // Relación con la publicación a la que pertenece este medio
     public function publication()
     {
-        return $this->belongsTo(Publications::class ,'publication_id');
+        return $this->belongsTo(Publication::class, 'publication_id', 'id');
     }
 }

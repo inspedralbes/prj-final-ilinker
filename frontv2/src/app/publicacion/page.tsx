@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Bookmark, Users2, CalendarDays, PlusCircle, MessageCircle, Share2, MapPin, Image as ImageIcon, Video, FileText, X, Smile, AtSign, Hash, ThumbsUp } from "lucide-react";
@@ -10,7 +10,7 @@ import { User } from "@/types/global";
 
 // Tipos de datos para la aplicación
 interface Media {
-  url: string;
+  url: string | File;
   type: "image" | "video";
 }
 
@@ -18,14 +18,24 @@ interface Publication {
   id: number;
   content: string;
   user: {
+    id: number;
     name: string;
     avatar?: string;
   };
   location?: string;
-  timestamp: string;
-  likes: number;
-  comments: number;
-  media?: Media[];
+  created_at: string;
+  likes_count: number;
+  comments_count: number;
+  media?: {
+    id: number;
+    file_path: string;
+    media_type: "image" | "video";
+    display_order: number;
+  }[];
+  has_media: boolean;
+  visibility: "public" | "private";
+  comments_enabled: boolean;
+  status: "published" | "draft" | "archived";
 }
 
 interface NewPublication {
@@ -40,44 +50,33 @@ interface NewPublication {
 export default function PublicationPage() {
   const { userData } = useContext(AuthContext);
   const router = useRouter();
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  console.log('PublicationPage userData from context:', userData);
-  console.log('PublicationPage userData role:', userData?.rol);
-  console.log('PublicationPage userData institution logo:', userData?.institution?.logo);
+  // Fetch publications on component mount
+  useEffect(() => {
+    fetchPublications();
+  }, []);
 
-  // Estado para almacenar las publicaciones
-  const [publications, setPublications] = useState<Publication[]>([
-    {
-      id: 1,
-      content: "¡Acabo de lanzar mi nuevo proyecto! Estoy muy emocionado de compartir esta nueva experiencia con todos ustedes.",
-      user: { name: "Juan Pérez", avatar: "/default-avatar.png" },
-      location: "Madrid, España",
-      timestamp: "2h",
-      likes: 45,
-      comments: 12,
-      media: [{ url: "/sample-project.jpg", type: "image" }],
-    },
-    {
-      id: 2,
-      content: "Check out this amazing tutorial on Next.js and TypeScript! 🚀",
-      user: { name: "María García", avatar: "/default-avatar.png" },
-      location: "Barcelona",
-      timestamp: "5h",
-      likes: 89,
-      comments: 23,
-      media: [{ url: "/tutorial-video.mp4", type: "video" }],
-    },
-    {
-      id: 3,
-      content: "Beautiful sunset at the beach today! 🌅 #nature #photography",
-      user: { name: "Carlos Ruiz", avatar: "/default-avatar.png" },
-      location: "Málaga",
-      timestamp: "1d",
-      likes: 234,
-      comments: 45,
-      media: [{ url: "/sunset.jpg", type: "image" }],
-    },
-  ]);
+  const fetchPublications = async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiRequest('publications', 'GET');
+      console.log('Publications response:', response);
+      
+      if (response.status === 'success') {
+        setPublications(response.data.data);
+      } else {
+        setError('Error fetching publications');
+      }
+    } catch (err) {
+      console.error('Error fetching publications:', err);
+      setError('Error fetching publications');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Estados para el modal y nueva publicación
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,46 +89,67 @@ export default function PublicationPage() {
   });
 
   // Función para crear una nueva publicación
-  const handleCreatePublication = () => {
+  const handleCreatePublication = async () => {
     if (!newPublication.content.trim()) return;
 
-    const publication: Publication = {
-      id: publications.length + 1,
-      content: newPublication.content,
-      user: {
-        name: `${userData?.name} ${userData?.surname}`,
-        avatar: userData?.student?.photo_pic || userData?.company?.logo || userData?.institution?.logo,
-      },
-      timestamp: "Ahora",
-      likes: 0,
-      comments: 0,
-      media: newPublication.media,
-      location: newPublication.location,
-    };
+    try {
+      const formData = new FormData();
+      formData.append('content', newPublication.content);
+      formData.append('visibility', newPublication.visibility === 'Cualquiera' ? 'public' : 'private');
+      if (newPublication.location) {
+        formData.append('location', newPublication.location);
+      }
+      
+      // Add media files if any
+      newPublication.media.forEach((media, index) => {
+        if (typeof media.url === 'object' && media.url instanceof File) {
+          formData.append(`media[${index}]`, media.url);
+        }
+      });
 
-    setPublications([publication, ...publications]);
-    setNewPublication({
-      content: "",
-      media: [],
-      visibility: "Cualquiera",
-      location: "",
-      tags: [],
-    });
-    setIsModalOpen(false);
+      const response = await apiRequest('/publications', 'POST', formData);
+
+      if (response.status === 'success') {
+        setPublications([response.data, ...publications]);
+        setNewPublication({
+          content: "",
+          media: [],
+          visibility: "Cualquiera",
+          location: "",
+          tags: [],
+        });
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error creating publication:', err);
+      setError('Error creating publication');
+    }
   };
 
   // Función para dar like a una publicación
-  const handleLike = (id: number) => {
-    setPublications(publications.map((pub) =>
-      pub.id === id ? { ...pub, likes: pub.likes + 1 } : pub
-    ));
+  const handleLike = async (id: number) => {
+    try {
+      const response = await apiRequest(`/publications/${id}/like`, 'POST');
+      console.log('Like response:', response);
+      
+      if (response.status === 'success') {
+        setPublications(publications.map((pub) =>
+          pub.id === id ? { 
+            ...pub, 
+            likes_count: response.data.likes_count,
+            liked: response.data.liked 
+          } : pub
+        ));
+      }
+    } catch (err) {
+      console.error('Error liking publication:', err);
+    }
   };
 
   // Función para comentar en una publicación
-  const handleComment = (id: number) => {
-    setPublications(publications.map((pub) =>
-      pub.id === id ? { ...pub, comments: pub.comments + 1 } : pub
-    ));
+  const handleComment = async (id: number) => {
+    // TODO: Implement comment functionality
+    console.log('Comment on publication:', id);
   };
 
   // Función para navegar al perfil del usuario
@@ -161,9 +181,21 @@ export default function PublicationPage() {
         <ProfileSidebar userData={userData} onViewMore={handleViewMore} />
         <div className="flex-1 max-w-xl">
           <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} />
-          {publications.map((publication) => (
-            <PublicationCard key={publication.id} publication={publication} onLike={handleLike} onComment={handleComment} />
-          ))}
+          
+          {isLoading ? (
+            <div className="text-center py-4">Loading publications...</div>
+          ) : error ? (
+            <div className="text-center py-4 text-red-500">{error}</div>
+          ) : (
+            publications.map((publication) => (
+              <PublicationCard 
+                key={publication.id} 
+                publication={publication} 
+                onLike={handleLike} 
+                onComment={handleComment} 
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -336,12 +368,18 @@ const PublicationCard = ({ publication, onLike, onComment }: { publication: Publ
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3 mb-4">
       <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-        <Image src={publication.user.avatar || "/default-avatar.png"} alt={publication.user.name} width={40} height={40} className="object-cover" />
+        <Image 
+          src={publication.user.avatar || "/default-avatar.png"} 
+          alt={publication.user.name} 
+          width={40} 
+          height={40} 
+          className="object-cover" 
+        />
       </div>
       <div>
         <h3 className="font-semibold">{publication.user.name}</h3>
         <div className="flex items-center text-sm text-gray-500">
-          <span>{publication.timestamp}</span>
+          <span>{new Date(publication.created_at).toLocaleDateString()}</span>
           {publication.location && (
             <>
               <span className="mx-1">•</span>
@@ -353,14 +391,20 @@ const PublicationCard = ({ publication, onLike, onComment }: { publication: Publ
       </div>
     </div>
     <p className="text-gray-800 mb-4">{publication.content}</p>
-    {publication.media && publication.media.length > 0 && (
+    {publication.has_media && publication.media && publication.media.length > 0 && (
       <div className="mb-4">
-        {publication.media.map((media, index) => (
-          <div key={index} className="rounded-lg overflow-hidden">
-            {media.type === "image" ? (
-              <Image src={media.url} alt="Publication media" width={500} height={300} className="w-full object-cover" />
+        {publication.media.map((media) => (
+          <div key={media.id} className="rounded-lg overflow-hidden">
+            {media.media_type === "image" ? (
+              <Image 
+                src={media.file_path} 
+                alt="Publication media" 
+                width={500} 
+                height={300} 
+                className="w-full object-cover" 
+              />
             ) : (
-              <video src={media.url} controls className="w-full rounded-lg" />
+              <video src={media.file_path} controls className="w-full rounded-lg" />
             )}
           </div>
         ))}
@@ -369,11 +413,11 @@ const PublicationCard = ({ publication, onLike, onComment }: { publication: Publ
     <div className="flex items-center justify-between text-gray-500 border-t pt-3">
       <button onClick={() => onLike(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
         <ThumbsUp className="w-5 h-5" />
-        <span>{publication.likes}</span>
+        <span>{publication.likes_count}</span>
       </button>
       <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
         <MessageCircle className="w-5 h-5" />
-        <span>{publication.comments}</span>
+        <span>{publication.comments_count}</span>
       </button>
       <button className="flex items-center gap-1 hover:text-blue-600">
         <Share2 className="w-5 h-5" />

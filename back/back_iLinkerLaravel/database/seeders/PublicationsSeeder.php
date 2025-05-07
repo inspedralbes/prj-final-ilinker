@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Publications;
+use App\Models\Publication;
 use App\Models\PublicationComment;
 use App\Models\PublicationMedia;
 use App\Models\PublicationLike;
@@ -27,7 +27,7 @@ class PublicationsSeeder extends Seeder
 
         foreach ($jsonData['publications'] as $publicationData) {
             // Crear la publicación
-            $publication = Publications::create([
+            $publication = Publication::create([
                 'user_id' => $publicationData['user_id'],
                 'content' => $publicationData['content'],
                 'location' => $publicationData['location'],
