@@ -22,17 +22,16 @@ export default function StudentClient({uuid, student, experience_group, offerUse
 
 
     useEffect(() => {
-        /*
-        if (userData?.uuid === uuid) {
-            setMyStudent(true);
-        } else {
-            setMyStudent(false);
-        }*/
 
         async function getAllSkills() {
             showLoader();
 
-            setMyStudent(true);
+            if (userData?.id === student.user.id) {
+                setMyStudent(true);
+            } else {
+                setMyStudent(false);
+            }
+
 
             try {
                 const response = await apiRequest("skills");
@@ -58,9 +57,10 @@ export default function StudentClient({uuid, student, experience_group, offerUse
     return (
         <div>
             {myStudent ? (
-                <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills} offerUser={offerUser}/>
+                <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills}
+                                  offerUser={offerUser}/>
             ) : (
-                <StundentClientNotMe student={student}/>
+                <StundentClientNotMe student={student} experience_group={experience_group}/>
             )}
         </div>
     );

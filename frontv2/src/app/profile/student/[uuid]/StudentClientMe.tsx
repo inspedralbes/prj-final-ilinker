@@ -39,7 +39,7 @@ import AsyncSelect from 'react-select/async';
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
 import {Avatar} from "@/components/ui/avatar";
-import React, {useEffect, useState, useCallback, useContext} from "react";
+import React, {useEffect, useState, useCallback, useContext, useMemo} from "react";
 import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/modals/ModalAddStudies";
@@ -71,7 +71,7 @@ import {addDays, format} from "date-fns"
 import config from "@/types/config";
 import {AuthContext} from "@/contexts/AuthContext";
 import Cookies from "js-cookie";
-import {SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import {Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
 
 export interface User {
@@ -258,6 +258,19 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [optionLevel, setOptionLevel] = useState([]);
     const [editingIndex, setEditingIndex] = useState(-1);
     const [imageChangeCount, setImageChangeCount] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    // Función para manejar el cambio de filtro
+    const handleStatusFilterChange = (value) => {
+        setStatusFilter(value);
+    };
+
+    const filteredOffers = useMemo(() => {
+        if (!offersEdit) return [];
+        if (statusFilter === "all") return offersEdit;
+
+        return offersEdit.filter((application) => application.status === statusFilter);
+    }, [offersEdit, statusFilter]);
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
@@ -698,8 +711,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
 
     useEffect(() => {
-        console.log("Offers");
-        console.table(offerUser)
         handleSave();
     }, [imageChangeCount]);
 
@@ -953,62 +964,46 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                         <Tabs defaultValue="acerca" className="w-full mt-5">
                             <TabsList
-                                className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
-                                {/*<TabsTrigger*/}
-                                {/*    value="inicio"*/}
-                                {/*    className="  flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                                {/*>*/}
-                                {/*    <HomeIcon className="h-4 w-4"/>*/}
-                                {/*    Inicio*/}
-                                {/*</TabsTrigger>*/}
+                                className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg flex flex-wrap overflow-x-auto"
+                            >
                                 <TabsTrigger
                                     value="acerca"
-                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <UserIcon className="h-4 w-4"/>
-                                    Acerca de
+                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Acerca de</span>
                                 </TabsTrigger>
-                                {/*<TabsTrigger*/}
-                                {/*    value="publicaciones"*/}
-                                {/*    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                                {/*>*/}
-                                {/*    <NewspaperIcon className="h-4 w-4"/>*/}
-                                {/*    Publicaciones*/}
-                                {/*</TabsTrigger>*/}
+
                                 <TabsTrigger
                                     value="studies"
-                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseIcon className="h-4 w-4"/>
-                                    Mis Estudios
+                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Mis Estudios</span>
                                 </TabsTrigger>
-                                {/*<TabsTrigger*/}
-                                {/*    value="empleados"*/}
-                                {/*    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"*/}
-                                {/*>*/}
-                                {/*    <UsersIcon className="h-4 w-4"/>*/}
-                                {/*    Personas empleadas*/}
-                                {/*</TabsTrigger>*/}
+
                                 <TabsTrigger
                                     value="experience"
-                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseBusiness className="h-4 w-4"/>
-                                    Mi Experiencia
+                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Mi Experiencia</span>
                                 </TabsTrigger>
+
                                 <TabsTrigger
                                     value="projects"
-                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderCode className="h-4 w-4"/>
-                                    Mis Proyectos
+                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Mis Proyectos</span>
                                 </TabsTrigger>
+
                                 <TabsTrigger
                                     value="offer"
-                                    className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderTree className="h-4 w-4"/>
-                                    Mis ofertas
+                                    <FolderTree className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Mis ofertas</span>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -1870,24 +1865,25 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         {/* Filtro de estado (opcional) */}
                                         <div className="flex items-center space-x-2">
                                             <span className="text-sm text-gray-500">Filtrar por:</span>
-                                            <Select defaultValue="all">
+                                            <UISelect defaultValue="all"
+                                                      onValueChange={handleStatusFilterChange}
+                                                      value={statusFilter}>
                                                 <SelectTrigger className="w-[150px] h-8 text-sm">
-                                                    <SelectValue placeholder="Todos los estados"/>
+                                                    <SelectValue placeholder="Estado"/>
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="all">Todos</SelectItem>
                                                     <SelectItem value="pending">Pendiente</SelectItem>
-                                                    <SelectItem value="interview">Entrevista</SelectItem>
                                                     <SelectItem value="accept">Aceptada</SelectItem>
                                                     <SelectItem value="rejected">Rechazada</SelectItem>
                                                 </SelectContent>
-                                            </Select>
+                                            </UISelect>
                                         </div>
                                     </div>
 
-                                    {offersEdit ? (
+                                    {filteredOffers  ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {offersEdit.map((application) => {
+                                            {filteredOffers.map((application) => {
                                                 // Definir colores según el estado
                                                 let statusColor = "";
                                                 let statusBgColor = "";
@@ -1947,7 +1943,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                     </Button>
 
                                                                     <Button variant="ghost" size="icon"
-                                                                            className="h-7 w-7">
+                                                                            className="h-7 w-7"
+                                                                            onClick={() => setImageChangeCount((prev) => prev + 1)}>
                                                                         <RefreshCw className="h-4 w-4"/>
                                                                     </Button>
 
@@ -2025,7 +2022,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                                     download={config.storageUrl + application.cover_letter_attachment}
                                                                                 >
                                                                                     <span
-                                                                                        className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center">
+                                                                                        className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center mr-1 hover:shadow-md transition-shadow">
                                                                                         <FileText
                                                                                             className="h-3 w-3 mr-1"/>
                                                                                         Carta
@@ -2100,7 +2097,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                 cancelText="Cancelar"
                 icon={<TriangleAlert className="text-yellow-500"/>}
             />
-
 
 
             {

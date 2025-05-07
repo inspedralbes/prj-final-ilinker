@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Offer;
 use App\Models\OfferUser;
 use App\Models\Student;
@@ -9,6 +10,7 @@ use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -107,19 +109,4 @@ class StudentController extends Controller
         }
     }
 
-    public function getOfferUser()
-    {
-
-        try {
-            $user = Auth::user();
-
-            $offer = OfferUser::with('offer')
-                ->where('user_id', $user->id)
-                ->get();
-
-            return response()->json(['status' => 'success', 'offerUser' => $offer]);
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
-        }
-    }
 }
