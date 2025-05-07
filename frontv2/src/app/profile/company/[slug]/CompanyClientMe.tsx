@@ -21,6 +21,7 @@ import {
   GraduationCap,
   X,
   UserPlus,
+  Inbox,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -43,7 +44,6 @@ import config from "@/types/config";
 import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
-
 
 export default function CompanyClientMe({
   company,
@@ -161,7 +161,9 @@ export default function CompanyClientMe({
     handleSave();
   }, [imageChangeCount]); // Se ejecuta solo cuando cambia la imagen
 
-  const updateCompany = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const updateCompany = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setCompanyEdited((prev: any) => ({
       ...prev,
@@ -194,7 +196,7 @@ export default function CompanyClientMe({
 
   const [companyFollowersAll, setCompanyFollowersAll] = useState([]);
   const [companyFollowers, setCompanyFollowers] = useState([]);
-  const [searchFollowerQuery, setSearchFollowerQuery] = useState('');
+  const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
   const handleOpenModalFollowers = () => {
     showLoader();
 
@@ -224,7 +226,7 @@ export default function CompanyClientMe({
       .finally(() => {
         hideLoader();
       });
-  }
+  };
 
   const handleSearchFollower = (query: string) => {
     setSearchFollowerQuery(query);
@@ -237,13 +239,13 @@ export default function CompanyClientMe({
   const handleRedirectToFollowerProfile = (follower: any) => {
     showLoader();
     switch (follower.rol) {
-      case 'student':
+      case "student":
         router.push(`/profile/student/${follower.student.uuid}`);
         break;
-      case 'company':
+      case "company":
         router.push(`/profile/company/${follower.company.slug}`);
         break;
-      case 'institutions':
+      case "institutions":
         router.push(`/profile/institution/${follower.institutions.slug}`);
         break;
     }
@@ -364,20 +366,15 @@ export default function CompanyClientMe({
                       Contactar
                     </button>
 
-                    {/* Botón de Seguir */}
-                    <button
-                      onClick={() => handleFollowCompany(companyEdited?.user_id)}
-                      disabled={true}
-                      className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${true ? 'bg-gray-400 border-gray-400' : 'bg-black border-black hover:bg-gray-800 transition-colors duration-300'
-                        }`}
-                    >
-                      <UserPlus className="h-5 w-5 mr-2" />
-                      {true ? 'Siguiendo' : 'Seguir'}
-                    </button>
-
                     {/* Followers count */}
-                    <div onClick={() => handleOpenModalFollowers()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
-                      {companyEdited?.followers} {companyEdited?.followers === 1 ? 'seguidor' : 'seguidores'}
+                    <div
+                      onClick={() => handleOpenModalFollowers()}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                      {companyEdited?.followers}{" "}
+                      {companyEdited?.followers === 1
+                        ? "seguidor"
+                        : "seguidores"}
                     </div>
                   </div>
                 </div>
@@ -483,7 +480,11 @@ export default function CompanyClientMe({
                     <textarea
                       name="short_description"
                       value={companyEdited.short_description}
-                      onChange={updateCompany}
+                      onChange={(e) =>
+                        updateCompany(
+                          e as React.ChangeEvent<HTMLTextAreaElement>
+                        )
+                      }
                       className="w-full h-32 p-2 border rounded"
                     />
                     <button
@@ -580,10 +581,10 @@ export default function CompanyClientMe({
                             isSearchable
                             isMulti
                             placeholder="Busca y selecciona..."
-                            getOptionLabel={(option) => option.name}
-                            getOptionValue={(option) => option.id}
+                            getOptionLabel={(option: any) => option.name}
+                            getOptionValue={(option: any) => option.id}
                             value={companyEdited.sectors}
-                            onChange={(selectedOption) => {
+                            onChange={(selectedOption: any) => {
                               console.log(selectedOption);
                               setCompanyEdited({
                                 ...companyEdited,
@@ -620,8 +621,8 @@ export default function CompanyClientMe({
                           <li>
                             <strong>Industria:</strong>{" "}
                             {companyEdited.sectors &&
-                              companyEdited.sectors.length > 0 ? (
-                              companyEdited.sectors.map((sector) => (
+                            companyEdited.sectors.length > 0 ? (
+                              companyEdited.sectors.map((sector: any) => (
                                 <Badge key={sector.id} className="mr-2">
                                   {sector.name} {/* Renderiza solo el nombre */}
                                 </Badge>
@@ -654,10 +655,10 @@ export default function CompanyClientMe({
                             isSearchable
                             isMulti
                             placeholder="Busca y selecciona..."
-                            getOptionLabel={(option) => option.name}
-                            getOptionValue={(option) => option.id}
+                            getOptionLabel={(option: any) => option.name}
+                            getOptionValue={(option: any) => option.id}
                             value={companyEdited.skills}
-                            onChange={(selectedOption) => {
+                            onChange={(selectedOption: any) => {
                               console.log(selectedOption);
                               setCompanyEdited({
                                 ...companyEdited,
@@ -670,8 +671,8 @@ export default function CompanyClientMe({
                         <>
                           <div className="flex flex-wrap gap-2 text-gray-600">
                             {companyEdited.skills &&
-                              companyEdited.skills.length > 0 ? (
-                              companyEdited.skills.map((skill) => (
+                            companyEdited.skills.length > 0 ? (
+                              companyEdited.skills.map((skill: any) => (
                                 <Badge
                                   key={skill.id}
                                   className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md"
@@ -705,8 +706,9 @@ export default function CompanyClientMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${1500000000000 + post
-                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${
+                            1500000000000 + post
+                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -748,7 +750,7 @@ export default function CompanyClientMe({
                 </div>
 
                 {/* Mapear las ofertas existentes */}
-                {companyEdited?.offers?.map((job, i) => (
+                {companyEdited?.offers?.map((job: any, i: any) => (
                   <Card
                     key={job.id}
                     className={`p-6 hover:border-primary/50 transition-colors cursor-pointer `}
@@ -811,45 +813,13 @@ export default function CompanyClientMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-semibold text-gray-600 mb-2">
-                        No hay ofertas disponibles
-                      </p>
-                    </div>
-                  )}
-              </TabsContent>
-
-              <TabsContent value="empleados" className="mt-6">
-                <Card className="p-6">
-                  <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-semibold">
-                      Personas empleadas
-                    </h2>
-                    <div className="text-sm text-gray-500">1,234 empleados</div>
+                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                    <p className="text-lg font-semibold text-gray-600 mb-2">
+                      No hay ofertas disponibles
+                    </p>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {[1, 2, 3, 4, 5, 6].map((employee) => (
-                      <div key={employee} className="flex gap-4 items-center">
-                        <Avatar className="h-16 w-16">
-                          <img
-                            src={`https://images.unsplash.com/photo-${1500000000000 + employee
-                              }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-                            alt="Employee"
-                            className="aspect-square h-full w-full"
-                          />
-                        </Avatar>
-                        <div>
-                          <h3 className="font-semibold">Juan Pérez</h3>
-                          <p className="text-gray-600">Software Engineer</p>
-                          <p className="text-sm text-gray-500">
-                            Madrid, España
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -863,7 +833,7 @@ export default function CompanyClientMe({
         />
       )}
 
-<Modal
+      <Modal
         isOpen={followersModal.isOpen}
         onClose={followersModal.closeModal}
         id="followers-modal"
@@ -872,9 +842,7 @@ export default function CompanyClientMe({
         closeOnOutsideClick={false}
       >
         <div className="flex flex-col space-y-4 p-5">
-          <p className="text-gray-600">
-            Lista de seguidores de la empresa
-          </p>
+          <p className="text-gray-600">Lista de seguidores de la empresa</p>
           <Input
             placeholder="Buscar seguidores..."
             value={searchFollowerQuery}
@@ -882,8 +850,11 @@ export default function CompanyClientMe({
           />
           <div className="flex flex-col space-y-4">
             {companyFollowers?.map((follower: any) => (
-              <div key={follower.id} className="flex items-center space-x-2 cursor-pointer"
-              onClick={() => handleRedirectToFollowerProfile(follower)}>
+              <div
+                key={follower.id}
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => handleRedirectToFollowerProfile(follower)}
+              >
                 <img
                   className="w-12 h-12 rounded-full"
                   src={follower.avatar}
@@ -891,20 +862,20 @@ export default function CompanyClientMe({
                 />
                 <div>
                   <p className="font-semibold">{follower.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {follower.email}
-                  </p>
+                  <p className="text-sm text-gray-600">{follower.email}</p>
                 </div>
               </div>
             ))}
 
-            {
-              companyFollowers?.length === 0 || !companyFollowers && (
-                <p className="text-gray-600">
-                  No hay seguidores
-                </p>
-              )
-            }
+            {/* Sólo si companyFollowers existe y length === 0 */}
+            {companyFollowers && companyFollowers.length === 0 && (
+              <p className="text-gray-600">No hay seguidores</p>
+            )}
+
+            {/* Si quieres cubrir también el caso undefined/null */}
+            {!companyFollowers && (
+              <p className="text-gray-600">No hay seguidores</p>
+            )}
           </div>
         </div>
       </Modal>

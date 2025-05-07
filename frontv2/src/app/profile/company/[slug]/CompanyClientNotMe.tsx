@@ -28,6 +28,8 @@ import {
   Calendar,
   BookmarkCheck,
   UserPlus,
+  Loader2,
+  UserMinus
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -92,6 +94,7 @@ export default function CompanyClientNotMe({
 
   const { toast } = useToast();
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowingLoading, setIsFollowingLoading] = useState(false);
 
   useEffect(() => {
     showLoader();
@@ -134,7 +137,7 @@ export default function CompanyClientNotMe({
         .catch((error) => {
           console.error(error);
         })
-        .finally(() => { });
+        .finally(() => {});
     } catch (error) {
       toast({
         title: "Error",
@@ -269,48 +272,54 @@ export default function CompanyClientNotMe({
   const handleFollowCompany = (user_id: number) => {
     console.log("follow company");
     showLoader();
+    setIsFollowingLoading(true);
     try {
       apiRequest("follow", "POST", {
         user_id,
-      }).then((response) => {
-        console.log(response);
-        if (response.status === "success") {
-          toast({
-            title: "Exito",
-            description: response.message,
-            variant: "success",
-          });
-          setCompanyEdited((prev: any) => ({
-            ...prev,
-            followers: prev.followers + 1,
-          }));
-          setIsFollowing(true);
-        } else if (response.status === "warning") {
-          toast({
-            title: "Advertencia",
-            description: response.message,
-            variant: "default",
-            duration: 5000,
-          });
-        } else {
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+            });
+            setCompanyEdited((prev: any) => ({
+              ...prev,
+              followers: prev.followers + 1,
+            }));
+            setIsFollowing(true);
+            setIsFollowingLoading(false);
+          } else if (response.status === "warning") {
+            toast({
+              title: "Advertencia",
+              description: response.message,
+              variant: "default",
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
           toast({
             title: "Error",
-            description: response.message,
+            description: "Error al seguir a la empresa.",
             variant: "destructive",
             duration: 5000,
           });
-        }
-      }).catch((error) => {
-        console.log(error);
-        toast({
-          title: "Error",
-          description: "Error al seguir a la empresa.",
-          variant: "destructive",
-          duration: 5000,
+        })
+        .finally(() => {
+          hideLoader();
+          setIsFollowingLoading(false);
         });
-      }).finally(() => {
-        hideLoader();
-      });
     } catch (error) {
       console.log(error);
       toast({
@@ -324,39 +333,94 @@ export default function CompanyClientNotMe({
     }
   };
 
+  const handleUnfollowCompany = (user_id: number) => {
+    showLoader();
+    setIsFollowingLoading(true);
+    try {
+      apiRequest(`unfollow/${user_id}`, "DELETE")
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+              duration: 5000,
+            });
+            setCompanyEdited((prev: any) => ({
+              ...prev,
+              followers: prev.followers - 1,
+            }));
+            setIsFollowing(false);
+            setIsFollowingLoading(false);
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al dejar de seguir a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al dejar de seguir a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+      setIsFollowingLoading(false);
+    }
+  };
+
   const [companyFollowersAll, setCompanyFollowersAll] = useState([]);
   const [companyFollowers, setCompanyFollowers] = useState([]);
-  const [searchFollowerQuery, setSearchFollowerQuery] = useState('');
-  const handleOpenModalFollowers = ()=>{
+  const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
+  const handleOpenModalFollowers = () => {
     showLoader();
 
     apiRequest(`followers/${companyEdited.user_id}`)
-    .then((response) => {
-      console.log(response);
-      if (response.status === "success") {
-        setCompanyFollowersAll(response.followers);
-        setCompanyFollowers(response.followers);
-        followersModal.openModal();
-      } else {
+      .then((response) => {
+        console.log(response);
+        if (response.status === "success") {
+          setCompanyFollowersAll(response.followers);
+          setCompanyFollowers(response.followers);
+          followersModal.openModal();
+        } else {
+          toast({
+            title: "Error",
+            description: "Error al obtener los seguidores.",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) => {
+        console.log(error);
         toast({
           title: "Error",
           description: "Error al obtener los seguidores.",
           variant: "destructive",
         });
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      toast({
-        title: "Error",
-        description: "Error al obtener los seguidores.",
-        variant: "destructive",
+      })
+      .finally(() => {
+        hideLoader();
       });
-    })
-    .finally(() => {
-      hideLoader();
-    });
-  }
+  };
 
   const handleSearchFollower = (query: string) => {
     setSearchFollowerQuery(query);
@@ -368,14 +432,14 @@ export default function CompanyClientNotMe({
 
   const handleRedirectToFollowerProfile = (follower: any) => {
     showLoader();
-    switch(follower.rol){
-      case 'student':
+    switch (follower.rol) {
+      case "student":
         router.push(`/profile/student/${follower.student.uuid}`);
         break;
-      case 'company':
+      case "company":
         router.push(`/profile/company/${follower.company.slug}`);
         break;
-      case 'institutions':
+      case "institutions":
         router.push(`/profile/institution/${follower.institutions.slug}`);
         break;
     }
@@ -438,18 +502,61 @@ export default function CompanyClientNotMe({
 
                     {/* Botón de Seguir */}
                     <button
-                      onClick={() => handleFollowCompany(companyEdited?.user_id)}
-                      disabled={isFollowing}
-                      className={`inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${isFollowing ? 'bg-gray-400 border-gray-400' : 'bg-black border-black hover:bg-gray-800 transition-colors duration-300'
-                        }`}
+                      onClick={() =>
+                        isFollowing
+                          ? handleUnfollowCompany(companyEdited?.user_id)
+                          : handleFollowCompany(companyEdited?.user_id)
+                      }
+                      disabled={isFollowingLoading}
+                      className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${
+                        isFollowingLoading || isFollowing
+                          ? "bg-gray-400 border-gray-400"
+                          : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
+                      }`}
                     >
-                      <UserPlus className="h-5 w-5 mr-2" />
-                      {isFollowing ? 'Siguiendo' : 'Seguir'}
+                      {isFollowingLoading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                          Cargando...
+                        </>
+                      ) : (
+                        <>
+                          {isFollowing ? (
+                            // Cuando ya sigues, cambiamos texto e icono al hacer hover
+                            <>
+                              <span className="flex items-center space-x-2">
+                                <span className="block group-hover:hidden">
+                                  Siguiendo
+                                </span>
+                                <span className="hidden group-hover:block">
+                                  Dejar de seguir
+                                </span>
+                                <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
+                                <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
+                              </span>
+                            </>
+                          ) : (
+                            // Cuando no sigues
+                            <>
+                              <span className="flex items-center space-x-2">
+                                <span>Seguir</span>
+                                <UserPlus className="h-5 w-5 ml-2" />
+                              </span>
+                            </>
+                          )}
+                        </>
+                      )}
                     </button>
 
                     {/* Followers count */}
-                    <div onClick={() => handleOpenModalFollowers()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer">
-                      {companyEdited?.followers} {companyEdited?.followers === 1 ? 'seguidor' : 'seguidores'}
+                    <div
+                      onClick={() => handleOpenModalFollowers()}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                      {companyEdited?.followers}{" "}
+                      {companyEdited?.followers === 1
+                        ? "seguidor"
+                        : "seguidores"}
                     </div>
                   </div>
                 </div>
@@ -552,7 +659,7 @@ export default function CompanyClientNotMe({
                         <li>
                           <strong>Industria:</strong>{" "}
                           {companyEdited.sectors &&
-                            companyEdited.sectors.length > 0 ? (
+                          companyEdited.sectors.length > 0 ? (
                             companyEdited.sectors.map((sector: any) => (
                               <Badge key={sector.id} className="mr-2">
                                 {sector.name} {/* Renderiza solo el nombre */}
@@ -579,7 +686,7 @@ export default function CompanyClientNotMe({
                       <>
                         <div className="flex flex-wrap gap-2 text-gray-600">
                           {companyEdited.skills &&
-                            companyEdited.skills.length > 0 ? (
+                          companyEdited.skills.length > 0 ? (
                             companyEdited.skills.map((skill: any) => (
                               <Badge
                                 key={skill.id}
@@ -607,8 +714,9 @@ export default function CompanyClientNotMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${1500000000000 + post
-                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${
+                            1500000000000 + post
+                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -698,13 +806,13 @@ export default function CompanyClientNotMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-semibold text-gray-600 mb-2">
-                        No hay ofertas disponibles
-                      </p>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                    <p className="text-lg font-semibold text-gray-600 mb-2">
+                      No hay ofertas disponibles
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -1098,8 +1206,8 @@ export default function CompanyClientNotMe({
                         href={
                           studentData.cover_letter_attachment
                             ? URL.createObjectURL(
-                              studentData.cover_letter_attachment
-                            )
+                                studentData.cover_letter_attachment
+                              )
                             : "#"
                         }
                         download={studentData.cover_letter_attachment?.name}
@@ -1165,9 +1273,7 @@ export default function CompanyClientNotMe({
         closeOnOutsideClick={false}
       >
         <div className="flex flex-col space-y-4 p-5">
-          <p className="text-gray-600">
-            Lista de seguidores de la empresa
-          </p>
+          <p className="text-gray-600">Lista de seguidores de la empresa</p>
           <Input
             placeholder="Buscar seguidores..."
             value={searchFollowerQuery}
@@ -1175,8 +1281,11 @@ export default function CompanyClientNotMe({
           />
           <div className="flex flex-col space-y-4">
             {companyFollowers?.map((follower: any) => (
-              <div key={follower.id} className="flex items-center space-x-2 cursor-pointer"
-              onClick={() => handleRedirectToFollowerProfile(follower)}>
+              <div
+                key={follower.id}
+                className="flex items-center space-x-2 cursor-pointer"
+                onClick={() => handleRedirectToFollowerProfile(follower)}
+              >
                 <img
                   className="w-12 h-12 rounded-full"
                   src={follower.avatar}
@@ -1184,20 +1293,20 @@ export default function CompanyClientNotMe({
                 />
                 <div>
                   <p className="font-semibold">{follower.name}</p>
-                  <p className="text-sm text-gray-600">
-                    {follower.email}
-                  </p>
+                  <p className="text-sm text-gray-600">{follower.email}</p>
                 </div>
               </div>
             ))}
 
-            {
-              companyFollowers?.length === 0 || !companyFollowers && (
-                <p className="text-gray-600">
-                  No hay seguidores
-                </p>
-              )
-            }
+            {/* Sólo si companyFollowers existe y length === 0 */}
+            {companyFollowers && companyFollowers.length === 0 && (
+              <p className="text-gray-600">No hay seguidores</p>
+            )}
+
+            {/* Si quieres cubrir también el caso undefined/null */}
+            {!companyFollowers && (
+              <p className="text-gray-600">No hay seguidores</p>
+            )}
           </div>
         </div>
       </Modal>

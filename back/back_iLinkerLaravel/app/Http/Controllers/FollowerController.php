@@ -117,9 +117,17 @@ class FollowerController extends Controller
             ->delete();
 
         if ($deleted) {
-            return response()->json(['message' => 'Has dejado de seguir a este usuario']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Has dejado de seguir a este usuario',
+                'unfollow' => $deleted
+            ]);
         } else {
-            return response()->json(['message' => 'No sigues a este usuario'], 404);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'No sigues a este usuario',
+                'unfollow' => $deleted
+            ]);
         }
     }
 
