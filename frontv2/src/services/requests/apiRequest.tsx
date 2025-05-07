@@ -43,10 +43,7 @@ export async function apiRequest(
     }
 
    
-    return {
-      status: 'success',
-      data: await response.json(),
-    }
+    return await response.json();
   } catch (error: any) {
     return {
       status: 'error',

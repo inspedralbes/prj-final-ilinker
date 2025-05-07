@@ -40,7 +40,11 @@ interface NewPublication {
 export default function PublicationPage() {
   const { userData } = useContext(AuthContext);
   const router = useRouter();
-  
+
+  console.log('PublicationPage userData from context:', userData);
+  console.log('PublicationPage userData role:', userData?.rol);
+  console.log('PublicationPage userData institution logo:', userData?.institution?.logo);
+
   // Estado para almacenar las publicaciones
   const [publications, setPublications] = useState<Publication[]>([
     {
@@ -130,12 +134,24 @@ export default function PublicationPage() {
 
   // Función para navegar al perfil del usuario
   const handleViewMore = () => {
-    if (userData?.role === "student") {
-      router.push(`/profile/student/${userData?.student?.uuid}`);
-    } else if (userData?.role === "company") {
-      router.push(`/profile/company/${userData?.company?.slug}`);
-    } else if (userData?.role === "institutions") {
-      router.push(`/profile/institution/${userData?.institution?.slug}`);
+    console.log('handleViewMore clicked');
+    console.log('userData:', userData);
+
+    if (!userData) {
+      console.log('No userData available');
+      return;
+    }
+
+    console.log('User role:', userData.rol);
+
+    if (userData.rol === "student" && userData.student?.uuid) {
+      router.push(`/profile/student/${userData.student.uuid}`);
+    } else if (userData.rol === "company" && userData.company?.slug) {
+      router.push(`/profile/company/${userData.company.slug}`);
+    } else if (userData.rol === "institutions" && userData.institution?.slug) {
+      router.push(`/profile/institution/${userData.institution.slug}`);
+    } else {
+      console.log('No valid profile data found');
     }
   };
 
@@ -146,12 +162,7 @@ export default function PublicationPage() {
         <div className="flex-1 max-w-xl">
           <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} />
           {publications.map((publication) => (
-            <PublicationCard
-              key={publication.id}
-              publication={publication}
-              onLike={handleLike}
-              onComment={handleComment}
-            />
+            <PublicationCard key={publication.id} publication={publication} onLike={handleLike} onComment={handleComment} />
           ))}
         </div>
       </div>
@@ -160,55 +171,151 @@ export default function PublicationPage() {
 }
 
 // Componente de la barra lateral del perfil
-const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onViewMore: () => void }) => (
-  <div className="hidden md:block w-80 flex-shrink-0">
-    <div className="sticky top-6">
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-20 bg-slate-200 relative">
-          <Image
-            src={userData?.institution?.cover_photo || userData?.company?.cover_photo || "/default-cover.jpg"}
-            alt="Cover"
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div className="px-4 pb-4">
-          <div className="relative -mt-12 mb-3">
-            <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
-              <Image
-                src={userData?.student?.photo_pic || userData?.company?.logo || userData?.institution?.logo || "/default-avatar.png"}
-                alt="Profile"
-                width={96}
-                height={96}
-                className="object-cover"
-              />
-            </div>
+const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onViewMore: () => void }) => {
+  // Obtener datos específicos según el rol del usuario
+  const getUserCoverPhoto = () => {
+    if (!userData) return "/default-cover.jpg";
+
+    if (userData.rol === "institutions" && userData.institution?.cover_photo) {
+      return userData.institution.cover_photo;
+    } else if (userData.rol === "company" && userData.company?.cover_photo) {
+      return userData.company.cover_photo;
+    } else if (userData.rol === "student" && userData.student?.cover_photo) {
+      return userData.student.cover_photo;
+    }
+
+    return "/default-cover.jpg";
+  };
+
+  const getUserProfilePic = () => {
+    if (!userData) return "/default-avatar.png";
+
+    if (userData.rol === "institutions" && userData.institution?.logo) {
+      return userData.institution.logo;
+    } else if (userData.rol === "company" && userData.company?.logo) {
+      return userData.company.logo;
+    } else if (userData.rol === "student" && userData.student?.photo_pic) {
+      return userData.student.photo_pic;
+    }
+
+    return "/default-avatar.png";
+  };
+
+  const getUserSlogan = () => {
+    if (!userData) return "";
+
+    if (userData.rol === "institutions" && userData.institution?.slogan) {
+      return userData.institution.slogan;
+    } else if (userData.rol === "company" && userData.company?.slogan) {
+      return userData.company.slogan;
+    }
+
+    return "";
+  };
+
+  const getUserLocation = () => {
+    if (!userData) return "";
+
+    const city =
+      (userData.rol === "student" && userData.student?.city) ||
+      (userData.rol === "company" && userData.company?.city) ||
+      (userData.rol === "institutions" && userData.institution?.city) ||
+      "";
+
+    const country =
+      (userData.rol === "student" && userData.student?.country) ||
+      (userData.rol === "company" && userData.company?.country) ||
+      (userData.rol === "institutions" && userData.institution?.country) ||
+      "";
+
+    if (city && country) {
+      return `${city}, ${country}`;
+    } else if (city) {
+      return city;
+    } else if (country) {
+      return country;
+    }
+
+    return "";
+  };
+
+  const getUserTitle = () => {
+    if (!userData) return "";
+
+    if (userData.rol === "student" && userData.student?.title) {
+      return userData.student.title;
+    } else if (userData.rol === "company" && userData.company?.name) {
+      return userData.company.name;
+    } else if (userData.rol === "institutions" && userData.institution?.name) {
+      return userData.institution.name;
+    }
+
+    return "";
+  };
+
+  return (
+    <div className="hidden md:block w-80 flex-shrink-0">
+      <div className="sticky top-6">
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <div className="h-20 bg-slate-200 relative">
+            <Image
+              src={getUserCoverPhoto()}
+              alt="Cover"
+              fill
+              className="object-cover"
+            />
           </div>
-          <h1 className="text-xl font-semibold">{userData?.name}</h1>
-          <p className="text-sm mb-4">
-            {userData?.role === "student" && userData?.student?.title}
-            {userData?.role === "company" && userData?.company?.name}
-            {userData?.role === "institutions" && userData?.institution?.name}
-          </p>
-          <nav className="space-y-2">
-            <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-              <Bookmark className="w-4 h-4" /> Elementos guardados
+          <div className="px-4 pb-4">
+            <div className="relative -mt-12 mb-3">
+              <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
+                <Image
+                  src={getUserProfilePic()}
+                  alt="Profile"
+                  width={96}
+                  height={96}
+                  className="object-cover"
+                />
+              </div>
+            </div>
+            <h1 className="text-xl font-semibold">{userData?.name} {userData?.surname}</h1>
+
+            {userData && (
+              <>
+                {getUserSlogan() && (
+                  <p className="text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
+                )}
+                <p className="text-sm text-gray-700 mt-1 mb-1"><br></br>{  getUserTitle()}</p>
+
+
+                {getUserLocation() && (
+                  <p className="text-sm text-gray-600 flex items-center mb-4">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {getUserLocation()}
+                  </p>
+                )}
+              </>
+            )}
+
+            <nav className="space-y-2 mt-4">
+              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray rounded-md px-2">
+                <Bookmark className="w-4 h-4" /> Elementos guardados
+              </button>
+              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
+                <Users2 className="w-4 h-4" /> Grupos
+              </button>
+              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
+                <CalendarDays className="w-4 h-4" /> Eventos
+              </button>
+            </nav>
+            <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
+              Ver más
             </button>
-            <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-              <Users2 className="w-4 h-4" /> Grupos
-            </button>
-            <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-              <CalendarDays className="w-4 h-4" /> Eventos
-            </button>
-          </nav>
-          <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
-            Ver más
-          </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Componente para crear una nueva publicación
 const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => (

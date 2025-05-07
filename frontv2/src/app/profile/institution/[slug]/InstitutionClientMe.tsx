@@ -79,7 +79,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
         console.log('Skills data received:', response);
 
         if (response.status === 'success' && response.data && Array.isArray(response.data)) {
-          console.log('Setting skills:', response.data);
+          // console.log('Setting skills:', response.data);
           setAvailableSkills(response.data)
         } else {
           console.log('Invalid skills data structure:', response);

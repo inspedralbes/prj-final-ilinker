@@ -81,11 +81,14 @@ const Login: React.FC = () => {
                     email,
                     password,
                 });
+                console.log('login response', response);
+                
 
                 if (response.status === "success") {
-                    router.push("/search");
                     socket.emit('login', { userData: response.user });
                     login(response.token, response.user, response.notifications);
+                    router.push("/search");
+
                 } else {
                     setApiError("Correu electrònic o contrasenya incorrectes");
                     hideLoader();

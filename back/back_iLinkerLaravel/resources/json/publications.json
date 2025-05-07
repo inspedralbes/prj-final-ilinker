@@ -1,7 +1,7 @@
 {
     "publications": [
         {
-            "user_id": 3,
+            "user_id": 6,
             "content": "¡Acabo de descubrir esta increíble herramienta para desarrolladores! #coding #webdev",
             "location": "Madrid, España",
             "comments_enabled": true,
@@ -31,7 +31,7 @@
             "likes": [1, 2, 5, 4]
         },
         {
-            "user_id": 3,
+            "user_id": 6,
             "content": "Compartiendo mi último proyecto de desarrollo web con Laravel y Vue.js",
             "location": "Barcelona, España",
             "comments_enabled": true,
@@ -52,7 +52,7 @@
             "likes": [2, 3, 5]
         },
         {
-            "user_id": 3,
+            "user_id": 6,
             "content": "Recursos útiles para aprender programación en 2024",
             "location": "Valencia, España",
             "comments_enabled": true,
