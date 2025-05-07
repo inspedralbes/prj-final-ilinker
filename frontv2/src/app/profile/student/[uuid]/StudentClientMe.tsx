@@ -25,7 +25,10 @@ import {
     AlertCircle,
     Eye,
     RefreshCw,
-    FileText
+    FileText,
+    X,
+    CreditCard,
+    Briefcase
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -69,13 +72,7 @@ import config from "@/types/config";
 import {AuthContext} from "@/contexts/AuthContext";
 import Cookies from "js-cookie";
 import {SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
-
+import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
 
 export interface User {
     id: number;
@@ -232,6 +229,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [modalExperience, setModalExperience] = useState(false);
     const [modalProjects, setModalProjects] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
+    const [modalOffer, setModalOffer] = useState(false);
 
     const [currentStudy, setCurrentStudy] = useState(null);
     const [currentExperience, setCurrentExperience] = useState(null);
@@ -242,6 +240,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [educationSelect, setEducationSelect] = useState(null);
     const [experinceSelect, setExperienceSelect] = useState(null);
     const [projectsSelect, setProjectSelect] = useState(null);
+    const [offerSelect, setOfferSelect] = useState(null);
 
     const [isExperience, setIsExperience] = useState(false);
     const [carouselStates, setCarouselStates] = useState({});
@@ -646,6 +645,55 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         setEditingIndex(-1);
         setNameLanguage('');
         setOptionLevel([]);
+    };
+
+    const showOffer = (offer: any) => {
+        console.log("Edit Offer");
+        console.table(offer);
+        setOfferSelect(offer)
+        setModalOffer(!modalOffer)
+    }
+
+    // Función para determinar el color del estado
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'accept':
+                return 'text-green-600 bg-green-100';
+            case 'pending':
+                return 'text-yellow-600 bg-yellow-100';
+            case 'reject':
+                return 'text-red-600 bg-red-100';
+            default:
+                return 'text-gray-600 bg-gray-100';
+        }
+    };
+
+    // Función para traducir el estado
+    const getStatusText = (status) => {
+        switch (status) {
+            case 'accept':
+                return 'Aceptada';
+            case 'pending':
+                return 'Pendiente';
+            case 'reject':
+                return 'Rechazada';
+            default:
+                return status;
+        }
+    };
+
+    // Función para obtener el icono del estado
+    const getStatusIcon = (status) => {
+        switch (status) {
+            case 'accept':
+                return <CheckCircle className="w-5 h-5 text-green-600"/>;
+            case 'pending':
+                return <Loader2 className="w-5 h-5 text-yellow-600"/>;
+            case 'reject':
+                return <XCircle className="w-5 h-5 text-red-600"/>;
+            default:
+                return null;
+        }
     };
 
 
@@ -1813,8 +1861,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                             </TabsContent>
 
                             <TabsContent value="offer" className="mt-6">
-
-                                {/* Card contenedora con menos padding para aprovechar espacio */}
                                 {/* Card contenedora con menos padding para aprovechar espacio */}
                                 <Card className="p-6 mt-6 mb-6">
                                     <div className="flex justify-between items-center mb-4">
@@ -1874,42 +1920,29 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                         statusText = "Desconocido";
                                                 }
 
-                                                // Extraer fecha formateada de created_at
-                                                const applicationDate = new Date(application.created_at);
-                                                const formattedDate = applicationDate.toLocaleDateString('es-ES', {
-                                                    day: '2-digit',
-                                                    month: '2-digit',
-                                                    year: 'numeric'
-                                                });
-
-                                                // Extraer fecha formateada de updated_at
-                                                const updateDate = new Date(application.updated_at);
-                                                const formattedUpdateDate = updateDate.toLocaleDateString('es-ES', {
-                                                    day: '2-digit',
-                                                    month: '2-digit',
-                                                    year: 'numeric'
-                                                });
-
                                                 return (
                                                     <Card key={application.id}
                                                           className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
                                                         {/* Barra de estado en la parte superior */}
                                                         <div
-                                                            className={`${statusBgColor} p-2 flex justify-between items-center`}><span className={`font-medium ${statusColor} text-sm`}>{statusText}</span>
-                                                            <span className="text-xs text-gray-600">{formattedDate}</span>
+                                                            className={`${statusBgColor} p-2 flex justify-between items-center`}>
+                                                            <span
+                                                                className={`font-medium ${statusColor} text-sm`}>{statusText}</span>
+                                                            <span
+                                                                className="text-xs text-gray-600">{application.created_at ? format(application.created_at, "dd/MM/yyyy") : "Sin fecha"}</span>
+
                                                         </div>
 
                                                         <div className="p-4">
                                                             <div className="flex justify-between items-start">
                                                                 <div>
                                                                     <h3 className="font-semibold text-base">{application.offer.title}</h3>
-                                                                    <p className="text-sm text-gray-500 mt-1">ID
-                                                                        Empresa: {application.offer.company_id}</p>
                                                                 </div>
 
                                                                 <div className="flex space-x-1">
                                                                     <Button variant="ghost" size="icon"
-                                                                            className="h-7 w-7">
+                                                                            className="h-7 w-7"
+                                                                            onClick={() => showOffer(application)}>
                                                                         <Eye className="h-4 w-4"/>
                                                                     </Button>
 
@@ -1931,64 +1964,85 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                 <div
                                                                     className="flex items-center text-xs text-gray-600">
                                                                     <CalendarIcon className="h-3.5 w-3.5 mr-1.5"/>
-                                                                    <span>Aplicada: {formattedDate}</span>
+                                                                    <span>Aplicada: {application.created_at ? format(application.created_at, "dd/MM/yyyy") : "Sin fecha"}</span>
                                                                 </div>
 
                                                                 {application.updated_at && (
                                                                     <div
                                                                         className="flex items-center text-xs text-gray-600">
                                                                         <Clock className="h-3.5 w-3.5 mr-1.5"/>
-                                                                        <span>Última actualización: {formattedUpdateDate}</span>
+                                                                        <span>Última actualización: {application.updated_at ? format(application.updated_at, "dd/MM/yyyy") : "Sin fecha"}</span>
                                                                     </div>
                                                                 )}
 
-                                                                {application.availability && (
-                                                                    <div
-                                                                        className="flex items-center text-xs text-gray-600">
-                                                                        <Clock className="h-3.5 w-3.5 mr-1.5"/>
-                                                                        <span>Disponibilidad: {application.availability}</span>
-                                                                    </div>
-                                                                )}
+                                                                {application.availability ? (
+                                                                        <div
+                                                                            className="flex items-center text-xs text-gray-600">
+                                                                            <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                            <span>Disponibilidad: {application.availability}</span>
+                                                                        </div>
+                                                                    ) :
+                                                                    (
+                                                                        <div
+                                                                            className="flex items-center text-xs text-gray-600">
+                                                                            <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                            <span>Disponibilidad: Sin información</span>
+                                                                        </div>
+                                                                    )}
                                                             </div>
 
                                                             {/* Indicadores de documentos adjuntos */}
                                                             <div className="mt-3 pt-3 border-t border-gray-100">
                                                                 <div className="flex flex-wrap gap-2">
-                                                                    {application.cv_attachment && (
+                                                                    {(application.cv_attachment || application.cover_letter_attachment) ? (
+                                                                        <>
+                                                                            {application.cv_attachment && (
+                                                                                <a
+                                                                                    href={
+                                                                                        application.cv_attachment
+                                                                                            ? config.storageUrl + application.cv_attachment
+                                                                                            : "#"
+                                                                                    }
+                                                                                    target="_blank"
+                                                                                    download={config.storageUrl + application.cv_attachment}
+                                                                                >
+                                                                                    <span
+                                                                                        className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs flex items-center mr-1 hover:shadow-md transition-shadow">
+                                                                                        <FileText
+                                                                                            className="h-3 w-3 mr-1"/>
+                                                                                        CV
+                                                                                    </span>
+                                                                                </a>
+                                                                            )}
+                                                                            {application.cover_letter_attachment && (
+                                                                                <a
+                                                                                    href={
+                                                                                        application.cover_letter_attachment
+                                                                                            ? config.storageUrl + application.cover_letter_attachment
+                                                                                            : "#"
+                                                                                    }
+                                                                                    target="_blank"
+                                                                                    download={config.storageUrl + application.cover_letter_attachment}
+                                                                                >
+                                                                                    <span
+                                                                                        className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center">
+                                                                                        <FileText
+                                                                                            className="h-3 w-3 mr-1"/>
+                                                                                        Carta
+                                                                                    </span>
+                                                                                </a>
+                                                                            )}
+                                                                        </>
+                                                                    ) : (
                                                                         <span
-                                                                            className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs flex items-center">
-                        <FileText className="h-3 w-3 mr-1"/>
-                        CV
-                      </span>
+                                                                            className="px-2 py-1 bg-gray-200 text-gray-600 rounded-full text-xs flex items-center">
+                                                                            Sin adjuntos
+                                                                        </span>
                                                                     )}
-                                                                    {application.cover_letter_attachment && (
-                                                                        <span
-                                                                            className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center">
-                        <FileText className="h-3 w-3 mr-1"/>
-                        Carta
-                      </span>
-                                                                    )}
+
                                                                 </div>
                                                             </div>
 
-                                                            {/* Acciones */}
-                                                            <div className="mt-4 flex justify-between items-center">
-                                                                <div
-                                                                    className={`px-2 py-1 rounded-full text-xs ${statusBgColor} ${statusColor}`}>
-                                                                    {statusText}
-                                                                </div>
-
-                                                                <div className="flex space-x-1">
-                                                                    <Button variant="outline" size="sm"
-                                                                            className="text-xs h-7">
-                                                                        Actualizar
-                                                                    </Button>
-                                                                    <Button variant="default" size="sm"
-                                                                            className="text-xs h-7 bg-blue-600 hover:bg-blue-700">
-                                                                        Ver oferta
-                                                                    </Button>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </Card>
                                                 );
@@ -1998,7 +2052,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         <div
                                             className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
                                             <p className="text-black">No te has inscrito a ninguna oferta todavía</p>
-                                            <Link href="/offers"
+                                            <Link href="/search"
                                                   className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 Ver ofertas disponibles
                                             </Link>
@@ -2027,8 +2081,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     </div>
                 </div>
             </div>
-            {/* Place the ConfirmDialog here, outside of any tabs */
-            }
+
+            {/* Place the ConfirmDialog here, outside of any tabs */}
             <ConfirmDialog
                 open={openDialog}
                 onOpenChange={setOpenDialog}
@@ -2046,6 +2100,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                 cancelText="Cancelar"
                 icon={<TriangleAlert className="text-yellow-500"/>}
             />
+
+
+
             {
                 modalState && <ModalAddStudies
                     handleClose={handleCloseModal}
@@ -2073,8 +2130,14 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     isEditing={isEditing}
                 />
             }
+            {modalOffer && (
+                <OfferModal
+                    application={offerSelect}
+                    onClose={() => setModalOffer(false)}
+                />
+            )}
         </>
-    )
-        ;
+
+    );
 
 }
