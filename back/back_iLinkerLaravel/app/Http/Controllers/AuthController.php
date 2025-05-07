@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Institutions;
+use App\Models\Notification;
 use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
@@ -42,6 +43,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $user->status = "online";
+            $user->save();
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -60,7 +63,9 @@ class AuthController extends Controller
                 $user->institution = $institution;
             }
 
-            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
+            $notifications = Notification::getAllForUser($user->id);
+
+            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user, 'notifications' => $notifications]);
         }
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
@@ -134,6 +139,10 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = Auth::user();
+        $user->status = "offline";
+        $user->save();
+
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
     }
@@ -157,9 +166,13 @@ class AuthController extends Controller
                 $user->institution = $institution;
             }
 
+            $notifications = Notification::getAllForUser($user->id);
+
+
             return response()->json([
                 'status' => 'success',
-                'user' => $user
+                'user' => $user,
+                'notifications' => $notifications
             ]);
         } else {
             return response()->json([
