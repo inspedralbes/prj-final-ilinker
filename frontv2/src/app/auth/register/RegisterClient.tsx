@@ -713,7 +713,7 @@ export default function RegisterClient({countries, sectors}: {countries: any, se
                     <option value="instituto">Instituto Técnico</option>
                     <option value="escuela">Escuela Profesional</option>
                 </select>
-                <p className="text-sm text-red-600">{methods.formState.errors.institution?.type?.message}</p>
+                {/* <p className="text-sm text-red-600">{methods.formState.errors.institution?.type?.message}</p> */}
             </div>
             <div>
                 <label htmlFor="institution_email" className="block text-sm font-medium text-darkGray mb-2">
