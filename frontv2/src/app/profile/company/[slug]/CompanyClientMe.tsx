@@ -23,7 +23,8 @@ import {
   UserPlus,
   Inbox,
   UserMinus,
-  UserX
+  UserX,
+  Loader2,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -46,6 +47,17 @@ import config from "@/types/config";
 import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
+import { AuthContext } from "@/contexts/AuthContext";
+
+interface Follower {
+  id: number;
+  name: string;
+  pivot: {
+    follower_id: number;
+  };
+  isFollowed: boolean;
+  [key: string]: any;
+}
 
 export default function CompanyClientMe({
   company,
@@ -81,6 +93,7 @@ export default function CompanyClientMe({
   const [companyEdited, setCompanyEdited] = useState(company);
 
   const [modalState, setModalState] = useState(false);
+  const { userData } = useContext(AuthContext);
   const { hideLoader, showLoader } = useContext(LoaderContext);
   const { toast } = useToast();
 
@@ -196,13 +209,16 @@ export default function CompanyClientMe({
 
   const followersModal = useModal();
 
-  const [companyFollowersAll, setCompanyFollowersAll] = useState([]);
-  const [companyFollowers, setCompanyFollowers] = useState([]);
+  const [companyFollowersAll, setCompanyFollowersAll] = useState<Follower[]>([]);
+  const [companyFollowers, setCompanyFollowers] = useState<Follower[]>([]);
+  const [isLoadingToggleFollwer, setIsLoadingToggleFollwer] = useState(false);
   const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
   const handleOpenModalFollowers = () => {
     showLoader();
-
-    apiRequest(`followers/${companyEdited.user_id}`)
+    apiRequest(`followers`, 'POST', {
+      user_id: companyEdited.user_id,
+      me_id: userData?.id
+    })
       .then((response) => {
         console.log(response);
         if (response.status === "success") {
@@ -250,6 +266,177 @@ export default function CompanyClientMe({
       case "institutions":
         router.push(`/profile/institution/${follower.institutions.slug}`);
         break;
+    }
+  };
+
+  const handleUnfollow = (user_id: number) => {
+    showLoader();
+    setIsLoadingToggleFollwer(true);
+    try {
+      apiRequest(`unfollow/${user_id}`, "DELETE")
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+              duration: 5000,
+            });
+            setCompanyFollowers(prev =>
+              prev.map(follower =>
+                follower.pivot.follower_id === user_id
+                  ? { ...follower, isFollowed: false }
+                  : follower
+              )
+            );
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al dejar de seguir a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+          setIsLoadingToggleFollwer(false);
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al dejar de seguir a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const handleFollow = (user_id: number) => {
+    setIsLoadingToggleFollwer(true);
+    showLoader();
+    try {
+      apiRequest("follow", "POST", {
+        user_id: user_id,
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+            });
+            setCompanyFollowers(prev =>
+              prev.map(follower =>
+                follower.pivot.follower_id === user_id
+                  ? { ...follower, isFollowed: true }
+                  : follower
+              )
+            );
+          } else if (response.status === "warning") {
+            toast({
+              title: "Advertencia",
+              description: response.message,
+              variant: "default",
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al seguir a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+          setIsLoadingToggleFollwer(false);
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al seguir a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const handleBlock = (user_id: number) => {
+    showLoader();
+    try{
+      apiRequest('block', 'POST', {user_id})
+      .then((response) =>{
+        if(response.status === "success"){
+          toast({
+            title: "Exito",
+            description: response.message,
+            variant: "success",
+            duration: 5000,
+          });
+        } else if (response.status === "warning") {
+          toast({
+            title: "Advertencia",
+            description: response.message,
+            variant: "default",
+            duration: 5000,
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: response.message,
+            variant: "destructive",
+            duration: 5000,
+          });
+        }
+      }).catch((error)=>{
+        console.log(error);
+        toast({
+          title: "Error",
+          description: "Error al bloquear a la empresa.",
+          variant: "destructive",
+          duration: 5000,
+        });
+      }).finally(()=>{
+        hideLoader();
+      });
+    }catch(error){
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al bloquear a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    }finally{
+      hideLoader();
     }
   };
 
@@ -860,36 +1047,78 @@ export default function CompanyClientMe({
                 <div className="flex items-center space-x-2">
                   <img
                     className="w-12 h-12 rounded-full"
-                    src={follower.student ? 
-                      follower.student.profile_pic : 
-                      follower.company ? follower.company.logo : 
-                      follower.institutions?.logo}
-                    alt={follower.student ? 
-                      follower.student.name : 
-                      follower.company ? follower.company.name : 
-                      follower.institutions?.name}
+                    src={
+                      follower.student
+                        ? follower.student.profile_pic
+                        : follower.company
+                        ? follower.company.logo
+                        : follower.institutions?.logo
+                    }
+                    alt={
+                      follower.student
+                        ? follower.student.name
+                        : follower.company
+                        ? follower.company.name
+                        : follower.institutions?.name
+                    }
                   />
                   <div>
-                    <p className="font-semibold">{follower.student ? 
-                      follower.student.name : 
-                      follower.company ? follower.company.name : 
-                      follower.institutions?.name}</p>
-                    <p className="text-sm text-gray-600">{follower.student ? 
-                      follower.email : 
-                      follower.company ? follower.company.email : 
-                      follower.institutions?.email}</p>
+                    <p className="font-semibold">
+                      {follower.student
+                        ? follower.student.name
+                        : follower.company
+                        ? follower.company.name
+                        : follower.institutions?.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {follower.student
+                        ? follower.email
+                        : follower.company
+                        ? follower.company.email
+                        : follower.institutions?.email}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Button variant="ghost" size="icon">
-                    <UserMinus className="h-5 w-5" />
+                  {/* Follow/Unfollow toggle */}
+                  <Button
+                    variant="ghost"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      follower.isFollowed
+                        ? handleUnfollow(follower.pivot.follower_id)
+                        : handleFollow(follower.pivot.follower_id);
+                    }}
+                    className="flex items-center space-x-2"
+                  >
+                    {isLoadingToggleFollwer ? (
+                      <>
+                        <Loader2 className="animate-spin" />
+                        <span>Cargando...</span>
+                      </>
+                    ) : follower.isFollowed ? (
+                      <>
+                        <span>Dejar de seguir</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Seguir tambien</span>
+                      </>
+                    )}
                   </Button>
-                  <Button variant="ghost" size="icon">
-                    <UserPlus className="h-5 w-5" />
-                  </Button>
-                  <Button variant="ghost" size="icon">
-                    <UserX className="h-5 w-5" />
+
+                  {/* Block button */}
+                  <Button
+                    variant="ghost"
+                    size="default"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBlock(follower.pivot.follower_id);
+                    }}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-red-600"
+                  >
+                    <span>Bloquear</span>
                   </Button>
                 </div>
               </div>

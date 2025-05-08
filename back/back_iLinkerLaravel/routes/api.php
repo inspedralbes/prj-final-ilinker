@@ -44,7 +44,7 @@ Route::get('company/{slug}', [CompanyController::class, 'getCompany'])->name('co
 Route::post('company/checkCompanyUser', [CompanyController::class, 'checkCompanyUser'])->name('company.checkCompanyUser');
 Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('get.student');
 Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
-Route::get('/followers/{user_id}', [FollowerController::class, 'getFollowersUser']);
+Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 
 
 Route::prefix('/institution')->group(function () {

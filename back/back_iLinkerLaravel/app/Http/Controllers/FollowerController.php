@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Follower;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -16,6 +17,8 @@ class FollowerController extends Controller
      */
     public function follow(Request $request)
     {
+        Log::info("follow user");
+        Log::info($request);
         $rules = [
             'user_id' => 'required',
         ];
@@ -82,25 +85,25 @@ class FollowerController extends Controller
         $status = $userToFollow->is_public_account ? 'approved' : 'pending';
 
         // Crear la relación
-        DB::table('followers')->insert([
-            'follower_id' => $follower_id,
-            'following_id' => $following_id,
-            'status' => $status,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        $newFollow = new Follower();
+        $newFollow->follower_id = $follower_id;
+        $newFollow->following_id = $following_id;
+        $newFollow->status = $status;
+        $newFollow->save();
 
         if ($status === 'approved') {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Ahora sigues a este usuario',
-                'follow_status' => 'approved'
+                'follow_status' => 'approved',
+                'newFollow' => $newFollow
             ]);
         } else {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Solicitud de seguimiento enviada. Esperando aprobación',
-                'follow_status' => 'pending'
+                'follow_status' => 'pending',
+                'newFollow' => $newFollow
             ]);
         }
     }
@@ -186,7 +189,10 @@ class FollowerController extends Controller
 
         // Verificar que no sea el mismo usuario
         if ($user_id == $blocked_id) {
-            return response()->json(['message' => 'No puedes bloquearte a ti mismo'], 400);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No puedes bloquearte a ti mismo'
+            ]);
         }
 
         // Verificar si ya está bloqueado
@@ -196,7 +202,10 @@ class FollowerController extends Controller
             ->exists();
 
         if ($alreadyBlocked) {
-            return response()->json(['message' => 'Este usuario ya está bloqueado'], 400);
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Este usuario ya está bloqueado'
+            ]);
         }
 
         // Eliminar relaciones de seguidores en ambos sentidos
@@ -217,7 +226,10 @@ class FollowerController extends Controller
             'updated_at' => now()
         ]);
 
-        return response()->json(['message' => 'Usuario bloqueado exitosamente']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Usuario bloqueado exitosamente'
+        ]);
     }
 
     /**
@@ -231,9 +243,15 @@ class FollowerController extends Controller
             ->delete();
 
         if ($deleted) {
-            return response()->json(['message' => 'Usuario desbloqueado exitosamente']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Usuario desbloqueado exitosamente'
+            ]);
         } else {
-            return response()->json(['message' => 'Este usuario no está bloqueado'], 404);
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Este usuario no está bloqueado'
+            ]);
         }
     }
 
@@ -275,7 +293,7 @@ class FollowerController extends Controller
 
         foreach ($followers as $follower){
             $follower->follow = $user->followCheck($follower->id);
-            Log::info($follower);
+            $follower->isFollowed = $follower->followCheck($user->id);
         }
 
         return response()->json([
@@ -287,10 +305,37 @@ class FollowerController extends Controller
     /**
      * Listar usuarios que me siguen
      */
-    public function getFollowersUser($user_id)
+    public function getFollowersUser(Request $request)
     {
-        $user = User::findOrFail($user_id);
+        $rules = [
+          'user_id' => 'required',
+        ];
+
+        $messages = [
+            'user_id.required' => 'El id del usuario es requerido',
+        ];
+
+        $validate = Validator::make($request->all(), $rules, $messages);
+
+        if ($validate->fails()) {
+            return response([
+                'status' => 'error',
+                'message' => 'Errors validation:'. $validate->errors()
+            ]);
+        }
+
+        $me   = $request->me_id ? User::find($request->me_id) : null;
+
+        $user = User::findOrFail($request->user_id);
+
         $followers = $user->followers;
+
+        foreach ($followers as $follower){
+            $follower->follow = $user->followCheck($follower->id);
+            $follower->isFollowed = $me
+                ? (bool) $me->followCheck($follower->id)
+                : false;
+        }
 
         return response()->json([
             'status' => 'success',

@@ -29,7 +29,7 @@ import {
   BookmarkCheck,
   UserPlus,
   Loader2,
-  UserMinus
+  UserMinus,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -53,6 +53,16 @@ import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
+
+interface Follower {
+  id: number;
+  name: string;
+  pivot: {
+    follower_id: number;
+  };
+  isFollowed: boolean;
+  [key: string]: any;
+}
 
 export default function CompanyClientNotMe({
   company,
@@ -290,7 +300,6 @@ export default function CompanyClientNotMe({
               followers: prev.followers + 1,
             }));
             setIsFollowing(true);
-            setIsFollowingLoading(false);
           } else if (response.status === "warning") {
             toast({
               title: "Advertencia",
@@ -352,7 +361,6 @@ export default function CompanyClientNotMe({
               followers: prev.followers - 1,
             }));
             setIsFollowing(false);
-            setIsFollowingLoading(false);
           } else {
             toast({
               title: "Error",
@@ -385,17 +393,23 @@ export default function CompanyClientNotMe({
       });
     } finally {
       hideLoader();
-      setIsFollowingLoading(false);
     }
   };
 
-  const [companyFollowersAll, setCompanyFollowersAll] = useState([]);
-  const [companyFollowers, setCompanyFollowers] = useState([]);
+  const [companyFollowersAll, setCompanyFollowersAll] = useState<Follower[]>(
+    []
+  );
+  const [companyFollowers, setCompanyFollowers] = useState<Follower[]>([]);
   const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
+  const [isLoadingToggleFollwer, setIsLoadingToggleFollwer] = useState(false);
+
   const handleOpenModalFollowers = () => {
     showLoader();
 
-    apiRequest(`followers/${companyEdited.user_id}`)
+    apiRequest(`followers`, "POST", {
+      user_id: companyEdited.user_id,
+      me_id: userData?.id,
+    })
       .then((response) => {
         console.log(response);
         if (response.status === "success") {
@@ -446,6 +460,178 @@ export default function CompanyClientNotMe({
     }
   };
 
+  const handleUnfollow = (user_id: number) => {
+    showLoader();
+    setIsLoadingToggleFollwer(true);
+    try {
+      apiRequest(`unfollow/${user_id}`, "DELETE")
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+              duration: 5000,
+            });
+            setCompanyFollowers((prev) =>
+              prev.map((follower) =>
+                follower.pivot.follower_id === user_id
+                  ? { ...follower, isFollowed: false }
+                  : follower
+              )
+            );
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al dejar de seguir a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+          setIsLoadingToggleFollwer(false);
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al dejar de seguir a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const handleFollow = (user_id: number) => {
+    setIsLoadingToggleFollwer(true);
+    showLoader();
+    try {
+      apiRequest("follow", "POST", {
+        user_id: user_id,
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+            });
+            setCompanyFollowers((prev) =>
+              prev.map((follower) =>
+                follower.pivot.follower_id === user_id
+                  ? { ...follower, isFollowed: true }
+                  : follower
+              )
+            );
+          } else if (response.status === "warning") {
+            toast({
+              title: "Advertencia",
+              description: response.message,
+              variant: "default",
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al seguir a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+          setIsLoadingToggleFollwer(false);
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al seguir a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+    }
+  };
+
+  const handleBlock = (user_id: number) => {
+    showLoader();
+    try {
+      apiRequest("block", "POST", { user_id })
+        .then((response) => {
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+              duration: 5000,
+            });
+          } else if (response.status === "warning") {
+            toast({
+              title: "Advertencia",
+              description: response.message,
+              variant: "default",
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          toast({
+            title: "Error",
+            description: "Error al bloquear a la empresa.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        })
+        .finally(() => {
+          hideLoader();
+        });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "Error al bloquear a la empresa.",
+        variant: "destructive",
+        duration: 5000,
+      });
+    } finally {
+      hideLoader();
+    }
+  };
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -520,31 +706,27 @@ export default function CompanyClientNotMe({
                           <Loader2 className="h-5 w-5 animate-spin mr-2" />
                           Cargando...
                         </>
-                      ) : (
+                      ) : isFollowing ? (
+                        // Cuando ya sigues, cambiamos texto e icono al hacer hover
                         <>
-                          {isFollowing ? (
-                            // Cuando ya sigues, cambiamos texto e icono al hacer hover
-                            <>
-                              <span className="flex items-center space-x-2">
-                                <span className="block group-hover:hidden">
-                                  Siguiendo
-                                </span>
-                                <span className="hidden group-hover:block">
-                                  Dejar de seguir
-                                </span>
-                                <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
-                                <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
-                              </span>
-                            </>
-                          ) : (
-                            // Cuando no sigues
-                            <>
-                              <span className="flex items-center space-x-2">
-                                <span>Seguir</span>
-                                <UserPlus className="h-5 w-5 ml-2" />
-                              </span>
-                            </>
-                          )}
+                          <span className="flex items-center space-x-2">
+                            <span className="block group-hover:hidden">
+                              Siguiendo
+                            </span>
+                            <span className="hidden group-hover:block">
+                              Dejar de seguir
+                            </span>
+                            <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
+                            <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
+                          </span>
+                        </>
+                      ) : (
+                        // Cuando no sigues
+                        <>
+                          <span className="flex items-center space-x-2">
+                            <span>Seguir</span>
+                            <UserPlus className="h-5 w-5 ml-2" />
+                          </span>
                         </>
                       )}
                     </button>
@@ -1284,18 +1466,88 @@ export default function CompanyClientNotMe({
             {companyFollowers?.map((follower: any) => (
               <div
                 key={follower.id}
-                className="flex items-center space-x-2 cursor-pointer"
+                className="flex items-center justify-between space-x-2 cursor-pointer"
                 onClick={() => handleRedirectToFollowerProfile(follower)}
               >
-                <img
-                  className="w-12 h-12 rounded-full"
-                  src={follower.avatar}
-                  alt={follower.name}
-                />
-                <div>
-                  <p className="font-semibold">{follower.name}</p>
-                  <p className="text-sm text-gray-600">{follower.email}</p>
+                <div className="flex items-center space-x-2">
+                  <img
+                    className="w-12 h-12 rounded-full"
+                    src={
+                      follower.student
+                        ? follower.student.profile_pic
+                        : follower.company
+                        ? follower.company.logo
+                        : follower.institutions?.logo
+                    }
+                    alt={
+                      follower.student
+                        ? follower.student.name
+                        : follower.company
+                        ? follower.company.name
+                        : follower.institutions?.name
+                    }
+                  />
+                  <div>
+                    <p className="font-semibold">
+                      {follower.student
+                        ? follower.student.name
+                        : follower.company
+                        ? follower.company.name
+                        : follower.institutions?.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {follower.student
+                        ? follower.email
+                        : follower.company
+                        ? follower.company.email
+                        : follower.institutions?.email}
+                    </p>
+                  </div>
                 </div>
+
+                {follower.pivot.follower_id !== userData?.id && (
+                  <div className="flex items-center space-x-2">
+                    {/* Follow/Unfollow toggle */}
+                    <Button
+                      variant="ghost"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        follower.isFollowed
+                          ? handleUnfollow(follower.pivot.follower_id)
+                          : handleFollow(follower.pivot.follower_id);
+                      }}
+                      className="flex items-center space-x-2"
+                    >
+                      {isLoadingToggleFollwer ? (
+                        <>
+                          <Loader2 className="animate-spin" />
+                          <span>Cargando...</span>
+                        </>
+                      ) : follower.isFollowed ? (
+                        <>
+                          <span>Dejar de seguir</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Seguir tambien</span>
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Block button */}
+                    <Button
+                      variant="ghost"
+                      size="default"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBlock(follower.pivot.follower_id);
+                      }}
+                      className="flex items-center space-x-2 text-gray-700 hover:text-red-600"
+                    >
+                      <span>Bloquear</span>
+                    </Button>
+                  </div>
+                )}
               </div>
             ))}
 
