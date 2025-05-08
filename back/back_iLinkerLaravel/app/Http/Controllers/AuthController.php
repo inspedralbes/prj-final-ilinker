@@ -106,7 +106,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['company'] = $company;
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
+                $notifications = Notification::getAllForUser($user['id']);
+
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'institutions') {
                 $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
                 if (!$institution) {
@@ -115,8 +117,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['institution'] = $institution;
+                $notifications = Notification::getAllForUser($user['id']);
 
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
                 if (!$student) {
@@ -125,8 +128,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['student'] = $student;
+                $notifications = Notification::getAllForUser($user['id']);
 
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student, 'notifications' => $notifications]);
             } else {
                 throw new \Exception('El rol no está especificado.');
             }

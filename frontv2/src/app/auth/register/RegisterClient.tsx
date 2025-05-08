@@ -229,7 +229,7 @@ export default function RegisterClient({countries, sectors}: {countries: any, se
 
             if (response.status === 'success') {
                 router.push("/");
-                login(response.token, response.user);
+                login(response.token, response.user, response.notifications);
                 toast({
                     title: "Se ha iniciado sesion correctamente",
                     description: "Las credenciales son correctas.",
