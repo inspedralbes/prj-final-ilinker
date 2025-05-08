@@ -19,6 +19,9 @@ export default function AdminPage() {
   const handleRedirectToUsers = () => {
     router.push("/admin/estudents");
   };
+  const handleRedirectToOffers = () => {
+    router.push("/admin/offers");
+  };
 
   return (
     <div className="container mx-auto px-6 py-10 max-w-7xl">
@@ -68,6 +71,18 @@ export default function AdminPage() {
             onClick={handleRedirectToReports}
           >
             Ver Reportes
+          </Button>
+        </div>
+        
+        <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col items-start">
+          <h2 className="text-2xl font-semibold mb-3">Gestionar Ofertas</h2>
+          <p className="text-gray-500 mb-6">Administrar todas las ofertas publicadas en el sistema.</p>
+          <Button
+            variant="default"
+            className="mt-auto w-full"
+            onClick={handleRedirectToOffers}
+          >
+            Ir a Ofertas
           </Button>
         </div>
       </div>

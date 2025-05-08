@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import config from '@/types/config';
-
 interface Student {
   id: number;
   name: string;
@@ -24,7 +23,7 @@ interface Student {
   city: string;
   country: string;
   postal_code: string;
-  languages: string[];
+  languages: string[] | string;
   active: boolean;
   user: {
     email: string;
@@ -40,6 +39,7 @@ export default function StudentsPage() {
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [editData, setEditData] = useState<Partial<Student>>({});
+  const [currentLanguage, setCurrentLanguage] = useState('');
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -48,31 +48,64 @@ export default function StudentsPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setStudents(data.data.data || []);
+        // Asegurar que languages sea siempre un array
+        const formattedStudents = data.data.data.map((student: Student) => ({
+          ...student,
+          languages: ensureArray(student.languages)
+        }));
+        setStudents(formattedStudents || []);
       } else {
         throw new Error(data.message || 'Error al cargar estudiantes');
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cargar estudiantes',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al cargar estudiantes');
     } finally {
       setLoading(false);
     }
   };
 
+  // Función para asegurar que languages sea un array
+  const ensureArray = (languages: string[] | string | undefined): string[] => {
+    if (!languages) return [];
+    if (Array.isArray(languages)) return languages;
+    try {
+      // Si es un string JSON, parsearlo
+      if (typeof languages === 'string' && languages.startsWith('[')) {
+        return JSON.parse(languages);
+      }
+      // Si es un string simple, convertirlo a array
+      return [languages];
+    } catch {
+      return [];
+    }
+  };
   const handleUpdate = async (id: number) => {
     try {
-      // Preparar datos para enviar
-      const dataToSend = {
-        ...editData,
-        // Asegurar que birthday esté en formato correcto
-        birthday: editData.birthday ? new Date(editData.birthday).toISOString().split('T')[0] : null,
-        // Convertir languages a JSON si es un array
-        languages: Array.isArray(editData.languages) ? editData.languages : JSON.parse(editData.languages || '[]')
-      };
+      // Preparar solo los campos permitidos para actualizar
+      const allowedFields = [
+        'name', 'surname', 'type_document', 'id_document', 'nationality',
+        'birthday', 'gender', 'phone', 'address', 'city', 'country',
+        'postal_code', 'languages', 'active'
+      ];
+
+      const dataToSend: any = {};
+
+      allowedFields.forEach(field => {
+        if (field in editData) {
+          // Manejo especial para languages
+          if (field === 'languages') {
+            const languagesArray = ensureArray(editData.languages);
+            dataToSend[field] = languagesArray.filter(lang => lang.trim() !== '');
+          }
+          // Manejo especial para birthday
+          else if (field === 'birthday' && editData.birthday) {
+            dataToSend[field] = new Date(editData.birthday).toISOString().split('T')[0];
+          }
+          else {
+            dataToSend[field] = editData[field as keyof Student];
+          }
+        }
+      });
 
       const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
         method: 'PUT',
@@ -86,24 +119,54 @@ export default function StudentsPage() {
         throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
       }
 
-      toast({
-        title: 'Éxito',
-        description: 'Estudiante actualizado correctamente',
-        variant: 'success',
-      });
-
+      toast.success('Estudiante actualizado correctamente');
       setSelectedStudent(null);
       fetchStudents();
 
     } catch (error) {
       console.error('Error completo:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al actualizar estudiante',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al actualizar estudiante');
     }
   };
+
+  // Función para agregar un nuevo idioma
+  const addLanguage = () => {
+    if (currentLanguage.trim() === '') return;
+
+    setEditData(prev => ({
+      ...prev,
+      languages: [...ensureArray(prev.languages), currentLanguage.trim()]
+    }));
+
+    setCurrentLanguage('');
+  };
+
+  // Función para eliminar un idioma
+  const removeLanguage = (index: number) => {
+    const currentLanguages = ensureArray(editData.languages);
+    setEditData(prev => ({
+      ...prev,
+      languages: currentLanguages.filter((_, i) => i !== index)
+    }));
+  };
+
+  // ... (resto de funciones permanecen igual: toggleStatus, deleteStudent, etc.)
+
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  // Cuando seleccionamos un estudiante para editar
+  useEffect(() => {
+    if (selectedStudent) {
+      setEditData({
+        ...selectedStudent,
+        languages: ensureArray(selectedStudent.languages)
+      });
+    }
+  }, [selectedStudent]);
+
+  const currentLanguages = ensureArray(editData.languages);
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
@@ -403,6 +466,54 @@ export default function StudentsPage() {
                   className="col-span-3 border rounded p-2"
                   onChange={(e) => setEditData({ ...editData, birthday: e.target.value })}
                 />
+              </div>
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label htmlFor="languages">Idiomas</Label>
+                <div className="col-span-3 space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      id="languages"
+                      value={currentLanguage}
+                      onChange={(e) => setCurrentLanguage(e.target.value)}
+                      placeholder="Añadir idioma"
+                    />
+                    <Button type="button" onClick={addLanguage}>
+                      Añadir
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-4 items-start gap-4">
+                    <Label htmlFor="languages">Idiomas</Label>
+                    <div className="col-span-3 space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          id="languages"
+                          value={currentLanguage}
+                          onChange={(e) => setCurrentLanguage(e.target.value)}
+                          placeholder="Añadir idioma"
+                        />
+                        <Button type="button" onClick={addLanguage}>
+                          Añadir
+                        </Button>
+                      </div>
+
+                      {/* Lista de idiomas actuales */}
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {currentLanguages.map((lang, index) => (
+                          <Badge key={index} className="flex items-center gap-1">
+                            {lang}
+                            <button
+                              type="button"
+                              onClick={() => removeLanguage(index)}
+                              className="text-xs"
+                            >
+                              ×
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end space-x-2 mt-6">

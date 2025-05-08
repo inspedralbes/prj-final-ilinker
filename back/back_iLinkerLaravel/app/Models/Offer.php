@@ -10,7 +10,25 @@ class Offer extends Model
     /** @use HasFactory<\Database\Factories\OfferFactory> */
     use HasFactory;
 
+    protected $fillable = [
+        'company_id',
+        'title',          // Asegúrate de incluir este campo
+        'description',    // y este
+        'skills',
+        'address',
+        'city',
+        'postal_code',
+        'salary',
+        'active',
+        'location_type',
+        'vacancies'
+        // Añade aquí cualquier otro campo que necesites actualizar
+    ];
 
+    protected $casts = [
+        'skills' => 'array',
+        'active' => 'boolean'
+    ];
 
     public function company()
     {

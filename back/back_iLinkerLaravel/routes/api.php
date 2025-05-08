@@ -27,6 +27,8 @@ use App\Http\Controllers\Admin\ReportedUserController;
 use App\Http\Controllers\Admin\AdminCompanyController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminInstitutionController;
+use App\Http\Controllers\Admin\AdminOfferController;
+
 
 
 Route::get('/user', function (Request $request) {
@@ -186,5 +188,11 @@ Route::prefix('admin')->group(function () {
     Route::get('/institutions/{id}', [AdminInstitutionController::class, 'show']);
     Route::put('/institutions/{id}', [AdminInstitutionController::class, 'update']);
     Route::delete('/institutions/{id}', [AdminInstitutionController::class, 'destroy']);
+    Route::get('/offers', [AdminOfferController::class, 'index']);
+    Route::get('/offers/{id}', [AdminOfferController::class, 'show']);
+    Route::put('/offers/{id}', [AdminOfferController::class, 'update']);
+    Route::put('/offers/{id}/status', [AdminOfferController::class, 'updateStatus']);
+    Route::delete('/offers/{id}', [AdminOfferController::class, 'destroy']);
+    Route::get('/offers/{id}/applications', [AdminOfferController::class, 'getApplications']);
 });
 

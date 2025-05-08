@@ -67,8 +67,8 @@ class AdminStudentController extends Controller
             'city' => 'sometimes|string|max:100',
             'country' => 'sometimes|string|max:100',
             'postal_code' => 'sometimes|string|max:20',
-            'languages' => 'sometimes|array',
-            'languages.*' => 'string|max:50',
+            'languages' => 'nullable|sometimes|array',
+            'languages.*' => 'nullable|string|max:50',
             'active' => 'sometimes|boolean'
         ]);
 
