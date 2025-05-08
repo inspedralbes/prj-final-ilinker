@@ -11,10 +11,11 @@ import * as yup from "yup";
 import {apiRequest} from "@/services/requests/apiRequest";
 import {useRouter} from "next/navigation";
 import {useToast} from "@/hooks/use-toast";
+import Cookies from "js-cookie";
 import {AuthContext} from "@/contexts/AuthContext";
-import {LoaderContext} from "@/contexts/LoaderContext";
 
-export default function RegisterClient({countries, sectors}) {
+
+export default function RegisterClient({countries, sectors}: {countries: any, sectors: any}) {
     const {toast} = useToast();
     const router = useRouter();
     const {login} = useContext(AuthContext);
@@ -50,6 +51,7 @@ export default function RegisterClient({countries, sectors}) {
                     email: yup.string().required("El email es obligatorio"),
                     phone: yup.string().required("El teléfono es obligatorio"),
                     cif_nif: yup.string().required("El CIF/NIF es obligatorio"),
+                    type: yup.string().required("El tipo es obligatorio"),
                     address: yup.string().required("La dirección es obligatoria"),
                 }),
                 otherwise: () => yup.object().nullable()
@@ -91,7 +93,7 @@ export default function RegisterClient({countries, sectors}) {
     const [step, setStep] = useState(1);
     const [cities, setCities] = useState([]);
     const methods = useForm({
-        resolver: yupResolver(stepSchemas[step - 1]),
+        resolver: yupResolver(stepSchemas[step - 1] as any),
         mode: "onChange",
         reValidateMode: "onChange",
         defaultValues: {
@@ -161,16 +163,6 @@ export default function RegisterClient({countries, sectors}) {
         tipo: "",
         ubicacion: "",
     });
-    const {userData} = useContext(AuthContext);
-    const {showLoader, hideLoader} = useContext(LoaderContext);
-
-    useEffect(()=>{
-        showLoader();
-        if (!userData) {
-          router.push("/auth/login");
-        }
-        hideLoader();
-    }, [userData]);
 
     useEffect(() => {
         switch (methods.watch('rol')) {
@@ -192,7 +184,7 @@ export default function RegisterClient({countries, sectors}) {
     }, [cities])
 
     const {getRootProps, getInputProps} = useDropzone({
-        accept: 'image/*',
+        accept: 'image/*' as any,
         onDrop: (acceptedFiles) => {
             if (acceptedFiles.length) {
                 const imageUrl = URL.createObjectURL(acceptedFiles[0]);
@@ -203,7 +195,7 @@ export default function RegisterClient({countries, sectors}) {
     const handleRemoveImage = () => {
         methods.setValue("company.logo", "");
     };
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: any) => {
         const {name, value} = e.target;
 
         if (name.startsWith('company_')) {
@@ -224,7 +216,7 @@ export default function RegisterClient({countries, sectors}) {
     const handleNext = () => {
         setStep(step + 1);
     };
-    const onSubmit = async (data) => {
+    const onSubmit = async (data: any) => {
         console.log("Datos del formulario:", data); // Enviar el formulario
 
         if (step < totalSteps) {
@@ -249,7 +241,7 @@ export default function RegisterClient({countries, sectors}) {
     const handleBack = () => {
         setStep(step - 1);
     };
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: any) => {
         e.preventDefault();
         // Aquí iría la lógica para enviar los datos al servidor
         console.log('Datos del formulario:', formData);
@@ -385,7 +377,7 @@ export default function RegisterClient({countries, sectors}) {
                         options={countries}
                         isSearchable
                         placeholder="Busca y selecciona un país..."
-                        getOptionLabel={(option) => (
+                        getOptionLabel={(option: any) => (
                             <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
                                 <img
                                     src={option.flags.svg}
@@ -419,7 +411,7 @@ export default function RegisterClient({countries, sectors}) {
 
                                 console.log(data)
                                 if (!data.error) {
-                                    const cityOptions = data.data.map(city => ({
+                                    const cityOptions = data.data.map((city: any) => ({
                                         label: city,
                                         value: city
                                     }));
@@ -441,7 +433,7 @@ export default function RegisterClient({countries, sectors}) {
                         options={cities}
                         isSearchable
                         placeholder="Busca tu ciudad..."
-                        onChange={(selectedOption) => {
+                        onChange={(selectedOption: any) => {
                             console.log("Ciudad seleccionado:", selectedOption);
                             const option = selectedOption.label
                             methods.setValue('student.city', option);
@@ -610,9 +602,9 @@ export default function RegisterClient({countries, sectors}) {
                     options={sectors}
                     isSearchable
                     placeholder="Busca y selecciona..."
-                    getOptionLabel={(option) => option.name}
-                    getOptionValue={(option) => option.id}
-                    onChange={(selectedOptions) => {
+                    getOptionLabel={(option: any) => option.name}
+                    getOptionValue={(option: any) => option.id}
+                    onChange={(selectedOptions: any) => {
                         console.log(selectedOptions);
                         methods.setValue("company.sectors", selectedOptions)
                         methods.trigger("company.sectors"); // Asegurar que el formulario detecte el cambio
@@ -629,7 +621,7 @@ export default function RegisterClient({countries, sectors}) {
                     id="company_short_description"
                     {...methods.register("company.short_description")}
                     className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-darkGray"
-                    rows="3"
+                    rows={3}
                     placeholder="Escribe una breve descripción de la empresa"
                 ></textarea>
             </div>
@@ -645,13 +637,13 @@ export default function RegisterClient({countries, sectors}) {
             <Select
                 closeMenuOnSelect={false}
                 components={animatedComponents}
-                defaultValue={[sectores[2], sectores[1]]}
+                defaultValue={[sectors[2], sectors[1]]}
                 isMulti
-                options={sectores}
+                options={sectors}
                 isSearchable
                 placeholder="Busca y selecciona..."
-                getOptionLabel={(option) => option.nombre}
-                getOptionValue={(option) => option.id}
+                getOptionLabel={(option: any) => option.nombre}
+                getOptionValue={(option: any) => option.id}
             />
         </div>
 
@@ -768,9 +760,10 @@ export default function RegisterClient({countries, sectors}) {
     return (
         <div className="min-h-screen bg-gradient-to-b from-lightGray to-white py-12">
             <div className="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+                {/*<LanguageSwitcher/>*/}
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-4">
-                        <h1 className="text-3xl font-bold text-darkGray">{t('register')}</h1>
+                        <h1 className="text-3xl font-bold text-darkGray">Registro</h1>
                         <div className="text-sm text-darkGray">
                             Paso {step} de {totalSteps}
                         </div>
