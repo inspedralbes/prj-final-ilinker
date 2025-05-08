@@ -1056,18 +1056,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <div className="mb-6">
 
                                                 <SimpleEditor content={studentEdit.description || ""}
-                                                              onChange={(html: string) =>
-                                                                  setStudentEdit({
-                                                                      ...studentEdit,
-                                                                      description: html
-                                                                  })
-                                                              }
+                                                              onChange={(html: string) => {
+                                                                  if (studentEdit.description !== html) {
+                                                                      setStudentEdit(prev => ({
+                                                                          ...prev,
+                                                                          description: html
+                                                                      }));
+                                                                  }
+                                                              }}
                                                 />
-                                                <div className="flex justify-content-start gap-4 mt-4">
-                                                    <Button className="bg-gray-200 text-black hover:bg-gray-300"
-                                                            onClick={handleCancelEdit}>Cancelar</Button>
-                                                    <Button onClick={handleSave}>Guardar</Button>
-                                                </div>
                                             </div>
                                         </>
                                     ) : (<>

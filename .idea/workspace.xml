@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Arreglos del perfil de estudiante">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Ver como implementar colores en el texto">
+      <change afterPath="$PROJECT_DIR$/frontv2/src/contexts/ResizableImage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/simple/SimpleEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/templates/simple/SimpleEditor.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/styles/tiptap-content.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/styles/tiptap-content.scss" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,12 +41,12 @@
     &quot;assignee&quot;: &quot;Deraybcbc&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
-    &quot;accountId&quot;: &quot;5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
+    "accountId": "2a1c8b5b-7e5e-41f1-a3e4-282a7218eb84"
   }
-}</component>
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -67,7 +67,7 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -90,8 +90,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
-        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
+        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
       </set>
     </attachedChunks>
   </component>
@@ -118,6 +118,7 @@
       <workItem from="1745821989016" duration="9853000" />
       <workItem from="1745910630032" duration="2103000" />
       <workItem from="1745913296601" duration="7437000" />
+      <workItem from="1746728579284" duration="3756000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -202,6 +203,7 @@
     <MESSAGE value="modificaciones de mi experiencia" />
     <MESSAGE value="Añadir modal para crear una nueva experiencia laboral" />
     <MESSAGE value="Arreglos del perfil de estudiante" />
-    <option name="LAST_COMMIT_MESSAGE" value="Arreglos del perfil de estudiante" />
+    <MESSAGE value="Ver como implementar colores en el texto" />
+    <option name="LAST_COMMIT_MESSAGE" value="Ver como implementar colores en el texto" />
   </component>
 </project>
