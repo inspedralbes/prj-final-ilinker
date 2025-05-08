@@ -71,11 +71,11 @@ const mockApplicants: Applicant[] = [
 ];
 
 export default function OfferDetail() {
-  const { id } = useParams<{ slug: string }>();
+  const { id } = useParams<{ slug: string; id: string }>();
   const router = useRouter();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { userData } = useContext(AuthContext);
-  const [offer, setOffer] = useState(mockOffer);
+  const [offer, setOffer] = useState<any>(mockOffer);
   const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
   const handleStatusUpdate = (id: number, status: "accept" | "rejected") => {
@@ -162,7 +162,7 @@ export default function OfferDetail() {
               Habilidades requeridas
             </h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {offer.skills.map((skill) => (
+              {offer.skills.map((skill: any) => (
                 <span
                   key={skill}
                   className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-black text-white"
@@ -186,7 +186,7 @@ export default function OfferDetail() {
               Candidatos
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {applicants?.map((applicant) => (
+              {applicants?.map((applicant: any) => (
                 <ApplicantCard
                   key={applicant.id}
                   applicant={applicant}
