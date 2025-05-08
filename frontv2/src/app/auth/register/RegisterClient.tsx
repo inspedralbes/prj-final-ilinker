@@ -377,12 +377,13 @@ export default function RegisterClient({countries, sectors}: {countries: any, se
                         options={countries}
                         isSearchable
                         placeholder="Busca y selecciona un país..."
-                        getOptionLabel={(option: any) => (
-                            <div style={{display: "flex", alignItems: "center", gap: "10px"}}>
+                        getOptionLabel={(option: any) => option.name.common} // Esto solo devuelve un string
+                        formatOptionLabel={(option: any) => ( // Aquí va el JSX
+                            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                                 <img
                                     src={option.flags.svg}
                                     alt={option.name.common}
-                                    style={{width: "20px", height: "15px", borderRadius: "3px"}}
+                                    style={{ width: "20px", height: "15px", borderRadius: "3px" }}
                                 />
                                 {option.name.common}
                             </div>
