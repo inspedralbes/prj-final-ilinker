@@ -71,20 +71,22 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const [message, setMessage] = useState("");
 
+  type StudentKeys = keyof NonNullable<UserProfile["student"]>;
+  type CompanyKeys = keyof NonNullable<UserProfile["company"]>;
+  type InstitutionKeys = keyof NonNullable<UserProfile["institution"]>;
+  
   const getProfileValue = (
-    key:
-      | keyof UserProfile["student"]
-      | keyof UserProfile["company"]
-      | keyof UserProfile["institution"]
+    key: StudentKeys | CompanyKeys | InstitutionKeys
   ) => {
     if (!profile) return "";
+  
     switch (profile.rol) {
       case "student":
-        return profile.student?.[key] ?? "";
+        return profile.student?.[key as StudentKeys] ?? "";
       case "company":
-        return profile.company?.[key] ?? "";
+        return profile.company?.[key as CompanyKeys] ?? "";
       case "institution":
-        return profile.institution?.[key] ?? "";
+        return profile.institution?.[key as InstitutionKeys] ?? "";
       default:
         return "";
     }
@@ -159,13 +161,13 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         <div className="flex items-center">
           <img
             src={
-              getProfileValue('photo_pic' as any) ||
-              getProfileValue('logo' as any)
+              getProfileValue('photo_pic') ||
+              getProfileValue('logo')
             }
             alt="Chat avatar"
             className="w-10 h-10 rounded-full object-cover mr-3"
           />
-          <h3 className="font-bold">{getProfileValue('name' as any)}</h3>
+          <h3 className="font-bold">{getProfileValue('name')}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
