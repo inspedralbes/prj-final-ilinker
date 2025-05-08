@@ -116,7 +116,7 @@ export default function CompanyClientMe({
       } else if (key !== "logo" && key !== "cover_photo") {
         // Solo agregar valores no nulos
         if (value !== null && value !== undefined) {
-          formData.append(key, value);
+          formData.append(key, value as any);
         }
       }
     });
