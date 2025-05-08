@@ -3,8 +3,11 @@
 import {apiRequest} from "@/services/requests/apiRequest";
 import StudentDoesntExist from "@/app/profile/student/[uuid]/StudentDoesntExist";
 import StudentClient from '@/app/profile/student/[uuid]/StudentClient';
-export default async function StudentPage({ params }: { params: { uuid: string } }) {
-    const uuid = (await params).uuid
+import { useParams } from "next/navigation";
+
+export default async function StudentPage() {
+    // const uuid = (await params).uuid
+    const { uuid } = useParams<{ uuid: string }>();
 
     const response = await apiRequest('student/'+uuid);
     console.log(response)
