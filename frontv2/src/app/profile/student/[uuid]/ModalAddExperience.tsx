@@ -114,12 +114,13 @@ export default function ModalAddExperience({
 
         if (!company.trim() || !startDate || !locationType || !companyAddress) {
             toast({
-                title: (
-                    <div className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-gray-500"/>
-                        <span>Error</span>
-                    </div>
-                ),
+                // title: (
+                //     <div className="flex items-center gap-2">
+                //         <Info className="h-5 w-5 text-gray-500"/>
+                //         <span>Error</span>
+                //     </div>
+                // ),
+                title: "Error",
                 description: "Por favor, completa todos los campos obligatorios",
                 variant: "default",
                 duration: 2000
@@ -154,12 +155,13 @@ export default function ModalAddExperience({
 
             if (response.status === "success") {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500"/>
-                            <span>{isEditing ? "Experiencia actualizada" : "Experiencia guardada"}</span>
-                        </div>
-                    ),
+                    // title: (
+                    //     <div className="flex items-center gap-2">
+                    //         <CheckCircle className="h-5 w-5 text-green-500"/>
+                    //         <span>{isEditing ? "Experiencia actualizada" : "Experiencia guardada"}</span>
+                    //     </div>
+                    // ),
+                    title: isEditing ? "Experiencia actualizada" : "Experiencia guardada",
                     description: isEditing
                         ? "Experiencia laboral actualizada correctamente 💼"
                         : "Experiencia laboral guardada correctamente 💼",
@@ -185,12 +187,13 @@ export default function ModalAddExperience({
                 setExperienceId(null);
             } else {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-white-500"/>
-                            <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
-                        </div>
-                    ),
+                    // title: (
+                    //     <div className="flex items-center gap-2">
+                    //         <AlertTriangle className="h-5 w-5 text-white-500"/>
+                    //         <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
+                    //     </div>
+                    // ),
+                    title: "Error al " + (isEditing ? "actualizar" : "guardar"),
                     description: response.status || `No se pudo ${isEditing ? "actualizar" : "guardar"} la experiencia. Inténtalo de nuevo.`,
                     variant: "destructive",
                     duration: 2000
@@ -412,7 +415,7 @@ export default function ModalAddExperience({
                                             setOpenStartDate(false);
                                         }}
                                         className="rounded-md border"
-                                        captionLayout="dropdown-buttons"
+                                        captionLayout="dropdown"
                                         initialFocus
                                     />
                                 </PopoverContent>
