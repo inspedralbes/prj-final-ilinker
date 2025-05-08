@@ -28,7 +28,7 @@ import {
     FileText,
     X,
     CreditCard,
-    Briefcase
+    Briefcase, Loader2
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -73,6 +73,8 @@ import {AuthContext} from "@/contexts/AuthContext";
 import Cookies from "js-cookie";
 import {Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
+import {SimpleEditor} from "@/components/templates/simple/SimpleEditor"
+import "@/styles/tiptap-content.scss"
 
 export interface User {
     id: number;
@@ -182,7 +184,7 @@ export interface Student {
     nationality: string;
     photo_pic: string | null;
     cover_photo: string | null;
-    desctiption: string | null;
+    description: string | null;
     birthday: string;
     gender: string;
     phone: number;
@@ -259,10 +261,22 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [editingIndex, setEditingIndex] = useState(-1);
     const [imageChangeCount, setImageChangeCount] = useState(0);
     const [statusFilter, setStatusFilter] = useState("all");
+    const [isFiltering, setIsFiltering] = useState(false);
 
     // Función para manejar el cambio de filtro
     const handleStatusFilterChange = (value) => {
+        // Activar el loader
+        setIsFiltering(true);
+
+        // Actualizar el valor del filtro
         setStatusFilter(value);
+
+        // Simular un tiempo de carga para el filtrado (puedes remover esto si tus datos se filtran instantáneamente)
+        setTimeout(() => {
+            // Desactivar el loader después del filtrado
+            setIsFiltering(false);
+        }, 800); // Simulación de tiempo de carga - ajustar según necesidades
+
     };
 
     const filteredOffers = useMemo(() => {
@@ -307,12 +321,20 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     }
 
     const UpdateChange = async () => {
-        const response = await apiRequest(`student/` + uuid)
-        setStudentEdit(response.student)
-        setEducationEdit(response.student.education);
-        setExperienceEdit(response.experience_grouped);
-        setProjectEdit(response.student.projects);
-        setUserEdit(response.student.user);
+        showLoader();
+        const response = await apiRequest(`student/` + uuid);
+        if (response.status === 'success') {
+            setStudentEdit(response.student)
+            setEducationEdit(response.student.education);
+            setExperienceEdit(response.experience_grouped);
+            setProjectEdit(response.student.projects);
+            setUserEdit(response.student.user);
+            setOfferEdit(response.offerUser);
+            hideLoader();
+        } else {
+            hideLoader();
+        }
+
     }
 
     const EditInfo = (section: string, education: object) => {
@@ -551,6 +573,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
             formData.append("cover_photo", studentEdit.cover_photo);
         }
 
+        console.log("JSON A ENVIAR");
+        console.table(Array.from(formData.entries()))
+
         try {
 
             const response = await apiRequest("student/update", "POST", formData);
@@ -667,47 +692,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         setModalOffer(!modalOffer)
     }
 
-    // Función para determinar el color del estado
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'accept':
-                return 'text-green-600 bg-green-100';
-            case 'pending':
-                return 'text-yellow-600 bg-yellow-100';
-            case 'reject':
-                return 'text-red-600 bg-red-100';
-            default:
-                return 'text-gray-600 bg-gray-100';
-        }
-    };
-
-    // Función para traducir el estado
-    const getStatusText = (status) => {
-        switch (status) {
-            case 'accept':
-                return 'Aceptada';
-            case 'pending':
-                return 'Pendiente';
-            case 'reject':
-                return 'Rechazada';
-            default:
-                return status;
-        }
-    };
-
-    // Función para obtener el icono del estado
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'accept':
-                return <CheckCircle className="w-5 h-5 text-green-600"/>;
-            case 'pending':
-                return <Loader2 className="w-5 h-5 text-yellow-600"/>;
-            case 'reject':
-                return <XCircle className="w-5 h-5 text-red-600"/>;
-            default:
-                return null;
-        }
-    };
+    // Componente Loader simple
+    const CardLoader = () => (
+        <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
+            <div className="flex items-center gap-2 text-black/80">
+                <Loader2 className="w-6 h-6 animate-spin"/>
+                <span className="text-sm">Cargando...</span>
+            </div>
+        </div>
+    );
 
 
     useEffect(() => {
@@ -801,9 +794,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             </div>
                                         ) : (
                                             <div>
-                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{studentEdit?.name + " " + studentEdit.surname || "No tenemos este dato"}</h1>
-                                                <p className={`text-lg text-gray-600 ${!studentEdit?.name ? 'hidden' : ''}`}>
-                                                    {studentEdit?.name} SOY YO
+                                                <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">{studentEdit?.name || "No tenemos este dato"}</h1>
+                                                <p className={`text-lg text-gray-600 ${!studentEdit?.surname ? 'hidden' : ''}`}>
+                                                    {studentEdit?.surname}
                                                 </p>
                                                 <p className="text-gray-500 flex items-center mt-2">
                                                     <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
@@ -941,23 +934,31 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                 </div>
                                 {isEditing === 'about' ? (
                                     <div>
-                                    <textarea
-                                        value={studentEdit.desctiption}
-                                        onChange={(e) => setStudentEdit({
-                                            ...studentEdit,
-                                            desctiption: e.target.value
-                                        })}
-                                        className="w-full h-32 p-2 border rounded"
-                                    />
-                                        <Button
-                                            onClick={handleSave}
-                                            className="mt-2 px-4 py-2 text-white rounded"
-                                        >
-                                            Guardar
-                                        </Button>
+
+                                        <Textarea
+                                            className="min-h-[150px]"
+                                            value={studentEdit.short_description || ""}
+                                            onChange={(e) =>
+                                                setStudentEdit({
+                                                    ...studentEdit,
+                                                    short_description: e.target.value
+                                                })
+                                            }
+                                            placeholder="Escribe la descripción..."
+                                        />
+                                        <div className="flex justify-content-start gap-4 mt-4">
+                                            <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                                                    onClick={handleCancelEdit}>Cancelar</Button>
+                                            <Button onClick={handleSave}>Guardar</Button>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
+                                    <div
+                                        className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
+                                    >
+                                        <p style={{whiteSpace: 'pre-wrap'}}>{studentEdit.short_description || ""}</p>
+
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -1053,22 +1054,28 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                     {isEditing === "description" ? (
                                         <>
                                             <div className="mb-6">
-                                                <Textarea
-                                                    className="min-h-[150px]"
-                                                    value={studentEdit.desctiption}
-                                                    onChange={(e) =>
-                                                        setStudentEdit({
-                                                            ...studentEdit,
-                                                            description: e.target.value
-                                                        })
-                                                    }
-                                                    placeholder="Escribe la descripción..."
+
+                                                <SimpleEditor content={studentEdit.description || ""}
+                                                              onChange={(html: string) =>
+                                                                  setStudentEdit({
+                                                                      ...studentEdit,
+                                                                      description: html
+                                                                  })
+                                                              }
                                                 />
+                                                <div className="flex justify-content-start gap-4 mt-4">
+                                                    <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                                                            onClick={handleCancelEdit}>Cancelar</Button>
+                                                    <Button onClick={handleSave}>Guardar</Button>
+                                                </div>
                                             </div>
                                         </>
                                     ) : (<>
-                                        <div className="mb-6"
-                                             dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
+                                        <div
+                                            className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
+                                            dangerouslySetInnerHTML={{__html: studentEdit.description || ''}}
+                                        />
+
                                     </>)}
 
                                     <div className="grid grid-cols-2 gap-6">
@@ -1857,10 +1864,12 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                             <TabsContent value="offer" className="mt-6">
                                 {/* Card contenedora con menos padding para aprovechar espacio */}
-                                <Card className="p-6 mt-6 mb-6">
+                                <Card className="p-6 mt-6 mb-6 relative">
+                                    {/* Mostrar el loader en todas las cards cuando se está filtrando */}
+                                    {isFiltering && <CardLoader/>}
+
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold mb-4">Mis Solicitudes</h2>
-
 
                                         {/* Filtro de estado (opcional) */}
                                         <div className="flex items-center space-x-2">
@@ -1881,7 +1890,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         </div>
                                     </div>
 
-                                    {filteredOffers  ? (
+                                    {filteredOffers ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                             {filteredOffers.map((application) => {
                                                 // Definir colores según el estado
@@ -1917,8 +1926,10 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                 }
 
                                                 return (
+
                                                     <Card key={application.id}
-                                                          className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow">
+                                                          className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow relative">
+
                                                         {/* Barra de estado en la parte superior */}
                                                         <div
                                                             className={`${statusBgColor} p-2 flex justify-between items-center`}>
@@ -1944,7 +1955,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                                                                     <Button variant="ghost" size="icon"
                                                                             className="h-7 w-7"
-                                                                            onClick={() => setImageChangeCount((prev) => prev + 1)}>
+                                                                            onClick={() => UpdateChange()}>
                                                                         <RefreshCw className="h-4 w-4"/>
                                                                     </Button>
 
@@ -2079,7 +2090,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                 </div>
             </div>
 
-            {/* Place the ConfirmDialog here, outside of any tabs */}
+            {/* Place the ConfirmDialog here, outside of any tabs */
+            }
             <ConfirmDialog
                 open={openDialog}
                 onOpenChange={setOpenDialog}
@@ -2107,7 +2119,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     initialData={currentStudy}
                     isEditing={isEditing}
                 />
-            },
+            }
+            ,
             {
                 modalProjects && <ModalAddProjects
                     handleClose={handleCloseProject}
@@ -2116,7 +2129,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     initialData={currentProject}
                     isEditing={isEditing}
                 />
-            },
+            }
+            ,
             {
                 modalExperience && <ModalAddExperience
                     handleClose={handleCloseExperience}
@@ -2126,14 +2140,17 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     isEditing={isEditing}
                 />
             }
-            {modalOffer && (
-                <OfferModal
-                    application={offerSelect}
-                    onClose={() => setModalOffer(false)}
-                />
-            )}
+            {
+                modalOffer && (
+                    <OfferModal
+                        application={offerSelect}
+                        onClose={() => setModalOffer(false)}
+                    />
+                )
+            }
         </>
 
-    );
+    )
+        ;
 
 }

@@ -74,7 +74,8 @@ class StudentService
         $students->address = $data['address'];
         $students->city = $data['city'];
         $students->country = $data['country'];
-        $students->desctiption = $data['description'] ?? null;
+        $students->short_description = $data['short_description'] ?? null;
+        $students->description = $data['description'] ?? null;
         $students->postal_code = $data['postal_code'];
         $students->languages = is_string($data['languages']) ? $data['languages'] : json_encode($data['languages'], JSON_UNESCAPED_UNICODE);
 

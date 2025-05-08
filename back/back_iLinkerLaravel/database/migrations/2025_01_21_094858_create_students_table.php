@@ -25,7 +25,8 @@ return new class extends Migration
             $table->string('nationality')->nullable();
             $table->string('photo_pic')->nullable();
             $table->string('cover_photo')->nullable();
-            $table->string('desctiption')->nullable();
+            $table->text('short_description')->nullable();
+            $table->longText('description')->nullable();
             $table->date('birthday')->nullable();
             $table->enum('gender',['Masculino', 'Femenino', 'No decir'])->nullable();
 
