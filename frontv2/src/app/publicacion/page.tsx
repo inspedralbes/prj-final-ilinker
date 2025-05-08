@@ -3,7 +3,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Bookmark, Users2, CalendarDays, PlusCircle, MessageCircle, Share2, MapPin, Image as ImageIcon, Video, FileText, X, Smile, AtSign, Hash, ThumbsUp } from "lucide-react";
+import { Bookmark, Users2, CalendarDays, PlusCircle, MessageCircle, Share2, MapPin, 
+  Image as ImageIcon, Video, FileText, X, Smile, AtSign, Hash, Heart, ChevronLeft, ChevronRight } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
@@ -36,6 +37,8 @@ interface Publication {
   visibility: "public" | "private";
   comments_enabled: boolean;
   status: "published" | "draft" | "archived";
+  liked?: boolean;
+  saved?: boolean;
 }
 
 interface NewPublication {
@@ -63,7 +66,7 @@ export default function PublicationPage() {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      console.log('Publications response:', response);
+      console.log('Publications data response:', response);
       
       if (response.status === 'success') {
         setPublications(response.data.data);
@@ -146,6 +149,25 @@ export default function PublicationPage() {
     }
   };
 
+  // Función para guardar una publicación
+  const handleSavePublication = async (id: number) => {
+    try {
+      const response = await apiRequest(`/publications/${id}/save`, 'POST');
+      console.log('Save response:', response);
+      
+      if (response.status === 'success') {
+        setPublications(publications.map((pub) =>
+          pub.id === id ? { 
+            ...pub, 
+            saved: response.data.saved 
+          } : pub
+        ));
+      }
+    } catch (err) {
+      console.error('Error saving publication:', err);
+    }
+  };
+
   // Función para comentar en una publicación
   const handleComment = async (id: number) => {
     // TODO: Implement comment functionality
@@ -192,7 +214,8 @@ export default function PublicationPage() {
                 key={publication.id} 
                 publication={publication} 
                 onLike={handleLike} 
-                onComment={handleComment} 
+                onComment={handleComment}
+                onSave={handleSavePublication}
               />
             ))
           )}
@@ -363,66 +386,164 @@ const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => 
   </div>
 );
 
-// Componente para mostrar una publicación individual
-const PublicationCard = ({ publication, onLike, onComment }: { publication: Publication; onLike: (id: number) => void; onComment: (id: number) => void }) => (
-  <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-    <div className="flex items-center space-x-3 mb-4">
-      <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-        <Image 
-          src={publication.user.avatar || "/default-avatar.png"} 
-          alt={publication.user.name} 
-          width={40} 
-          height={40} 
-          className="object-cover" 
-        />
-      </div>
-      <div>
-        <h3 className="font-semibold">{publication.user.name}</h3>
-        <div className="flex items-center text-sm text-gray-500">
-          <span>{new Date(publication.created_at).toLocaleDateString()}</span>
-          {publication.location && (
-            <>
-              <span className="mx-1">•</span>
-              <MapPin className="w-4 h-4 mr-1" />
-              <span>{publication.location}</span>
-            </>
-          )}
+// Componente para carrusel de imágenes
+const MediaCarousel = ({ media }) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const goToPrev = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === 0 ? media.length - 1 : prevIndex - 1
+    );
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prevIndex) => 
+      prevIndex === media.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  if (!media || media.length === 0) return null;
+
+  return (
+    <div className="relative mb-4">
+      <div className="overflow-hidden rounded-lg">
+        {/* Contenedor principal */}
+        <div 
+          className="flex transition-transform duration-300 ease-in-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {media.map((item) => (
+            <div key={item.id} className="min-w-full flex-shrink-0">
+              {item.media_type === "image" ? (
+                <div className="relative h-64 w-full">
+                  <Image 
+                    src={item.file_path} 
+                    alt="Publication media" 
+                    fill
+                    className="object-cover" 
+                  />
+                </div>
+              ) : (
+                <video src={item.file_path} controls className="w-full h-64 object-cover rounded-lg" />
+              )}
+            </div>
+          ))}
         </div>
       </div>
+      
+      {/* Indicador de posición */}
+      {media.length > 1 && (
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+          {media.map((_, idx) => (
+            <button 
+              key={idx} 
+              className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
+              onClick={() => setCurrentIndex(idx)}
+            />
+          ))}
+        </div>
+      )}
+      
+      {/* Botones de navegación */}
+      {media.length > 1 && (
+        <>
+          <button 
+            className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            onClick={goToPrev}
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-800" />
+          </button>
+          <button 
+            className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            onClick={goToNext}
+          >
+            <ChevronRight className="w-5 h-5 text-gray-800" />
+          </button>
+        </>
+      )}
     </div>
-    <p className="text-gray-800 mb-4">{publication.content}</p>
-    {publication.has_media && publication.media && publication.media.length > 0 && (
-      <div className="mb-4">
-        {publication.media.map((media) => (
-          <div key={media.id} className="rounded-lg overflow-hidden">
-            {media.media_type === "image" ? (
-              <Image 
-                src={media.file_path} 
-                alt="Publication media" 
-                width={500} 
-                height={300} 
-                className="w-full object-cover" 
-              />
-            ) : (
-              <video src={media.file_path} controls className="w-full rounded-lg" />
+  );
+};
+
+// Componente para mostrar una publicación individual
+const PublicationCard = ({ 
+  publication, 
+  onLike, 
+  onComment,
+  onSave
+}: { 
+  publication: Publication; 
+  onLike: (id: number) => void; 
+  onComment: (id: number) => void;
+  onSave: (id: number) => void;
+}) => {
+  const [isLikeAnimating, setIsLikeAnimating] = useState(false);
+
+  const handleLikeClick = (id: number) => {
+    setIsLikeAnimating(true);
+    onLike(id);
+    setTimeout(() => setIsLikeAnimating(false), 1000);
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+      <div className="flex items-center space-x-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+          <Image 
+            src={publication.user.avatar || "/default-avatar.png"} 
+            alt={publication.user.name} 
+            width={40} 
+            height={40} 
+            className="object-cover" 
+          />
+        </div>
+        <div>
+          <h3 className="font-semibold">{publication.user.name}</h3>
+          <div className="flex items-center text-sm text-gray-500">
+            <span>{new Date(publication.created_at).toLocaleDateString()}</span>
+            {publication.location && (
+              <>
+                <span className="mx-1">•</span>
+                <MapPin className="w-4 h-4 mr-1" />
+                <span>{publication.location}</span>
+              </>
             )}
           </div>
-        ))}
+        </div>
       </div>
-    )}
-    <div className="flex items-center justify-between text-gray-500 border-t pt-3">
-      <button onClick={() => onLike(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
-        <ThumbsUp className="w-5 h-5" />
-        <span>{publication.likes_count}</span>
-      </button>
-      <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
-        <MessageCircle className="w-5 h-5" />
-        <span>{publication.comments_count}</span>
-      </button>
-      <button className="flex items-center gap-1 hover:text-blue-600">
-        <Share2 className="w-5 h-5" />
-        <span>Compartir</span>
-      </button>
+      <p className="text-gray-800 mb-4">{publication.content}</p>
+      
+      {/* Carrusel de imágenes para varias fotos */}
+      {publication.has_media && publication.media && publication.media.length > 0 && (
+        <MediaCarousel media={publication.media} />
+      )}
+      
+      <div className="flex items-center justify-between text-gray-500 border-t pt-3">
+        <button 
+          onClick={() => handleLikeClick(publication.id)} 
+          className={`flex items-center gap-1 transition-colors duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
+        >
+          <Heart 
+            className={`w-5 h-5 ${isLikeAnimating ? 'animate-pulse' : ''} ${publication.liked ? 'fill-red-500' : ''}`} 
+          />
+          <span>{publication.likes_count}</span>
+        </button>
+        <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
+          <MessageCircle className="w-5 h-5" />
+          <span>{publication.comments_count}</span>
+        </button>
+        <button 
+          onClick={() => onSave(publication.id)} 
+          className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+        >
+          <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
+          <span>Guardar</span>
+        </button>
+        <button className="flex items-center gap-1 hover:text-blue-600">
+          <Share2 className="w-5 h-5" />
+          <span>Compartir</span>
+        </button>
+      </div>
     </div>
-  </div>
-);
+  );
+};
