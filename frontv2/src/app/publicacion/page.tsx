@@ -136,11 +136,12 @@ export default function PublicationPage() {
       console.log('Like response:', response);
       
       if (response.status === 'success') {
+        // Update publications state with new like information
         setPublications(publications.map((pub) =>
           pub.id === id ? { 
             ...pub, 
-            likes_count: response.data.likes_count,
-            liked: response.data.liked 
+            likes_count: response.likes_count || pub.likes_count + (response.liked ? 1 : -1),
+            liked: response.liked 
           } : pub
         ));
       }
@@ -159,7 +160,7 @@ export default function PublicationPage() {
         setPublications(publications.map((pub) =>
           pub.id === id ? { 
             ...pub, 
-            saved: response.data.saved 
+            saved: response.saved 
           } : pub
         ));
       }
@@ -387,7 +388,7 @@ const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => 
 );
 
 // Componente para carrusel de imágenes
-const MediaCarousel = ({ media }) => {
+const MediaCarousel = ({ media }: { media: { id: number; file_path: string; media_type: "image" | "video" }[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const goToPrev = () => {
@@ -412,7 +413,7 @@ const MediaCarousel = ({ media }) => {
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {media.map((item) => (
+          {media.map((item: { id: number; file_path: string; media_type: "image" | "video" }) => (
             <div key={item.id} className="min-w-full flex-shrink-0">
               {item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
