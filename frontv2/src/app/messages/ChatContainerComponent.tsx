@@ -12,6 +12,13 @@ interface UserProfile {
   student?: { photo_pic?: string; name?: string };
   company?: { logo?: string; name?: string };
   institution?: { logo?: string; name?: string };
+  id?: number;
+  user_two_id?: number;
+  is_bookmarked_user_two?: boolean;
+  is_bookmarked_user_one?: boolean;
+  is_saved_user_two?: boolean;
+  is_saved_user_one?: boolean;
+  [key: string]: any;
 }
 
 interface Message {
@@ -25,6 +32,12 @@ interface Message {
 interface ChatData {
   direct_chat?: {
     user?: UserProfile;
+    user_two_id?: number;
+    is_bookmarked_user_two?: boolean;
+    is_bookmarked_user_one?: boolean;
+    is_saved_user_two?: boolean;
+    is_saved_user_one?: boolean;
+    [key: string]: any;
   };
   messages?: { data: Message[] };
 }
@@ -146,13 +159,13 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         <div className="flex items-center">
           <img
             src={
-              getProfileValue("photo_pic" as any) ||
-              getProfileValue("logo" as any)
+              getProfileValue('photo_pic') ||
+              getProfileValue('logo')
             }
             alt="Chat avatar"
             className="w-10 h-10 rounded-full object-cover mr-3"
           />
-          <h3 className="font-bold">{getProfileValue("name" as any)}</h3>
+          <h3 className="font-bold">{getProfileValue('name')}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
