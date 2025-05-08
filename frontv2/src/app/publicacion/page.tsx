@@ -9,7 +9,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
 
-// Tipos de datos para la aplicación
+// Interfaces para definir la estructura de los datos
 interface Media {
   url: string | File;
   type: "image" | "video";
@@ -57,25 +57,31 @@ export default function PublicationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch publications on component mount
+  // Cargar publicaciones al montar el componente
   useEffect(() => {
     fetchPublications();
   }, []);
 
+  // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      console.log('Publications data response:', response);
+      console.log('Respuesta de datos de publicaciones:', response);
       
       if (response.status === 'success') {
-        setPublications(response.data.data);
+        // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
+        const publicationsWithLikeState = response.data.data.map((pub: Publication) => ({
+          ...pub,
+          liked: pub.liked || false // Asegurar que liked sea siempre un booleano
+        }));
+        setPublications(publicationsWithLikeState);
       } else {
-        setError('Error fetching publications');
+        setError('Error al cargar las publicaciones');
       }
     } catch (err) {
-      console.error('Error fetching publications:', err);
-      setError('Error fetching publications');
+      console.error('Error al cargar las publicaciones:', err);
+      setError('Error al cargar las publicaciones');
     } finally {
       setIsLoading(false);
     }
@@ -103,7 +109,7 @@ export default function PublicationPage() {
         formData.append('location', newPublication.location);
       }
       
-      // Add media files if any
+      // Añadir archivos multimedia si existen
       newPublication.media.forEach((media, index) => {
         if (typeof media.url === 'object' && media.url instanceof File) {
           formData.append(`media[${index}]`, media.url);
@@ -124,8 +130,8 @@ export default function PublicationPage() {
         setIsModalOpen(false);
       }
     } catch (err) {
-      console.error('Error creating publication:', err);
-      setError('Error creating publication');
+      console.error('Error al crear la publicación:', err);
+      setError('Error al crear la publicación');
     }
   };
 
@@ -133,20 +139,20 @@ export default function PublicationPage() {
   const handleLike = async (id: number) => {
     try {
       const response = await apiRequest(`/publications/${id}/like`, 'POST');
-      console.log('Like response:', response);
+      console.log('Respuesta del like:', response);
       
       if (response.status === 'success') {
-        // Update publications state with new like information
+        // Actualizar el estado de las publicaciones con la nueva información del like
         setPublications(publications.map((pub) =>
           pub.id === id ? { 
             ...pub, 
-            likes_count: response.likes_count || pub.likes_count + (response.liked ? 1 : -1),
+            likes_count: response.likes_count,
             liked: response.liked 
           } : pub
         ));
       }
     } catch (err) {
-      console.error('Error liking publication:', err);
+      console.error('Error al dar like a la publicación:', err);
     }
   };
 
@@ -154,7 +160,7 @@ export default function PublicationPage() {
   const handleSavePublication = async (id: number) => {
     try {
       const response = await apiRequest(`/publications/${id}/save`, 'POST');
-      console.log('Save response:', response);
+      console.log('Respuesta del guardado:', response);
       
       if (response.status === 'success') {
         setPublications(publications.map((pub) =>
@@ -165,27 +171,27 @@ export default function PublicationPage() {
         ));
       }
     } catch (err) {
-      console.error('Error saving publication:', err);
+      console.error('Error al guardar la publicación:', err);
     }
   };
 
   // Función para comentar en una publicación
   const handleComment = async (id: number) => {
-    // TODO: Implement comment functionality
-    console.log('Comment on publication:', id);
+    // TODO: Implementar funcionalidad de comentarios
+    console.log('Comentar en la publicación:', id);
   };
 
   // Función para navegar al perfil del usuario
   const handleViewMore = () => {
-    console.log('handleViewMore clicked');
+    console.log('handleViewMore clickeado');
     console.log('userData:', userData);
 
     if (!userData) {
-      console.log('No userData available');
+      console.log('No hay datos de usuario disponibles');
       return;
     }
 
-    console.log('User role:', userData.rol);
+    console.log('Rol del usuario:', userData.rol);
 
     if (userData.rol === "student" && userData.student?.uuid) {
       router.push(`/profile/student/${userData.student.uuid}`);
@@ -194,7 +200,7 @@ export default function PublicationPage() {
     } else if (userData.rol === "institutions" && userData.institution?.slug) {
       router.push(`/profile/institution/${userData.institution.slug}`);
     } else {
-      console.log('No valid profile data found');
+      console.log('No se encontraron datos de perfil válidos');
     }
   };
 
@@ -206,7 +212,7 @@ export default function PublicationPage() {
           <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} />
           
           {isLoading ? (
-            <div className="text-center py-4">Loading publications...</div>
+            <div className="text-center py-4">Cargando publicaciones...</div>
           ) : error ? (
             <div className="text-center py-4 text-red-500">{error}</div>
           ) : (
@@ -228,7 +234,7 @@ export default function PublicationPage() {
 
 // Componente de la barra lateral del perfil
 const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onViewMore: () => void }) => {
-  // Obtener datos específicos según el rol del usuario
+  // Funciones auxiliares para obtener datos específicos según el rol del usuario
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
 
@@ -316,7 +322,7 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
           <div className="h-20 bg-slate-200 relative">
             <Image
               src={getUserCoverPhoto()}
-              alt="Cover"
+              alt="Portada"
               fill
               className="object-cover"
             />
@@ -326,7 +332,7 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
               <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
                 <Image
                   src={getUserProfilePic()}
-                  alt="Profile"
+                  alt="Perfil"
                   width={96}
                   height={96}
                   className="object-cover"
@@ -340,8 +346,7 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
                 {getUserSlogan() && (
                   <p className="text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
                 )}
-                <p className="text-sm text-gray-700 mt-1 mb-1"><br></br>{  getUserTitle()}</p>
-
+                <p className="text-sm text-gray-700 mt-1 mb-1"><br></br>{getUserTitle()}</p>
 
                 {getUserLocation() && (
                   <p className="text-sm text-gray-600 flex items-center mb-4">
@@ -378,7 +383,7 @@ const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => 
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
       <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-        <Image src="/default-avatar.png" alt="Profile" width={32} height={32} className="object-cover" />
+        <Image src="/default-avatar.png" alt="Perfil" width={32} height={32} className="object-cover" />
       </div>
       <button onClick={onOpenModal} className="flex-1 text-left bg-gray-50 rounded-full px-4 py-2 text-sm text-gray-500 hover:bg-gray-100">
         ¿Qué quieres compartir?
@@ -387,10 +392,11 @@ const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => 
   </div>
 );
 
-// Componente para carrusel de imágenes
+// Componente para el carrusel de medios (imágenes/videos)
 const MediaCarousel = ({ media }: { media: { id: number; file_path: string; media_type: "image" | "video" }[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Funciones para navegar por el carrusel
   const goToPrev = () => {
     setCurrentIndex((prevIndex) => 
       prevIndex === 0 ? media.length - 1 : prevIndex - 1
@@ -408,7 +414,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   return (
     <div className="relative mb-4">
       <div className="overflow-hidden rounded-lg">
-        {/* Contenedor principal */}
+        {/* Contenedor principal del carrusel */}
         <div 
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -419,7 +425,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                 <div className="relative h-64 w-full">
                   <Image 
                     src={item.file_path} 
-                    alt="Publication media" 
+                    alt="Medio de la publicación" 
                     fill
                     className="object-cover" 
                   />
@@ -432,7 +438,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
         </div>
       </div>
       
-      {/* Indicador de posición */}
+      {/* Indicadores de posición del carrusel */}
       {media.length > 1 && (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
           {media.map((_, idx) => (
@@ -445,7 +451,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
         </div>
       )}
       
-      {/* Botones de navegación */}
+      {/* Botones de navegación del carrusel */}
       {media.length > 1 && (
         <>
           <button 
@@ -480,6 +486,7 @@ const PublicationCard = ({
 }) => {
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
 
+  // Función para manejar el clic en el botón de like con animación
   const handleLikeClick = (id: number) => {
     setIsLikeAnimating(true);
     onLike(id);
@@ -514,20 +521,25 @@ const PublicationCard = ({
       </div>
       <p className="text-gray-800 mb-4">{publication.content}</p>
       
-      {/* Carrusel de imágenes para varias fotos */}
+      {/* Carrusel de medios si la publicación tiene contenido multimedia */}
       {publication.has_media && publication.media && publication.media.length > 0 && (
         <MediaCarousel media={publication.media} />
       )}
       
+      {/* Barra de acciones de la publicación */}
       <div className="flex items-center justify-between text-gray-500 border-t pt-3">
         <button 
           onClick={() => handleLikeClick(publication.id)} 
-          className={`flex items-center gap-1 transition-colors duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
+          className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
         >
           <Heart 
-            className={`w-5 h-5 ${isLikeAnimating ? 'animate-pulse' : ''} ${publication.liked ? 'fill-red-500' : ''}`} 
+            className={`w-5 h-5 transition-all duration-200 ${
+              isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
+            } ${publication.liked ? 'fill-current scale-110' : ''}`} 
           />
-          <span>{publication.likes_count}</span>
+          <span className={`transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
+            {publication.likes_count}
+          </span>
         </button>
         <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
           <MessageCircle className="w-5 h-5" />

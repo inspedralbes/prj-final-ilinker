@@ -17,6 +17,7 @@ class PublicationsController extends Controller
     public function index()
     {
         try {
+            $userId = Auth::id();
             $publications = Publication::with([
                 'user:id,name',
                 'media',
@@ -26,6 +27,12 @@ class PublicationsController extends Controller
             ->where('status', 'published')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+            // Add liked status for each publication
+            $publications->getCollection()->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+                return $publication;
+            });
 
             return response()->json([
                 'status' => 'success',
@@ -289,14 +296,21 @@ class PublicationsController extends Controller
     public function myPublications()
     {
         try {
+            $userId = Auth::id();
             $publications = Publication::with([
                 'media',
                 'comments.user:id,name',
                 'likes'
             ])
-            ->where('user_id', Auth::id())
+            ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+            // Add liked status for each publication
+            $publications->getCollection()->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+                return $publication;
+            });
 
             return response()->json([
                 'status' => 'success',
