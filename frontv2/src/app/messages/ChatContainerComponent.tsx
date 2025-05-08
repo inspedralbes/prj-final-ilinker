@@ -159,13 +159,13 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
         <div className="flex items-center">
           <img
             src={
-              getProfileValue('photo_pic') ||
-              getProfileValue('logo')
+              getProfileValue('photo_pic' as any) ||
+              getProfileValue('logo' as any)
             }
             alt="Chat avatar"
             className="w-10 h-10 rounded-full object-cover mr-3"
           />
-          <h3 className="font-bold">{getProfileValue('name')}</h3>
+          <h3 className="font-bold">{getProfileValue('name' as any)}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
