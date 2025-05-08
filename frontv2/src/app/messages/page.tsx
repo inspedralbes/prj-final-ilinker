@@ -523,7 +523,7 @@ const Messages: React.FC = () => {
                       onClick={() => handleSelectUser(user)}
                     >
                       <img
-                        src={user.avatar}
+                        src={user.avatar || ""}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover mr-3"
                       />
@@ -557,7 +557,7 @@ const Messages: React.FC = () => {
                       onClick={() => handleSelectUser(contact)}
                     >
                       <img
-                        src={contact.avatar}
+                        src={contact.avatar || ""}
                         alt={contact.name}
                         className="w-10 h-10 rounded-full object-cover mr-3"
                       />
