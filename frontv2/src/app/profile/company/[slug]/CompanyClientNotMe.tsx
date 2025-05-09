@@ -30,6 +30,9 @@ import {
   UserPlus,
   Loader2,
   UserMinus,
+  Home,
+  CalendarDays,
+  Banknote,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -632,6 +635,15 @@ export default function CompanyClientNotMe({
       hideLoader();
     }
   };
+
+  const skillsArray: string[] = React.useMemo(() => {
+      try {
+        return JSON.parse(infoOfferDataModal.skills);
+      } catch {
+        return [];
+      }
+    }, [infoOfferDataModal?.skills]);
+
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -1010,11 +1022,16 @@ export default function CompanyClientNotMe({
         title={`Solicitar prácticas en ${infoOfferDataModal?.company?.name}`}
         closeOnOutsideClick={false}
       >
-        <div className="space-y-6 p-4">
+        <div className="space-y-6 p-5">
           <div>
-            <h2 className="text-2xl font-bold mb-2">
-              {infoOfferDataModal?.title}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold">{infoOfferDataModal?.title}</h2>
+              <span className="inline-block bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                {infoOfferDataModal?.vacancies}{" "}
+                {infoOfferDataModal?.vacancies === 1 ? "vacante" : "vacantes"}
+              </span>
+            </div>
+
             <div className="flex items-center gap-2 text-muted-foreground mb-4">
               <Building2 className="h-4 w-4" />
               <Link
@@ -1046,7 +1063,6 @@ export default function CompanyClientNotMe({
                   <span>Apply Now</span>
                 </Button>
               )}
-
               <Button variant="outline" size="icon">
                 <BookmarkPlus className="h-5 w-5" />
               </Button>
@@ -1056,21 +1072,56 @@ export default function CompanyClientNotMe({
           <Separator />
 
           <div className="grid grid-cols-2 gap-4">
+            {/* Location Type */}
             <div className="flex items-center gap-2 text-sm">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <span>Remote available</span>
+              {infoOfferDataModal?.location_type === "remoto" && (
+                <Globe className="h-5 w-5 text-muted-foreground" />
+              )}
+              {infoOfferDataModal?.location_type === "presencial" && (
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+              )}
+              {infoOfferDataModal?.location_type === "hibrido" && (
+                <Home className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className="capitalize">
+                {infoOfferDataModal?.location_type}
+              </span>
             </div>
+
+            {/* Schedule Type */}
             <div className="flex items-center gap-2 text-sm">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <span>501-1,000 employees</span>
+              {infoOfferDataModal?.schedule_type === "full" && (
+                <Clock className="h-5 w-5 text-muted-foreground" />
+              )}
+              {infoOfferDataModal?.schedule_type === "part" && (
+                <CalendarDays className="h-5 w-5 text-muted-foreground" />
+              )}
+              {infoOfferDataModal?.schedule_type === "negociable" && (
+                <Calendar className="h-5 w-5 text-muted-foreground" />
+              )}
+              <span className="capitalize">
+                {infoOfferDataModal?.schedule_type === "full"
+                  ? "Jornada completa"
+                  : infoOfferDataModal?.schedule_type === "part"
+                  ? "Jornada parcial"
+                  : "Negociable"}
+              </span>
             </div>
-            {/*<div className="flex items-center gap-2 text-sm">*/}
-            {/*    <Banknote className="h-4 w-4 text-muted-foreground"/>*/}
-            {/*    <span>$130K - $180K</span>*/}
-            {/*</div>*/}
+
+            {/* Salary */}
             <div className="flex items-center gap-2 text-sm">
-              <GraduationCap className="h-4 w-4 text-muted-foreground" />
-              <span>Bachelor's degree</span>
+              <Banknote className="h-5 w-5 text-muted-foreground" />
+              <span>{infoOfferDataModal?.salary}</span>
+            </div>
+
+            {/* Days per Week */}
+            <div className="flex items-center gap-2 text-sm">
+              <CalendarDays className="h-5 w-5 text-muted-foreground" />
+              <span>
+                {infoOfferDataModal?.days_per_week}{" "}
+                {infoOfferDataModal?.days_per_week === 1 ? "día" : "días"} por
+                semana
+              </span>
             </div>
           </div>
 
@@ -1078,12 +1129,25 @@ export default function CompanyClientNotMe({
 
           <div className="space-y-4">
             <div
-              dangerouslySetInnerHTML={{
-                __html: infoOfferDataModal?.description,
-              }}
+              dangerouslySetInnerHTML={{ __html: infoOfferDataModal?.description }}
             />
           </div>
 
+          <Separator />
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold mb-2">Skills necesarias</h3>
+            <div className="flex flex-wrap gap-2">
+              {skillsArray.map((skill:any) => (
+                <span
+                  key={skill}
+                  className="inline-block bg-black text-white text-xs font-medium px-2 py-1 rounded-full"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
           <Separator />
 
           <div className="space-y-4">

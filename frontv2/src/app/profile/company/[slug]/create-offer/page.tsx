@@ -12,7 +12,7 @@ import {
   X,
   Plus,
   Clock,
-  Calendar
+  Calendar,
 } from "lucide-react";
 import SkillsInput from "@/components/profile/company/create-offer/SkillsInput";
 import { AuthContext } from "@/contexts/AuthContext";
@@ -20,6 +20,7 @@ import { LoaderContext } from "@/contexts/LoaderContext";
 import { useRouter } from "next/navigation";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { useToast } from "@/hooks/use-toast";
+import { getUserLocationByIP, searchAddresses } from "@/helpers/MapsHelper";
 
 interface OfferFormData {
   title: string;
@@ -32,6 +33,7 @@ interface OfferFormData {
   salary: string;
   description: string;
   skills: string[];
+  vacancies: number;
   days_per_week: number;
 }
 
@@ -51,6 +53,7 @@ export default function CreateOffer() {
     salary: "30.000 - 40.000 EUR",
     description: "",
     skills: [],
+    vacancies: 1,
     days_per_week: 5,
   });
 
@@ -95,8 +98,13 @@ export default function CreateOffer() {
       description: "",
       skills: [],
       days_per_week: 5,
+      vacancies: 1,
     });
 
+    getUserLocationByIP()
+    .then((data) =>{
+      console.log(data)
+    })
     hideLoader();
   }, [userData]);
 
@@ -111,26 +119,52 @@ export default function CreateOffer() {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Título de la oferta */}
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Título de la oferta
-                </label>
-                <div className="mt-1 relative rounded-md shadow-sm">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Briefcase className="h-5 w-5 text-gray-400" />
+              <div className="flex space-x-4">
+                {/* Título: 70% */}
+                <div className="w-[70%]">
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Título de la oferta
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Briefcase className="h-5 w-5 text-gray-400" />
+                    </div>
+                    <input
+                      type="text"
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Ej: Desarrollador Backend PHP"
+                    />
                   </div>
+                </div>
+
+                {/* Vacantes: 30% */}
+                <div className="w-[30%]">
+                  <label
+                    htmlFor="vacancies"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Vacantes
+                  </label>
                   <input
-                    type="text"
-                    id="title"
-                    value={formData.title}
+                    type="number"
+                    id="vacancies"
+                    value={formData.vacancies}
                     onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
+                      setFormData({
+                        ...formData,
+                        vacancies: parseInt(e.target.value, 10),
+                      })
                     }
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Ej: Desarrollador Backend PHP"
+                    className="mt-1 block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Ej: 1"
                   />
                 </div>
               </div>
@@ -169,9 +203,12 @@ export default function CreateOffer() {
                     type="text"
                     id="address"
                     value={formData.address}
-                    onChange={(e) =>
-                      setFormData({ ...formData, address: e.target.value })
-                    }
+                    onChange={(e) => {
+                      // searchAddresses(e.target.value).then((addresses: any) => {
+                      //   console.log(addresses);
+                      // });
+                      setFormData({ ...formData, address: e.target.value });
+                    }}
                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                   />
                 </div>
@@ -233,7 +270,10 @@ export default function CreateOffer() {
                       onClick={() =>
                         setFormData({
                           ...formData,
-                          schedule_type: value as "full" | "part" | "negociable",
+                          schedule_type: value as
+                            | "full"
+                            | "part"
+                            | "negociable",
                         })
                       }
                       className={`

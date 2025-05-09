@@ -38,6 +38,7 @@ class OfferController extends Controller
             'schedule_type' => 'required',
             'days_per_week' => 'required',
             'salary' => 'required',
+            'vacancies' => 'required',
         ];
 
         $messages = [
@@ -51,6 +52,7 @@ class OfferController extends Controller
             'schedule_type.required' => 'El campo schedule es obligatorio',
             'days_per_week.required' => 'El campo dias de la semana es obligatorio',
             'salary.required' => 'El campo salario es obligatorio',
+            'vacancies.required' => 'El campo vacancies es obligatorio',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -81,7 +83,7 @@ class OfferController extends Controller
             $newOffer->days_per_week = $data['days_per_week'];
             $newOffer->postal_code = $data['postal_code'];
             $newOffer->salary = $data['salary'];
-            $newOffer->inscribed = 0;
+            $newOffer->vacancies = $data['vacancies'];
             $newOffer->save();
 
             return response()->json([
