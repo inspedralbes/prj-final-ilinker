@@ -55,7 +55,7 @@ export default function CompaniesPage() {
       if (!response.ok) {
         throw new Error('Error al cargar empresas');
       }
-      
+
       const data = await response.json();
 
       if (data.success) {
@@ -116,24 +116,17 @@ export default function CompaniesPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        toast({
-          title: 'Éxito',
-          description: `Empresa ${!currentStatus ? 'activada' : 'desactivada'} correctamente`,
-        });
-        fetchCompanies();
+        toast.success(`Empresa ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
+        setCompanies(companies.map(company =>
+          company.id === id ? { ...company, active: !currentStatus } : company
+        ));
       } else {
         throw new Error(data.message || 'Error al cambiar el estado');
       }
     } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cambiar el estado',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al cambiar el estado');
     }
   };
-
   const deleteCompany = async (id: number) => {
     if (!confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) return;
 
@@ -245,6 +238,13 @@ export default function CompaniesPage() {
                     >
                       Editar
                     </Button>
+                    <Button
+                      size="sm"
+                      variant={company.active ? 'destructive' : 'default'}
+                      onClick={() => toggleStatus(company.id, company.active)}
+                    >
+                      {company.active ? 'Desactivar' : 'Activar'}
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
@@ -332,18 +332,6 @@ export default function CompaniesPage() {
                   className="col-span-3"
                   onChange={(e) => setEditData({ ...editData, num_people: parseInt(e.target.value) || 0 })}
                 />
-              </div>
-
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="active">Estado</Label>
-                <div className="col-span-3 flex items-center space-x-2">
-                  <Switch
-                    id="active"
-                    checked={editData.active || false}
-                    onCheckedChange={(checked) => setEditData({ ...editData, active: checked })}
-                  />
-                  <Label htmlFor="active">{editData.active ? 'Activa' : 'Inactiva'}</Label>
-                </div>
               </div>
 
               <div className="grid grid-cols-4 items-center gap-4">

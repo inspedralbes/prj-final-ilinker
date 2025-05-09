@@ -48,71 +48,57 @@ class AdminStudentController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    DB::beginTransaction();
-    try {
-        $student = Student::findOrFail($id);
+    {
+        DB::beginTransaction();
+        try {
+            $student = Student::with('user')->findOrFail($id);
 
-        // Validación más estricta
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'surname' => 'sometimes|string|max:255',
-            'type_document' => 'sometimes|string|in:DNI,NIE,PASAPORTE',
-            'id_document' => 'sometimes|string|max:20|unique:students,id_document,'.$id,
-            'nationality' => 'sometimes|string|max:100',
-            'birthday' => 'sometimes|date|before_or_equal:today',
-            'gender' => 'sometimes|string|in:Masculino,Femenino,No decir',
-            'phone' => 'sometimes|numeric|digits_between:9,15',
-            'address' => 'sometimes|string|max:255',
-            'city' => 'sometimes|string|max:100',
-            'country' => 'sometimes|string|max:100',
-            'postal_code' => 'sometimes|string|max:20',
-            'languages' => 'nullable|sometimes|array',
-            'languages.*' => 'nullable|string|max:50',
-            'active' => 'sometimes|boolean'
-        ]);
+            // Campos permitidos para students
+            $studentFields = [
+                'name',
+                'surname',
+                'type_document',
+                'id_document',
+                'nationality',
+                'birthday',
+                'gender',
+                'phone',
+                'address',
+                'city',
+                'country',
+                'postal_code',
+                'languages'
+            ];
 
-        // Convertir languages a JSON si es un array
-        if (isset($validated['languages'])) {
-            $validated['languages'] = json_encode($validated['languages']);
-        }
+            // Campos permitidos para users
+            $userFields = ['active', 'email']; // Añade otros campos de usuario si es necesario
 
-        $student->update($validated);
-
-        // Actualizar email si viene en la petición
-        if ($request->has('email')) {
-            $user = $student->user;
-            if ($user) {
-                $request->validate([
-                    'email' => 'required|email|unique:users,email,'.$user->id
-                ]);
-                $user->update(['email' => $request->email]);
+            // Actualizar datos del estudiante
+            $studentData = $request->only($studentFields);
+            if (isset($studentData['languages'])) {
+                $studentData['languages'] = json_encode($studentData['languages']);
             }
+            $student->update($studentData);
+
+            // Actualizar datos del usuario asociado
+            if ($request->hasAny($userFields)) {
+                $userData = $request->only($userFields);
+                $student->user->update($userData);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'data' => $student->fresh(['user'])
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar estudiante: ' . $e->getMessage()
+            ], 500);
         }
-
-        DB::commit();
-
-        return response()->json([
-            'success' => true,
-            'data' => $student->fresh(['user', 'education'])
-        ]);
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Error de validación',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Error al actualizar estudiante: ' . $e->getMessage(),
-            'trace' => config('app.debug') ? $e->getTrace() : null
-        ], 500);
     }
-}
 
     public function destroy($id)
     {

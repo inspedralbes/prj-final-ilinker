@@ -25,10 +25,12 @@ interface Institution {
   address: string;
   city: string;
   country: string;
+  postal_code: string;
   founded_year: string;
   languages: string[];
   specialties: string[];
   courses_count?: number;
+  active: boolean;
   user: {
     email: string;
     active: boolean;
@@ -41,24 +43,22 @@ export default function InstitutionsPage() {
   const [search, setSearch] = useState('');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
   const [editData, setEditData] = useState<Partial<Institution>>({});
+  const [currentLanguage, setCurrentLanguage] = useState('');
+  const [currentSpecialty, setCurrentSpecialty] = useState('');
 
   const fetchInstitutions = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${config.apiUrl}admin/institutions`);
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setInstitutions(data.data.data || []);
       } else {
         throw new Error(data.message || 'Error al cargar instituciones');
       }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cargar instituciones',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al cargar instituciones');
     } finally {
       setLoading(false);
     }
@@ -66,82 +66,153 @@ export default function InstitutionsPage() {
 
   const handleUpdate = async (id: number) => {
     try {
-      const dataToSend = {
-        ...editData,
-        languages: Array.isArray(editData.languages) ? editData.languages : [],
-        specialties: Array.isArray(editData.specialties) ? editData.specialties : []
-      };
-  
+      const allowedFields = [
+        'name', 'NIF', 'type', 'email', 'phone', 'website', 'responsible_name',
+        'responsible_email', 'responsible_phone', 'address', 'city', 'country',
+        'postal_code', 'founded_year', 'languages', 'specialties', 'active'
+      ];
+
+      const dataToSend: Record<string, any> = {};
+      allowedFields.forEach(field => {
+        if (field in editData && editData[field as keyof Institution] !== undefined) {
+          dataToSend[field] = editData[field as keyof Institution];
+        }
+      });
+
       const response = await fetch(`${config.apiUrl}admin/institutions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
-      }
-      
-      if (data.success) {
-        toast.success('Institución actualizada correctamente');
-        setSelectedInstitution(null);
-        fetchInstitutions();
-      } else {
         throw new Error(data.message || 'Error al actualizar institución');
       }
+
+      toast.success('Institución actualizada correctamente');
+      setSelectedInstitution(null);
+      fetchInstitutions();
     } catch (error) {
-      console.error('Error details:', error);
-      toast.error(error instanceof Error ? error.message : 'Error desconocido al actualizar');
+      console.error('Error al actualizar:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al actualizar institución');
     }
   };
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      await fetch(`${config.apiUrl}admin/institutions/${id}`, {
+      const response = await fetch(`${config.apiUrl}admin/institutions/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !currentStatus }),
       });
-      fetchInstitutions();
-      toast({
-        title: 'Éxito',
-        description: `Institución ${!currentStatus ? 'activada' : 'desactivada'} correctamente`,
-      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(`Institución ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
+        setInstitutions(institutions.map(institution =>
+          institution.id === id ? {
+            ...institution,
+            active: !currentStatus,
+            user: {
+              ...institution.user,
+              active: !currentStatus
+            }
+          } : institution
+        ));
+      } else {
+        throw new Error(data.message || 'Error al cambiar estado');
+      }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cambiar estado',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
     }
   };
 
   const deleteInstitution = async (id: number) => {
     if (!confirm('¿Eliminar esta institución y todos sus datos asociados?')) return;
-    
+
     try {
-      await fetch(`${config.apiUrl}admin/institutions/${id}`, {
+      const response = await fetch(`${config.apiUrl}admin/institutions/${id}`, {
         method: 'DELETE',
       });
-      setInstitutions(institutions.filter(i => i.id !== id));
-      toast({
-        title: 'Éxito',
-        description: 'Institución eliminada correctamente',
-      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success('Institución eliminada correctamente');
+        setInstitutions(institutions.filter(i => i.id !== id));
+      } else {
+        throw new Error(data.message || 'Error al eliminar institución');
+      }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al eliminar institución',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar institución');
     }
+  };
+
+  const addLanguage = () => {
+    if (currentLanguage.trim() === '') return;
+
+    const updatedLanguages = [
+      ...(editData.languages || []),
+      currentLanguage.trim()
+    ];
+
+    setEditData(prev => ({
+      ...prev,
+      languages: updatedLanguages
+    }));
+
+    setCurrentLanguage('');
+  };
+
+  const removeLanguage = (index: number) => {
+    const updatedLanguages = (editData.languages || []).filter((_, i) => i !== index);
+    setEditData(prev => ({
+      ...prev,
+      languages: updatedLanguages
+    }));
+  };
+
+  const addSpecialty = () => {
+    if (currentSpecialty.trim() === '') return;
+
+    const updatedSpecialties = [
+      ...(editData.specialties || []), // Añade fallback
+      currentSpecialty.trim()
+    ];
+
+    setEditData(prev => ({
+      ...prev,
+      specialties: updatedSpecialties
+    }));
+
+    setCurrentSpecialty(''); // Corrige el nombre de la variable
+  };
+
+  const removeSpecialty = (index: number) => {
+    const updatedSpecialties = (editData.specialties || []).filter((_, i) => i !== index);
+    setEditData(prev => ({
+      ...prev,
+      specialties: updatedSpecialties
+    }));
   };
 
   useEffect(() => {
     fetchInstitutions();
   }, []);
+
+  useEffect(() => {
+    if (selectedInstitution) {
+      setEditData({
+        ...selectedInstitution,
+        languages: selectedInstitution.languages || [],
+        specialties: selectedInstitution.specialties || [] // Asegura que sea array
+      });
+    }
+  }, [selectedInstitution]);
+  
 
   const filteredInstitutions = institutions.filter(i =>
     i.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -212,6 +283,13 @@ export default function InstitutionsPage() {
                     }}
                   >
                     Editar
+                  </Button>
+                   <Button
+                    size="sm"
+                    variant={institution.user?.active ? 'destructive' : 'default'}
+                    onClick={() => toggleStatus(institution.id, institution.user?.active)}
+                  >
+                    {institution.user?.active ? 'Desactivar' : 'Activar'}
                   </Button>
                 </TableCell>
               </TableRow>

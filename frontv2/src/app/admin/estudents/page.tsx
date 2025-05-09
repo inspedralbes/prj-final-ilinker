@@ -9,8 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import config from '@/types/config';
+
 interface Student {
   id: number;
+  user_id: number;
   name: string;
   surname: string;
   type_document: string;
@@ -23,14 +25,14 @@ interface Student {
   city: string;
   country: string;
   postal_code: string;
-  languages: string[] | string;
+  languages: any;
   active: boolean;
   user: {
     email: string;
     active: boolean;
   };
-  education_count?: number;
-  skills_count?: number;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function StudentsPage() {
@@ -41,6 +43,29 @@ export default function StudentsPage() {
   const [editData, setEditData] = useState<Partial<Student>>({});
   const [currentLanguage, setCurrentLanguage] = useState('');
 
+  const normalizeLanguages = (languages: any): string[] => {
+    if (!languages) return [];
+
+    if (Array.isArray(languages)) {
+      return languages.map(lang => {
+        if (typeof lang === 'string') return lang;
+        if (typeof lang === 'object') return lang.language || '';
+        return '';
+      }).filter(lang => lang !== '');
+    }
+
+    if (typeof languages === 'string') {
+      try {
+        const parsed = JSON.parse(languages);
+        return normalizeLanguages(parsed);
+      } catch {
+        return [languages];
+      }
+    }
+
+    return [];
+  };
+
   const fetchStudents = async () => {
     setLoading(true);
     try {
@@ -48,12 +73,7 @@ export default function StudentsPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Asegurar que languages sea siempre un array
-        const formattedStudents = data.data.data.map((student: Student) => ({
-          ...student,
-          languages: ensureArray(student.languages)
-        }));
-        setStudents(formattedStudents || []);
+        setStudents(data.data.data || []);
       } else {
         throw new Error(data.message || 'Error al cargar estudiantes');
       }
@@ -64,48 +84,35 @@ export default function StudentsPage() {
     }
   };
 
-  // Función para asegurar que languages sea un array
-  const ensureArray = (languages: string[] | string | undefined): string[] => {
-    if (!languages) return [];
-    if (Array.isArray(languages)) return languages;
-    try {
-      // Si es un string JSON, parsearlo
-      if (typeof languages === 'string' && languages.startsWith('[')) {
-        return JSON.parse(languages);
-      }
-      // Si es un string simple, convertirlo a array
-      return [languages];
-    } catch {
-      return [];
-    }
-  };
   const handleUpdate = async (id: number) => {
     try {
-      // Preparar solo los campos permitidos para actualizar
+      // Definir campos permitidos que coincidan con $fillable
       const allowedFields = [
         'name', 'surname', 'type_document', 'id_document', 'nationality',
         'birthday', 'gender', 'phone', 'address', 'city', 'country',
         'postal_code', 'languages', 'active'
       ];
 
-      const dataToSend: any = {};
+      // Crear objeto solo con campos permitidos
+      const dataToSend: Record<string, any> = {};
 
       allowedFields.forEach(field => {
-        if (field in editData) {
+        if (field in editData && editData[field as keyof Student] !== undefined) {
           // Manejo especial para languages
           if (field === 'languages') {
-            const languagesArray = ensureArray(editData.languages);
-            dataToSend[field] = languagesArray.filter(lang => lang.trim() !== '');
-          }
-          // Manejo especial para birthday
-          else if (field === 'birthday' && editData.birthday) {
-            dataToSend[field] = new Date(editData.birthday).toISOString().split('T')[0];
-          }
-          else {
+            dataToSend[field] = Array.isArray(editData.languages)
+              ? editData.languages
+              : normalizeLanguages(editData.languages);
+          } else {
             dataToSend[field] = editData[field as keyof Student];
           }
         }
       });
+
+      // Verificar que los campos requeridos estén presentes
+      if (!dataToSend.name || !dataToSend.surname) {
+        throw new Error('Nombre y apellidos son campos requeridos');
+      }
 
       const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
         method: 'PUT',
@@ -116,76 +123,71 @@ export default function StudentsPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || `Error ${response.status}: ${response.statusText}`);
+        throw new Error(data.message || 'Error al actualizar estudiante');
       }
 
       toast.success('Estudiante actualizado correctamente');
       setSelectedStudent(null);
       fetchStudents();
-
     } catch (error) {
-      console.error('Error completo:', error);
+      console.error('Error al actualizar:', error);
       toast.error(error instanceof Error ? error.message : 'Error al actualizar estudiante');
     }
   };
 
-  // Función para agregar un nuevo idioma
   const addLanguage = () => {
     if (currentLanguage.trim() === '') return;
 
+    const updatedLanguages = [
+      ...normalizeLanguages(editData.languages),
+      currentLanguage.trim()
+    ];
+
     setEditData(prev => ({
       ...prev,
-      languages: [...ensureArray(prev.languages), currentLanguage.trim()]
+      languages: updatedLanguages
     }));
 
     setCurrentLanguage('');
   };
 
-  // Función para eliminar un idioma
   const removeLanguage = (index: number) => {
-    const currentLanguages = ensureArray(editData.languages);
+    const currentLanguages = normalizeLanguages(editData.languages);
+    const updatedLanguages = currentLanguages.filter((_, i) => i !== index);
+
     setEditData(prev => ({
       ...prev,
-      languages: currentLanguages.filter((_, i) => i !== index)
+      languages: updatedLanguages
     }));
   };
 
-  // ... (resto de funciones permanecen igual: toggleStatus, deleteStudent, etc.)
-
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  // Cuando seleccionamos un estudiante para editar
-  useEffect(() => {
-    if (selectedStudent) {
-      setEditData({
-        ...selectedStudent,
-        languages: ensureArray(selectedStudent.languages)
-      });
-    }
-  }, [selectedStudent]);
-
-  const currentLanguages = ensureArray(editData.languages);
-
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      await fetch(`${config.apiUrl}admin/students/${id}`, {
+      const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ active: !currentStatus }),
       });
-      fetchStudents();
-      toast({
-        title: 'Éxito',
-        description: `Estudiante ${!currentStatus ? 'activado' : 'desactivado'} correctamente`,
-      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success(`Estudiante ${!currentStatus ? 'activado' : 'desactivado'} correctamente`);
+        // Actualizar el estado local
+        setStudents(students.map(student =>
+          student.id === id ? {
+            ...student,
+            user: {
+              ...student.user,
+              active: !currentStatus
+            }
+          } : student
+        ));
+      } else {
+        throw new Error(data.message || 'Error al cambiar estado');
+      }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al cambiar estado',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
     }
   };
 
@@ -193,26 +195,35 @@ export default function StudentsPage() {
     if (!confirm('¿Eliminar este estudiante y todos sus datos asociados?')) return;
 
     try {
-      await fetch(`${config.apiUrl}admin/students/${id}`, {
+      const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
         method: 'DELETE',
       });
-      setStudents(students.filter(s => s.id !== id));
-      toast({
-        title: 'Éxito',
-        description: 'Estudiante eliminado correctamente',
-      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        toast.success('Estudiante eliminado correctamente');
+        setStudents(students.filter(s => s.id !== id));
+      } else {
+        throw new Error(data.message || 'Error al eliminar estudiante');
+      }
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al eliminar estudiante',
-        variant: 'destructive',
-      });
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar estudiante');
     }
   };
 
   useEffect(() => {
     fetchStudents();
   }, []);
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setEditData({
+        ...selectedStudent,
+        languages: normalizeLanguages(selectedStudent.languages)
+      });
+    }
+  }, [selectedStudent]);
 
   const filteredStudents = students.filter(s =>
     `${s.name} ${s.surname}`.toLowerCase().includes(search.toLowerCase()) ||
@@ -251,7 +262,6 @@ export default function StudentsPage() {
               <TableHead>Estudiante</TableHead>
               <TableHead>Documento</TableHead>
               <TableHead>Contacto</TableHead>
-              <TableHead>Formación</TableHead>
               <TableHead>Estado</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
@@ -275,10 +285,6 @@ export default function StudentsPage() {
                   <div className="text-sm text-gray-500">{student.phone}</div>
                 </TableCell>
                 <TableCell>
-                  <div>Educación: {student.education_count || 0}</div>
-                  <div className="text-sm text-gray-500">Habilidades: {student.skills_count || 0}</div>
-                </TableCell>
-                <TableCell>
                   <Badge variant={student.user?.active ? 'default' : 'destructive'}>
                     {student.user?.active ? 'Activo' : 'Inactivo'}
                   </Badge>
@@ -287,10 +293,7 @@ export default function StudentsPage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => {
-                      setSelectedStudent(student);
-                      setEditData({ ...student });
-                    }}
+                    onClick={() => setSelectedStudent(student)}
                   >
                     Editar
                   </Button>
@@ -308,7 +311,6 @@ export default function StudentsPage() {
         </Table>
       </div>
 
-      {/* Modal de Edición */}
       {selectedStudent && (
         <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
           <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -455,18 +457,6 @@ export default function StudentsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="birthday">Fecha Nacimiento</Label>
-                <input
-                  id="birthday"
-                  type="date"
-                  value={editData.birthday
-                    ? new Date(editData.birthday).toISOString().split('T')[0]
-                    : ''}
-                  className="col-span-3 border rounded p-2"
-                  onChange={(e) => setEditData({ ...editData, birthday: e.target.value })}
-                />
-              </div>
               <div className="grid grid-cols-4 items-start gap-4">
                 <Label htmlFor="languages">Idiomas</Label>
                 <div className="col-span-3 space-y-2">
@@ -475,43 +465,26 @@ export default function StudentsPage() {
                       id="languages"
                       value={currentLanguage}
                       onChange={(e) => setCurrentLanguage(e.target.value)}
-                      placeholder="Añadir idioma"
+                      placeholder="Añadir idioma (ej: Inglés)"
                     />
                     <Button type="button" onClick={addLanguage}>
                       Añadir
                     </Button>
                   </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="languages">Idiomas</Label>
-                    <div className="col-span-3 space-y-2">
-                      <div className="flex gap-2">
-                        <Input
-                          id="languages"
-                          value={currentLanguage}
-                          onChange={(e) => setCurrentLanguage(e.target.value)}
-                          placeholder="Añadir idioma"
-                        />
-                        <Button type="button" onClick={addLanguage}>
-                          Añadir
-                        </Button>
-                      </div>
 
-                      {/* Lista de idiomas actuales */}
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {currentLanguages.map((lang, index) => (
-                          <Badge key={index} className="flex items-center gap-1">
-                            {lang}
-                            <button
-                              type="button"
-                              onClick={() => removeLanguage(index)}
-                              className="text-xs"
-                            >
-                              ×
-                            </button>
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {normalizeLanguages(editData.languages).map((lang, index) => (
+                      <Badge key={index} className="flex items-center gap-1">
+                        {lang}
+                        <button
+                          type="button"
+                          onClick={() => removeLanguage(index)}
+                          className="text-xs"
+                        >
+                          ×
+                        </button>
+                      </Badge>
+                    ))}
                   </div>
                 </div>
               </div>
