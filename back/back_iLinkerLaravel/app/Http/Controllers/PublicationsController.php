@@ -6,6 +6,7 @@ use App\Models\Publication;
 use App\Models\PublicationMedia;
 use App\Models\PublicationLike;
 use App\Models\PublicationComment;
+use App\Services\PublicationFileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -14,6 +15,13 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PublicationsController extends Controller
 {
+    protected $fileService;
+
+    public function __construct(PublicationFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
     public function index()
     {
         try {
@@ -198,7 +206,7 @@ class PublicationsController extends Controller
 
             // Delete associated media files
             foreach ($publication->media as $media) {
-                Storage::disk('public')->delete($media->file_path);
+                $this->fileService->deleteFile($media->file_path);
                 $media->delete();
             }
 
@@ -237,14 +245,13 @@ class PublicationsController extends Controller
         foreach ($files as $file) {
             $order++;
             $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
-            $fileName = "pub_{$publication->id}_{$order}_" . time() . '.' . $file->getClientOriginalExtension();
             
-            // Store file in public disk
-            $file->storeAs('publications', $fileName, 'public');
+            // Store file using the file service
+            $filePath = $this->fileService->storeFile($file, Auth::id());
 
             PublicationMedia::create([
                 'publication_id' => $publication->id,
-                'file_path' => 'publications/' . $fileName,
+                'file_path' => $filePath,
                 'media_type' => $mediaType,
                 'display_order' => $order
             ]);
@@ -268,7 +275,7 @@ class PublicationsController extends Controller
                 ->firstOrFail();
 
             // Delete file from storage
-            Storage::disk('public')->delete($media->file_path);
+            $this->fileService->deleteFile($media->file_path);
             $media->delete();
 
             if ($publication->media()->count() === 0) {

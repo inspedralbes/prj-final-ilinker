@@ -3,11 +3,11 @@
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Bookmark, Users2, CalendarDays, PlusCircle, MessageCircle, Share2, MapPin, 
-  Image as ImageIcon, Video, FileText, X, Smile, AtSign, Hash, Heart, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
+import CreatePostModal from "@/components/posts/CreatePostModal";
 
 // Interfaces para definir la estructura de los datos
 interface Media {
@@ -204,12 +204,62 @@ export default function PublicationPage() {
     }
   };
 
+  const handlePublish = async (data: {
+    content: string;
+    media: Media[];
+    visibility: "Cualquiera" | "Solo conexiones" | "Solo yo";
+    location: string;
+  }) => {
+    try {
+      const formData = new FormData();
+      formData.append('content', data.content);
+      formData.append('visibility', data.visibility === 'Cualquiera' ? 'public' : 'private');
+      if (data.location) {
+        formData.append('location', data.location);
+      }
+      
+      // Añadir archivos multimedia si existen
+      data.media.forEach((media, index) => {
+        if (typeof media.url === 'object' && media.url instanceof File) {
+          formData.append(`media[${index}]`, media.url);
+        }
+      });
+
+      const response = await apiRequest('/publications', 'POST', formData);
+
+      if (response.status === 'success') {
+        setPublications([response.data, ...publications]);
+        setIsModalOpen(false);
+      }
+    } catch (err) {
+      console.error('Error al crear la publicación:', err);
+      setError('Error al crear la publicación');
+    }
+  };
+
+  const getUserAvatar = () => {
+    if (!userData) return "/default-avatar.png";
+    if (userData.rol === "student" && userData.student?.photo_pic) {
+      return userData.student.photo_pic;
+    } else if (userData.rol === "company" && userData.company?.logo) {
+      return userData.company.logo;
+    } else if (userData.rol === "institutions" && userData.institution?.logo) {
+      return userData.institution.logo;
+    }
+    return "/default-avatar.png";
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 px-4 flex gap-6">
         <ProfileSidebar userData={userData} onViewMore={handleViewMore} />
         <div className="flex-1 max-w-xl">
-          <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} />
+          <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
+          <CreatePostModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onPublish={handlePublish}
+          />
           
           {isLoading ? (
             <div className="text-center py-4">Cargando publicaciones...</div>
@@ -378,15 +428,18 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
   );
 };
 
-// Componente para crear una nueva publicación
-const CreatePublicationCard = ({ onOpenModal }: { onOpenModal: () => void }) => (
+// Componente para crear una nueva publicación estilo LinkedIn
+const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png" }: { onOpenModal: () => void; userAvatar?: string }) => (
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
-      <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden">
-        <Image src="/default-avatar.png" alt="Perfil" width={32} height={32} className="object-cover" />
+      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+        <Image src={userAvatar} alt="Perfil" width={48} height={48} className="object-cover" />
       </div>
-      <button onClick={onOpenModal} className="flex-1 text-left bg-gray-50 rounded-full px-4 py-2 text-sm text-gray-500 hover:bg-gray-100">
-        ¿Qué quieres compartir?
+      <button 
+        onClick={onOpenModal} 
+        className="flex-1 text-left bg-gray-50 rounded-full px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
+      >
+        Crear publicación
       </button>
     </div>
   </div>
