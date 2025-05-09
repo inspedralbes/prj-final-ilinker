@@ -15,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MessageSquare,
+  Check,
 } from "lucide-react";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import { AuthContext } from "@/contexts/AuthContext";
@@ -23,6 +24,8 @@ import { apiRequest } from "@/services/requests/apiRequest";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import Modal from "@/components/ui/modal";
+import ChatContainerComponent from "./ChatContainerComponent";
+import socket from "@/services/websockets/sockets";
 
 interface SuggestedUser {
   id: string;
@@ -35,67 +38,34 @@ interface SuggestedUser {
   type: "company" | "student";
 }
 
-const suggestedUsers: SuggestedUser[] = [
-  {
-    id: "1",
-    name: "Ana Martínez",
-    role: "Full Stack Developer",
-    skills: ["React", "Node.js", "TypeScript"],
-    avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
-  },
-  {
-    id: "2",
-    name: "Carlos Ruiz",
-    role: "UX Designer",
-    skills: ["UI/UX", "Figma", "Adobe XD"],
-    avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
-  },
-  {
-    id: "3",
-    name: "Laura García",
-    role: "Frontend Developer",
-    skills: ["Vue.js", "CSS", "JavaScript"],
-    avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg",
-  },
-];
-
 const Messages: React.FC = () => {
   const [activeTab, setActiveTab] = useState("inbox");
   const [isComposing, setIsComposing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [selectedChatData, setSelectedChatData] = useState<any | null>(null);
+  const [allChats, setAllChats] = useState<any[]>([]);
   const [chats, setChats] = useState<any[]>([]);
   const [suggestedAll, setSuggestedAll] = useState<SuggestedUser[]>([]);
   const [contacts, setContacts] = useState<SuggestedUser[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
   const [messageModal, setMessageModal] = useState("");
   const newMessageDirectModal = useModal();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const router = useRouter();
   const { toast } = useToast();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { userData } = useContext(AuthContext);
-  const mockChats = [
-    {
-      id: "1",
-      name: "Ana Martínez",
-      lastMessage: "Hola, ¿cómo estás?",
-      time: "12:30",
-      avatar:
-        "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
-      unread: true,
-    },
-    {
-      id: "2",
-      name: "Carlos Ruiz",
-      lastMessage: "¿Podemos reunirnos mañana?",
-      time: "10:15",
-      avatar:
-        "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
-      unread: false,
-    },
-  ];
+
+  function formatTime(isoString: string) {
+    const date = new Date(isoString);
+    return date.toLocaleTimeString('es-ES', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
 
   useEffect(() => {
     showLoader();
@@ -109,6 +79,7 @@ const Messages: React.FC = () => {
         if (response.status === "success") {
           console.log(response);
           setChats(response.direct_chats);
+          setAllChats(response.direct_chats);
         }
       })
       .catch((error) => {
@@ -117,8 +88,35 @@ const Messages: React.FC = () => {
       .finally(() => {
         hideLoader();
       });
+
+    
   }, [userData, router]);
 
+  useEffect(()=>{
+    socket.on('direct_message', (message) => {
+      console.log('Direct message received:', message);
+      if(!selectedChatData){
+        console.log("no selected chat")
+        return;
+      }
+
+      if(selectedChatData.direct_chat.id === message.messageable_id){
+        console.log("iguales")
+        setSelectedChatData((prev: any) => ({
+          ...prev,
+          messages: {
+            ...prev.messages,
+            data: [...prev.messages.data, message]
+          }
+        }));
+      }
+    });
+
+    return () => {
+      socket.off('direct_message');
+    };
+  }, [selectedChatData]);
+  
   const handleOpenNewMessage = () => {
     showLoader();
     apiRequest("chats/suggested-direct-chat")
@@ -161,50 +159,101 @@ const Messages: React.FC = () => {
     setSelectedUsers(prev => prev.filter(u => u.user_id !== userId));
   };
 
-  const handleSendMessage = ()=>{
+  const handleSendMessage = () => {
     showLoader();
 
     console.log("ENVIAR MENSAJE");
     console.log(selectedUsers);
 
-    apiRequest('chats/send-direct-chat', 
-        "POST", 
-        {
-            user_ids: selectedUsers.map(u => u.user_id),
-            content: messageModal
-        }
-    ).then((response)=>{
-        console.log(response);
-        if (response.status === "success") {
-            toast({
-                title: "Success",
-                description: "Mensaje enviado correctamente",
-                variant: "success",
-            });
-            newMessageDirectModal.closeModal();
-        } else {
-            toast({
-                title: "Error",
-                description: "No se pudo enviar el mensaje",
-                variant: "destructive",
-            });
-        }
-    }).catch((error) => {
-        console.log(error);
+    apiRequest('chats/send-direct-chat',
+      "POST",
+      {
+        user_ids: selectedUsers.map(u => u.user_id),
+        content: messageModal
+      }
+    ).then((response) => {
+      console.log(response);
+      if (response.status === "success") {
         toast({
-            title: "Error",
-            description: "No se pudo enviar el mensaje",
-            variant: "destructive",
+          title: "Success",
+          description: "Mensaje enviado correctamente",
+          variant: "success",
         });
-    }).finally(() => {
+
+        if (response.status === "success") {
+          console.log(response);
+          setChats(response.direct_chats);
+        }
+
         newMessageDirectModal.closeModal();
-        hideLoader();
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo enviar el mensaje",
+          variant: "destructive",
+        });
+      }
+    }).catch((error) => {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "No se pudo enviar el mensaje",
+        variant: "destructive",
+      });
+    }).finally(() => {
+      newMessageDirectModal.closeModal();
+      hideLoader();
     });
+  }
+
+  const handleSelectChat = (userId: string) => {
+    showLoader();
+    apiRequest(`chats/get-or-create-direct-chat/${userId}`,
+    ).then((response) => {
+      console.log(response);
+      if (response.status === "success") {
+        setSelectedChat(userId);
+        setSelectedChatData(response);
+        toast({
+          title: "Success",
+          description: "Chat seleccionado correctamente",
+          variant: "success",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo seleccionar el chat",
+          variant: "destructive",
+        });
+      }
+    }).catch((error) => {
+      console.log(error);
+      toast({
+        title: "Error",
+        description: "No se pudo seleccionar el chat",
+        variant: "destructive",
+      });
+    }).finally(() => {
+      hideLoader();
+    });
+  }
+
+  const handleFilterChats = (item: any) => {
+    if(item.id === "inbox"){
+      setChats(allChats);
+    }else if(item.id === "unread"){
+      setChats(allChats.filter((chat) => chat.unread_count > 0));
+    }else if(item.id === "marked"){
+      setChats(allChats.filter((chat) => chat.isBookedMarked));
+    }else if(item.id === "saved"){
+      setChats(allChats.filter((chat) => chat.isSaved));
+    }
+    setActiveTab(item.id);
   }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex flex-col bg-white border mt-5">
+      <div className="flex flex-col bg-white border mt-5 h-[calc(100vh-100px)]">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 py-4 px-3">
           <div className="flex items-center justify-between">
@@ -213,13 +262,18 @@ const Messages: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Buscar mensajes"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setChats(allChats.filter((chat) => chat.user.name.toLowerCase().includes(e.target.value.toLowerCase())))
+                    setSearchQuery(e.target.value)
+                  }}
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                 />
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               </div>
-              <button className="p-2 hover:bg-gray-100 rounded-full">
+              {/* <button className="p-2 hover:bg-gray-100 rounded-full">
                 <MoreVertical className="w-5 h-5" />
-              </button>
+              </button> */}
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -250,33 +304,26 @@ const Messages: React.FC = () => {
           >
             <nav className="flex-1 overflow-hidden space-y-1 p-2">
               {[
-                { id: "inbox", icon: <Inbox />, label: "Buzón", count: 2 },
-                { id: "unread", icon: <Mail />, label: "No leídos", count: 1 },
-                {
-                  id: "contacts",
-                  icon: <Users />,
-                  label: "Mis contactos",
-                  count: 0,
-                },
-                { id: "marked", icon: <Star />, label: "Marcados", count: 0 },
+                { id: "inbox", icon: <Inbox />, label: "Buzón", count: allChats.length },
+                { id: "unread", icon: <Mail />, label: "No leídos", count: allChats.filter((chat) => chat.unread_count > 0).length },
+                { id: "marked", icon: <Star />, label: "Marcados", count: allChats.filter((chat) => chat.isBookedMarked).length },
                 {
                   id: "saved",
                   icon: <BookMarked />,
                   label: "Guardados",
-                  count: 0,
+                  count: allChats.filter((chat) => chat.isSaved).length,
                 },
               ].map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id)}
+                  onClick={() => handleFilterChats(item)}
                   className={`
             w-full flex items-center justify-between p-3 rounded-lg
             transition-colors duration-200
-            ${
-              activeTab === item.id
-                ? "bg-black text-white"
-                : "text-gray-700 hover:bg-gray-100"
-            }
+            ${activeTab === item.id
+                      ? "bg-black text-white"
+                      : "text-gray-700 hover:bg-gray-100"
+                    }
           `}
                 >
                   <div className="flex items-center">
@@ -297,11 +344,10 @@ const Messages: React.FC = () => {
                 ml-2 px-2 py-1 rounded-full text-sm
                 opacity-0 group-hover:opacity-100
                 transition-opacity duration-200
-                ${
-                  activeTab === item.id
-                    ? "bg-white text-black"
-                    : "bg-gray-200 text-gray-600"
-                }
+                ${activeTab === item.id
+                          ? "bg-white text-black"
+                          : "bg-gray-200 text-gray-600"
+                        }
               `}
                     >
                       {item.count}
@@ -340,33 +386,32 @@ const Messages: React.FC = () => {
               {chats.map((chat) => (
                 <button
                   key={chat.id}
-                  onClick={() => setSelectedChat(chat.id)}
-                  className={`w-full p-4 flex items-center hover:bg-gray-50 transition-colors duration-200 ${
-                    selectedChat === chat.id ? "bg-gray-50" : ""
-                  }`}
+                  onClick={() => handleSelectChat(chat.user?.user_id)}
+                  className={`w-full p-4 flex items-center hover:bg-gray-50 transition-colors duration-200 ${selectedChat === chat.id ? "bg-gray-50" : ""
+                    }`}
                 >
                   <img
-                    src={chat.user.profile_pic}
+                    src={chat.user?.profile_pic}
                     alt={chat.user.name}
                     className="w-12 h-12 rounded-full object-cover mr-4"
                   />
                   <div className="flex-1 text-left">
                     <div className="flex items-center justify-between">
                       <h3 className="font-medium">{chat.user.name}</h3>
-                      <span className="text-sm text-gray-500">{chat.time}</span>
+                      <span className="text-sm text-gray-500">{formatTime(chat.last_message?.created_at)}</span>
                     </div>
                     <p
-                      className={`text-sm ${
-                        chat.unread ? "font-medium text-black" : "text-gray-500"
-                      }`}
+                      className={`text-sm ${chat.last_message?.is_read ? "font-medium text-black" : "text-gray-500"
+                        }`}
                     >
-                      {chat.lastMessage}
+                      {chat.last_message?.content}
                     </p>
                   </div>
                 </button>
               ))}
-
+              {/* si no hay chats todavia */}
               {chats.length <= 0 && (
+                // CHAT VACIO 
                 <div className="flex flex-col items-center justify-center flex-1 p-6 space-y-4">
                   <div className="flex flex-col items-center">
                     <MessageSquare className="w-12 h-12 text-gray-400 mb-3" />
@@ -410,37 +455,9 @@ const Messages: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <>
-                <div className="p-4 border-b border-gray-200">
-                  <div className="flex items-center">
-                    <img
-                      src={
-                        chats.find((chat) => chat.id === selectedChat)?.avatar
-                      }
-                      alt="Chat avatar"
-                      className="w-10 h-10 rounded-full object-cover mr-3"
-                    />
-                    <h3 className="font-bold">
-                      {chats.find((chat) => chat.id === selectedChat)?.name}
-                    </h3>
-                  </div>
-                </div>
-                <div className="flex-1 p-4">
-                  {/* Chat messages would go here */}
-                </div>
-                <div className="p-4 border-t border-gray-200">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      placeholder="Escribe un mensaje..."
-                      className="flex-1 p-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
-                    />
-                    <button className="bg-black text-white p-2 rounded-lg hover:bg-gray-800 transition-colors duration-300">
-                      <Send className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </>
+              // CHAT MENSAJE CONTAINER
+            
+              <ChatContainerComponent selectedChatData={selectedChatData} userData={userData as any} formatTime={formatTime} />
             )}
           </div>
         </div>
@@ -506,7 +523,7 @@ const Messages: React.FC = () => {
                       onClick={() => handleSelectUser(user)}
                     >
                       <img
-                        src={user.avatar}
+                        src={user.avatar || ""}
                         alt={user.name}
                         className="w-10 h-10 rounded-full object-cover mr-3"
                       />
@@ -540,7 +557,7 @@ const Messages: React.FC = () => {
                       onClick={() => handleSelectUser(contact)}
                     >
                       <img
-                        src={contact.avatar}
+                        src={contact.avatar || ""}
                         alt={contact.name}
                         className="w-10 h-10 rounded-full object-cover mr-3"
                       />
@@ -570,7 +587,7 @@ const Messages: React.FC = () => {
               ></textarea>
               <div className="flex justify-end mt-4">
                 <button className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition-colors duration-300"
-                    onClick={handleSendMessage}>
+                  onClick={handleSendMessage}>
                   Enviar
                 </button>
               </div>

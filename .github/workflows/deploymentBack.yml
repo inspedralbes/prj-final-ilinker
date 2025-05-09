@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} està pujant l'aplicació a PROD LARAVEL🚀
 on:
   push:
     branches:
-      - main
+      - company-profile
 
 jobs:
   deploy:
@@ -22,14 +22,14 @@ jobs:
 
       - name: 📦 Instalar dependencias en el runner
         run: composer install --optimize-autoloader
-        working-directory: back/play2learnlaravel
+        working-directory: back/back_iLinkerLaravel
 
       - name: 📂 Sincronizar archivos con el servidor
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/prod_key.pem
           chmod 600 ~/prod_key.pem
           rsync -avz --delete --exclude '.env' -e "ssh -o StrictHostKeyChecking=no -i ~/prod_key.pem" ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/backend/laravel/
-        working-directory: back/play2learnlaravel
+        working-directory: back/back_iLinkerLaravel
 
       - name: 📦 Optimizar y migrar en el servidor
         run: |

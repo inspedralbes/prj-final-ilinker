@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Building2, MapPin, Globe, Users, Banknote, GraduationCap, BookmarkPlus } from "lucide-react";
 import Link from "next/link";
 
-export default function ModalOffer({ handleClose, isEditMode = false, selectedInfoJob }) {
+export default function ModalOffer({ handleClose, isEditMode = false, selectedInfoJob }: any) {
     // Estados para los campos editables
     const [jobTitle, setJobTitle] = useState(isEditMode ? selectedInfoJob.title : "");
     const [jobDescription, setJobDescription] = useState(isEditMode ? selectedInfoJob.description : "");

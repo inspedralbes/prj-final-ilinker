@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use mysql_xdevapi\Exception;
 
 class OfferController extends Controller
 {
@@ -252,6 +253,27 @@ class OfferController extends Controller
                 'status' => 'success',
                 'message' => 'Oferta actualizada correctamente',
                 'offer' => $offer,
+            ]);
+        }catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function applyCheck($offer_id){
+        try {
+            $me = Auth::user();
+
+            $offer = Offer::findOrFail($offer_id);
+
+            $userHasApplied = $offer->hasUserApplied($me->id);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Se ha procesado el checkeo correctamente',
+                'userHasApplied' => $userHasApplied,
             ]);
         }catch (\Throwable $th) {
             return response()->json([

@@ -25,6 +25,8 @@ import {
   FileText,
   Calendar,
   CheckCircle,
+  BookmarkCheck,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -110,18 +112,19 @@ export default function SearchClient() {
     hideLoader();
   };
   const handleRedirectLogin = () => {
-    router.push("/login");
+    router.push("/auth/login");
   };
 
   useEffect(() => {
     showLoader();
     if (!userData) {
-      router.push("/auth/login");
+      // router.push("/auth/login");
+      console.log("no logged");
     }
 
     apiRequest("page/search")
       .then((response) => {
-        setSelectedJob(response.data[0]);
+        handleSelectedInfoJob(response.data[0]);
         setLatestOffers(response.data);
       })
       .catch((e) => console.error(e))
@@ -212,12 +215,25 @@ export default function SearchClient() {
             <span>{selectedInfoJob.address}</span>
           </div>
           <div className="flex gap-4">
-            <Button
-              className="flex-1"
-              onClick={loggedIn ? handleApplyOffer : handleRedirectLogin}
-            >
-              Apply now
-            </Button>
+            {selectedInfoJob?.userHasApplied ? (
+              <Button
+                variant="outline"
+                size="icon"
+                disabled
+                className="w-full flex items-center justify-center gap-2 opacity-60 cursor-not-allowed"
+              >
+                <BookmarkCheck className="h-5 w-5 text-gray-400" />
+                <span className="text-gray-600">Ya estás inscrito</span>
+              </Button>
+            ) : (
+              <Button
+                className="w-full flex-1"
+                onClick={loggedIn ? handleApplyOffer : handleRedirectLogin}
+              >
+                <BookmarkPlus className="h-5 w-5 mr-2" />
+                <span>Apply Now</span>
+              </Button>
+            )}
             <Button variant="outline" size="icon">
               <BookmarkPlus className="h-5 w-5" />
             </Button>
@@ -264,12 +280,63 @@ export default function SearchClient() {
           </p>
         </div>
       </div>
-    ) : null;
+    ) : (
+      <div className="flex flex-col justify-center items-center h-full w-full">
+        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <span className="mt-2 text-muted-foreground">Cargando...</span>
+      </div>
+    );
   };
 
   useEffect(() => {
     setSelectedInfoJob(selectedJob);
   }, [selectedJob]);
+
+  const handleSelectedInfoJob = (job: any) => {
+    console.log("seleccionado");
+    setSelectedJob(null);
+    try {
+      //verificar primeramente si esta logg in
+      if(!userData){
+        setSelectedJob(job);
+        if (window.innerWidth < 768) {
+          setIsJobDetailOpen(true);
+        }
+        return;
+      }
+
+      //verificar si ya esta optando a esta oferta
+      apiRequest(`offers/apply-check/${job.id}`)
+        .then((response) => {
+          if (response.status === "success") {
+            job.userHasApplied = response.userHasApplied;
+            setSelectedJob(job);
+            if (window.innerWidth < 768) {
+              setIsJobDetailOpen(true);
+            }
+          } else {
+            toast({
+              title: "Error",
+              description: "Error al mostrar la oferta",
+              variant: "destructive",
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {});
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error al mostrar la oferta",
+        variant: "destructive",
+      });
+      console.log(error);
+    } finally {
+      hideLoader();
+    }
+  };
 
   return (
     <div className="">
@@ -346,12 +413,7 @@ export default function SearchClient() {
                     className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
                       selectedJob === job ? "border-primary" : ""
                     }`}
-                    onClick={() => {
-                      setSelectedJob(job);
-                      if (window.innerWidth < 768) {
-                        setIsJobDetailOpen(true);
-                      }
-                    }}
+                    onClick={() => handleSelectedInfoJob(job)}
                   >
                     {/* Contenido del card */}
                     <div className="flex justify-between items-start">
@@ -408,12 +470,7 @@ export default function SearchClient() {
                     className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
                       selectedJob === job ? "border-primary" : ""
                     }`}
-                    onClick={() => {
-                      setSelectedJob(job);
-                      if (window.innerWidth < 768) {
-                        setIsJobDetailOpen(true);
-                      }
-                    }}
+                    onClick={() => handleSelectedInfoJob(job)}
                   >
                     {/* Contenido del card */}
                     <div className="flex justify-between items-start">

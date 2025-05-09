@@ -1,16 +1,35 @@
-
+"use client";
 
 import {apiRequest} from "@/services/requests/apiRequest";
 import StudentDoesntExist from "@/app/profile/student/[uuid]/StudentDoesntExist";
 import StudentClient from '@/app/profile/student/[uuid]/StudentClient';
-export default async function StudentPage({ params }: { params: { uuid: string } }) {
-    const uuid = (await params).uuid
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useContext } from "react";
+import { LoaderContext } from "@/contexts/LoaderContext";
 
-    const response = await apiRequest('student/'+uuid);
-    console.log(response)
+export default function StudentPage() {
+    // const uuid = (await params).uuid
+    const { uuid } = useParams<{ uuid: string }>();
+    const { showLoader, hideLoader } = useContext(LoaderContext);
+    const [response, setResponse] = useState<any>(null);
 
-    if(response.status === 'success'){
-        return <StudentClient uuid={uuid} student={response.student} experience_group={response.experience_grouped} offerUser={response.offerUser}/>
+    useEffect(()=>{
+        showLoader();
+        apiRequest('student/'+uuid)
+            .then((response) => {
+                setResponse(response)
+            })
+            .catch((e) => {
+                console.error(e);
+            })
+            .finally(() => {
+                hideLoader();
+            });
+    },[]);
+
+    if(response){
+        return <StudentClient uuid={uuid} student={response.student} experience_group={response.experience_grouped}/>
     }else{
         return <StudentDoesntExist />
     }

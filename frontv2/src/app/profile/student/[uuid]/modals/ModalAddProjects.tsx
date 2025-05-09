@@ -49,8 +49,9 @@ export default function ModalAddProjects({
     const [projectId, setProjectId] = useState<string | null>(null);
 
     const [currentPictureFile, setCurrentPictureFile] = useState<File | null>(null);
-    const [pictures, setPictures] = useState<ImageItem[]>([]); // o File[] si prefieres trabajar con los archivos directamente
+    // const [pictures, setPictures] = useState<ImageItem[]>([]); // o File[] si prefieres trabajar con los archivos directamente
     const { showLoader, hideLoader } = useContext(LoaderContext);
+    const [pictures, setPictures] = useState<any[]>([]); // o File[] si prefieres trabajar con los archivos directamente
 
     // Inicializar los campos si estamos en modo edición
     useEffect(() => {
@@ -126,12 +127,13 @@ export default function ModalAddProjects({
     const handleSaveProject = async () => {
         if (!projectName.trim() || !description.trim()) {
             toast({
-                title: (
-                    <div className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-gray-500"/>
-                        <span>Error</span>
-                    </div>
-                ),
+                // title: (
+                //     <div className="flex items-center gap-2">
+                //         <Info className="h-5 w-5 text-gray-500"/>
+                //         <span>Error</span>
+                //     </div>
+                // ),
+                title: "Error",
                 description: "Por favor, completa los campos obligatorios (nombre y descripción)",
                 variant: "default",
                 duration: 2000
@@ -179,12 +181,13 @@ export default function ModalAddProjects({
 
             if (response.status === "success") {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500"/>
-                            <span>{isEditing ? "Proyecto actualizado" : "Proyecto guardado"}</span>
-                        </div>
-                    ),
+                    // title: (
+                    //     <div className="flex items-center gap-2">
+                    //         <CheckCircle className="h-5 w-5 text-green-500"/>
+                    //         <span>{isEditing ? "Proyecto actualizado" : "Proyecto guardado"}</span>
+                    //     </div>
+                    // ),
+                    title: isEditing ? "Proyecto actualizado" : "Proyecto guardado",
                     description: isEditing
                         ? "Proyecto actualizado correctamente 🚀"
                         : "Proyecto guardado correctamente 🚀",
@@ -209,12 +212,13 @@ export default function ModalAddProjects({
                 setProjectId(null);
             } else {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-white-500"/>
-                            <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
-                        </div>
-                    ),
+                    // title: (
+                    //     <div className="flex items-center gap-2">
+                    //         <AlertTriangle className="h-5 w-5 text-white-500"/>
+                    //         <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
+                    //     </div>
+                    // ),
+                    title: "Error al " + (isEditing ? "actualizar" : "guardar"),
                     description: response.message || `No se pudo ${isEditing ? "actualizar" : "guardar"} el proyecto. Inténtalo de nuevo.`,
                     variant: "destructive",
                     duration: 2000
@@ -399,7 +403,7 @@ export default function ModalAddProjects({
                                         setOpenEndDate(false);
                                     }}
                                     className="rounded-md border"
-                                    captionLayout="dropdown-buttons"
+                                    captionLayout="dropdown"
                                     initialFocus
                                 />
                             </PopoverContent>

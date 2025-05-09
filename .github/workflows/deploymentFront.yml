@@ -4,7 +4,7 @@ run-name: ${{ github.actor }} està pujant l'aplicació a PROD NEXTJS🚀
 on:
   push:
     branches:
-      - main
+      - company-profile
 
 jobs:
   build:
@@ -14,25 +14,25 @@ jobs:
       
       - name: Install dependencies
         run: npm install
-        working-directory: play2learn
+        working-directory: frontv2
 
       - name: Build application
         run: npm run build --if-present
-        working-directory: play2learn
+        working-directory: frontv2
         
       - name: Copiar fitxers estàtics
         run: cp -r public .next/public
-        working-directory: play2learn
+        working-directory: frontv2
 
       - name: Verificar existència del directori .next
         run: ls -la .next || echo "⚠️ Directori '.next' no existeix!"
-        working-directory: play2learn
+        working-directory: frontv2
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-build
-          path: play2learn/.next
+          path: frontv2/.next
           include-hidden-files: true
 
   deploy:
