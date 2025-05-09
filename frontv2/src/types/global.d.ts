@@ -7,24 +7,26 @@ export interface User {
     email: string
     role?: string
     avatarUrl?: string
+
     [key: string]: any
-  }
-  
-  // Contexto de autenticación
-  export interface AuthContextType {
+}
+
+// Contexto de autenticación
+export interface AuthContextType {
     loggedIn: boolean
-    userData: User | null
+    userData: User | null,
+    token: any,
     login: (token: string, userData: User, notifications: any[]) => void
     logout: () => void
     checkAuth: () => void
     notifications: any[]
     isLoading: boolean
-  }
-  
-  // Interfaz para una respuesta genérica de la API
-  export interface ApiResponse<T = any> {
+}
+
+// Interfaz para una respuesta genérica de la API
+export interface ApiResponse<T = any> {
     success: boolean
     message: string
     data: T
-  }
+}
   

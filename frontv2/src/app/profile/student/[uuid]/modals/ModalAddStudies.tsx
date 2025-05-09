@@ -20,7 +20,7 @@ import {LoaderContext} from "@/contexts/LoaderContext";
 interface ModalInstitutionsProps {
     handleClose: () => void;
     onSave: (data: any) => void;
-    studentId: string;
+    studentId: number;
     initialData?: any; // Datos iniciales para edición
     isEditing?: boolean; // Indica si estamos editando
 }
@@ -140,12 +140,7 @@ export default function ModalAddStudies({
     const handleSaveEducation = async () => {
         if (!institute.trim() || !degree.trim() || !startDate) {
             toast({
-                title: (
-                    <div className="flex items-center gap-2">
-                        <Info className="h-5 w-5 text-gray-500"/>
-                        <span>Error</span>
-                    </div>
-                ),
+                title: "Error",
                 description: "Por favor, completa todos los campos obligatorios",
                 variant: "default",
                 duration: 2000
@@ -177,12 +172,7 @@ export default function ModalAddStudies({
 
             if (response.status === "success") {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500"/>
-                            <span>{isEditing ? "Estudio actualizado" : "Estudio guardado"}</span>
-                        </div>
-                    ),
+                    title: isEditing ? "Estudio actualizado" : "Estudio guardado",
                     description: isEditing
                         ? "Estudio actualizado correctamente 🎓"
                         : "Estudio guardado correctamente 🎓",
@@ -207,12 +197,7 @@ export default function ModalAddStudies({
                 setEducationId(null);
             } else {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-white-500"/>
-                            <span>Error al {isEditing ? "actualizar" : "guardar"}</span>
-                        </div>
-                    ),
+                    title: isEditing ? "Error al actualizar" : "Error al guardar",
                     description: response.status || `No se pudo ${isEditing ? "actualizar" : "guardar"} el estudio. Inténtalo de nuevo.`,
                     variant: "destructive",
                     duration: 2000
@@ -435,7 +420,7 @@ export default function ModalAddStudies({
                                             setOpenStartDate(false);
                                         }}
                                         className="rounded-md border"
-                                        captionLayout="dropdown-buttons"
+                                        //captionLayout="dropdown-buttons"
                                         initialFocus
                                     />
                                 </PopoverContent>

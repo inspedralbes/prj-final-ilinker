@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { X, Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 
-export default function OfferModal({ application, onClose }) {
+interface PropsModal {
+    application: any;
+    onClose: () => void;
+}
+
+export default function OfferModal({ application, onClose }: PropsModal) {
     const [loading, setLoading] = useState(false);
 
     // Función para parsear el JSON de habilidades
-    const parseSkills = (skillsStr) => {
+    const parseSkills = (skillsStr: any) => {
         try {
             return JSON.parse(skillsStr);
         } catch (e) {
@@ -14,7 +19,7 @@ export default function OfferModal({ application, onClose }) {
     };
 
     // Función para determinar el color del estado
-    const getStatusColor = (status) => {
+    const getStatusColor = (status: any) => {
         switch(status) {
             case 'accept':
                 return 'text-green-600 bg-green-100';
@@ -28,7 +33,7 @@ export default function OfferModal({ application, onClose }) {
     };
 
     // Función para traducir el estado
-    const getStatusText = (status) => {
+    const getStatusText = (status: any) => {
         switch(status) {
             case 'accept':
                 return 'Aceptada';
@@ -42,7 +47,7 @@ export default function OfferModal({ application, onClose }) {
     };
 
     // Función para obtener el icono del estado
-    const getStatusIcon = (status) => {
+    const getStatusIcon = (status: any) => {
         switch(status) {
             case 'accept':
                 return <CheckCircle className="w-5 h-5 text-green-600" />;
@@ -56,7 +61,7 @@ export default function OfferModal({ application, onClose }) {
     };
 
     // Formatear fecha
-    const formatDate = (dateString) => {
+    const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('es-ES', {
             day: '2-digit',
@@ -124,7 +129,7 @@ export default function OfferModal({ application, onClose }) {
                         <div className="mb-4">
                             <h4 className="font-semibold mb-2">Habilidades requeridas:</h4>
                             <div className="flex flex-wrap gap-2">
-                                {skills.map((skill, index) => (
+                                {skills.map((skill: any, index: number) => (
                                     <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                     {skill}
                   </span>

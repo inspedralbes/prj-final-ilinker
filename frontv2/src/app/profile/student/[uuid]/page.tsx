@@ -29,7 +29,7 @@ export default function StudentPage() {
     },[]);
 
     if(response){
-        return <StudentClient uuid={uuid} student={response.student} experience_group={response.experience_grouped}/>
+        return <StudentClient uuid={uuid} student={response.student} experience_group={response.experience_grouped} offerUser={response.offerUser}/>
     }else{
         return <StudentDoesntExist />
     }

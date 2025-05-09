@@ -19,7 +19,7 @@ import {LoaderContext} from "@/contexts/LoaderContext";
 interface ModalExperienceProps {
     handleClose: () => void;
     onSave: (data: any) => void;
-    studentId: string;
+    studentId: number;
     initialData?: any; // Datos iniciales para edición
     isEditing?: boolean; // Indica si estamos editando
 }

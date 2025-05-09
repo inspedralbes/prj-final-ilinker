@@ -182,12 +182,13 @@ export interface Student {
     type_document: string;
     id_document: string;
     nationality: string;
-    photo_pic: string | null;
-    cover_photo: string | null;
+    photo_pic: File | null;
+    cover_photo: File | null;
     description: string | null;
-    birthday: string;
+    short_description: string | null;
+    birthday: Date | undefined;
     gender: string;
-    phone: number;
+    phone: string;
     address: string;
     city: string;
     country: string;
@@ -205,13 +206,12 @@ export interface Student {
 interface StudentClientMeProps {
     uuid: String;
     student: Student;
-    experience_group: object;
-    skills: object;
-    offerUser: object;
+    experience_group: any;
+    skills: any;
+    offerUser: any;
 }
 
 export default function StudentClientMe({uuid, student, experience_group, skills, offerUser}: StudentClientMeProps) {
-
 
     const [studentEdit, setStudentEdit] = useState(student);
     const [experienceEdit, setExperienceEdit] = useState(experience_group);
@@ -221,11 +221,11 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [userEdit, setUserEdit] = useState(student.user);
     const [offersEdit, setOfferEdit] = useState(offerUser);
     const [allSkills, setAllSkills] = useState(skills);
-    const [isEditing, setIsEditing] = useState(null);
+    const [isEditing, setIsEditing] = useState<string | null>(null);
+    const [isEditingModal, setIsEditingModal] = useState<boolean | undefined>(false);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
-    const {userData, login} = useContext(AuthContext);
-    const token = Cookies.get('authToken')
+    const {userData, login, token} = useContext(AuthContext);
 
     const [modalState, setModalState] = useState(false);
     const [modalExperience, setModalExperience] = useState(false);
@@ -239,13 +239,13 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
     const [openDialog, setOpenDialog] = useState(false);
 
-    const [educationSelect, setEducationSelect] = useState(null);
-    const [experinceSelect, setExperienceSelect] = useState(null);
-    const [projectsSelect, setProjectSelect] = useState(null);
+    const [educationSelect, setEducationSelect] = useState<Education | null>(null);
+    const [experinceSelect, setExperienceSelect] = useState<Experience | null>(null);
+    const [projectsSelect, setProjectSelect] = useState<Project | null>(null);
     const [offerSelect, setOfferSelect] = useState(null);
 
     const [isExperience, setIsExperience] = useState(false);
-    const [carouselStates, setCarouselStates] = useState({});
+    const [carouselStates, setCarouselStates] = useState<{ [key: number]: any }>({});
     const {showLoader, hideLoader} = useContext(LoaderContext);
     const animatedComponents = makeAnimated();
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
@@ -257,11 +257,12 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         {id: 3, name: 'Avanzado'},
         {id: 4, name: 'Nativo'}
     ];
-    const [optionLevel, setOptionLevel] = useState([]);
+    const [optionLevel, setOptionLevel] = useState<string[]>([]);
     const [editingIndex, setEditingIndex] = useState(-1);
     const [imageChangeCount, setImageChangeCount] = useState(0);
     const [statusFilter, setStatusFilter] = useState("all");
     const [isFiltering, setIsFiltering] = useState(false);
+
 
     // Función para manejar el cambio de filtro
     const handleStatusFilterChange = (value: string) => {
@@ -283,26 +284,26 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         if (!offersEdit) return [];
         if (statusFilter === "all") return offersEdit;
 
-        return offersEdit.filter((application) => application.status === statusFilter);
+        return offersEdit.filter((application: any) => application.status === statusFilter);
     }, [offersEdit, statusFilter]);
 
     const handleOpenModalAddStudies = () => {
         setModalState(!modalState)
         setModalModeEdit(false)
-        setIsEditing(false);
+        /*setIsEditing(false);*/
     }
 
-    const openModalExperience = (experience: object) => {
+    const openModalExperience = (experience: Experience | null) => {
         console.log(experience);
         setModalExperience(!modalExperience);
         setModalModeEdit(false);
-        setIsEditing(false);
+        setIsEditingModal(false);
     }
-    const openModalProjects = (project: object) => {
+    const openModalProjects = (project: Project | null) => {
         console.log(project);
         setModalProjects(!modalProjects);
         setModalModeEdit(false);
-        setIsEditing(false);
+        setIsEditingModal(false);
     }
 
     const handleCloseModal = () => {
@@ -337,32 +338,32 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
     }
 
-    const EditInfo = (section: string, education: object) => {
+    const EditInfo = (section: string, education: any) => {
 
-        setIsEditing(section);
+        setIsEditingModal(true);
         setCurrentStudy(education);
 
         setModalState(!modalState);
         setModalModeEdit(false);
     }
 
-    const EditInfoExp = (section: string, exp: object) => {
-        setIsEditing(section);
+    const EditInfoExp = (section: string, exp: any) => {
+        setIsEditingModal(true);
         setCurrentExperience(exp);
 
         setModalExperience(!modalExperience);
         setModalModeEdit(false);
     }
 
-    const editInfoPro = (section: string, pro: object) => {
-        setIsEditing(section);
+    const editInfoPro = (section: string, pro: any) => {
+        setIsEditingModal(true);
         setCurrentProject(pro);
 
         setModalProjects(!modalProjects);
         setModalModeEdit(false);
     }
 
-    const removeSection = (education = null, experience = null, projects = null) => {
+    const removeSection = (education: Education | null, experience: Experience | null, projects: Project | null) => {
         setOpenDialog(true);
         setIsExperience(!!experience);
         setEducationSelect(education);
@@ -376,21 +377,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
         try {
             const endpoint = educationSelect ? 'education/delete' : projectsSelect ? 'projects/delete' : 'experience/delete'
-            const idSection = educationSelect ? educationSelect.id : projectsSelect ? projectsSelect.id : experinceSelect.id;
+            //const idSection = educationSelect ? educationSelect?.id : projectsSelect ? projectsSelect?.id : experinceSelect?.id;
+            const idSection = educationSelect?.id ?? projectsSelect?.id ?? experinceSelect?.id;
             const response = await apiRequest(endpoint, 'DELETE', {id: idSection})
 
             if (response.status === 'success') {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500"/>
-                            {educationSelect ? (
-                                <span>Estudio Eliminado</span>
-                            ) : (
-                                <span>Experiencia Eliminada</span>
-                            )}
-                        </div>
-                    ),
+                    title: educationSelect ? "Estudio eliminado"
+                        : projectsSelect ? "Proyecto eliminado"
+                            : "Experiencia eliminada",
                     description:
                         educationSelect ? "Estudio eliminado correctamente"
                             : projectsSelect ? "Proyecto eliminado correctamente"
@@ -400,19 +395,14 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     duration: 2000
                 })
                 hideLoader();
-                UpdateChange();
-                login(token, userEdit);
+                await UpdateChange();
+                login(token, userEdit, []);
                 setOpenDialog(false);
                 setIsExperience(false);
                 educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
             } else {
                 toast({
-                    title: (
-                        <div className="flex items-center gap-2">
-                            <AlertTriangle className="h-5 w-5 text-green-500"/>
-                            <span>Error al eliminar</span>
-                        </div>
-                    ),
+                    title: "Error al Eliminar",
                     description:
                         educationSelect ? "Ha ocurrido un error al intentar eliminar el estudio"
                             : projectsSelect ? "Ha ocurrido un error al intentar eliminar el proyecto"
@@ -484,7 +474,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
 
     // Referencia para los plugins
-    const pluginsRef = useRef({});
+    const pluginsRef = useRef<{ [key: number]: ReturnType<typeof Autoplay> }>({});
 
     // Crear una instancia del plugin Autoplay para cada proyecto
     projectsEdit.forEach((pro) => {
@@ -565,11 +555,11 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         formData.append('user', JSON.stringify(userEdit));
 
         // Asegurarse de que los archivos se agreguen correctamente
-        if (studentEdit.photo_pic instanceof File) {
+        if (studentEdit?.photo_pic instanceof File) {
             formData.append("photo_pic", studentEdit.photo_pic);
         }
 
-        if (studentEdit.cover_photo instanceof File) {
+        if (studentEdit?.cover_photo instanceof File) {
             formData.append("cover_photo", studentEdit.cover_photo);
         }
 
@@ -582,8 +572,9 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
             if (await response.status === 'success') {
                 console.log(response);
+
                 setIsEditing(null)
-                UpdateChange();
+                await UpdateChange();
             } else {
                 console.log("MAL")
             }
@@ -600,7 +591,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     }
 
     // Función para comprobar si un idioma ya existe
-    const languageExists = (languageName, excludeIndex = -1) => {
+    const languageExists = (languageName: string, excludeIndex = -1) => {
         const normalizedName = slugify(languageName);
         return parsedLanguages.some((language, index) => {
             // Saltamos la comprobación para el idioma que estamos editando
@@ -655,7 +646,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     }
 
     // Función para eliminar un idioma
-    const deleteLanguage = (index) => {
+    const deleteLanguage = (index: number) => {
         const updatedLanguages = parsedLanguages.filter((_, idx) => idx !== index);
         setStudentEdit({
             ...studentEdit,
@@ -671,10 +662,10 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     };
 
     // Función para iniciar la edición de un idioma
-    const startEditingLanguage = (index) => {
+    const startEditingLanguage = (index: number) => {
         const languageToEdit = parsedLanguages[index];
         setNameLanguage(languageToEdit.language);
-        setOptionLevel(languageToEdit.level);
+        setOptionLevel([languageToEdit.level]);
         setEditingIndex(index);
     };
 
@@ -707,6 +698,16 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         handleSave();
     }, [imageChangeCount]);
 
+
+    const updateDesStudent = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        setStudentEdit((prev: any) => ({
+            ...prev,
+            [name]: value,
+        }));
+    };
 
     return (
         <>
@@ -934,15 +935,13 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                 </div>
                                 {isEditing === 'about' ? (
                                     <div>
-
                                         <Textarea
                                             className="min-h-[150px]"
                                             value={studentEdit.short_description || ""}
                                             onChange={(e) =>
-                                                setStudentEdit({
-                                                    ...studentEdit,
-                                                    short_description: e.target.value
-                                                })
+                                                updateDesStudent(
+                                                    e as React.ChangeEvent<HTMLTextAreaElement>
+                                                )
                                             }
                                             placeholder="Escribe la descripción..."
                                         />
@@ -1184,10 +1183,10 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                         value={skillsEdit}
                                                         placeholder="busca y selecciona..."
                                                         getOptionLabel={(option) => option.name}
-                                                        getOptionValue={(option) => option.id}
+                                                        getOptionValue={(option) => option.id.toString()}
                                                         onChange={(selectedOption) => {
                                                             console.log(selectedOption);
-                                                            setSkillsEdit(selectedOption);
+                                                            setSkillsEdit([...selectedOption]);
                                                         }}
                                                     />
                                                 </>
@@ -1281,7 +1280,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                 isMulti
                                                                 placeholder="Nivel"
                                                                 getOptionLabel={(option) => option.name}
-                                                                getOptionValue={(option) => option.id}
+                                                                getOptionValue={(option) => option.id.toString()}
                                                                 value={level.filter(opt => optionLevel.includes(opt.name))}
                                                                 onChange={(selectedOption) => {
                                                                     setOptionLevel(selectedOption.map((sel) => sel.name));
@@ -1428,7 +1427,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                             className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
                                                                             {studies.institution_id ? (
                                                                                 <Link
-                                                                                    href={`/profile/institution/${studies.institution.slug}`}
+                                                                                    href={`/profile/institution/${studies.institution?.slug}`}
                                                                                     passHref>
                                                                                         <span
                                                                                             className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
@@ -1505,7 +1504,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <Button
                                                 variant="default"
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
-                                                onClick={() => openModalExperience()}
+                                                onClick={() => openModalExperience(null)}
                                             >
                                                 <Plus className="h-5 w-5"/>
                                             </Button>
@@ -1679,7 +1678,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                         className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
                                                         <p className="text-black">No hay experiencia especificada</p>
                                                         <button
-                                                            onClick={() => openModalExperience()}
+                                                            onClick={() => openModalExperience(null)}
                                                             className="mt-2 text-blue-400 hover:text-blue-600 text-sm font-medium">
                                                             + Añadir experiencia
                                                         </button>
@@ -1707,7 +1706,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             <Button
                                                 variant="default"
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
-                                                onClick={() => openModalProjects()}
+                                                onClick={() => openModalProjects(null)}
                                             >
                                                 <Plus className="h-5 w-5"/>
                                             </Button>
@@ -1728,13 +1727,13 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                                     <Carousel
                                                                         plugins={[pluginsRef.current[pro.id]]}
                                                                         className="w-full"
-                                                                        onMouseLeave={pluginsRef.current[pro.id].play}
+                                                                        onMouseLeave={() => pluginsRef?.current[pro.id].play}
                                                                         setApi={(api) => {
                                                                             updateCarouselState(pro.id, api);
                                                                         }}
                                                                     >
                                                                         <CarouselContent>
-                                                                            {JSON.parse(pro.pictures).map((img, index) => (
+                                                                            {JSON.parse(pro.pictures).map((img: any, index: number) => (
                                                                                 <CarouselItem key={index}>
                                                                                     <div className="p-1">
                                                                                         <Card
@@ -1847,7 +1846,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                                 <p className="text-black">No hay proyectos
                                                     especificados</p>
                                                 <button
-                                                    onClick={() => openModalProjects()}
+                                                    onClick={() => openModalProjects(null)}
                                                     className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                     + Añadir proyecto
                                                 </button>
@@ -1889,7 +1888,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                                     {filteredOffers ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                            {filteredOffers.map((application) => {
+                                            {filteredOffers.map((application: any) => {
                                                 // Definir colores según el estado
                                                 let statusColor = "";
                                                 let statusBgColor = "";
@@ -2114,7 +2113,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     onSave={UpdateChange}
                     studentId={student.id}
                     initialData={currentStudy}
-                    isEditing={isEditing}
+                    isEditing={isEditingModal}
                 />
             }
             ,
@@ -2124,7 +2123,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     onSave={UpdateChange}
                     studentId={student.id}
                     initialData={currentProject}
-                    isEditing={isEditing}
+                    isEditing={isEditingModal}
                 />
             }
             ,
@@ -2134,7 +2133,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     onSave={UpdateChange}
                     studentId={student.id}
                     initialData={currentExperience}
-                    isEditing={isEditing}
+                    isEditing={isEditingModal}
                 />
             }
             {

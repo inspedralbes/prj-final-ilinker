@@ -28,7 +28,7 @@ import Cookies from "js-cookie";
 interface ModalProjectsProps {
     handleClose: () => void;
     onSave: (data: any) => void;
-    studentId: string;
+    studentId: number;
     initialData?: any; // Datos iniciales para edición
     isEditing?: boolean; // Indica si estamos editando
 }
@@ -143,7 +143,7 @@ export default function ModalAddProjects({
 
         const formData = new FormData();
         formData.append("id", projectId ?? "");
-        formData.append("student_id", studentId);
+        formData.append("student_id", studentId.toString());
         formData.append("name", projectName);
         formData.append("description", description);
         formData.append("link", link.trim() || "");

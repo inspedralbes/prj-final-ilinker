@@ -134,7 +134,8 @@ export interface Student {
     nationality: string;
     photo_pic: string | null;
     cover_photo: string | null;
-    desctiption: string | null;
+    description: string | null;
+    short_description: string | null;
     birthday: string;
     gender: string;
     phone: number;
@@ -154,7 +155,7 @@ export interface Student {
 
 interface StudentClientMeProps {
     student: Student;
-    experience_group: object;
+    experience_group: any;
 }
 
 export default function StudentClientMe({student, experience_group}: StudentClientMeProps) {
@@ -166,10 +167,11 @@ export default function StudentClientMe({student, experience_group}: StudentClie
     const [projectsEdit, setProjectEdit] = useState(student.projects);
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
     const [userEdit, setUserEdit] = useState(student.user);
+
     const [isEditing, setIsEditing] = useState(null);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
-    const [carouselStates, setCarouselStates] = useState({});
+    const [carouselStates, setCarouselStates] = useState<{ [key: number]: any }>({});
 
     // Asegúrate que esto está dentro de tu componente:
     let parsedLanguages: { language: string; level: string }[] = [];
@@ -183,7 +185,7 @@ export default function StudentClientMe({student, experience_group}: StudentClie
     }
 
     // Referencia para los plugins
-    const pluginsRef = useRef({});
+    const pluginsRef = useRef<{ [key: number]: ReturnType<typeof Autoplay> }>({});
 
     // Crear una instancia del plugin Autoplay para cada proyecto
     projectsEdit.forEach((pro) => {
@@ -341,8 +343,12 @@ export default function StudentClientMe({student, experience_group}: StudentClie
                                     <h2 className="text-lg font-medium text-gray-900">Acerca de</h2>
                                 </div>
 
-                                <div dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
+                                <div
+                                    className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
+                                >
+                                    <p style={{whiteSpace: 'pre-wrap'}}>{studentEdit.short_description || ""}</p>
 
+                                </div>
                             </div>
                         </div>
 
@@ -392,8 +398,11 @@ export default function StudentClientMe({student, experience_group}: StudentClie
                                     </div>
 
                                     <>
-                                        <div className="mb-6"
-                                             dangerouslySetInnerHTML={{__html: studentEdit.desctiption}}/>
+                                        <div
+                                            className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
+                                            dangerouslySetInnerHTML={{__html: studentEdit.description || ''}}
+                                        />
+
                                     </>
 
                                     <div className="grid grid-cols-2 gap-6">
@@ -530,7 +539,7 @@ export default function StudentClientMe({student, experience_group}: StudentClie
                                                                             className="flex flex-col sm:flex-row sm:items-center justify-between mb-2">
                                                                             {studies.institution_id ? (
                                                                                 <Link
-                                                                                    href={`/profile/institution/${studies.institution.slug}`}
+                                                                                    href={`/profile/institution/${studies.institution?.slug}`}
                                                                                     passHref>
                                                                                         <span
                                                                                             className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
@@ -743,13 +752,13 @@ export default function StudentClientMe({student, experience_group}: StudentClie
                                                                     <Carousel
                                                                         plugins={[pluginsRef.current[pro.id]]}
                                                                         className="w-full"
-                                                                        onMouseLeave={pluginsRef.current[pro.id].play}
+                                                                        onMouseLeave={() => pluginsRef.current[pro.id].play}
                                                                         setApi={(api) => {
                                                                             updateCarouselState(pro.id, api);
                                                                         }}
                                                                     >
                                                                         <CarouselContent>
-                                                                            {JSON.parse(pro.pictures).map((img, index) => (
+                                                                            {JSON.parse(pro.pictures).map((img : any, index : number) => (
                                                                                 <CarouselItem key={index}>
                                                                                     <div className="p-1">
                                                                                         <Card
