@@ -16,6 +16,7 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
 import {Badge} from "@/components/ui/badge";
 import {Button} from "@/components/ui/button";
+import Autoplay from "embla-carousel-autoplay";
 import {Avatar} from "@/components/ui/avatar";
 import React, {useState, useRef} from "react";
 import Image from "next/image";

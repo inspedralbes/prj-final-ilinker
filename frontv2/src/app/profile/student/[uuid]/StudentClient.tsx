@@ -9,9 +9,9 @@ import {LoaderContext} from "@/contexts/LoaderContext";
 
 interface StudentClientProps {
     uuid: string;
-    student: object;
-    experience_group: object;
-    offerUser: object
+    student: any;
+    experience_group: any;
+    offerUser: any
 }
 
 export default function StudentClient({uuid, student, experience_group, offerUser}: StudentClientProps) {
@@ -26,7 +26,7 @@ export default function StudentClient({uuid, student, experience_group, offerUse
         async function getAllSkills() {
             showLoader();
 
-            if (userData?.id === student.user.id) {
+            if (userData?.id === student?.user_id) {
                 setMyStudent(true);
             } else {
                 setMyStudent(false);

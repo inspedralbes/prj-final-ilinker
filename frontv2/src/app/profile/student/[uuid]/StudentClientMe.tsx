@@ -264,7 +264,7 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [isFiltering, setIsFiltering] = useState(false);
 
     // Función para manejar el cambio de filtro
-    const handleStatusFilterChange = (value) => {
+    const handleStatusFilterChange = (value: string) => {
         // Activar el loader
         setIsFiltering(true);
 
