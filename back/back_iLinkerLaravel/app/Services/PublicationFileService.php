@@ -18,7 +18,7 @@ class PublicationFileService
     public function storeFile(UploadedFile $file, int $userId): string
     {
         // crear el directorio del usuario si no existe
-        $userPath = "publications/user_{$userId}";
+        $userPath = "/user_{$userId}";
         if (!Storage::disk('publications')->exists($userPath)) {
             Storage::disk('publications')->makeDirectory($userPath);
         }
@@ -30,7 +30,7 @@ class PublicationFileService
         // guardar el archivo
         $file->storeAs($userPath, $filename, 'publications');
 
-        return "publications/user_{$userId}/{$filename}";
+        return "/user_{$userId}/{$filename}";
     }
 
     /**

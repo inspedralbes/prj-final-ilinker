@@ -2,6 +2,7 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
+import config from "@/types/config";
 import { useRouter } from "next/navigation";
 import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
@@ -477,14 +478,20 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
               {item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
                   <Image 
-                    src={item.file_path} 
+                    src={item.file_path.startsWith('http') ? item.file_path : `${config.apiUrl}/${item.file_path.replace(/^\//, '')}`}
                     alt="Medio de la publicación" 
                     fill
-                    className="object-cover" 
+                    className="object-cover"
+                    unoptimized={true}
                   />
                 </div>
               ) : (
-                <video src={item.file_path} controls className="w-full h-64 object-cover rounded-lg" />
+                <video 
+                  src={item.file_path.startsWith('http') ? item.file_path : `${config.apiUrl}/${item.file_path.replace(/^\//, '')}`}
+                  controls 
+                  className="w-full h-64 object-cover rounded-lg"
+                  playsInline
+                />
               )}
             </div>
           ))}
