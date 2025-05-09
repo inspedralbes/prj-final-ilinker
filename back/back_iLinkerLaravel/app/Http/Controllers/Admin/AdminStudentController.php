@@ -117,7 +117,7 @@ class AdminStudentController extends Controller
             $student->delete();
 
             // Opcional: eliminar usuario
-            // $user->delete();
+            $user->delete();
 
             DB::commit();
 

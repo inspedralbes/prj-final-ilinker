@@ -171,7 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Rutas de administración (corregidas)
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/reported-users', [ReportedUserController::class, 'index']);
     Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy']);
     Route::delete('/delete-user/{userId}', [ReportedUserController::class, 'deleteUser']);

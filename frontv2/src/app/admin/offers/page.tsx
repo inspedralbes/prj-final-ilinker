@@ -59,39 +59,39 @@ export default function OffersPage() {
 
     const handleUpdate = async (id: number) => {
         try {
-          const dataToSend = {
-            ...editData,
-            skills: Array.isArray(editData.skills) ? editData.skills : [],
-          };
-      
-          const response = await fetch(`${config.apiUrl}admin/offers/${id}`, {
-            method: 'PUT',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify(dataToSend),
-          });
-          
-          const data = await response.json();
-          
-          if (!response.ok) {
-            // Muestra detalles del error de validación si existen
-            if (data.errors) {
-              const errorMessages = Object.values(data.errors).flat().join('\n');
-              throw new Error(errorMessages);
+            const dataToSend = {
+                ...editData,
+                skills: Array.isArray(editData.skills) ? editData.skills : [],
+            };
+
+            const response = await fetch(`${config.apiUrl}admin/offers/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(dataToSend),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Muestra detalles del error de validación si existen
+                if (data.errors) {
+                    const errorMessages = Object.values(data.errors).flat().join('\n');
+                    throw new Error(errorMessages);
+                }
+                throw new Error(data.message || `Error ${response.status}`);
             }
-            throw new Error(data.message || `Error ${response.status}`);
-          }
-          
-          toast.success('Oferta actualizada correctamente');
-          setSelectedOffer(null);
-          fetchOffers();
+
+            toast.success('Oferta actualizada correctamente');
+            setSelectedOffer(null);
+            fetchOffers();
         } catch (error) {
-          console.error('Error completo:', error);
-          toast.error(error instanceof Error ? error.message : 'Error desconocido al actualizar');
+            console.error('Error completo:', error);
+            toast.error(error instanceof Error ? error.message : 'Error desconocido al actualizar');
         }
-      };
+    };
 
     const deleteOffer = async (id: number) => {
         if (!confirm('¿Eliminar esta oferta permanentemente?')) return;
@@ -136,6 +136,29 @@ export default function OffersPage() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
     );
+
+    const toggleStatus = async (id: number, currentStatus: boolean) => {
+        try {
+            const response = await fetch(`${config.apiUrl}admin/offers/${id}/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ active: !currentStatus }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                toast.success(`Oferta ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
+                setOffers(offers.map(offer =>
+                    offer.id === id ? { ...offer, active: !currentStatus } : offer
+                ));
+            } else {
+                throw new Error(data.message || 'Error al cambiar estado');
+            }
+        } catch (error) {
+            toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
+        }
+    };
 
     return (
         <div className="p-8">
@@ -195,6 +218,13 @@ export default function OffersPage() {
                                         }}
                                     >
                                         Editar
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant={offer.active ? 'destructive' : 'default'}
+                                        onClick={() => toggleStatus(offer.id, offer.active)}
+                                    >
+                                        {offer.active ? 'Desactivar' : 'Activar'}
                                     </Button>
                                 </TableCell>
                             </TableRow>

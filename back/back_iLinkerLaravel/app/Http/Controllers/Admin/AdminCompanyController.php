@@ -90,14 +90,14 @@ class AdminCompanyController extends Controller
         try {
             $company = Company::findOrFail($id);
 
-            // Opcional: Desasociar primero las ofertas
-            $company->offers()->update(['company_id' => null]);
+            // Eliminar las ofertas asociadas
+            $company->offers()->delete();
 
             $company->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Empresa eliminada correctamente'
+                'message' => 'Empresa y sus ofertas eliminadas correctamente'
             ]);
         } catch (\Exception $e) {
             return response()->json([

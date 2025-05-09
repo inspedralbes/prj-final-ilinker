@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -22,6 +23,11 @@ export default function AdminPage() {
   const handleRedirectToOffers = () => {
     router.push("/admin/offers");
   };
+
+  const { loggedIn, userData } = useAdminAuth();
+  if (!loggedIn || userData?.rol !== 'admin') {
+    return null; // O mostrar un loader
+  }
 
   return (
     <div className="container mx-auto px-6 py-10 max-w-7xl">
@@ -73,7 +79,7 @@ export default function AdminPage() {
             Ver Reportes
           </Button>
         </div>
-        
+
         <div className="bg-white rounded-2xl shadow-md hover:shadow-lg transition-shadow p-6 flex flex-col items-start">
           <h2 className="text-2xl font-semibold mb-3">Gestionar Ofertas</h2>
           <p className="text-gray-500 mb-6">Administrar todas las ofertas publicadas en el sistema.</p>
