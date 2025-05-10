@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 class PublicationsController extends Controller
 {
@@ -36,9 +37,17 @@ class PublicationsController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-            // Add liked status for each publication
+            // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
+                
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
+                }
+                
                 return $publication;
             });
 
@@ -58,12 +67,13 @@ class PublicationsController extends Controller
     public function store(Request $request)
     {
         try {
+            // Increase the file size limits in the validation rules
             $validator = Validator::make($request->all(), [
                 'content' => 'required_without:media|string|nullable',
                 'location' => 'nullable|string',
                 'comments_enabled' => 'boolean',
                 'status' => 'in:published,draft,archived',
-                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:50000', // Increased to 50MB per file
             ]);
 
             if ($validator->fails()) {
@@ -95,6 +105,7 @@ class PublicationsController extends Controller
                 'data' => $publication
             ], 201);
         } catch (\Exception $e) {
+            
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error creating publication',
@@ -112,6 +123,13 @@ class PublicationsController extends Controller
                 'comments.user:id,name',
                 'likes'
             ])->findOrFail($id);
+            
+            // Transform media to include full URLs
+            if ($publication->media && count($publication->media) > 0) {
+                foreach ($publication->media as $media) {
+                    $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -148,7 +166,7 @@ class PublicationsController extends Controller
                 'location' => 'nullable|string',
                 'comments_enabled' => 'boolean',
                 'status' => 'in:published,draft,archived',
-                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:20480',
+                'media.*' => 'nullable|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi|max:50000', // Increased to 50MB per file
             ]);
 
             if ($validator->fails()) {
@@ -234,6 +252,7 @@ class PublicationsController extends Controller
         }
     }
 
+    // Improved media upload handler to handle larger files
     private function handleMediaUpload($files, Publication $publication)
     {
         if (!is_array($files)) {
@@ -241,20 +260,22 @@ class PublicationsController extends Controller
         }
 
         $order = $publication->media()->max('display_order') ?? 0;
-
+        
         foreach ($files as $file) {
-            $order++;
-            $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
-            
-            // Store file using the file service
-            $filePath = $this->fileService->storeFile($file, Auth::id());
+           
+                $order++;
+                $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
+                
+                // Store file using the file service
+                $filePath = $this->fileService->storeFile($file, Auth::id());
 
-            PublicationMedia::create([
-                'publication_id' => $publication->id,
-                'file_path' => $filePath,
-                'media_type' => $mediaType,
-                'display_order' => $order
-            ]);
+                PublicationMedia::create([
+                    'publication_id' => $publication->id,
+                    'file_path' => $filePath,
+                    'media_type' => $mediaType,
+                    'display_order' => $order
+                ]);
+            
         }
     }
 
@@ -313,9 +334,17 @@ class PublicationsController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-            // Add liked status for each publication
+            // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
+                
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
+                }
+                
                 return $publication;
             });
 

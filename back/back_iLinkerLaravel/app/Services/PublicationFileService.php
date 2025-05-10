@@ -45,13 +45,21 @@ class PublicationFileService
     }
 
     /**
-     * coger la URL completa para un archivo de publicación
+     * coger la URL completa para un archivo de publicación
      *
      * @param string $filePath
      * @return string
      */
     public function getFileUrl(string $filePath): string
     {
-        return asset("storage/{$filePath}");
+        if (filter_var($filePath, FILTER_VALIDATE_URL)) {
+            return $filePath;
+        }
+        
+        // Ensure the path starts with a slash
+        $filePath = ltrim($filePath, '/');
+        
+        // Construct URL for the publication files
+        return url('storage/publications/' . $filePath);
     }
-} 
+}

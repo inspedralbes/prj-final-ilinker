@@ -45,7 +45,7 @@ interface Publication {
 interface NewPublication {
   content: string;
   media: Media[];
-  visibility: "Cualquiera" | "Solo conexiones" | "Solo yo";
+  visibility: "public" | "private"; 
   location: string;
   tags: string[];
 }
@@ -93,7 +93,7 @@ export default function PublicationPage() {
   const [newPublication, setNewPublication] = useState<NewPublication>({
     content: "",
     media: [],
-    visibility: "Cualquiera",
+    visibility: "public",
     location: "",
     tags: [],
   });
@@ -105,7 +105,7 @@ export default function PublicationPage() {
     try {
       const formData = new FormData();
       formData.append('content', newPublication.content);
-      formData.append('visibility', newPublication.visibility === 'Cualquiera' ? 'public' : 'private');
+      formData.append('visibility', newPublication.visibility);
       if (newPublication.location) {
         formData.append('location', newPublication.location);
       }
@@ -124,7 +124,7 @@ export default function PublicationPage() {
         setNewPublication({
           content: "",
           media: [],
-          visibility: "Cualquiera",
+          visibility: "public",
           location: "",
           tags: [],
         });
@@ -208,13 +208,13 @@ export default function PublicationPage() {
   const handlePublish = async (data: {
     content: string;
     media: Media[];
-    visibility: "Cualquiera" | "Solo conexiones" | "Solo yo";
+    visibility: "public" | "private";
     location: string;
   }) => {
     try {
       const formData = new FormData();
       formData.append('content', data.content);
-      formData.append('visibility', data.visibility === 'Cualquiera' ? 'public' : 'private');
+      formData.append('visibility', data.visibility);
       if (data.location) {
         formData.append('location', data.location);
       }
@@ -449,6 +449,7 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png"
 // Componente para el carrusel de medios (imágenes/videos)
 const MediaCarousel = ({ media }: { media: { id: number; file_path: string; media_type: "image" | "video" }[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [mediaError, setMediaError] = useState<Record<number, boolean>>({});
 
   // Funciones para navegar por el carrusel
   const goToPrev = () => {
@@ -463,6 +464,11 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
     );
   };
 
+  const handleMediaError = (id: number) => {
+    console.error(`Error loading media with id: ${id}`);
+    setMediaError(prev => ({...prev, [id]: true}));
+  };
+
   if (!media || media.length === 0) return null;
 
   return (
@@ -475,22 +481,28 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
         >
           {media.map((item: { id: number; file_path: string; media_type: "image" | "video" }) => (
             <div key={item.id} className="min-w-full flex-shrink-0">
-              {item.media_type === "image" ? (
+              {mediaError[item.id] ? (
+                <div className="h-64 w-full bg-gray-200 flex items-center justify-center">
+                  <p className="text-gray-500">No se pudo cargar el medio</p>
+                </div>
+              ) : item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
                   <Image 
-                    src={item.file_path.startsWith('http') ? item.file_path : `${config.apiUrl}/${item.file_path.replace(/^\//, '')}`}
-                    alt="Medio de la publicación" 
+                    src={item.file_path} 
+                    alt="Imagen de publicación" 
                     fill
                     className="object-cover"
+                    onError={() => handleMediaError(item.id)}
                     unoptimized={true}
                   />
                 </div>
               ) : (
                 <video 
-                  src={item.file_path.startsWith('http') ? item.file_path : `${config.apiUrl}/${item.file_path.replace(/^\//, '')}`}
+                  src={item.file_path}
                   controls 
                   className="w-full h-64 object-cover rounded-lg"
                   playsInline
+                  onError={() => handleMediaError(item.id)}
                 />
               )}
             </div>

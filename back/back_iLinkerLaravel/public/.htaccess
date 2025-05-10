@@ -19,3 +19,29 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Increase upload limits
+<IfModule mod_php.c>
+    php_value upload_max_filesize 100M
+    php_value post_max_size 100M
+    php_value memory_limit 256M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+    php_value max_file_uploads 20
+</IfModule>
+
+# Increase request timeout
+<IfModule mod_reqtimeout.c>
+    RequestReadTimeout header=60,body=300
+</IfModule>
+
+# Set maximum request body size
+<IfModule mod_security.c>
+    SecRequestBodyLimit 100000000
+    SecRequestBodyNoFilesLimit 1000000
+</IfModule>
+
+# Custom upload settings
+<IfModule mod_fastcgi.c>
+    FcgidMaxRequestLen 100000000
+</IfModule>
