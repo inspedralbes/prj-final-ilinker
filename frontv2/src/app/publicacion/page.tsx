@@ -237,15 +237,14 @@ export default function PublicationPage() {
       setError('Error al crear la publicación');
     }
   };
-
   const getUserAvatar = () => {
     if (!userData) return "/default-avatar.png";
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic;
+      return userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo;
+      return userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo;
+      return userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`;
     }
     return "/default-avatar.png";
   };
@@ -290,11 +289,11 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
     if (!userData) return "/default-cover.jpg";
 
     if (userData.rol === "institutions" && userData.institution?.cover_photo) {
-      return userData.institution.cover_photo;
+      return userData.institution.cover_photo.startsWith('http') ? userData.institution.cover_photo : `${config.storageUrl}${userData.institution.cover_photo}`;
     } else if (userData.rol === "company" && userData.company?.cover_photo) {
-      return userData.company.cover_photo;
+      return userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`;
     } else if (userData.rol === "student" && userData.student?.cover_photo) {
-      return userData.student.cover_photo;
+      return userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`;
     }
 
     return "/default-cover.jpg";
@@ -304,11 +303,11 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
     if (!userData) return "/default-avatar.png";
 
     if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo;
+      return userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo;
+      return userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`;
     } else if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic;
+      return userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`;
     }
 
     return "/default-avatar.png";
@@ -372,21 +371,35 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="h-20 bg-slate-200 relative">
             <Image
-              src={getUserCoverPhoto()}
+              src={userData?.rol === "institutions" && userData.institution?.cover_photo
+                ? (userData.institution.cover_photo.startsWith('http') ? userData.institution.cover_photo : `${config.storageUrl}${userData.institution.cover_photo}`)
+                : userData?.rol === "company" && userData.company?.cover_photo
+                ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
+                : userData?.rol === "student" && userData.student?.cover_photo
+                ? (userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`) 
+                : "/default-cover.jpg"}
               alt="Portada"
               fill
               className="object-cover"
+              unoptimized={true}
             />
           </div>
           <div className="px-4 pb-4">
             <div className="relative -mt-12 mb-3">
-              <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden">
+              <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
                 <Image
-                  src={getUserProfilePic()}
+                  src={userData?.rol === "institutions" && userData.institution?.logo
+                    ? (userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`)
+                    : userData?.rol === "company" && userData.company?.logo
+                    ? (userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`)
+                    : userData?.rol === "student" && userData.student?.photo_pic
+                    ? (userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`)
+                    : "/default-avatar.png"}
                   alt="Perfil"
-                  width={96}
-                  height={96}
+                  fill
+                  sizes="96px"
                   className="object-cover"
+                  unoptimized={true}
                 />
               </div>
             </div>
@@ -433,8 +446,14 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
 const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png" }: { onOpenModal: () => void; userAvatar?: string }) => (
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
-      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
-        <Image src={userAvatar} alt="Perfil" width={48} height={48} className="object-cover" />
+      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
+        <Image 
+          src={userAvatar} 
+          alt="Perfil" 
+          fill
+          className="object-cover" 
+          unoptimized={true}
+        />
       </div>
       <button 
         onClick={onOpenModal} 
@@ -488,7 +507,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
               ) : item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
                   <Image 
-                    src={item.file_path} 
+                    src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`} 
                     alt="Imagen de publicación" 
                     fill
                     className="object-cover"
@@ -498,7 +517,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                 </div>
               ) : (
                 <video 
-                  src={item.file_path}
+                  src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
                   controls 
                   className="w-full h-64 object-cover rounded-lg"
                   playsInline
@@ -570,7 +589,9 @@ const PublicationCard = ({
       <div className="flex items-center space-x-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
           <Image 
-            src={publication.user.avatar || "/default-avatar.png"} 
+            src={publication.user.avatar ? 
+              (publication.user.avatar.startsWith('http') ? publication.user.avatar : `${config.storageUrl}${publication.user.avatar}`) 
+              : "/default-avatar.png"} 
             alt={publication.user.name} 
             width={40} 
             height={40} 
