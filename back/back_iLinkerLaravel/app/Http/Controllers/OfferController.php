@@ -33,6 +33,8 @@ class OfferController extends Controller
             'description' => 'required',
             'location_type' => 'required',
             'address' => 'required',
+            'lat' => 'required',
+            'lng' => 'required',
             'city' => 'required',
             'postal_code' => 'required',
             'schedule_type' => 'required',
@@ -47,6 +49,8 @@ class OfferController extends Controller
             'description.required' => 'El campo descripcion es obligatorio',
             'location_type.required' => 'El campo tipo de localizacion es obligatorio',
             'address.required' => 'El campo direccion es obligatorio',
+            'lat.required' => 'El campo latitud es obligatorio',
+            'lng.required' => 'El campo longitud es obligatorio',
             'city.required' => 'El campo ciudad es obligatorio',
             'postal_code.required' => 'El campo postal codigo es obligatorio',
             'schedule_type.required' => 'El campo schedule es obligatorio',
@@ -78,6 +82,8 @@ class OfferController extends Controller
             $newOffer->description = $data['description'];
             $newOffer->location_type = $data['location_type'];
             $newOffer->address = $data['address'];
+            $newOffer->lat = $data['lat'];
+            $newOffer->lng = $data['lng'];
             $newOffer->schedule_type = $data['schedule_type'];
             $newOffer->city = $data['city'];
             $newOffer->days_per_week = $data['days_per_week'];

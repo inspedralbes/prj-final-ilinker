@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   Search,
   MapPin,
@@ -58,11 +58,11 @@ import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import AddressAutocomplete from "@/components/address/AddressAutocomplete";
 
 export default function SearchClient() {
   const [latestOffers, setLatestOffers] = useState<any | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState("");
+  const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [selectedJob, setSelectedJob] = useState<any | null>(null);
   const [isJobDetailOpen, setIsJobDetailOpen] = useState(false);
   const [selectedInfoJob, setSelectedInfoJob] = useState<any | null>(null);
@@ -127,14 +127,48 @@ export default function SearchClient() {
     apiRequest("page/search")
       .then((response) => {
         console.log(response);
-        handleSelectedInfoJob(response.data[0]);
-        setLatestOffers(response.data);
+        handleSelectedInfoJob(response.data.data[0]);
+        setLatestOffers(response.data.data);
+        setNextPageUrl(response.data.next_page_url);
       })
       .catch((e) => console.error(e))
       .finally(() => {
         hideLoader();
       });
   }, [userData, router]);
+
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const loadMore = () => {
+    if (!nextPageUrl) return;
+    // opcional: desactivar observer temporalmente para evitar dobles calls
+    fetch(nextPageUrl)
+      .then(async (res: any) => {
+        console.log(res);
+        const response = await res.json();
+        console.log(response);
+
+        setLatestOffers((prev: any) => [...prev, ...response.data.data]);
+        setNextPageUrl(response.data.next_page_url);
+      })
+      .catch(console.error);
+  };
+
+  // Observer que dispara loadMore() cuando el sentinel aparece en pantalla
+  useEffect(() => {
+    if (!sentinelRef.current || !nextPageUrl) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          loadMore();
+        }
+      },
+      { rootMargin: "200px" } // carga un poco antes de llegar al fondo
+    );
+
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [sentinelRef.current, nextPageUrl]);
 
   //data for the modal to apply
   const [step, setStep] = useState(1);
@@ -210,7 +244,17 @@ export default function SearchClient() {
   }, [selectedInfoJob?.skills]);
 
   const JobDetails = () => {
-    return selectedInfoJob !== null ? (
+    return latestOffers?.length === 0 ? (
+      <>
+        <div className="flex flex-col justify-center items-center h-full w-full">
+          <img src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg" alt="No data" className="w-24 h-24 mb-2" />
+          <span className="mt-2 text-muted-foreground">
+            Vaya… No encontramos ninguna oferta que coincida con tus criterios.
+            Prueba cambiando tu búsqueda o recargando la página.
+          </span>
+        </div>
+      </>
+    ) : selectedInfoJob !== null ? (
       <div className="space-y-6">
         <div>
           <div className="flex items-center justify-between mb-4">
@@ -252,9 +296,9 @@ export default function SearchClient() {
                 <span>Apply Now</span>
               </Button>
             )}
-            <Button variant="outline" size="icon">
+            {/* <Button variant="outline" size="icon">
               <BookmarkPlus className="h-5 w-5" />
-            </Button>
+            </Button> */}
           </div>
         </div>
 
@@ -290,8 +334,8 @@ export default function SearchClient() {
               {selectedInfoJob.schedule_type === "full"
                 ? "Jornada completa"
                 : selectedInfoJob.schedule_type === "part"
-                ? "Jornada parcial"
-                : "Negociable"}
+                  ? "Jornada parcial"
+                  : "Negociable"}
             </span>
           </div>
 
@@ -390,7 +434,7 @@ export default function SearchClient() {
         .catch((error) => {
           console.error(error);
         })
-        .finally(() => {});
+        .finally(() => { });
     } catch (error) {
       toast({
         title: "Error",
@@ -402,6 +446,50 @@ export default function SearchClient() {
       hideLoader();
     }
   };
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [locationQuery, setLocationQuery] = useState<any>({ address: "", lat: 0, lng: 0 });
+  const [scheduleTypeQuery, setScheduleTypeQuery] = useState<string | null>(null);
+  const [locationTypeQuery, setLocationTypeQuery] = useState<string | null>(null);
+  const [dateQuery, setDateQuery] = useState<string | null>(null);
+  const filterOffers = () => {
+    showLoader();
+    try {
+      apiRequest('page/search-filtered', 'POST', {
+        searchQuery,
+        locationQuery,
+        scheduleTypeQuery,
+        locationTypeQuery,
+        dateQuery
+      })
+        .then((response) => {
+          console.log(response);
+          if (response.status === 'success') {
+            if (response.data.data.length > 0) {
+              handleSelectedInfoJob(response.data.data[0]);
+            }
+            setLatestOffers(response.data.data);
+            setNextPageUrl(response.data.next_page_url);
+          } else {
+            toast({
+              title: "Error",
+              description: "Error al buscar ofertas",
+              variant: "destructive",
+            })
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        })
+        .finally(() => {
+          hideLoader();
+        });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      hideLoader();
+    }
+  }
 
   return (
     <div className="">
@@ -420,48 +508,62 @@ export default function SearchClient() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
+          <div className="relative flex-1 min-w-[200px]">
+            <AddressAutocomplete
+              value={locationQuery.address}
+              onChange={(newAddress: any) => setLocationQuery({ address: newAddress })}
+              onSelect={(address: any) => {
+                console.log(address);
+                setLocationQuery({ address: address.place_name, lat: address.lat, lng: address.lng });
+              }}
+            />
+          </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                Tipo de jornada
+                {scheduleTypeQuery ? scheduleTypeQuery === "full" ? "Jornada completa" : scheduleTypeQuery === "part" ? "Jornada parcial" : "Negociable" : "Todos"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Jornada completa</DropdownMenuItem>
-              <DropdownMenuItem>Jornada parcial</DropdownMenuItem>
-              <DropdownMenuItem>Nefociable</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery("full")}>Jornada completa</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery("part")}>Jornada parcial</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery("negociable")}>Nefociable</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery(null)}>Todos</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                Tipo
+                {locationTypeQuery ? locationTypeQuery === "hibrido" ? "Híbrido" : locationTypeQuery === "remoto" ? "Remoto" : "Presencial" : "Todos"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Híbrido</DropdownMenuItem>
-              <DropdownMenuItem>Remoto</DropdownMenuItem>
-              <DropdownMenuItem>Presencial</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery("hibrido")}>Híbrido</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery("remoto")}>Remoto</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery("presencial")}>Presencial</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery(null)}>Todos</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
+                {dateQuery ? dateQuery === "24" ? "Hace 24 horas" : dateQuery === "week" ? "Hace una semana" : dateQuery === "month" ? "Hace un mes" : "Todos" : "Todos"}
+                <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>Hace 24 horas</DropdownMenuItem>
-              <DropdownMenuItem>Hace una semana</DropdownMenuItem>
-              <DropdownMenuItem>Hace un mes</DropdownMenuItem>
-              <DropdownMenuItem>Cualquier momento</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("24")}>Hace 24 horas</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("week")}>Hace una semana</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("month")}>Hace un mes</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery(null)}>Todos</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button onClick={filterOffers} className="bg-primary text-primary-foreground hover:bg-primary/90">
             Buscar
           </Button>
         </div>
@@ -471,14 +573,23 @@ export default function SearchClient() {
           {/* Job Listings */}
           <ScrollArea className="h-[calc(100vh-170px)]">
             <div className="pr-4 relative">
+
+              {latestOffers?.length === 0 && (
+                <div className="flex flex-col justify-center items-center h-full w-full">
+                  <img src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg" alt="No data" className="w-24 h-24 mb-2" />
+                  <span className="mt-2 text-muted-foreground">
+                    Vaya… No encontramos ninguna oferta que coincida con tus criterios.
+                    Prueba cambiando tu búsqueda o recargando la página.
+                  </span>
+                </div>
+              )}
               {/* Siempre mostramos los 3 primeros */}
               <div className="space-y-4">
                 {latestOffers?.slice(0, 3).map((job: any) => (
                   <Card
                     key={job.id}
-                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
-                      selectedJob === job ? "border-primary" : ""
-                    }`}
+                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
+                      }`}
                     onClick={() => handleSelectedInfoJob(job)}
                   >
                     {/* Contenido del card */}
@@ -496,13 +607,21 @@ export default function SearchClient() {
                           </div>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary">Full-time</Badge>
-                          <Badge variant="secondary">Remote</Badge>
+                          <Badge variant="secondary">{job.schedule_type === "full"
+                            ? "Jornada completa"
+                            : job.schedule_type === "part"
+                              ? "Jornada parcial"
+                              : "Negociable"}</Badge>
+                          <Badge variant="secondary">{job.location_type === "remoto"
+                            ? "Remoto"
+                            : job.location_type === "presencial"
+                              ? "Presencial"
+                              : "Híbrido"}</Badge>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon">
+                      {/* <Button variant="ghost" size="icon">
                         <BookmarkPlus className="h-5 w-5" />
-                      </Button>
+                      </Button> */}
                     </div>
                     <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                       <Clock className="h-4 w-4" />
@@ -513,7 +632,7 @@ export default function SearchClient() {
                         })}
                       </span>
                       <Separator orientation="vertical" className="h-4" />
-                      <span>84 applicants</span>
+                      <span>{job.users_interested.length === 0 ? "No hay aplicantes" : job.users_interested.length + " aplicantes"}</span>
                     </div>
                   </Card>
                 ))}
@@ -529,51 +648,68 @@ export default function SearchClient() {
               )}
 
               {/* Si el usuario está logeado, mostramos el resto de las ofertas */}
-              {loggedIn &&
-                latestOffers?.slice(3).map((job: any) => (
-                  <Card
-                    key={job.id}
-                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
-                      selectedJob === job ? "border-primary" : ""
-                    }`}
-                    onClick={() => handleSelectedInfoJob(job)}
-                  >
-                    {/* Contenido del card */}
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-1">
-                            {job.title}
-                          </h3>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Building2 className="h-4 w-4" />
-                            <span>{job.company.name}</span>
-                            <MapPin className="h-4 w-4 ml-2" />
-                            <span>{job.address}</span>
+              <div className="space-y-4 mt-5">
+                {loggedIn &&
+                  latestOffers?.slice(3).map((job: any) => (
+                    <Card
+                      key={job.id}
+                      className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
+                        }`}
+                      onClick={() => handleSelectedInfoJob(job)}
+                    >
+                      {/* Contenido del card */}
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="text-lg font-semibold mb-1">
+                              {job.title}
+                            </h3>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Building2 className="h-4 w-4" />
+                              <span>{job.company.name}</span>
+                              <MapPin className="h-4 w-4 ml-2" />
+                              <span>{job.address}</span>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <Badge variant="secondary"> {job.schedule_type === "full"
+                              ? "Jornada completa"
+                              : job.schedule_type === "part"
+                                ? "Jornada parcial"
+                                : "Negociable"}</Badge>
+                            <Badge variant="secondary">{job.location_type === "remoto"
+                              ? "Remoto"
+                              : job.location_type === "presencial"
+                                ? "Presencial"
+                                : "Híbrido"}</Badge>
                           </div>
                         </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary">Full-time</Badge>
-                          <Badge variant="secondary">Remote</Badge>
-                        </div>
+                        {/* <Button variant="ghost" size="icon">
+                          <BookmarkPlus className="h-5 w-5" />
+                        </Button> */}
                       </div>
-                      <Button variant="ghost" size="icon">
-                        <BookmarkPlus className="h-5 w-5" />
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        Posted{" "}
-                        {formatDistanceToNow(new Date(job.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                      <Separator orientation="vertical" className="h-4" />
-                      <span>84 applicants</span>
-                    </div>
-                  </Card>
-                ))}
+                      <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>
+                          Posted{" "}
+                          {formatDistanceToNow(new Date(job.created_at), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                        <Separator orientation="vertical" className="h-4" />
+                        <span>{job.users_interested.length === 0 ? "No hay aplicantes" : job.users_interested.length + " aplicantes"} </span>
+                      </div>
+                    </Card>
+                  ))}
+                <div ref={sentinelRef} />
+
+                {nextPageUrl && (
+                  <div className="flex justify-center items-center py-4">
+                    <Loader2 className="animate-spin" />
+                  </div>
+                )}
+
+              </div>
             </div>
           </ScrollArea>
 
@@ -899,8 +1035,8 @@ export default function SearchClient() {
                         href={
                           studentData.cover_letter_attachment
                             ? URL.createObjectURL(
-                                studentData.cover_letter_attachment
-                              )
+                              studentData.cover_letter_attachment
+                            )
                             : "#"
                         }
                         download={studentData.cover_letter_attachment?.name}
