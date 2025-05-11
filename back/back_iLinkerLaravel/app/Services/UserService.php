@@ -98,7 +98,33 @@ class UserService
 
     public function getUsers()
     {
-        return User::all();
+        return User::with(['student', 'company', 'institutions'])->get()->map(function ($user) {
+            switch ($user->rol) {
+                case 'student':
+                    $user->student = $user->student;
+                    break;
+                case 'company':
+                    $user->company = $user->company;
+                    break;
+                case 'institutions':
+                    $user->institution = $user->institutions;
+                    break;
+            }
+            
+            
+            // Esto asegura que cargamos solo los datos adicionales si es un estudiante
+            if ($user->rol === 'student' && $user->student) {
+                $user->load([
+                    'education',
+                    'experience',
+                    'skills' => function ($query) {
+                        $query->select('skills.id', 'skills.name');
+                    }
+                ]);
+            }
+            
+            return $user;
+        });
     }
 
     public function getUserByIdWithInfo($id)
