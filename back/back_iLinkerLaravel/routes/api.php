@@ -78,6 +78,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/info', [UserController::class, 'getUser'])->name('get.user');
         Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
         Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
+        // obtener todos los usuarios para que puedo mostrar el perfiles de los usuarios en la parte de publicaciones
+        Route::post('/all', [UserController::class, 'getAllUsers'])->name('user.all');
+
     });
 
     Route::prefix('/student')->group(function () {

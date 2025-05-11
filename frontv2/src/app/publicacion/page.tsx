@@ -45,7 +45,7 @@ interface Publication {
 interface NewPublication {
   content: string;
   media: Media[];
-  visibility: "public" | "private"; 
+  visibility: "public" | "private";
   location: string;
   tags: string[];
 }
@@ -57,10 +57,12 @@ export default function PublicationPage() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   // Cargar publicaciones al montar el componente
   useEffect(() => {
     fetchPublications();
+    fetchAllUsers();
   }, []);
 
   // Función para obtener las publicaciones del servidor
@@ -69,7 +71,7 @@ export default function PublicationPage() {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
       console.log('Respuesta de datos de publicaciones:', response);
-      
+
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
         const publicationsWithLikeState = response.data.data.map((pub: Publication) => ({
@@ -87,6 +89,82 @@ export default function PublicationPage() {
       setIsLoading(false);
     }
   };
+
+  // Función para obtener todos los usuarios
+  const fetchAllUsers = async () => {
+    try {
+      const response = await apiRequest('/users/all', 'POST');
+
+      if (response.status === 'success' && response.users) {
+        // Transformar los datos de usuario según su rol
+        const transformedUsers = response.users.map((user: any) => {
+          const baseUser = {
+            id: user.id,
+            name: user.name,
+            surname: user.surname,
+            email: user.email,
+            rol: user.rol,
+            avatar: null
+          };
+
+          // Añadir información específica según el rol
+          switch (user.rol) {
+            case 'student':
+              return {
+                ...baseUser,
+                student: {
+                  uuid: user.student?.uuid,
+                  title: user.student?.title,
+                  photo_pic: user.student?.photo_pic,
+                  cover_photo: user.student?.cover_photo,
+                  city: user.student?.city,
+                  country: user.student?.country
+                },
+                avatar: user.student?.photo_pic
+              };
+            case 'company':
+              return {
+                ...baseUser,
+                company: {
+                  slug: user.company?.slug,
+                  name: user.company?.name,
+                  logo: user.company?.logo,
+                  cover_photo: user.company?.cover_photo,
+                  slogan: user.company?.slogan,
+                  city: user.company?.city,
+                  country: user.company?.country
+                },
+                avatar: user.company?.logo
+              };
+            case 'institutions':
+              return {
+                ...baseUser,
+                institution: {
+                  slug: user.institution?.slug,
+                  name: user.institution?.name,
+                  logo: user.institution?.logo,
+                  cover_photo: user.institution?.cover_photo,
+                  slogan: user.institution?.slogan,
+                  city: user.institution?.city,
+                  country: user.institution?.country
+                },
+                avatar: user.institution?.logo
+              };
+            default:
+              return baseUser;
+          }
+        });
+
+        console.log('Usuarios transformados:', transformedUsers);
+        setAllUsers(transformedUsers);
+      } else {
+        console.error('Error en el formato de respuesta de usuarios:', response);
+      }
+    } catch (err) {
+      console.error('Error al cargar los usuarios:', err);
+    }
+  };
+
 
   // Estados para el modal y nueva publicación
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -109,7 +187,7 @@ export default function PublicationPage() {
       if (newPublication.location) {
         formData.append('location', newPublication.location);
       }
-      
+
       // Añadir archivos multimedia si existen
       newPublication.media.forEach((media, index) => {
         if (typeof media.url === 'object' && media.url instanceof File) {
@@ -141,14 +219,14 @@ export default function PublicationPage() {
     try {
       const response = await apiRequest(`/publications/${id}/like`, 'POST');
       console.log('Respuesta del like:', response);
-      
+
       if (response.status === 'success') {
         // Actualizar el estado de las publicaciones con la nueva información del like
         setPublications(publications.map((pub) =>
-          pub.id === id ? { 
-            ...pub, 
+          pub.id === id ? {
+            ...pub,
             likes_count: response.likes_count,
-            liked: response.liked 
+            liked: response.liked
           } : pub
         ));
       }
@@ -162,12 +240,12 @@ export default function PublicationPage() {
     try {
       const response = await apiRequest(`/publications/${id}/save`, 'POST');
       console.log('Respuesta del guardado:', response);
-      
+
       if (response.status === 'success') {
         setPublications(publications.map((pub) =>
-          pub.id === id ? { 
-            ...pub, 
-            saved: response.saved 
+          pub.id === id ? {
+            ...pub,
+            saved: response.saved
           } : pub
         ));
       }
@@ -218,7 +296,7 @@ export default function PublicationPage() {
       if (data.location) {
         formData.append('location', data.location);
       }
-      
+
       // Añadir archivos multimedia si existen
       data.media.forEach((media, index) => {
         if (typeof media.url === 'object' && media.url instanceof File) {
@@ -260,17 +338,17 @@ export default function PublicationPage() {
             onClose={() => setIsModalOpen(false)}
             onPublish={handlePublish}
           />
-          
+
           {isLoading ? (
             <div className="text-center py-4">Cargando publicaciones...</div>
           ) : error ? (
             <div className="text-center py-4 text-red-500">{error}</div>
           ) : (
             publications.map((publication) => (
-              <PublicationCard 
-                key={publication.id} 
-                publication={publication} 
-                onLike={handleLike} 
+              <PublicationCard
+                key={publication.id}
+                publication={publication}
+                onLike={handleLike}
                 onComment={handleComment}
                 onSave={handleSavePublication}
               />
@@ -374,10 +452,10 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
               src={userData?.rol === "institutions" && userData.institution?.cover_photo
                 ? (userData.institution.cover_photo.startsWith('http') ? userData.institution.cover_photo : `${config.storageUrl}${userData.institution.cover_photo}`)
                 : userData?.rol === "company" && userData.company?.cover_photo
-                ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
-                : userData?.rol === "student" && userData.student?.cover_photo
-                ? (userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`) 
-                : "/default-cover.jpg"}
+                  ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
+                  : userData?.rol === "student" && userData.student?.cover_photo
+                    ? (userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`)
+                    : "/default-cover.jpg"}
               alt="Portada"
               fill
               className="object-cover"
@@ -391,10 +469,10 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
                   src={userData?.rol === "institutions" && userData.institution?.logo
                     ? (userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`)
                     : userData?.rol === "company" && userData.company?.logo
-                    ? (userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`)
-                    : userData?.rol === "student" && userData.student?.photo_pic
-                    ? (userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`)
-                    : "/default-avatar.png"}
+                      ? (userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`)
+                      : userData?.rol === "student" && userData.student?.photo_pic
+                        ? (userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`)
+                        : "/default-avatar.png"}
                   alt="Perfil"
                   fill
                   sizes="96px"
@@ -447,16 +525,16 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png"
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
-        <Image 
-          src={userAvatar} 
-          alt="Perfil" 
+        <Image
+          src={userAvatar}
+          alt="Perfil"
           fill
-          className="object-cover" 
+          className="object-cover"
           unoptimized={true}
         />
       </div>
-      <button 
-        onClick={onOpenModal} 
+      <button
+        onClick={onOpenModal}
         className="flex-1 text-left bg-gray-50 rounded-full px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
       >
         Crear publicación
@@ -472,20 +550,20 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
 
   // Funciones para navegar por el carrusel
   const goToPrev = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? media.length - 1 : prevIndex - 1
     );
   };
 
   const goToNext = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === media.length - 1 ? 0 : prevIndex + 1
     );
   };
 
   const handleMediaError = (id: number) => {
     console.error(`Error loading media with id: ${id}`);
-    setMediaError(prev => ({...prev, [id]: true}));
+    setMediaError(prev => ({ ...prev, [id]: true }));
   };
 
   if (!media || media.length === 0) return null;
@@ -494,7 +572,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
     <div className="relative mb-4">
       <div className="overflow-hidden rounded-lg">
         {/* Contenedor principal del carrusel */}
-        <div 
+        <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
@@ -506,9 +584,9 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                 </div>
               ) : item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
-                  <Image 
-                    src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`} 
-                    alt="Imagen de publicación" 
+                  <Image
+                    src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
+                    alt="Imagen de publicación"
                     fill
                     className="object-cover"
                     onError={() => handleMediaError(item.id)}
@@ -516,9 +594,9 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                   />
                 </div>
               ) : (
-                <video 
+                <video
                   src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
-                  controls 
+                  controls
                   className="w-full h-64 object-cover rounded-lg"
                   playsInline
                   onError={() => handleMediaError(item.id)}
@@ -528,30 +606,30 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
           ))}
         </div>
       </div>
-      
+
       {/* Indicadores de posición del carrusel */}
       {media.length > 1 && (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
           {media.map((_, idx) => (
-            <button 
-              key={idx} 
+            <button
+              key={idx}
               className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
               onClick={() => setCurrentIndex(idx)}
             />
           ))}
         </div>
       )}
-      
+
       {/* Botones de navegación del carrusel */}
       {media.length > 1 && (
         <>
-          <button 
+          <button
             className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
             onClick={goToPrev}
           >
             <ChevronLeft className="w-5 h-5 text-gray-800" />
           </button>
-          <button 
+          <button
             className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
             onClick={goToNext}
           >
@@ -564,14 +642,14 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
 };
 
 // Componente para mostrar una publicación individual
-const PublicationCard = ({ 
-  publication, 
-  onLike, 
+const PublicationCard = ({
+  publication,
+  onLike,
   onComment,
   onSave
-}: { 
-  publication: Publication; 
-  onLike: (id: number) => void; 
+}: {
+  publication: Publication;
+  onLike: (id: number) => void;
   onComment: (id: number) => void;
   onSave: (id: number) => void;
 }) => {
@@ -588,14 +666,14 @@ const PublicationCard = ({
     <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
       <div className="flex items-center space-x-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
-          <Image 
-            src={publication.user.avatar ? 
-              (publication.user.avatar.startsWith('http') ? publication.user.avatar : `${config.storageUrl}${publication.user.avatar}`) 
-              : "/default-avatar.png"} 
-            alt={publication.user.name} 
-            width={40} 
-            height={40} 
-            className="object-cover" 
+          <Image
+            src={publication.user.avatar ?
+              (publication.user.avatar.startsWith('http') ? publication.user.avatar : `${config.storageUrl}${publication.user.avatar}`)
+              : "/default-avatar.png"}
+            alt={publication.user.name}
+            width={40}
+            height={40}
+            className="object-cover"
           />
         </div>
         <div>
@@ -613,22 +691,21 @@ const PublicationCard = ({
         </div>
       </div>
       <p className="text-gray-800 mb-4">{publication.content}</p>
-      
+
       {/* Carrusel de medios si la publicación tiene contenido multimedia */}
       {publication.has_media && publication.media && publication.media.length > 0 && (
         <MediaCarousel media={publication.media} />
       )}
-      
+
       {/* Barra de acciones de la publicación */}
       <div className="flex items-center justify-between text-gray-500 border-t pt-3">
-        <button 
-          onClick={() => handleLikeClick(publication.id)} 
+        <button
+          onClick={() => handleLikeClick(publication.id)}
           className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
         >
-          <Heart 
-            className={`w-5 h-5 transition-all duration-200 ${
-              isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
-            } ${publication.liked ? 'fill-current scale-110' : ''}`} 
+          <Heart
+            className={`w-5 h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
+              } ${publication.liked ? 'fill-current scale-110' : ''}`}
           />
           <span className={`transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
             {publication.likes_count}
@@ -638,8 +715,8 @@ const PublicationCard = ({
           <MessageCircle className="w-5 h-5" />
           <span>{publication.comments_count}</span>
         </button>
-        <button 
-          onClick={() => onSave(publication.id)} 
+        <button
+          onClick={() => onSave(publication.id)}
           className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
         >
           <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
