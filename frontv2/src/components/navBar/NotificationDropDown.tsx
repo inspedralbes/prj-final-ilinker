@@ -9,11 +9,14 @@ export default function NotificationDropDown() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
-  const toggleDropdown = () => setIsOpen(prev => !prev);
+  const toggleDropdown = () => setIsOpen((prev) => !prev);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -37,8 +40,14 @@ export default function NotificationDropDown() {
       {isOpen && (
         <ul className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto bg-white rounded-lg shadow-lg">
           {notifications.length > 0 ? (
-            notifications.map(notif => {
-              const IconComp = notif.icon ? Icons[notif.icon as keyof typeof Icons] : null;
+            notifications.map((notif) => {
+              // 1) Asegúrate de que notif.icon es una clave válida de Icons
+              const iconKey = notif.icon as keyof typeof Icons;
+
+              // 2) Asserts para que TS lo trate como componente React
+              const IconComp = Icons[
+                iconKey
+              ] as React.ComponentType<Icons.LucideProps>;
               return (
                 <li
                   key={notif.id}
@@ -48,17 +57,27 @@ export default function NotificationDropDown() {
                     setIsOpen(false);
                   }}
                 >
-                  {IconComp && <IconComp className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />}
+                  {IconComp && (
+                    <IconComp className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                  )}
                   <div className="flex-1">
-                    <p className="font-medium text-gray-800 text-sm">{notif.title}</p>
-                    <p className="text-gray-600 text-xs mt-1">{notif.message}</p>
-                    <p className="text-gray-400 text-[10px] mt-1">{new Date(notif.created_at).toLocaleString()}</p>
+                    <p className="font-medium text-gray-800 text-sm">
+                      {notif.title}
+                    </p>
+                    <p className="text-gray-600 text-xs mt-1">
+                      {notif.message}
+                    </p>
+                    <p className="text-gray-400 text-[10px] mt-1">
+                      {new Date(notif.created_at).toLocaleString()}
+                    </p>
                   </div>
                 </li>
               );
             })
           ) : (
-            <li className="p-4 text-center text-sm text-gray-500">No hay notificaciones</li>
+            <li className="p-4 text-center text-sm text-gray-500">
+              No hay notificaciones
+            </li>
           )}
         </ul>
       )}
