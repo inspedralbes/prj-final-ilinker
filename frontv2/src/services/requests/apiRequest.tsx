@@ -20,76 +20,50 @@ export async function apiRequest(
   body: any = null
 ): Promise<any> {
   try {
-    // Obtener token
-    const token = getAuthToken();
-    
-    // Preparamos headers comunes
+    const token = Cookies.get("authToken") || localStorage.getItem("authToken");
     const headers: Record<string, string> = {
       "Accept": "application/json",
     };
-    
-    // Agregar token si existe
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
-    
+
     const options: RequestInit = {
       method,
       headers,
-      credentials: 'include' // Aseguramos que las cookies se envíen
+      credentials: 'include'
     };
-    
-    if (body instanceof FormData) {
-      // Si es FormData, no ponemos Content-Type: lo infiere el navegador con boundary
-      options.body = body;
-    } else if (body != null) {
-      // Para cualquier otro body, enviamos JSON
+
+    if (body) {
       headers["Content-Type"] = "application/json";
       options.body = JSON.stringify(body);
     }
-    
-    const url = `${routeApi}${endpoint}`;
-    console.log(`Enviando solicitud a: ${url}`, { method, headers: {...headers, Authorization: token ? 'Bearer [TOKEN]' : undefined} });
-    
-    const response = await fetch(url, options);
-    
-    // Manejar errores de respuesta HTTP
+
+    const response = await fetch(`${config.apiUrl}${endpoint}`, options);
+
+    if (response.status === 401) {
+      // Limpiar autenticación
+      Cookies.remove("authToken");
+      localStorage.removeItem("authToken");
+      
+      // Redirigir a login
+      if (typeof window !== "undefined") {
+        window.location.href = '/auth/login';
+      }
+      
+      throw new Error('Unauthorized');
+    }
+
     if (!response.ok) {
-      let errorMessage = `Error en la respuesta: ${response.status}`;
-      
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.message || errorMessage;
-      } catch (e) {
-        // Si no podemos parsear como JSON, dejamos el mensaje por defecto
-      }
-      
-      // Si es un error de autenticación, podemos limpiar el token
-      if (response.status === 401) {
-        Cookies.remove("authToken");
-        localStorage.removeItem("authToken");
-        
-        // Redireccionar al login si es necesario
-        if (typeof window !== "undefined" && !window.location.pathname.includes('/login')) {
-          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-        }
-      }
-      
-      throw new Error(errorMessage);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
-    
-    // Solo intentamos parsear como JSON si esperamos una respuesta con contenido
-    if (response.status !== 204) { // 204 = No Content
-      return await response.json();
-    }
-    
-    return { success: true };
-  } catch (error: any) {
-    console.error('Error en apiRequest:', error);
-    return {
-      status: 'error',
-      message: error.message,
-    };
+
+    return await response.json();
+  } catch (error) {
+    console.error('API Request Error:', error);
+    throw error;
   }
 }
 

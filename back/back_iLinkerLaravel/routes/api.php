@@ -28,7 +28,7 @@ use App\Http\Controllers\Admin\AdminCompanyController;
 use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminInstitutionController;
 use App\Http\Controllers\Admin\AdminOfferController;
-
+use App\Http\Middleware\EnsureUserIsAdmin;
 
 
 Route::get('/user', function (Request $request) {
@@ -171,7 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Rutas de administración (corregidas)
-Route::prefix('admin')->middleware(['auth:sanctum', 'admin'])->group(function () {
+Route::prefix('admin')->middleware(['auth:sanctum', EnsureUserIsAdmin::class])->group(function () {
     Route::get('/reported-users', [ReportedUserController::class, 'index']);
     Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy']);
     Route::delete('/delete-user/{userId}', [ReportedUserController::class, 'deleteUser']);

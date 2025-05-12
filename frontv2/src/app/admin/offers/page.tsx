@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import config from '@/types/config';
 import { useRouter } from 'next/navigation';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+
 
 interface Offer {
     id: number;
@@ -34,6 +36,11 @@ export default function OffersPage() {
     const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
     const [editData, setEditData] = useState<Partial<Offer>>({});
     const router = useRouter();
+
+    const { loggedIn, userData } = useAdminAuth();
+    if (!loggedIn || userData?.rol !== 'admin') {
+        return null; // O mostrar un loader
+    }
 
     const fetchOffers = async () => {
         setLoading(true);

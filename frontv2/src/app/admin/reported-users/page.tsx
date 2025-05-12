@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import config from '@/types/config';
 
+
 interface User {
   id: number;
   name: string;
@@ -29,6 +30,11 @@ export default function ReportedUsersPage() {
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { loggedIn, userData } = useAdminAuth();
+  if (!loggedIn || userData?.rol !== 'admin') {
+    return null; // O mostrar un loader
+  }
 
   const loadReports = async () => {
     try {

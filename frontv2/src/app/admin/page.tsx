@@ -8,6 +8,8 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export default function AdminPage() {
   const router = useRouter();
+  const { isAdmin, loading } = useAdminAuth();
+
   const handleRedirectToReports = () => {
     router.push("/admin/reported-users"); // Asegúrate de incluir el "/" inicial
   };
@@ -24,9 +26,23 @@ export default function AdminPage() {
     router.push("/admin/offers");
   };
 
-  const { loggedIn, userData } = useAdminAuth();
-  if (!loggedIn || userData?.rol !== 'admin') {
-    return null; // O mostrar un loader
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold">Acceso no autorizado</h2>
+          <p className="text-muted-foreground">No tienes permisos para acceder a esta sección</p>
+        </div>
+      </div>
+    );
   }
 
   return (

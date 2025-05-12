@@ -9,6 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import config from '@/types/config';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+
 
 interface Student {
   id: number;
@@ -42,6 +44,11 @@ export default function StudentsPage() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [editData, setEditData] = useState<Partial<Student>>({});
   const [currentLanguage, setCurrentLanguage] = useState('');
+
+  const { loggedIn, userData } = useAdminAuth();
+  if (!loggedIn || userData?.rol !== 'admin') {
+    return null; // O mostrar un loader
+  }
 
   const normalizeLanguages = (languages: any): string[] => {
     if (!languages) return [];

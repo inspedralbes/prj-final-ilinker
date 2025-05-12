@@ -8,16 +8,15 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next)
-{
-    if ($request->user() && $request->user()->rol !== 'admin') {
-        return response()->json(['message' => 'Unauthorized'], 403);
+    {
+        $user = $request->user('sanctum');
+        if (!$user) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        if ($user->rol !== 'admin') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        return $next($request);
     }
-    return $next($request);
-}
 }

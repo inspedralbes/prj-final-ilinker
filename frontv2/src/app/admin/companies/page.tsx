@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import config from '@/types/config';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+
 
 interface Company {
   id: number;
@@ -46,6 +48,11 @@ export default function CompaniesPage() {
   const [editData, setEditData] = useState<Partial<Company>>({});
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+
+  const { loggedIn, userData } = useAdminAuth();
+  if (!loggedIn || userData?.rol !== 'admin') {
+    return null; // O mostrar un loader
+  }
 
   const fetchCompanies = async () => {
     setLoading(true);

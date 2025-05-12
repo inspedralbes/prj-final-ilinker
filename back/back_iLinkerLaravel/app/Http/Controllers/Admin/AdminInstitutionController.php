@@ -13,6 +13,13 @@ class AdminInstitutionController extends Controller
     public function index()
     {
         try {
+            if (!auth()->check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized'
+                ], 401);
+            }
+
             $institutions = Institutions::with(['user'])
                 ->orderBy('created_at', 'desc')
                 ->paginate(10);
@@ -28,7 +35,6 @@ class AdminInstitutionController extends Controller
             ], 500);
         }
     }
-
     public function show($id)
     {
         try {
