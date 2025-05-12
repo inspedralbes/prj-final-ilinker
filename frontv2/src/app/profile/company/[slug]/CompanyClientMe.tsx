@@ -48,6 +48,7 @@ import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
+import AddressAutocomplete from "@/components/address/AddressAutocomplete";
 
 interface Follower {
   id: number;
@@ -130,9 +131,6 @@ export default function CompanyClientMe({
       formData.append("cover_photo", companyEdited.cover_photo);
     }
 
-    // Obtener el token de autenticación
-    const token = Cookies.get("authToken");
-
     try {
       const response = await apiRequest("company/update", "POST", formData);
       console.log(response);
@@ -177,7 +175,7 @@ export default function CompanyClientMe({
   }, [imageChangeCount]); // Se ejecuta solo cuando cambia la imagen
 
   const updateCompany = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: any
   ) => {
     const { name, value } = e.target;
     setCompanyEdited((prev: any) => ({
@@ -391,43 +389,43 @@ export default function CompanyClientMe({
 
   const handleBlock = (user_id: number) => {
     showLoader();
-    try{
-      apiRequest('block', 'POST', {user_id})
-      .then((response) =>{
-        if(response.status === "success"){
-          toast({
-            title: "Exito",
-            description: response.message,
-            variant: "success",
-            duration: 5000,
-          });
-        } else if (response.status === "warning") {
-          toast({
-            title: "Advertencia",
-            description: response.message,
-            variant: "default",
-            duration: 5000,
-          });
-        } else {
+    try {
+      apiRequest('block', 'POST', { user_id })
+        .then((response) => {
+          if (response.status === "success") {
+            toast({
+              title: "Exito",
+              description: response.message,
+              variant: "success",
+              duration: 5000,
+            });
+          } else if (response.status === "warning") {
+            toast({
+              title: "Advertencia",
+              description: response.message,
+              variant: "default",
+              duration: 5000,
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: response.message,
+              variant: "destructive",
+              duration: 5000,
+            });
+          }
+        }).catch((error) => {
+          console.log(error);
           toast({
             title: "Error",
-            description: response.message,
+            description: "Error al bloquear a la empresa.",
             variant: "destructive",
             duration: 5000,
           });
-        }
-      }).catch((error)=>{
-        console.log(error);
-        toast({
-          title: "Error",
-          description: "Error al bloquear a la empresa.",
-          variant: "destructive",
-          duration: 5000,
+        }).finally(() => {
+          hideLoader();
         });
-      }).finally(()=>{
-        hideLoader();
-      });
-    }catch(error){
+    } catch (error) {
       console.log(error);
       toast({
         title: "Error",
@@ -435,11 +433,14 @@ export default function CompanyClientMe({
         variant: "destructive",
         duration: 5000,
       });
-    }finally{
+    } finally {
       hideLoader();
     }
   };
 
+  useEffect(() => {
+    console.log(companyEdited);
+  }, [companyEdited]);
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -509,18 +510,24 @@ export default function CompanyClientMe({
                           className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
                         />
                         <div className="flex items-center space-x-2">
-                          <MapPin className="h-5 w-5 text-gray-400" />
-                          <input
-                            type="text"
-                            name="address"
+                          <AddressAutocomplete
                             value={companyEdited.address}
-                            onChange={updateCompany}
-                            className="text-gray-600 border rounded px-2 py-1 flex-1"
+                            onChange={(val:any) =>
+                              setCompanyEdited((prev:any) => ({ ...prev, address: val }))
+                            }
+                            onSelect={(val:any) => {
+                              setCompanyEdited((prev:any) => ({
+                                ...prev,
+                                address: val.place_name,
+                                lat: val.lat,
+                                lng: val.lng
+                              }))
+                            }}
                           />
                         </div>
                         <button
                           onClick={handleSave}
-                          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          className="mt-2 px-4 py-2 bg-black text-white rounded hover:bg-black/80"
                         >
                           Guardar
                         </button>
@@ -810,7 +817,7 @@ export default function CompanyClientMe({
                           <li>
                             <strong>Industria:</strong>{" "}
                             {companyEdited.sectors &&
-                            companyEdited.sectors.length > 0 ? (
+                              companyEdited.sectors.length > 0 ? (
                               companyEdited.sectors.map((sector: any) => (
                                 <Badge key={sector.id} className="mr-2">
                                   {sector.name} {/* Renderiza solo el nombre */}
@@ -860,7 +867,7 @@ export default function CompanyClientMe({
                         <>
                           <div className="flex flex-wrap gap-2 text-gray-600">
                             {companyEdited.skills &&
-                            companyEdited.skills.length > 0 ? (
+                              companyEdited.skills.length > 0 ? (
                               companyEdited.skills.map((skill: any) => (
                                 <Badge
                                   key={skill.id}
@@ -895,9 +902,8 @@ export default function CompanyClientMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${
-                            1500000000000 + post
-                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${1500000000000 + post
+                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -1002,13 +1008,13 @@ export default function CompanyClientMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                    <p className="text-lg font-semibold text-gray-600 mb-2">
-                      No hay ofertas disponibles
-                    </p>
-                  </div>
-                )}
+                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                      <p className="text-lg font-semibold text-gray-600 mb-2">
+                        No hay ofertas disponibles
+                      </p>
+                    </div>
+                  )}
               </TabsContent>
             </Tabs>
           </div>
@@ -1051,15 +1057,15 @@ export default function CompanyClientMe({
                       follower.student
                         ? follower.student.profile_pic
                         : follower.company
-                        ? follower.company.logo
-                        : follower.institutions?.logo
+                          ? follower.company.logo
+                          : follower.institutions?.logo
                     }
                     alt={
                       follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name
+                          ? follower.company.name
+                          : follower.institutions?.name
                     }
                   />
                   <div>
@@ -1067,15 +1073,15 @@ export default function CompanyClientMe({
                       {follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name}
+                          ? follower.company.name
+                          : follower.institutions?.name}
                     </p>
                     <p className="text-sm text-gray-600">
                       {follower.student
                         ? follower.email
                         : follower.company
-                        ? follower.company.email
-                        : follower.institutions?.email}
+                          ? follower.company.email
+                          : follower.institutions?.email}
                     </p>
                   </div>
                 </div>

@@ -22,6 +22,8 @@ class Company extends Model
         'responsible_phone',
         'company_position',
         'address',
+        'lat',
+        'lng',
         'city',
         'postal_code',
         'country',

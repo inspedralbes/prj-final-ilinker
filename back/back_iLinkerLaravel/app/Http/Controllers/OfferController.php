@@ -33,11 +33,14 @@ class OfferController extends Controller
             'description' => 'required',
             'location_type' => 'required',
             'address' => 'required',
+            'lat' => 'required',
+            'lng' => 'required',
             'city' => 'required',
             'postal_code' => 'required',
             'schedule_type' => 'required',
             'days_per_week' => 'required',
             'salary' => 'required',
+            'vacancies' => 'required',
         ];
 
         $messages = [
@@ -46,11 +49,14 @@ class OfferController extends Controller
             'description.required' => 'El campo descripcion es obligatorio',
             'location_type.required' => 'El campo tipo de localizacion es obligatorio',
             'address.required' => 'El campo direccion es obligatorio',
+            'lat.required' => 'El campo latitud es obligatorio',
+            'lng.required' => 'El campo longitud es obligatorio',
             'city.required' => 'El campo ciudad es obligatorio',
             'postal_code.required' => 'El campo postal codigo es obligatorio',
             'schedule_type.required' => 'El campo schedule es obligatorio',
             'days_per_week.required' => 'El campo dias de la semana es obligatorio',
             'salary.required' => 'El campo salario es obligatorio',
+            'vacancies.required' => 'El campo vacancies es obligatorio',
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
@@ -76,12 +82,14 @@ class OfferController extends Controller
             $newOffer->description = $data['description'];
             $newOffer->location_type = $data['location_type'];
             $newOffer->address = $data['address'];
+            $newOffer->lat = $data['lat'];
+            $newOffer->lng = $data['lng'];
             $newOffer->schedule_type = $data['schedule_type'];
             $newOffer->city = $data['city'];
             $newOffer->days_per_week = $data['days_per_week'];
             $newOffer->postal_code = $data['postal_code'];
             $newOffer->salary = $data['salary'];
-            $newOffer->inscribed = 0;
+            $newOffer->vacancies = $data['vacancies'];
             $newOffer->save();
 
             return response()->json([
