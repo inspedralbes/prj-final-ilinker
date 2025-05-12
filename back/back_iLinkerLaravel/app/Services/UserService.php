@@ -96,10 +96,31 @@ class UserService
 
     }
 
-    public function getUsers()
-    {
-        return User::all();
-    }
+    
+public function getUsers()
+{
+    return User::with(['student', 'company', 'institutions'])->get()->map(function ($user) {
+        // The relationships are already loaded by the "with" method, no need to assign them again
+        
+        // If you want consistent naming (making 'institutions' available as 'institution'):
+        if ($user->rol === 'institutions') {
+            $user->institution = $user->institutions;
+        }
+        
+        // Esto asegura que cargamos solo los datos adicionales si es un estudiante
+        if ($user->rol === 'student' && $user->student) {
+            $user->load([
+                'education',
+                'experience',
+                'skills' => function ($query) {
+                    $query->select('skills.id', 'skills.name');
+                }
+            ]);
+        }
+        
+        return $user;
+    });
+}
 
     public function getUserByIdWithInfo($id)
     {

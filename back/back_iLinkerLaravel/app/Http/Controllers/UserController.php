@@ -77,5 +77,13 @@ class UserController extends Controller
         return response()->json(['status'=>'success', 'user'=> $user]);
     }
 
+  public function getAllUsers(){
+        $users = $this->userService->getUsers();
+        return response()->json([
+            'status'=>'success',
+            'message'=>'Usuarios obtenidos correctamente',
+            'users'=> $users]);
+    }
+
 
 }

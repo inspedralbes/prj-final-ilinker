@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Application Name
@@ -123,4 +122,15 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | File Upload Size Limits
+    |--------------------------------------------------------------------------
+    |
+    | This values are used to limit the size of uploaded files
+    |
+    */
+
+    'max_file_size' => env('MAX_FILE_SIZE', 50000),
+    'max_total_size' => env('MAX_TOTAL_SIZE', 200000),
 ];
