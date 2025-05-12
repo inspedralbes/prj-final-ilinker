@@ -75,6 +75,9 @@ import {Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValu
 import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
 import {SimpleEditor} from "@/components/templates/simple/SimpleEditor"
 import "@/styles/tiptap-content.scss"
+import {useModal} from "@/hooks/use-modal";
+import Modal from "@/components/ui/modal";
+import { useRouter } from "next/navigation";
 
 export interface User {
     id: number;
@@ -178,6 +181,7 @@ export interface Student {
     user_id: number;
     uuid: string;
     name: string;
+    followers: number;
     surname: string;
     type_document: string;
     id_document: string;
@@ -201,6 +205,16 @@ export interface Student {
     experience: Experience[];
     projects: Project[];
     skills: Skill[];
+}
+
+interface Follower {
+    id: number;
+    name: string;
+    pivot: {
+        follower_id: number;
+    };
+    isFollowed: boolean;
+    [key: string]: any;
 }
 
 interface StudentClientMeProps {
@@ -262,6 +276,14 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [imageChangeCount, setImageChangeCount] = useState(0);
     const [statusFilter, setStatusFilter] = useState("all");
     const [isFiltering, setIsFiltering] = useState(false);
+    const router = useRouter();
+
+    const followersModal = useModal();
+
+    const [studentFollowersAll, setStudentFollowersAll] = useState<Follower[]>([]);
+    const [studentFollowers, setStudentFollowers] = useState<Follower[]>([]);
+    const [isLoadingToggleFollwer, setIsLoadingToggleFollwer] = useState(false);
+    const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
 
 
     // Función para manejar el cambio de filtro
@@ -677,8 +699,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     };
 
     const showOffer = (offer: any) => {
-        console.log("Edit Offer");
-        console.table(offer);
         setOfferSelect(offer)
         setModalOffer(!modalOffer)
     }
@@ -692,6 +712,234 @@ export default function StudentClientMe({uuid, student, experience_group, skills
             </div>
         </div>
     );
+
+    const handleOpenModalFollowers = () => {
+        showLoader();
+        apiRequest(`followers`, 'POST', {
+            user_id: studentEdit.user_id,
+            me_id: userData?.id
+        })
+            .then((response) => {
+                console.log(response);
+                if (response.status === "success") {
+                    setStudentFollowersAll(response.followers);
+                    setStudentFollowers(response.followers);
+                    followersModal.openModal();
+                } else {
+                    toast({
+                        title: "Error",
+                        description: "Error al obtener los seguidores.",
+                        variant: "destructive",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "Error al obtener los seguidores.",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                hideLoader();
+            });
+    };
+
+    const handleSearchFollower = (query: string) => {
+        setSearchFollowerQuery(query);
+        const filteredFollowers = studentFollowersAll.filter((follower: any) => {
+            return follower.name.toLowerCase().includes(query.toLowerCase());
+        });
+        setStudentFollowers(filteredFollowers);
+    };
+
+    const handleRedirectToFollowerProfile = (follower: any) => {
+        showLoader();
+        switch (follower.rol) {
+            case "student":
+                router.push(`/profile/student/${follower.student.uuid}`);
+                break;
+            case "company":
+                router.push(`/profile/company/${follower.company.slug}`);
+                break;
+            case "institutions":
+                router.push(`/profile/institution/${follower.institutions.slug}`);
+                break;
+        }
+    };
+
+    const handleUnfollow = (user_id: number) => {
+        showLoader();
+        setIsLoadingToggleFollwer(true);
+        try {
+            apiRequest(`unfollow/${user_id}`, "DELETE")
+                .then((response) => {
+                    console.log(response);
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                            duration: 5000,
+                        });
+                        setStudentFollowers(prev =>
+                            prev.map(follower =>
+                                follower.pivot.follower_id === user_id
+                                    ? { ...follower, isFollowed: false }
+                                    : follower
+                            )
+                        );
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: "Error al dejar de seguir a la empresa.",
+                        variant: "destructive",
+                        duration: 5000,
+                    });
+                })
+                .finally(() => {
+                    hideLoader();
+                    setIsLoadingToggleFollwer(false);
+                });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al dejar de seguir a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const handleFollow = (user_id: number) => {
+        setIsLoadingToggleFollwer(true);
+        showLoader();
+        try {
+            apiRequest("follow", "POST", {
+                user_id: user_id,
+            })
+                .then((response) => {
+                    console.log(response);
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                        });
+                        setStudentFollowers(prev =>
+                            prev.map(follower =>
+                                follower.pivot.follower_id === user_id
+                                    ? { ...follower, isFollowed: true }
+                                    : follower
+                            )
+                        );
+                    } else if (response.status === "warning") {
+                        toast({
+                            title: "Advertencia",
+                            description: response.message,
+                            variant: "default",
+                            duration: 5000,
+                        });
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: "Error al seguir a la empresa.",
+                        variant: "destructive",
+                        duration: 5000,
+                    });
+                })
+                .finally(() => {
+                    hideLoader();
+                    setIsLoadingToggleFollwer(false);
+                });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al seguir a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const handleBlock = (user_id: number) => {
+        showLoader();
+        try {
+            apiRequest('block', 'POST', { user_id })
+                .then((response) => {
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                            duration: 5000,
+                        });
+                    } else if (response.status === "warning") {
+                        toast({
+                            title: "Advertencia",
+                            description: response.message,
+                            variant: "default",
+                            duration: 5000,
+                        });
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                }).catch((error) => {
+                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "Error al bloquear a la empresa.",
+                    variant: "destructive",
+                    duration: 5000,
+                });
+            }).finally(() => {
+                hideLoader();
+            });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al bloquear a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
 
 
     useEffect(() => {
@@ -822,10 +1070,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             Contactar
                                         </button>
 
-                                        <button
-                                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <Share2 className="h-5 w-5 text-gray-400"/>
-                                        </button>
+                                        <div
+                                            onClick={() => handleOpenModalFollowers()}
+                                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer"
+                                        >
+                                            {studentEdit?.followers}{" "}
+                                            {studentEdit?.followers === 1
+                                                ? "seguidor"
+                                                : "seguidores"}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2144,6 +2397,121 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     />
                 )
             }
+
+            <Modal
+                isOpen={followersModal.isOpen}
+                onClose={followersModal.closeModal}
+                id="followers-modal"
+                size="lg"
+                title={`Seguidores de ${studentEdit.name}`}
+                closeOnOutsideClick={false}
+            >
+                <div className="flex flex-col space-y-4 p-5">
+                    <p className="text-gray-600">Lista de seguidores de la empresa</p>
+                    <Input
+                        placeholder="Buscar seguidores..."
+                        value={searchFollowerQuery}
+                        onChange={(e) => handleSearchFollower(e.target.value)}
+                    />
+                    <div className="flex flex-col space-y-4">
+                        {studentFollowers?.map((follower: any) => (
+                            <div
+                                key={follower.id}
+                                className="flex items-center justify-between space-x-2 cursor-pointer"
+                                onClick={() => handleRedirectToFollowerProfile(follower)}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <img
+                                        className="w-12 h-12 rounded-full"
+                                        src={
+                                            follower.student
+                                                ? follower.student.profile_pic
+                                                : follower.company
+                                                    ? follower.company.logo
+                                                    : follower.institutions?.logo
+                                        }
+                                        alt={
+                                            follower.student
+                                                ? follower.student.name
+                                                : follower.company
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name
+                                        }
+                                    />
+                                    <div>
+                                        <p className="font-semibold">
+                                            {follower.student
+                                                ? follower.student.name
+                                                : follower.company
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {follower.student
+                                                ? follower.email
+                                                : follower.company
+                                                    ? follower.company.email
+                                                    : follower.institutions?.email}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    {/* Follow/Unfollow toggle */}
+                                    <Button
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            follower.isFollowed
+                                                ? handleUnfollow(follower.pivot.follower_id)
+                                                : handleFollow(follower.pivot.follower_id);
+                                        }}
+                                        className="flex items-center space-x-2"
+                                    >
+                                        {isLoadingToggleFollwer ? (
+                                            <>
+                                                <Loader2 className="animate-spin" />
+                                                <span>Cargando...</span>
+                                            </>
+                                        ) : follower.isFollowed ? (
+                                            <>
+                                                <span>Dejar de seguir</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Seguir tambien</span>
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {/* Block button */}
+                                    <Button
+                                        variant="ghost"
+                                        size="default"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleBlock(follower.pivot.follower_id);
+                                        }}
+                                        className="flex items-center space-x-2 text-gray-700 hover:text-red-600"
+                                    >
+                                        <span>Bloquear</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Sólo si companyFollowers existe y length === 0 */}
+                        {studentFollowers && studentFollowers.length === 0 && (
+                            <p className="text-gray-600">No hay seguidores</p>
+                        )}
+
+                        {/* Si quieres cubrir también el caso undefined/null */}
+                        {!studentFollowers && (
+                            <p className="text-gray-600">No hay seguidores</p>
+                        )}
+                    </div>
+                </div>
+            </Modal>
         </>
 
     )
