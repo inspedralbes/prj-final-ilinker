@@ -17,6 +17,8 @@ const defaultAuthContext: AuthContextType = {
   checkAuth: () => {},
   notifications: [],
   isLoading: false, // Añadido isLoading
+  allUsers: [],
+  setAllUsers: () => {},
 }
 
 // Crear contexto
@@ -34,6 +36,7 @@ const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null)
   const [notifications, setNotifications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true) // Estado de carga
+  const [allUsers, setAllUsers] = useState<User[]>([])
 
   const checkAuth = async () => {
     const token = Cookies.get('authToken')
@@ -100,6 +103,8 @@ const router = useRouter();
         checkAuth,
         notifications,
         isLoading, // Pasar el estado de carga al contexto
+        allUsers,
+        setAllUsers,
       }}
     >
       {children}

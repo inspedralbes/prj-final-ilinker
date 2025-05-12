@@ -52,12 +52,11 @@ interface NewPublication {
 
 // Componente principal de la página de publicaciones
 export default function PublicationPage() {
-  const { userData } = useContext(AuthContext);
+  const { userData, allUsers, setAllUsers } = useContext(AuthContext);
   const router = useRouter();
   const [publications, setPublications] = useState<Publication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   // Cargar publicaciones al montar el componente
   useEffect(() => {
@@ -102,9 +101,7 @@ export default function PublicationPage() {
             id: user.id,
             name: user.name,
             surname: user.surname,
-            email: user.email,
             rol: user.rol,
-            avatar: null
           };
 
           // Añadir información específica según el rol
@@ -114,11 +111,8 @@ export default function PublicationPage() {
                 ...baseUser,
                 student: {
                   uuid: user.student?.uuid,
-                  title: user.student?.title,
                   photo_pic: user.student?.photo_pic,
                   cover_photo: user.student?.cover_photo,
-                  city: user.student?.city,
-                  country: user.student?.country
                 },
                 avatar: user.student?.photo_pic
               };
@@ -126,13 +120,8 @@ export default function PublicationPage() {
               return {
                 ...baseUser,
                 company: {
-                  slug: user.company?.slug,
                   name: user.company?.name,
                   logo: user.company?.logo,
-                  cover_photo: user.company?.cover_photo,
-                  slogan: user.company?.slogan,
-                  city: user.company?.city,
-                  country: user.company?.country
                 },
                 avatar: user.company?.logo
               };
@@ -140,13 +129,8 @@ export default function PublicationPage() {
               return {
                 ...baseUser,
                 institution: {
-                  slug: user.institution?.slug,
                   name: user.institution?.name,
                   logo: user.institution?.logo,
-                  cover_photo: user.institution?.cover_photo,
-                  slogan: user.institution?.slogan,
-                  city: user.institution?.city,
-                  country: user.institution?.country
                 },
                 avatar: user.institution?.logo
               };
@@ -155,16 +139,15 @@ export default function PublicationPage() {
           }
         });
 
-        console.log('Usuarios transformados:', transformedUsers);
+        console.log('Todos los usuarios:', transformedUsers);
         setAllUsers(transformedUsers);
       } else {
         console.error('Error en el formato de respuesta de usuarios:', response);
       }
     } catch (err) {
-      console.error('Error al cargar los usuarios:', err);
+      console.error('Error al obtener usuarios:', err);
     }
   };
-
 
   // Estados para el modal y nueva publicación
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -654,6 +637,22 @@ const PublicationCard = ({
   onSave: (id: number) => void;
 }) => {
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
+  const { allUsers } = useContext(AuthContext);
+
+  // Función para obtener el avatar del usuario según su rol
+  const getUserAvatar = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "/default-avatar.png";
+
+    if (user.rol === "student" && user.student?.photo_pic) {
+      return user.student.photo_pic.startsWith('http') ? user.student.photo_pic : `${config.storageUrl}${user.student.photo_pic}`;
+    } else if (user.rol === "company" && user.company?.logo) {
+      return user.company.logo.startsWith('http') ? user.company.logo : `${config.storageUrl}${user.company.logo}`;
+    } else if (user.rol === "institutions" && user.institution?.logo) {
+      return user.institution.logo.startsWith('http') ? user.institution.logo : `${config.storageUrl}${user.institution.logo}`;
+    }
+    return "/default-avatar.png";
+  };
 
   // Función para manejar el clic en el botón de like con animación
   const handleLikeClick = (id: number) => {
@@ -665,15 +664,13 @@ const PublicationCard = ({
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
       <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
           <Image
-            src={publication.user.avatar ?
-              (publication.user.avatar.startsWith('http') ? publication.user.avatar : `${config.storageUrl}${publication.user.avatar}`)
-              : "/default-avatar.png"}
+            src={getUserAvatar(publication.user.id)}
             alt={publication.user.name}
-            width={40}
-            height={40}
+            fill
             className="object-cover"
+            unoptimized={true}
           />
         </div>
         <div>

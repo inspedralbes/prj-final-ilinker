@@ -19,6 +19,8 @@ export interface User {
     checkAuth: () => void
     notifications: any[]
     isLoading: boolean
+    allUsers: User[]
+    setAllUsers: (users: User[]) => void
   }
   
   // Interfaz para una respuesta genérica de la API
