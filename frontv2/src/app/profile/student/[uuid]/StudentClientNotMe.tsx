@@ -178,9 +178,10 @@ interface Follower {
 interface StudentClientMeProps {
     student: Student;
     experience_group: any;
+    publications: any;
 }
 
-export default function StudentClientNotMe({student, experience_group}: StudentClientMeProps) {
+export default function StudentClientNotMe({student, experience_group, publications}: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
@@ -189,6 +190,8 @@ export default function StudentClientNotMe({student, experience_group}: StudentC
     const [projectsEdit, setProjectEdit] = useState(student.projects);
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
     const [userEdit, setUserEdit] = useState(student.user);
+    const [publicationsEdit, setPublicationsEdit] = useState(publications);
+
 
     const [isEditing, setIsEditing] = useState(null);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");

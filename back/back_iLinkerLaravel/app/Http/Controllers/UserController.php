@@ -7,6 +7,7 @@ use App\Services\CompanyService;
 use App\Services\InstitutionService;
 use Illuminate\Http\Request;
 use App\Services\UserService;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -18,7 +19,8 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function update(Request $request){
+    public function update(Request $request)
+    {
         $validated = $request->validate([
             'id' => 'required',
             'name' => 'required',
@@ -28,7 +30,7 @@ class UserController extends Controller
         ]);
 
         $user = $this->userService->updateUser($validated);
-        return response()->json(['status'=>'success', 'user'=> $user]);
+        return response()->json(['status' => 'success', 'user' => $user]);
 
     }
 
@@ -39,11 +41,11 @@ class UserController extends Controller
         ]);
 
         $user = $this->userService->deactivateUser($validated['id']);
-        if ($user){
-            return response()->json(['status'=>'success', 'user'=> $user, 'message'=>'El usuario a sido dado de baja correctamente']);
+        if ($user) {
+            return response()->json(['status' => 'success', 'user' => $user, 'message' => 'El usuario a sido dado de baja correctamente']);
         }
 
-        return response()->json(['status' => 'warning', 'message'=>'El usuario no pudo ser dado de baja' ]);
+        return response()->json(['status' => 'warning', 'message' => 'El usuario no pudo ser dado de baja']);
     }
 
     public function activate(Request $request)
@@ -53,16 +55,17 @@ class UserController extends Controller
         ]);
 
         $user = $this->userService->activateUser($validated['id']);
-        if ($user){
-            return response()->json(['status'=>'success', 'user'=> $user, 'message'=>'El usuario a sido dado de alta correctamente']);
+        if ($user) {
+            return response()->json(['status' => 'success', 'user' => $user, 'message' => 'El usuario a sido dado de alta correctamente']);
         }
 
-        return response()->json(['status'=>'warning', 'message'=>'El usuario no pudo ser dado de baja' ]);
+        return response()->json(['status' => 'warning', 'message' => 'El usuario no pudo ser dado de baja']);
 
     }
 
 
-    public function getUser(Request $request){
+    public function getUser(Request $request)
+    {
 
         $validated = $request->validate([
             'id' => 'required',
@@ -70,19 +73,23 @@ class UserController extends Controller
 
         $user = $this->userService->getUserByIdWithInfo($validated['id']);
 
-        if (!$user){
-            return response()->json(['status'=>'warning', 'message'=>'El usuario no se encuentra registrado']);
+        if (!$user) {
+            return response()->json(['status' => 'warning', 'message' => 'El usuario no se encuentra registrado']);
         }
 
-        return response()->json(['status'=>'success', 'user'=> $user]);
+        return response()->json(['status' => 'success', 'user' => $user]);
     }
 
-  public function getAllUsers(){
+    public function getAllUsers()
+    {
         $users = $this->userService->getUsers();
+
+        Log::info("Datos a enviar los usuarios", ["users" => $users]);
+
         return response()->json([
-            'status'=>'success',
-            'message'=>'Usuarios obtenidos correctamente',
-            'users'=> $users]);
+            'status' => 'success',
+            'message' => 'Usuarios obtenidos correctamente',
+            'users' => $users]);
     }
 
 

@@ -40,14 +40,14 @@ class PublicationsController extends Controller
             // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
-                
+
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
                     foreach ($publication->media as $media) {
                         $media->file_path = $this->fileService->getFileUrl($media->file_path);
                     }
                 }
-                
+
                 return $publication;
             });
 
@@ -105,7 +105,7 @@ class PublicationsController extends Controller
                 'data' => $publication
             ], 201);
         } catch (\Exception $e) {
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error creating publication',
@@ -123,7 +123,7 @@ class PublicationsController extends Controller
                 'comments.user:id,name',
                 'likes'
             ])->findOrFail($id);
-            
+
             // Transform media to include full URLs
             if ($publication->media && count($publication->media) > 0) {
                 foreach ($publication->media as $media) {
@@ -252,7 +252,7 @@ class PublicationsController extends Controller
         }
     }
 
-   
+
     // mejorar el manejo de los archivos de media para que se puedan subir mas de un archivo de media
     private function handleMediaUpload($files, Publication $publication)
     {
@@ -261,12 +261,12 @@ class PublicationsController extends Controller
         }
 
         $order = $publication->media()->max('display_order') ?? 0;
-        
+
         foreach ($files as $file) {
-           
+
                 $order++;
                 $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
-                
+
                 // Store file using the file service
                 $filePath = $this->fileService->storeFile($file, Auth::id());
 
@@ -276,7 +276,7 @@ class PublicationsController extends Controller
                     'media_type' => $mediaType,
                     'display_order' => $order
                 ]);
-            
+
         }
     }
 
@@ -329,7 +329,9 @@ class PublicationsController extends Controller
             $publications = Publication::with([
                 'media',
                 'comments.user:id,name',
-                'likes'
+                'likes.user.student:id,user_id,name,uuid,photo_pic',
+                'likes.user.company:id,user_id,name,slug,logo',
+                'likes.user.institutions:id,user_id,name,slug,logo',
             ])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
@@ -338,14 +340,14 @@ class PublicationsController extends Controller
             // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
-                
+
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
                     foreach ($publication->media as $media) {
                         $media->file_path = $this->fileService->getFileUrl($media->file_path);
                     }
                 }
-                
+
                 return $publication;
             });
 
@@ -362,10 +364,13 @@ class PublicationsController extends Controller
         }
     }
 
-    public function toggleLike($publicationId)
+    public function toggleLike($publicationId, Request $request)
     {
         try {
             $publication = Publication::findOrFail($publicationId);
+
+            Log::info("Usuario logueado", ["user" => Auth::user()]);
+            Log::info("Usuario Reques", ["user" => $request->all()]);
 
             $existingLike = PublicationLike::where('publication_id', $publicationId)
                 ->where('user_id', Auth::id())

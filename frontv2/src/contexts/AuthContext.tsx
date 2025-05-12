@@ -13,7 +13,7 @@ const defaultAuthContext: AuthContextType = {
   loggedIn: false,
   userData: null,
   login: () => {},
-  token: null,
+  token: '',
   logout: () => {},
   checkAuth: () => {},
   notifications: [],

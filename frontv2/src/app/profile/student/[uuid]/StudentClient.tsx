@@ -18,6 +18,7 @@ export default function StudentClient({uuid, student, experience_group, offerUse
     const [myStudent, setMyStudent] = useState<boolean>(false);
     const {userData} = useContext(AuthContext);
     const [allSkills, setAllSkills] = useState(null);
+    const [publications, setPublications] = useState(null);
     const {showLoader, hideLoader} = useContext(LoaderContext);
 
 
@@ -38,6 +39,13 @@ export default function StudentClient({uuid, student, experience_group, offerUse
                 if (response.status === "success") {
                     setAllSkills(response.data);
                 }
+
+                const response2 = await apiRequest('my-publications');
+                console.log("DATOS PUBLI");
+                console.table(response2)
+                if (response2.status === 'success') {
+                    setPublications(response2.data.data);
+                }
             } catch (error) {
                 console.error("Error al obtener las skills:", error);
             } finally {
@@ -54,13 +62,17 @@ export default function StudentClient({uuid, student, experience_group, offerUse
         return null;
     }
 
+    if (!publications){
+        return null
+    }
+
     return (
         <div>
             {myStudent ? (
                 <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills}
-                                  offerUser={offerUser}/>
+                                  offerUser={offerUser} publications={publications}/>
             ) : (
-                <StundentClientNotMe student={student} experience_group={experience_group}/>
+                <StundentClientNotMe student={student} experience_group={experience_group} publications={publications}/>
             )}
         </div>
     );
