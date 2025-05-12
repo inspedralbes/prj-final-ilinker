@@ -38,9 +38,8 @@ const router = useRouter();
   const [token, setToken] = useState<any | undefined | null>('')
 
   const checkAuth = async () => {
-     setToken(Cookies.get('authToken'))
-    
-    if (!token) {
+    const auxToken = Cookies.get('authToken')
+    if (!auxToken) {
       setIsLoading(false);
       return;
     }
@@ -49,7 +48,8 @@ const router = useRouter();
       const response = await apiRequest('auth/check');
       console.log(response)
       if (response.status === 'success') {
-        login(token, response.user, response.notifications)
+        login(auxToken, response.user, response.notifications);
+        setToken(auxToken);
       }else{
         logout();
       }

@@ -1,28 +1,18 @@
-// config.ts
-
-type AppConfig = {
+// src/types/config.ts
+export interface AppConfig {
   apiUrl: string;
   appUrl: string;
   storageUrl: string;
   socketUrl: string;
-};
-
-const getEnv = (key: string, fallback = ''): string => {
-  const value = process.env[key];
-  if (!value) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`[config] ⚠️ Missing environment variable: ${key}`);
-    }
-    return fallback;
-  }
-  return value;
-};
+  mapboxToken: string;
+}
 
 const config: AppConfig = {
-  apiUrl: getEnv('NEXT_PUBLIC_API_URL', 'http://127.0.0.1:8000/api/'), // Valor por defecto para la API
-  appUrl: getEnv('NEXT_PUBLIC_APP_URL', 'http://localhost:3000'), // Valor por defecto para la app
-  storageUrl: getEnv('NEXT_PUBLIC_STORAGE_URL', 'http://127.0.0.1:8000/storage/'), // Valor por defecto para la storage
-  socketUrl: getEnv('NEXT_PUBLIC_SOCKET_URL', 'http://127.0.0.1:3777'), // Valor por defecto para el socket
+  apiUrl:      process.env.NEXT_PUBLIC_API_URL      || 'http://127.0.0.1:8000/api/',
+  appUrl:      process.env.NEXT_PUBLIC_APP_URL      || 'http://localhost:3000',
+  storageUrl:  process.env.NEXT_PUBLIC_STORAGE_URL  || 'http://127.0.0.1:8000/storage/',
+  socketUrl:   process.env.NEXT_PUBLIC_SOCKET_URL   || 'http://127.0.0.1:3777',
+  mapboxToken: process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '',
 };
 
 export default config;

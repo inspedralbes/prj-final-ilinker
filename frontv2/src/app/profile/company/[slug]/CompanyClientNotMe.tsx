@@ -56,6 +56,7 @@ import Modal from "@/components/ui/modal";
 import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
+import "@/styles/tiptap-content.scss";
 
 interface Follower {
   id: number;
@@ -637,12 +638,12 @@ export default function CompanyClientNotMe({
   };
 
   const skillsArray: string[] = React.useMemo(() => {
-      try {
-        return JSON.parse(infoOfferDataModal.skills);
-      } catch {
-        return [];
-      }
-    }, [infoOfferDataModal?.skills]);
+    try {
+      return JSON.parse(infoOfferDataModal.skills);
+    } catch {
+      return [];
+    }
+  }, [infoOfferDataModal?.skills]);
 
   return (
     <>
@@ -825,17 +826,17 @@ export default function CompanyClientNotMe({
               </TabsList>
               <TabsContent value="acerca" className="mt-6">
                 <Card className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold mb-4">
+                  <div className="flex justify-between items-center mb-0">
+                    <h2 className="text-xl font-semibold mb-0">
                       Acerca de {companyEdited.name}
                     </h2>
                   </div>
 
                   <>
                     <div
-                      className="mb-6"
+                      className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-0 p-0"
                       dangerouslySetInnerHTML={{
-                        __html: companyEdited.description,
+                        __html: companyEdited.description || "",
                       }}
                     />
                   </>
@@ -1025,7 +1026,9 @@ export default function CompanyClientNotMe({
         <div className="space-y-6 p-5">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold">{infoOfferDataModal?.title}</h2>
+              <h2 className="text-2xl font-bold">
+                {infoOfferDataModal?.title}
+              </h2>
               <span className="inline-block bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded">
                 {infoOfferDataModal?.vacancies}{" "}
                 {infoOfferDataModal?.vacancies === 1 ? "vacante" : "vacantes"}
@@ -1129,7 +1132,10 @@ export default function CompanyClientNotMe({
 
           <div className="space-y-4">
             <div
-              dangerouslySetInnerHTML={{ __html: infoOfferDataModal?.description }}
+              className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
+              dangerouslySetInnerHTML={{
+                __html: infoOfferDataModal?.description || "",
+              }}
             />
           </div>
 
@@ -1138,7 +1144,7 @@ export default function CompanyClientNotMe({
           <div className="space-y-4">
             <h3 className="text-lg font-semibold mb-2">Skills necesarias</h3>
             <div className="flex flex-wrap gap-2">
-              {skillsArray.map((skill:any) => (
+              {skillsArray.map((skill: any) => (
                 <span
                   key={skill}
                   className="inline-block bg-black text-white text-xs font-medium px-2 py-1 rounded-full"

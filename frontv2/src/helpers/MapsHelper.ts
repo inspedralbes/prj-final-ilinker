@@ -1,3 +1,4 @@
+import config from "@/types/config";
 // Función para obtener ubicación por IP
 export const getUserLocationByIP = async () => {
   try {
@@ -11,7 +12,7 @@ export const getUserLocationByIP = async () => {
 
 // Función para autocompletar direcciones
 export const searchAddresses = async (input: string) => {
-  const MAPBOX_TOKEN = 'pk.eyJ1IjoiYTIyamhlcGluY3JlIiwiYSI6ImNtYWdsc2V1MDAyYzgyaXFzNHZ2Y3U1bG4ifQ.WaA39FCZrDZqHd4RB3FUAg'; // Necesitarás registrarte para obtener un token
+  const MAPBOX_TOKEN = config.mapboxToken; // Necesitarás registrarte para obtener un token
 
   if (input.length > 5) {
     try {
