@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import config from '@/types/config';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { apiRequest } from '@/services/requests/apiRequest';
+import { log } from 'console';
 
 
 interface Student {
@@ -45,11 +47,6 @@ export default function StudentsPage() {
   const [editData, setEditData] = useState<Partial<Student>>({});
   const [currentLanguage, setCurrentLanguage] = useState('');
 
-  const { loggedIn, userData } = useAdminAuth();
-  if (!loggedIn || userData?.rol !== 'admin') {
-    return null; // O mostrar un loader
-  }
-
   const normalizeLanguages = (languages: any): string[] => {
     if (!languages) return [];
 
@@ -76,11 +73,17 @@ export default function StudentsPage() {
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${config.apiUrl}admin/students`);
-      const data = await response.json();
+      const response = await apiRequest(`admin/students`);
+      console.log('Response:', response);
+      const data = await response.data;
 
-      if (response.ok && data.success) {
-        setStudents(data.data.data || []);
+      console.log('Data:', data);
+
+
+      if (response.success) {
+        console.log("Estmoas dentro de la respuesta:", data.data);
+
+        setStudents(data.data || []);
       } else {
         throw new Error(data.message || 'Error al cargar estudiantes');
       }
@@ -91,21 +94,19 @@ export default function StudentsPage() {
     }
   };
 
+  // ...todo igual hasta `const handleUpdate`
+
   const handleUpdate = async (id: number) => {
     try {
-      // Definir campos permitidos que coincidan con $fillable
       const allowedFields = [
         'name', 'surname', 'type_document', 'id_document', 'nationality',
         'birthday', 'gender', 'phone', 'address', 'city', 'country',
         'postal_code', 'languages', 'active'
       ];
 
-      // Crear objeto solo con campos permitidos
       const dataToSend: Record<string, any> = {};
-
       allowedFields.forEach(field => {
         if (field in editData && editData[field as keyof Student] !== undefined) {
-          // Manejo especial para languages
           if (field === 'languages') {
             dataToSend[field] = Array.isArray(editData.languages)
               ? editData.languages
@@ -116,21 +117,14 @@ export default function StudentsPage() {
         }
       });
 
-      // Verificar que los campos requeridos estén presentes
       if (!dataToSend.name || !dataToSend.surname) {
         throw new Error('Nombre y apellidos son campos requeridos');
       }
 
-      const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend),
-      });
+      const response = await apiRequest(`admin/students/${id}`, 'PUT', dataToSend);
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Error al actualizar estudiante');
+      if (!response.success) {
+        throw new Error(response.data?.message || 'Error al actualizar estudiante');
       }
 
       toast.success('Estudiante actualizado correctamente');
@@ -139,6 +133,46 @@ export default function StudentsPage() {
     } catch (error) {
       console.error('Error al actualizar:', error);
       toast.error(error instanceof Error ? error.message : 'Error al actualizar estudiante');
+    }
+  };
+
+  const toggleStatus = async (id: number, currentStatus: boolean) => {
+    try {
+      const response = await apiRequest(`admin/students/${id}`, 'PUT', { active: !currentStatus },);
+
+      if (response.success) {
+        toast.success(`Estudiante ${!currentStatus ? 'activado' : 'desactivado'} correctamente`);
+        setStudents(students.map(student =>
+          student.id === id ? {
+            ...student,
+            user: {
+              ...student.user,
+              active: !currentStatus
+            }
+          } : student
+        ));
+      } else {
+        throw new Error(response.data?.message || 'Error al cambiar estado');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
+    }
+  };
+
+  const deleteStudent = async (id: number) => {
+    if (!confirm('¿Eliminar este estudiante y todos sus datos asociados?')) return;
+
+    try {
+      const response = await apiRequest(`admin/students/${id}`, 'DELETE',);
+
+      if (response.success) {
+        toast.success('Estudiante eliminado correctamente');
+        setStudents(students.filter(s => s.id !== id));
+      } else {
+        throw new Error(response.data?.message || 'Error al eliminar estudiante');
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar estudiante');
     }
   };
 
@@ -168,57 +202,6 @@ export default function StudentsPage() {
     }));
   };
 
-  const toggleStatus = async (id: number, currentStatus: boolean) => {
-    try {
-      const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: !currentStatus }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast.success(`Estudiante ${!currentStatus ? 'activado' : 'desactivado'} correctamente`);
-        // Actualizar el estado local
-        setStudents(students.map(student =>
-          student.id === id ? {
-            ...student,
-            user: {
-              ...student.user,
-              active: !currentStatus
-            }
-          } : student
-        ));
-      } else {
-        throw new Error(data.message || 'Error al cambiar estado');
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
-    }
-  };
-
-  const deleteStudent = async (id: number) => {
-    if (!confirm('¿Eliminar este estudiante y todos sus datos asociados?')) return;
-
-    try {
-      const response = await fetch(`${config.apiUrl}admin/students/${id}`, {
-        method: 'DELETE',
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast.success('Estudiante eliminado correctamente');
-        setStudents(students.filter(s => s.id !== id));
-      } else {
-        throw new Error(data.message || 'Error al eliminar estudiante');
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Error al eliminar estudiante');
-    }
-  };
-
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -238,11 +221,19 @@ export default function StudentsPage() {
     s.user?.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return (
-    <div className="p-8 flex justify-center items-center h-64">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-    </div>
-  );
+  const { isAdmin, isLoading } = useAdminAuth();
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null; // O un mensaje de error si quieres mostrar algo
+  }
 
   return (
     <div className="p-8">

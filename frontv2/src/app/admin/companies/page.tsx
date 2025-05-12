@@ -12,6 +12,7 @@ import config from '@/types/config';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { apiRequest } from '@/services/requests/apiRequest';
 
 
 interface Company {
@@ -49,26 +50,19 @@ export default function CompaniesPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
-  const { loggedIn, userData } = useAdminAuth();
-  if (!loggedIn || userData?.rol !== 'admin') {
-    return null; // O mostrar un loader
-  }
 
   const fetchCompanies = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${config.apiUrl}admin/companies`);
+      const response = await apiRequest('admin/companies',);
+      console.log('Response:', response);
+      const data = await response.data;
 
-      if (!response.ok) {
-        throw new Error('Error al cargar empresas');
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCompanies(data.data.data || []);
+      console.log('Data:', data);
+      if (response.success) {
+        setCompanies(response.data.data || []);
       } else {
-        throw new Error(data.message || 'Error al cargar empresas');
+        throw new Error(response.message || 'Error al cargar empresas');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -83,88 +77,85 @@ export default function CompaniesPage() {
   };
 
   const handleUpdate = async (id: number) => {
-    try {
-      const response = await fetch(`${config.apiUrl}admin/companies/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editData),
-      });
+  try {
+    const allowedFields = [
+      'name', 'CIF', 'email', 'phone', 'website', 'num_people',
+      'responsible_name', 'responsible_email', 'responsible_phone',
+      'address', 'city', 'postal_code', 'country',
+      'short_description', 'description', 'active'
+    ];
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast({
-          title: 'Éxito',
-          description: 'Empresa actualizada correctamente',
-        });
-        setSelectedCompany(null);
-        fetchCompanies();
-      } else {
-        throw new Error(data.message || 'Error al actualizar la empresa');
+    const dataToSend: Record<string, any> = {};
+    allowedFields.forEach(field => {
+      if (field in editData && editData[field as keyof Company] !== undefined) {
+        dataToSend[field] = editData[field as keyof Company];
       }
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al actualizar la empresa',
-        variant: 'destructive',
-      });
+    });
+
+    if (!dataToSend.name || !dataToSend.email) {
+      throw new Error('El nombre y el email son campos requeridos');
     }
-  };
+
+    const response = await apiRequest(`admin/companies/${id}`, 'PUT', dataToSend);
+
+    if (!response.success) {
+      throw new Error(response.data?.message || 'Error al actualizar empresa');
+    }
+
+    toast.success('Empresa actualizada correctamente');
+    setSelectedCompany(null);
+    fetchCompanies();
+  } catch (error) {
+    console.error('Error al actualizar:', error);
+    toast.error(error instanceof Error ? error.message : 'Error al actualizar empresa');
+  }
+};
+
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      const response = await fetch(`${config.apiUrl}admin/companies/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: !currentStatus }),
-      });
+      const response = await apiRequest(`admin/companies/${id}`,'PUT', { active: !currentStatus },);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (response.success) {
         toast.success(`Empresa ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
         setCompanies(companies.map(company =>
           company.id === id ? { ...company, active: !currentStatus } : company
         ));
       } else {
-        throw new Error(data.message || 'Error al cambiar el estado');
+        throw new Error(response.message || 'Error al cambiar el estado');
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al cambiar el estado');
     }
   };
+
   const deleteCompany = async (id: number) => {
-    if (!confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) return;
+  if (!confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) return;
 
-    setIsDeleting(true);
-    try {
-      const response = await fetch(`${config.apiUrl}admin/companies/${id}`, {
-        method: 'DELETE',
-      });
+  setIsDeleting(true);
+  try {
+    const response = await apiRequest(`admin/companies/${id}`,'DELETE',);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        toast({
-          title: 'Éxito',
-          description: 'Empresa eliminada correctamente',
-        });
-        setCompanies(companies.filter(c => c.id !== id));
-      } else {
-        throw new Error(data.message || 'Error al eliminar la empresa');
-      }
-    } catch (error) {
-      console.error('Error:', error);
+    if (response.success) {
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Error al eliminar la empresa',
-        variant: 'destructive',
+        title: 'Éxito',
+        description: 'Empresa eliminada correctamente',
       });
-    } finally {
-      setIsDeleting(false);
+      setCompanies(companies.filter(c => c.id !== id));
+    } else {
+      throw new Error(response.message || 'Error al eliminar la empresa');
     }
-  };
+  } catch (error) {
+    console.error('Error:', error);
+    toast({
+      title: 'Error',
+      description: error instanceof Error ? error.message : 'Error al eliminar la empresa',
+      variant: 'destructive',
+    });
+  } finally {
+    setIsDeleting(false);
+  }
+};
 
   useEffect(() => {
     fetchCompanies();

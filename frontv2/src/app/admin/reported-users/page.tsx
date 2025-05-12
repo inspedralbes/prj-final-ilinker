@@ -3,7 +3,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import config from '@/types/config';
-
+import { apiRequest } from '@/services/requests/apiRequest';
 
 interface User {
   id: number;
@@ -31,19 +31,9 @@ export default function ReportedUsersPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { loggedIn, userData } = useAdminAuth();
-  if (!loggedIn || userData?.rol !== 'admin') {
-    return null; // O mostrar un loader
-  }
-
   const loadReports = async () => {
     try {
-      const response = await fetch(`${config.apiUrl}admin/reported-users`);
-      if (!response.ok) throw new Error('Error al cargar reportes');
-
-      const data = await response.json();
-      console.log("Datos recibidos:", data); // Para debug
-
+      const data = await apiRequest(`admin/reported-users`);
       if (!Array.isArray(data)) throw new Error('Formato de datos inválido');
 
       setReports(data);
@@ -58,11 +48,7 @@ export default function ReportedUsersPage() {
   const handleDeleteReport = async (reportId: number) => {
     if (confirm('¿Estás seguro de eliminar este reporte?')) {
       try {
-        const response = await fetch(`${config.apiUrl}admin/reported-users/${reportId}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) throw new Error('Error al eliminar');
+        await apiRequest(`admin/reported-users/${reportId}`, 'DELETE',);
 
         setReports(reports.filter(report => report.id !== reportId));
       } catch (err) {
@@ -75,15 +61,9 @@ export default function ReportedUsersPage() {
   const handleDeleteUser = async (userId: number) => {
     if (confirm('¿ESTÁS SEGURO DE ELIMINAR PERMANENTEMENTE ESTE USUARIO?\n\nEsta acción no se puede deshacer.')) {
       try {
-        const response = await fetch(`${config.apiUrl}admin/delete-user/${userId}`, {
-          method: 'DELETE',
-        });
+        await apiRequest(`$admin/delete-user/${userId}`, 'DELETE',);
 
-        if (!response.ok) throw new Error('Error al eliminar usuario');
-
-        // Actualiza la lista eliminando tanto el usuario como sus reportes
         setReports(reports.filter(report => report.reported_user.id !== userId));
-
         alert('Usuario eliminado permanentemente');
       } catch (error) {
         console.error('Error al eliminar usuario:', error);
@@ -95,20 +75,15 @@ export default function ReportedUsersPage() {
   const handleBanUser = async (userId: number) => {
     if (confirm('¿Estás seguro de banear a este usuario?')) {
       try {
-        const response = await fetch(`${config.apiUrl}admin/ban-user/${userId}`, {
-          method: 'POST',
-        });
+        await apiRequest(`admin/ban-user/${userId}`, 'POST',);
 
-        if (!response.ok) throw new Error('Error al banear usuario');
-
-        // Actualiza el estado para reflejar el cambio
         setReports(reports.map(report => {
           if (report.reported_user.id === userId) {
             return {
               ...report,
               reported_user: {
                 ...report.reported_user,
-                active: 0 // Marcamos como inactivo
+                active: 0,
               }
             };
           }

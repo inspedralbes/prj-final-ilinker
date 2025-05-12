@@ -24,36 +24,36 @@ import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import Modal from "@/components/ui/modal";
 
-interface SuggestedUser {
-  id: string;
-  uuid: string | null;
-  slug: string | null;
-  user_id: string;
-  name: string;
-  skills: string[];
-  avatar: string | null;
-  type: "company" | "student";
-}
+interface SuggestedUser { 
+  id: string; 
+  uuid: string | null; 
+  slug: string | null; 
+  user_id: string; 
+  name: string; 
+  skills: string[]; 
+  avatar: string | null; 
+  type: "company" | "student"; 
+} 
 
 const suggestedUsers: SuggestedUser[] = [
   {
     id: "1",
     name: "Ana Martínez",
-    role: "Full Stack Developer",
+    role: "Full Stack Developer", 
     skills: ["React", "Node.js", "TypeScript"],
     avatar: "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg",
   },
   {
     id: "2",
     name: "Carlos Ruiz",
-    role: "UX Designer",
+    role: "UX Designer", 
     skills: ["UI/UX", "Figma", "Adobe XD"],
     avatar: "https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg",
   },
   {
     id: "3",
     name: "Laura García",
-    role: "Frontend Developer",
+    role: "Frontend Developer", 
     skills: ["Vue.js", "CSS", "JavaScript"],
     avatar: "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg",
   },

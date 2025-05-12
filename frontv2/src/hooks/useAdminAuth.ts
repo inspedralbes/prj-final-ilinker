@@ -1,4 +1,3 @@
-// hooks/useAdminAuth.ts
 import { useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthContext } from '@/contexts/AuthContext';
@@ -6,25 +5,21 @@ import { AuthContext } from '@/contexts/AuthContext';
 export function useAdminAuth() {
     const { loggedIn, userData } = useContext(AuthContext);
     const router = useRouter();
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!loggedIn) {
-            // Usar la ruta completa en lugar del nombre de ruta
+        if (loggedIn === false) {
+            // Redirigir directamente a la ruta /auth/login
             router.push('/auth/login');
-        } else if (userData?.rol !== 'admin') {
+        } else if (loggedIn && userData?.rol !== 'admin') {
             router.push('/');
         } else {
-            setIsAdmin(true);
+            setIsLoading(false);
         }
-        setLoading(false);
     }, [loggedIn, userData, router]);
 
     return { 
-        isAdmin,
-        loading,
-        loggedIn,
-        userData
+        isAdmin: loggedIn && userData?.rol === 'admin',
+        isLoading 
     };
 }

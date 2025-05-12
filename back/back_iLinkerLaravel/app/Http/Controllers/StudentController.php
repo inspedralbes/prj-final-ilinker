@@ -20,7 +20,7 @@ class StudentController extends Controller
     public function getStudent($uuid)
     {
 
-        $student = Student::with(['user','education.institution', 'experience', 'projects', 'skills' => function ($query) {
+        $student = Student::with(['user', 'education.institution', 'experience', 'projects', 'skills' => function ($query) {
             $query->select('skills.id', 'skills.name');
         }])->where('uuid', $uuid)->first();
 
@@ -36,10 +36,10 @@ class StudentController extends Controller
             'student' => $student,
             'experience_grouped' => $groupedExperience
         ]);
-
     }
 
-    public function getEducationById(Request $request){
+    public function getEducationById(Request $request)
+    {
 
 
         $student = Student::with(['education.institution'])->where('uuid', $request->uuid)->first();
@@ -53,7 +53,7 @@ class StudentController extends Controller
 
     public function getOfferData()
     {
-        try{
+        try {
             $user = Auth::user();
 
             $student = Student::with('education')
@@ -61,8 +61,8 @@ class StudentController extends Controller
                 ->first();
 
             return response()->json(['status' => 'success', 'student' => $student]);
-        }catch (\Exception $e){
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e ->getMessage()]);
         }
     }
 }

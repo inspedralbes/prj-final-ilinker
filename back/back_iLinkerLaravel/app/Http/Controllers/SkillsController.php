@@ -18,10 +18,10 @@ class SkillsController extends Controller
                 'data' => $skills
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json( [
                 'status' => 'error',
                 'message' => 'Error retrieving skills.',
-                'error' => $e->getMessage()
+                'error' => $e-> getMessage()
             ], 500);
         }
     }

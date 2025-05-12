@@ -11,6 +11,8 @@ import config from '@/types/config';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useRouter } from 'next/navigation';
 import { Loader2, Search, Trash2, Edit, Ban, CheckCircle2 } from 'lucide-react';
+import { apiRequest } from '@/services/requests/apiRequest';
+
 
 interface Institution {
   id: number;
@@ -53,21 +55,9 @@ export default function InstitutionsPage() {
   const fetchInstitutions = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${config.apiUrl}admin/institutions`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const data = await apiRequest('admin/institutions', 'GET');
 
-      if (response.status === 401) {
-        router.push('/auth/login');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         setInstitutions(data.data.data || []);
       } else {
         throw new Error(data.message || 'Error al cargar instituciones');
@@ -79,10 +69,10 @@ export default function InstitutionsPage() {
     }
   };
 
+
   const handleUpdate = async (id: number) => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('authToken');
       const allowedFields = [
         'name', 'NIF', 'type', 'email', 'phone', 'website', 'responsible_name',
         'responsible_email', 'responsible_phone', 'address', 'city', 'country',
@@ -96,23 +86,9 @@ export default function InstitutionsPage() {
         }
       });
 
-      const response = await fetch(`${config.apiUrl}admin/institutions/${id}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(dataToSend),
-      });
+      const data = await apiRequest(`admin/institutions/${id}`, 'PUT', dataToSend,);
 
-      if (response.status === 401) {
-        router.push('/auth/login');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (!data.success) {
         throw new Error(data.message || 'Error al actualizar institución');
       }
 
@@ -126,26 +102,12 @@ export default function InstitutionsPage() {
     }
   };
 
+
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${config.apiUrl}admin/institutions/${id}/status`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ active: !currentStatus }),
-      });
+      const data = await apiRequest(`admin/institutions/${id}/status`, 'PUT', { active: !currentStatus },);
 
-      if (response.status === 401) {
-        router.push('/auth/login');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         toast.success(`Institución ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
         fetchInstitutions();
       } else {
@@ -156,27 +118,15 @@ export default function InstitutionsPage() {
     }
   };
 
+
   const deleteInstitution = async (id: number) => {
     if (!confirm('¿Eliminar esta institución y todos sus datos asociados?')) return;
 
     setIsDeleting(true);
     try {
-      const token = localStorage.getItem('authToken');
-      const response = await fetch(`${config.apiUrl}admin/institutions/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const data = await apiRequest(`admin/institutions/${id}`, 'DELETE',);
 
-      if (response.status === 401) {
-        router.push('/auth/login');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (response.ok && data.success) {
+      if (data.success) {
         toast.success('Institución eliminada correctamente');
         fetchInstitutions();
       } else {
@@ -189,11 +139,10 @@ export default function InstitutionsPage() {
     }
   };
 
+
   useEffect(() => {
-    if (isAdmin) {
-      fetchInstitutions();
-    }
-  }, [isAdmin]);
+    fetchInstitutions();
+  });
 
   useEffect(() => {
     if (selectedInstitution) {
@@ -239,7 +188,7 @@ export default function InstitutionsPage() {
             {institutions.length} instituciones registradas
           </p>
         </div>
-        
+
         <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -325,7 +274,7 @@ export default function InstitutionsPage() {
                 ID: {selectedInstitution.id} | Email: {selectedInstitution.user?.email}
               </DialogDescription>
             </DialogHeader>
-            
+
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -336,7 +285,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, name: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="NIF">NIF</Label>
                   <Input
@@ -356,7 +305,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, type: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -378,7 +327,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="website">Website</Label>
                   <Input
@@ -399,7 +348,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, responsible_name: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="responsible_email">Email Responsable</Label>
                   <Input
@@ -420,7 +369,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, address: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="city">Ciudad</Label>
                   <Input
@@ -429,7 +378,7 @@ export default function InstitutionsPage() {
                     onChange={(e) => setEditData({ ...editData, city: e.target.value })}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="postal_code">Código Postal</Label>
                   <Input
@@ -465,15 +414,15 @@ export default function InstitutionsPage() {
                   )}
                   <span className="ml-2">Eliminar</span>
                 </Button>
-                
-                <Button 
-                  variant="outline" 
+
+                <Button
+                  variant="outline"
                   onClick={() => setSelectedInstitution(null)}
                 >
                   Cancelar
                 </Button>
-                
-                <Button 
+
+                <Button
                   onClick={() => handleUpdate(selectedInstitution.id)}
                   disabled={isSaving}
                 >

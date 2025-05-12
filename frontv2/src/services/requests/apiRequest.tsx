@@ -1,57 +1,55 @@
-import Cookies from "js-cookie";
-import config from "@/types/config";
+import Cookies from "js-cookie"; 
+import config from "@/types/config"; 
 
-const routeApi: string = config.apiUrl;
+const routeApi: string = config.apiUrl; 
 
 // Función de utilidad para obtener el token de autenticación
-export function getAuthToken(): string | null {
+export function getAuthToken(): string | null { 
   // Primero intentamos obtener el token de cookies (más seguro)
-  const cookieToken = Cookies.get("authToken");
-  if (cookieToken) return cookieToken;
+  const cookieToken = Cookies.get("authToken"); 
+  if (cookieToken) return cookieToken; 
   
   // Si no está en cookies, intentamos obtenerlo del localStorage
   return localStorage.getItem("authToken");
 }
 
 // Función general de petición a la API
-export async function apiRequest(
-  endpoint: string,
-  method: string = "GET",
-  body: any = null
-): Promise<any> {
-  try {
-    const token = Cookies.get("authToken") || localStorage.getItem("authToken");
-    const headers: Record<string, string> = {
-      "Accept": "application/json",
-    };
+export async function  apiRequest(
+  endpoint: string, 
+  method: string = "GET", 
+  body: any = null 
+): Promise<any> { 
+  try { 
+    const token = localStorage.getItem("authToken"); 
+    const headers: Record<string, string> = { 
+      "Accept": "application/json", 
+    }; 
 
-    if (token) {
+    if (token) { 
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const options: RequestInit = {
-      method,
-      headers,
-      credentials: 'include'
-    };
+    const options: RequestInit = { 
+      method, 
+      headers, 
+      credentials: 'include' 
+    }; 
 
-    if (body) {
-      headers["Content-Type"] = "application/json";
-      options.body = JSON.stringify(body);
-    }
+    if (body instanceof FormData) { 
+      options.body = body; 
+    } else if (body != null) { 
+      headers["Content-Type"] = "application/json"; 
+      options.body = JSON.stringify(body); 
+    } 
+ 
+    const response = await fetch(`${config.apiUrl}${endpoint}`, options); 
 
-    const response = await fetch(`${config.apiUrl}${endpoint}`, options);
-
-    if (response.status === 401) {
-      // Limpiar autenticación
-      Cookies.remove("authToken");
+    // Manejar error 401 específicamente 
+    if (response.status === 401) { 
       localStorage.removeItem("authToken");
-      
-      // Redirigir a login
       if (typeof window !== "undefined") {
         window.location.href = '/auth/login';
       }
-      
       throw new Error('Unauthorized');
     }
 
@@ -60,7 +58,7 @@ export async function apiRequest(
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
 
-    return await response.json();
+    return response.status !== 204 ? await response.json() : { success: true };
   } catch (error) {
     console.error('API Request Error:', error);
     throw error;
@@ -75,10 +73,11 @@ export async function fetchReportedUsers() {
       status: 'success',
       data: response
     };
-  } catch (error: any) {
-    return {
-      status: 'error',
-      message: error.message,
-    };
-  }
-}
+  } catch (error: any) { 
+    return { 
+      status: 'error', 
+      message: error.message, 
+    }; 
+  } 
+} 
+ 
