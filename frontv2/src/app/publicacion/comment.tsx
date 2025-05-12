@@ -88,10 +88,11 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
       });
 
       if (response.status === 'success') {
-        fetchComments();
+        const newCommentData = response.data;
+        setComments(prevComments => [...prevComments, newCommentData]);
         setNewComment("");
         setReplyingTo(null);
-        onCommentChange?.(); // Notify parent about comment change
+        onCommentChange?.();
       }
     } catch (error) {
       console.error('Error submitting comment:', error);

@@ -365,11 +365,13 @@ export default function PublicationPage() {
           isOpen={activeComment.isOpen}
           onClose={handleCloseComment}
           onCommentChange={() => {
-            // Update the comment count for the specific publication
-            const currentPublication = publications.find(p => p.id === activeComment.publicationId);
-            if (currentPublication) {
-              fetchPublications(); // Refresh publications to get updated comment count
-            }
+            // Actualizar el estado de las publicaciones con el nuevo comentario
+            setPublications(publications.map((pub) =>
+              pub.id === activeComment.publicationId ? {
+                ...pub,
+                comments_count: pub.comments_count + 1
+              } : pub
+            ));
           }}
         />
       )}
