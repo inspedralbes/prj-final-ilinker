@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useCallback } from "react";
 import Image from "next/image";
 import config from "@/types/config";
 import { useRouter } from "next/navigation";
-import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText } from "lucide-react";
+import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send } from "lucide-react";
+import CommentModal from "./comment";
 import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
@@ -50,8 +51,18 @@ interface NewPublication {
   tags: string[];
 }
 
+// Estados para el modal de comentarios
+interface ActiveComment {
+  isOpen: boolean;
+  publicationId: number | null;
+}
+
 // Componente principal de la página de publicaciones
 export default function PublicationPage() {
+  const [activeComment, setActiveComment] = useState<ActiveComment>({
+    isOpen: false,
+    publicationId: null
+  });
   const { userData, allUsers, setAllUsers } = useContext(AuthContext);
   const router = useRouter();
   const [publications, setPublications] = useState<Publication[]>([]);
@@ -238,9 +249,18 @@ export default function PublicationPage() {
   };
 
   // Función para comentar en una publicación
-  const handleComment = async (id: number) => {
-    // TODO: Implementar funcionalidad de comentarios
-    console.log('Comentar en la publicación:', id);
+  const handleComment = (id: number) => {
+    setActiveComment({
+      isOpen: true,
+      publicationId: id
+    });
+  };
+
+  const handleCloseComment = () => {
+    setActiveComment({
+      isOpen: false,
+      publicationId: null
+    });
   };
 
   // Función para navegar al perfil del usuario
@@ -339,6 +359,20 @@ export default function PublicationPage() {
           )}
         </div>
       </div>
+      {activeComment.isOpen && activeComment.publicationId && (
+        <CommentModal
+          publicationId={activeComment.publicationId}
+          isOpen={activeComment.isOpen}
+          onClose={handleCloseComment}
+          onCommentChange={() => {
+            // Update the comment count for the specific publication
+            const currentPublication = publications.find(p => p.id === activeComment.publicationId);
+            if (currentPublication) {
+              fetchPublications(); // Refresh publications to get updated comment count
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

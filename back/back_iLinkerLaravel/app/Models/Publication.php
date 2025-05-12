@@ -41,10 +41,13 @@ class Publication extends Model
         return $this->hasMany(PublicationMedia::class, 'publication_id', 'id');
     }
 
-    // Relaciรณn con los comentarios de la publicaciรณn
+    // Relación con los comentarios de la publicación
     public function comments()
     {
-        return $this->hasMany(PublicationComment::class)->with('user:id,name')->orderBy('created_at', 'desc');
+        return $this->hasMany(PublicationComment::class)
+            ->whereNull('parent_comment_id')
+            ->with(['user:id,name', 'replies.user:id,name'])
+            ->orderBy('created_at', 'asc');
     }
 
     // Relaciรณn con los likes de la publicaciรณn

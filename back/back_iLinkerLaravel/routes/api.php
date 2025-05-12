@@ -25,6 +25,7 @@ use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\PublicationsController;
+use \App\Http\Controllers\PublicationsCommentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -176,9 +177,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Rutas para configuración de la cuenta
     Route::put('/settings/toggle-account-privacy', [UserSettingsController::class, 'toggleAccountPrivacy']);
     Route::get('/settings/account-status', [UserSettingsController::class, 'getAccountStatus']);
-});
 
-Route::middleware('auth:sanctum')->group(function () {
     // Rutas de publicaciones
     Route::get('/publications', [PublicationsController::class, 'index']);
     Route::post('/publications', [PublicationsController::class, 'store']);
@@ -187,11 +186,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
     // Publicaciones del usuario actual 
     Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
-    // Likes
+    // Likes 
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
-    // Comentarios
-    Route::post('/publications/{publicationId}/comments', [PublicationsController::class, 'addComment']);
-    Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsController::class, 'deleteComment']);
+    // Comentarios (NUEVAS RUTAS)
+    Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
+    Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
+    Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
 });
 
 Route::prefix('/skills')->group(function () {

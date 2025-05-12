@@ -33,6 +33,8 @@ class PublicationComment extends Model
 
     public function replies()
     {
-        return $this->hasMany(PublicationComment::class, 'parent_comment_id');
+        return $this->hasMany(PublicationComment::class, 'parent_comment_id')
+            ->with('user:id,name')
+            ->orderBy('created_at', 'asc');
     }
 }

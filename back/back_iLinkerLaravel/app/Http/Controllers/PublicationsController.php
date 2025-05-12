@@ -252,7 +252,8 @@ class PublicationsController extends Controller
         }
     }
 
-    // Improved media upload handler to handle larger files
+   
+    // mejorar el manejo de los archivos de media para que se puedan subir mas de un archivo de media
     private function handleMediaUpload($files, Publication $publication)
     {
         if (!is_array($files)) {
