@@ -349,12 +349,12 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
 
-    if (userData.rol === "institutions" && userData.institution?.cover_photo) {
-      return userData.institution.cover_photo.startsWith('http') ? userData.institution.cover_photo : `${config.storageUrl}${userData.institution.cover_photo}`;
+    if (userData.rol === "institutions" && userData.institution?.cover) {
+      return userData.institution.cover.startsWith('http') ? userData.institution.cover : `${config.storageUrl}${userData.institution.cover}`;
     } else if (userData.rol === "company" && userData.company?.cover_photo) {
       return userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`;
-    } else if (userData.rol === "student" && userData.student?.cover_photo) {
-      return userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`;
+    } else if (userData.rol === "student" && userData.student?.postal_code) {
+      return userData.student.postal_code.startsWith('http') ? userData.student.postal_code : `${config.storageUrl}${userData.student.postal_code}`;
     }
 
     return "/default-cover.jpg";
@@ -432,12 +432,12 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="h-20 bg-slate-200 relative">
             <Image
-              src={userData?.rol === "institutions" && userData.institution?.cover_photo
-                ? (userData.institution.cover_photo.startsWith('http') ? userData.institution.cover_photo : `${config.storageUrl}${userData.institution.cover_photo}`)
+              src={userData?.rol === "institutions" && userData.institution?.cover
+                ? (userData.institution.cover.startsWith('http') ? userData.institution.cover : `${config.storageUrl}${userData.institution.cover}`)
                 : userData?.rol === "company" && userData.company?.cover_photo
                   ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
-                  : userData?.rol === "student" && userData.student?.cover_photo
-                    ? (userData.student.cover_photo.startsWith('http') ? userData.student.cover_photo : `${config.storageUrl}${userData.student.cover_photo}`)
+                  : userData?.rol === "student" && userData.student?.postal_code
+                    ? (userData.student.postal_code.startsWith('http') ? userData.student.postal_code : `${config.storageUrl}${userData.student.postal_code}`)
                     : "/default-cover.jpg"}
               alt="Portada"
               fill
