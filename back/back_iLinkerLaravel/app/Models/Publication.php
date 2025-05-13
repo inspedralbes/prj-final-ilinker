@@ -94,4 +94,19 @@ class Publication extends Model
     {
         return $this->hasMany(PublicationSaved::class);
     }
+
+    // Relación con las publicaciones compartidas
+    public function sharedPublications()
+    {
+        return $this->hasMany(SharedPublication::class, 'original_publication_id');
+    }
+
+    // Verificar si la publicación ha sido compartida por el usuario actual
+    public function getIsSharedAttribute()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+        return $this->sharedPublications()->where('user_id', Auth::id())->exists();
+    }
 }

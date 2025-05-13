@@ -33,7 +33,8 @@ class PublicationsController extends Controller
                 'media',
                 'comments.user:id,name',
                 'likes',
-                'savedPublications'
+                'savedPublications',
+                'sharedPublications.user:id,name'
             ])
             ->where('status', 'published')
             ->orderBy('created_at', 'desc')
@@ -43,6 +44,7 @@ class PublicationsController extends Controller
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
                 $publication->saved = $publication->savedPublications->contains('user_id', $userId);
+                $publication->shared = $publication->sharedPublications->contains('user_id', $userId);
                 
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {

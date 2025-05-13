@@ -26,6 +26,7 @@ use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\PublicationsController;
 use \App\Http\Controllers\PublicationsCommentController;
+use App\Http\Controllers\SharedPublicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -214,4 +215,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Comentarios (NUEVAS RUTAS)
     Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
     Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
+
+    // Rutas para publicaciones compartidas
+    Route::post('/publications/share', [SharedPublicationController::class, 'share']);
+    Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);
+    Route::delete('/shared-publications/{id}', [SharedPublicationController::class, 'delete']);
 });
