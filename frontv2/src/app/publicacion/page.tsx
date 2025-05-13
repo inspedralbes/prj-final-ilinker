@@ -11,6 +11,7 @@ import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
 import CreatePostModal from "@/components/posts/CreatePostModal";
 import SavePublications from "./SavePublications";
+import SharePublications from "./SharePublications";
 
 // Interfaces para definir la estructura de los datos
 interface Media {
@@ -42,6 +43,12 @@ interface Publication {
   status: "published" | "draft" | "archived";
   liked?: boolean;
   saved?: boolean;
+  shared?: boolean;
+  shared_by?: {
+    id: number;
+    name: string;
+  };
+  original_publication_id?: number;
 }
 
 interface NewPublication {
@@ -82,7 +89,7 @@ export default function PublicationPage() {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      // console.log('Respuesta de datos de publicaciones:', response);
+      console.log('Respuesta de datos de publicaciones:', response);
 
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
@@ -217,14 +224,17 @@ export default function PublicationPage() {
       console.log('Respuesta del like:', response);
 
       if (response.status === 'success') {
-        // Actualizar el estado de las publicaciones con la nueva información del like
-        setPublications(publications.map((pub) =>
-          pub.id === id ? {
-            ...pub,
-            likes_count: response.likes_count,
-            liked: response.liked
-          } : pub
-        ));
+        // Actualizar solo los datos necesarios sin recargar las imágenes
+        setPublications(publications.map((pub) => {
+          if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
+            return {
+              ...pub,
+              likes_count: response.likes_count,
+              liked: response.liked
+            };
+          }
+          return pub;
+        }));
       }
     } catch (err) {
       console.error('Error al dar like a la publicación:', err);
@@ -238,12 +248,16 @@ export default function PublicationPage() {
       console.log('Respuesta del guardado:', response);
 
       if (response.status === 'success') {
-        setPublications(publications.map((pub) =>
-          pub.id === id ? {
-            ...pub,
-            saved: response.saved
-          } : pub
-        ));
+        // Actualizar solo el estado de guardado
+        setPublications(publications.map((pub) => {
+          if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
+            return {
+              ...pub,
+              saved: response.saved
+            };
+          }
+          return pub;
+        }));
       }
     } catch (err) {
       console.error('Error al guardar la publicación:', err);
@@ -263,6 +277,19 @@ export default function PublicationPage() {
       isOpen: false,
       publicationId: null
     });
+  };
+
+  // Función para actualizar el contador de comentarios sin recargar la publicación
+  const handleCommentChange = (publicationId: number) => {
+    setPublications(publications.map((pub) => {
+      if ((pub.shared && pub.original_publication_id === publicationId) || pub.id === publicationId) {
+        return {
+          ...pub,
+          comments_count: pub.comments_count + 1
+        };
+      }
+      return pub;
+    }));
   };
 
   // Función para navegar al perfil del usuario
@@ -332,6 +359,11 @@ export default function PublicationPage() {
     return "/default-avatar.png";
   };
 
+  const handleShare = (sharedPublication: any) => {
+    // Agregar la publicación compartida al inicio del array de publicaciones
+    setPublications(prevPublications => [sharedPublication, ...prevPublications]);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 px-4 flex gap-6">
@@ -360,6 +392,7 @@ export default function PublicationPage() {
                 onLike={handleLike}
                 onComment={handleComment}
                 onSave={handleSavePublication}
+                onShare={handleShare}
               />
             ))
           )}
@@ -370,15 +403,7 @@ export default function PublicationPage() {
           publicationId={activeComment.publicationId}
           isOpen={activeComment.isOpen}
           onClose={handleCloseComment}
-          onCommentChange={() => {
-            // Actualizar el estado de las publicaciones con el nuevo comentario
-            setPublications(publications.map((pub) =>
-              pub.id === activeComment.publicationId ? {
-                ...pub,
-                comments_count: pub.comments_count + 1
-              } : pub
-            ));
-          }}
+          onCommentChange={() => activeComment.publicationId && handleCommentChange(activeComment.publicationId)}
         />
       )}
       <SavePublications
@@ -686,15 +711,18 @@ const PublicationCard = ({
   publication,
   onLike,
   onComment,
-  onSave
+  onSave,
+  onShare
 }: {
   publication: Publication;
   onLike: (id: number) => void;
   onComment: (id: number) => void;
   onSave: (id: number) => void;
+  onShare?: (sharedPublication: any) => void;
 }) => {
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
-  const { allUsers } = useContext(AuthContext);
+  const { allUsers, userData } = useContext(AuthContext);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Función para obtener el avatar del usuario según su rol
   const getUserAvatar = (userId: number) => {
@@ -714,45 +742,86 @@ const PublicationCard = ({
   // Función para manejar el clic en el botón de like con animación
   const handleLikeClick = (id: number) => {
     setIsLikeAnimating(true);
-    onLike(id);
+    // Si es una publicación compartida, usamos el ID de la publicación original
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onLike(targetId);
     setTimeout(() => setIsLikeAnimating(false), 1000);
+  };
+
+  // Función para manejar el clic en el botón de comentario
+  const handleCommentClick = (id: number) => {
+    // Si es una publicación compartida, usamos el ID de la publicación original
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onComment(targetId);
+  };
+
+  // Función para manejar el clic en el botón de guardar
+  const handleSaveClick = (id: number) => {
+    // Si es una publicación compartida, usamos el ID de la publicación original
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onSave(targetId);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
-          <Image
-            src={getUserAvatar(publication.user.id)}
-            alt={publication.user.name}
-            fill
-            className="object-cover"
-            unoptimized={true}
-          />
-        </div>
-        <div>
-          <h3 className="font-semibold">{publication.user.name}</h3>
-          <div className="flex items-center text-sm text-gray-500">
-            <span>{new Date(publication.created_at).toLocaleDateString()}</span>
-            {publication.location && (
-              <>
-                <span className="mx-1">•</span>
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{publication.location}</span>
-              </>
-            )}
+      {/* Si es una publicación compartida, mostrar el usuario que la compartió primero */}
+      {publication.shared_by && (
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+            <Image
+              src={getUserAvatar(publication.shared_by.id)}
+              alt={publication.shared_by.name}
+              fill
+              className="object-cover"
+              unoptimized={true}
+            />
+          </div>
+          <div>
+            <h3 className="font-semibold">{publication.shared_by.name}</h3>
+            <p className="text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
-      </div>
-      <p className="text-gray-800 mb-4">{publication.content}</p>
-
-      {/* Carrusel de medios si la publicación tiene contenido multimedia */}
-      {publication.has_media && publication.media && publication.media.length > 0 && (
-        <MediaCarousel media={publication.media} />
       )}
 
+      {/* Contenido de la publicación original */}
+      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-4 border border-gray-200' : ''}`}>
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+            <Image
+              src={getUserAvatar(publication.user.id)}
+              alt={publication.user.name}
+              fill
+              className="object-cover"
+              unoptimized={true}
+            />
+          </div>
+          <div>
+            <h3 className="font-semibold">{publication.user.name}</h3>
+            <div className="flex items-center text-sm text-gray-500">
+              <span>{new Date(publication.created_at).toLocaleDateString()}</span>
+              {publication.location && (
+                <>
+                  <span className="mx-1">•</span>
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span>{publication.location}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={`${publication.shared_by ? 'pl-11' : ''}`}>
+          <p className="text-gray-800 mb-4">{publication.content}</p>
+
+          {/* Carrusel de medios si la publicación tiene contenido multimedia */}
+          {publication.has_media && publication.media && publication.media.length > 0 && (
+            <MediaCarousel media={publication.media} />
+          )}
+        </div>
+      </div>
+
       {/* Barra de acciones de la publicación */}
-      <div className="flex items-center justify-between text-gray-500 border-t pt-3">
+      <div className="flex items-center justify-between text-gray-500 border-t pt-3 mt-4">
         <button
           onClick={() => handleLikeClick(publication.id)}
           className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
@@ -765,22 +834,35 @@ const PublicationCard = ({
             {publication.likes_count}
           </span>
         </button>
-        <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
+        <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
           <MessageCircle className="w-5 h-5" />
           <span>{publication.comments_count}</span>
         </button>
         <button
-          onClick={() => onSave(publication.id)}
+          onClick={() => handleSaveClick(publication.id)}
           className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
         >
           <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
           <span>Guardar</span>
         </button>
-        <button className="flex items-center gap-1 hover:text-blue-600">
+        <button 
+          onClick={() => setIsShareModalOpen(true)}
+          className="flex items-center gap-1 hover:text-blue-600"
+        >
           <Share2 className="w-5 h-5" />
           <span>Compartir</span>
         </button>
       </div>
+
+      {/* Modal de compartir */}
+      {isShareModalOpen && (
+        <SharePublications
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          publication={publication}
+          onShareSuccess={onShare}
+        />
+      )}
     </div>
   );
 };

@@ -6,9 +6,17 @@ use App\Models\SharedPublication;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\PublicationFileService;
 
 class SharedPublicationController extends Controller
 {
+    protected $fileService;
+
+    public function __construct(PublicationFileService $fileService)
+    {
+        $this->fileService = $fileService;
+    }
+
     /**
      * Compartir una publicación
      */
@@ -30,12 +38,47 @@ class SharedPublicationController extends Controller
             ]);
 
             // Cargar la relación con la publicación original y su usuario
-            $sharedPublication->load(['originalPublication.user', 'originalPublication.media']);
+            $sharedPublication->load(['user', 'originalPublication.user', 'originalPublication.media']);
+
+            // Transformar las URLs de los medios
+            $media = $sharedPublication->originalPublication->media->map(function ($media) {
+                return [
+                    'id' => $media->id,
+                    'file_path' => $this->fileService->getFileUrl($media->file_path),
+                    'media_type' => $media->media_type,
+                    'display_order' => $media->display_order
+                ];
+            });
+
+            // Transformar la respuesta para incluir la información del usuario que comparte
+            $response = [
+                'id' => $sharedPublication->id,
+                'content' => $sharedPublication->content,
+                'created_at' => $sharedPublication->created_at,
+                'shared_by' => [
+                    'id' => $sharedPublication->user->id,
+                    'name' => $sharedPublication->user->name,
+                ],
+                'user' => [
+                    'id' => $sharedPublication->originalPublication->user->id,
+                    'name' => $sharedPublication->originalPublication->user->name,
+                ],
+                'content' => $sharedPublication->originalPublication->content,
+                'media' => $media,
+                'has_media' => $sharedPublication->originalPublication->has_media,
+                'location' => $sharedPublication->originalPublication->location,
+                'likes_count' => $sharedPublication->originalPublication->likes_count,
+                'comments_count' => $sharedPublication->originalPublication->comments_count,
+                'liked' => false,
+                'saved' => false,
+                'shared' => true,
+                'original_publication_id' => $sharedPublication->original_publication_id
+            ];
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Publicación compartida exitosamente',
-                'data' => $sharedPublication
+                'data' => $response
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -60,6 +103,29 @@ class SharedPublicationController extends Controller
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+            // Transformar la respuesta para incluir la información del usuario que comparte
+            $sharedPublications->getCollection()->transform(function ($sharedPublication) {
+                return [
+                    'id' => $sharedPublication->id,
+                    'content' => $sharedPublication->content,
+                    'created_at' => $sharedPublication->created_at,
+                    'shared_by' => [
+                        'id' => $sharedPublication->user->id,
+                        'name' => $sharedPublication->user->name,
+                    ],
+                    'user' => [
+                        'id' => $sharedPublication->originalPublication->user->id,
+                        'name' => $sharedPublication->originalPublication->user->name,
+                    ],
+                    'content' => $sharedPublication->originalPublication->content,
+                    'media' => $sharedPublication->originalPublication->media,
+                    'has_media' => $sharedPublication->originalPublication->has_media,
+                    'location' => $sharedPublication->originalPublication->location,
+                    'likes_count' => $sharedPublication->originalPublication->likes_count,
+                    'comments_count' => $sharedPublication->originalPublication->comments_count,
+                ];
+            });
 
             return response()->json([
                 'status' => 'success',

@@ -23,9 +23,10 @@ interface SharePublicationsProps {
     }[];
     has_media: boolean;
   } | null;
+  onShareSuccess?: (sharedPublication: any) => void;
 }
 
-export default function SharePublications({ isOpen, onClose, publication }: SharePublicationsProps) {
+export default function SharePublications({ isOpen, onClose, publication, onShareSuccess }: SharePublicationsProps) {
   const [content, setContent] = useState('');
   const { userData } = useContext(AuthContext);
 
@@ -39,6 +40,9 @@ export default function SharePublications({ isOpen, onClose, publication }: Shar
       });
 
       if (response.status === 'success') {
+        if (onShareSuccess) {
+          onShareSuccess(response.data);
+        }
         onClose();
         setContent('');
       }
@@ -97,7 +101,7 @@ export default function SharePublications({ isOpen, onClose, publication }: Shar
           </div>
 
           {/* Original post being shared */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
             <div className="flex items-center space-x-3 mb-3">
               <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden relative">
                 <Image
@@ -113,30 +117,32 @@ export default function SharePublications({ isOpen, onClose, publication }: Shar
                 <p className="text-xs text-gray-500">Publicación original</p>
               </div>
             </div>
-            <p className="text-sm text-gray-700 mb-3">{publication.content}</p>
-            {publication.has_media && publication.media && publication.media.length > 0 && (
-              <div className="relative h-48 w-full rounded-lg overflow-hidden">
-                {publication.media[0].media_type === "image" ? (
-                  <Image
-                    src={publication.media[0].file_path.startsWith('http') 
-                      ? publication.media[0].file_path 
-                      : `${config.storageUrl}${publication.media[0].file_path}`}
-                    alt="Shared media"
-                    fill
-                    className="object-cover"
-                    unoptimized={true}
-                  />
-                ) : (
-                  <video
-                    src={publication.media[0].file_path.startsWith('http') 
-                      ? publication.media[0].file_path 
-                      : `${config.storageUrl}${publication.media[0].file_path}`}
-                    controls
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            )}
+            <div className="pl-11">
+              <p className="text-sm text-gray-700 mb-3">{publication.content}</p>
+              {publication.has_media && publication.media && publication.media.length > 0 && (
+                <div className="relative h-48 w-full rounded-lg overflow-hidden">
+                  {publication.media[0].media_type === "image" ? (
+                    <Image
+                      src={publication.media[0].file_path.startsWith('http') 
+                        ? publication.media[0].file_path 
+                        : `${config.storageUrl}${publication.media[0].file_path}`}
+                      alt="Shared media"
+                      fill
+                      className="object-cover"
+                      unoptimized={true}
+                    />
+                  ) : (
+                    <video
+                      src={publication.media[0].file_path.startsWith('http') 
+                        ? publication.media[0].file_path 
+                        : `${config.storageUrl}${publication.media[0].file_path}`}
+                      controls
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
