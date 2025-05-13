@@ -3,52 +3,43 @@
 class ChatController {
     // Enviar mensaje directo de usuario a usuario
     static sendDirectMessage(socket, io, users) {
-        return (messageData) => {
+        return ({messageData, recipient_id}) => {
             try {
+                console.log("SEND DIRECT MESSAGE")
+                console.log(messageData)
                 // Obtenemos el usuario que envía el mensaje
-                const sender = users.find(u => u.idUser === socket.idUser);
+                const sender = users.find(u => u.idUser === messageData.sender_id);
                 if (!sender) {
+                    console.log("SENDER NOT FOUND")
                     socket.emit('error', { message: 'You must be logged in to send messages' });
                     return;
                 }
                 
                 // Validamos que se proporcione un destinatario
-                if (!messageData.to) {
+                if (!messageData.sender_id) {
+                    console.log("RECIPIENT IS REQUIRED")
                     socket.emit('error', { message: 'Recipient is required' });
                     return;
                 }
                 
                 // Buscamos al usuario destinatario
-                const recipient = users.find(u => u.username === messageData.to || u.idUser === messageData.to);
+                const recipient = users.find(u => u.idUser === recipient_id);
                 if (!recipient) {
+                    console.log("RECIPIENT NOT FOUND")
                     socket.emit('error', { message: 'Recipient not found' });
                     return;
                 }
                 
-                console.log(`Direct message from ${sender.username} to ${recipient.username}: ${messageData.text}`);
-                
-                // Preparar el mensaje con la información
-                const message = {
-                    id: Date.now(),
-                    text: messageData.text,
-                    from: {
-                        idUser: sender.idUser,
-                        username: sender.username
-                    },
-                    to: {
-                        idUser: recipient.idUser,
-                        username: recipient.username
-                    },
-                    timestamp: new Date()
-                };
+                console.log(`Direct message from ${sender.username} to ${recipient.username}: ${messageData}`);
                 
                 // Enviamos el mensaje al destinatario si está online
                 if (recipient.status === 'online' && recipient.socketId) {
-                    io.to(recipient.socketId).emit('direct_message', message);
+                    console.log("RECIPIENT IS ONLINE")
+                    io.to(recipient.socketId).emit('direct_message', messageData);
                 }
                 
                 // También enviamos confirmación al remitente
-                socket.emit('direct_message', message);
+                // socket.emit('direct_message', messageData);
                 
             } catch (error) {
                 console.error('Error sending direct message:', error);

@@ -26,11 +26,24 @@ interface Student {
 interface Applicant {
   id: number;
   student: Student;
+  email: string;
   status: string;
   created_at: string;
   pivot: {
+    id: number;
     status: string;
-  }
+    availability: string;
+    created_at: string;
+    cv_attachment: string;
+    cover_letter_attachment: string;
+  },
+  education: Education[];
+  skills: Skill[];
+  cv_url?: string;
+  cover_letter_url?: string;
+  profile_picture?: string;
+  phone?: string;
+  availability?: string;
 }
 
 interface ApplicantCardProps {

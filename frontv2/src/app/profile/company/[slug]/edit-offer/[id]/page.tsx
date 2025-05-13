@@ -1,6 +1,6 @@
 "use client";
 import { useContext, useState, useEffect } from "react";
-import { Building2, MapPin, Globe, Users } from "lucide-react";
+import { Building2, MapPin, Globe, Users, Clock } from "lucide-react";
 import ApplicantCard from "@/components/profile/company/offer/ApplicantCard";
 
 import { useParams } from "next/navigation";
@@ -33,49 +33,13 @@ const mockOffer = {
   skills: ["PHP", "Laravel", "MySQL", "API REST"],
   created_at: "2024-04-16T12:55:43Z",
 };
-const mockApplicants: Applicant[] = [
-  {
-    id: 1,
-    name: "Ana García",
-    email: "ana.garcia@email.com",
-    status: "pending",
-    appliedAt: "2024-04-17T10:30:00Z",
-    education: "Grado en Ingeniería Informática",
-    skills: ["PHP", "JavaScript", "MySQL", "Git"],
-    competencies: [
-      "Trabajo en equipo",
-      "Resolución de problemas",
-      "Comunicación efectiva",
-    ],
-  },
-  {
-    id: 2,
-    name: "Carlos Rodríguez",
-    email: "carlos.rodriguez@email.com",
-    status: "accepted",
-    appliedAt: "2024-04-16T15:45:00Z",
-    education: "Máster en Desarrollo Web",
-    skills: ["PHP", "Laravel", "Vue.js", "Docker"],
-    competencies: ["Liderazgo", "Gestión del tiempo", "Pensamiento analítico"],
-  },
-  {
-    id: 3,
-    name: "Laura Martínez",
-    email: "laura.martinez@email.com",
-    status: "rejected",
-    appliedAt: "2024-04-16T09:15:00Z",
-    education: "Grado en Desarrollo de Software",
-    skills: ["Python", "Django", "PostgreSQL", "AWS"],
-    competencies: ["Adaptabilidad", "Aprendizaje continuo", "Trabajo autónomo"],
-  },
-];
 
 export default function OfferDetail() {
-  const { id } = useParams<{ slug: string }>();
+  const { id } = useParams<{ slug: string; id: string }>();
   const router = useRouter();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { userData } = useContext(AuthContext);
-  const [offer, setOffer] = useState(mockOffer);
+  const [offer, setOffer] = useState<any>(mockOffer);
   const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
   const handleStatusUpdate = (id: number, status: "accept" | "rejected") => {
@@ -155,6 +119,14 @@ export default function OfferDetail() {
                 ? "Híbrido"
                 : "Presencial"}
             </div>
+            <div className="flex items-center text-gray-600">
+              <Clock className="flex-shrink-0 mr-2 h-5 w-5" />
+              {offer.schedule_type === "full"
+                ? "Jornada Completa"
+                : offer.schedule_type === "part"
+                ? "Jornada Media"
+                : "Negociable"}
+            </div>
           </div>
 
           <div className="mt-6">
@@ -162,7 +134,7 @@ export default function OfferDetail() {
               Habilidades requeridas
             </h2>
             <div className="mt-2 flex flex-wrap gap-2">
-              {offer.skills.map((skill) => (
+              {offer.skills.map((skill: any) => (
                 <span
                   key={skill}
                   className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-black text-white"
@@ -186,7 +158,7 @@ export default function OfferDetail() {
               Candidatos
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {applicants?.map((applicant) => (
+              {applicants?.map((applicant: any) => (
                 <ApplicantCard
                   key={applicant.id}
                   applicant={applicant}

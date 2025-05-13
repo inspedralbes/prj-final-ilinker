@@ -38,7 +38,7 @@ class Message extends Model
     // Relación con los archivos adjuntos del mensaje
     public function attachments()
     {
-        return $this->hasMany(MessageAttachment::class);
+        return $this->hasMany(MessageAttachments::class);
     }
 
     // Método para determinar si el mensaje es directo o de sala

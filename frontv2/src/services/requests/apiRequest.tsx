@@ -35,6 +35,17 @@ export async function  apiRequest(
       credentials: 'include' 
     }; 
 
+    if (body instanceof FormData) {
+      // Si es FormData, no ponemos Content-Type: lo infiere el navegador con boundary
+      options.body = body;
+    } else if (body != null) {
+      // Para cualquier otro body, enviamos JSON
+      headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(body);
+    }
+
+    // const response = await fetch(`${routeApi}${endpoint}`, options);
+    const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
     if (body instanceof FormData) { 
       options.body = body; 
     } else if (body != null) { 
@@ -57,6 +68,7 @@ export async function  apiRequest(
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
+
 
     return response.status !== 204 ? await response.json() : { success: true };
   } catch (error) {

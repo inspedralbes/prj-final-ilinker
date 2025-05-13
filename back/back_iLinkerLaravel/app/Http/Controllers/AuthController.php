@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Institutions;
+use App\Models\Notification;
 use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
@@ -42,6 +43,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $user->status = "online";
+            $user->save();
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -60,7 +63,9 @@ class AuthController extends Controller
                 $user->institution = $institution;
             }
 
-            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
+            $notifications = Notification::getAllForUser($user->id);
+
+            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user, 'notifications' => $notifications]);
         }
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
@@ -101,7 +106,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['company'] = $company;
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
+                $notifications = Notification::getAllForUser($user['id']);
+
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'institutions') {
                 $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
                 if (!$institution) {
@@ -110,8 +117,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['institution'] = $institution;
+                $notifications = Notification::getAllForUser($user['id']);
 
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
                 if (!$student) {
@@ -120,8 +128,9 @@ class AuthController extends Controller
                 DB::commit();
 
                 $user['user']['student'] = $student;
+                $notifications = Notification::getAllForUser($user['id']);
 
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student, 'notifications' => $notifications]);
             } else {
                 throw new \Exception('El rol no está especificado.');
             }
@@ -134,6 +143,10 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = Auth::user();
+        $user->status = "offline";
+        $user->save();
+
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
     }
@@ -157,9 +170,13 @@ class AuthController extends Controller
                 $user->institution = $institution;
             }
 
+            $notifications = Notification::getAllForUser($user->id);
+
+
             return response()->json([
                 'status' => 'success',
-                'user' => $user
+                'user' => $user,
+                'notifications' => $notifications
             ]);
         } else {
             return response()->json([

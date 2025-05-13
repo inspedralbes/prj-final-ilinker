@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
+class Publication extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'content',
+        'visibility',
+        'location',
+        'has_media',
+        'comments_enabled',
+        'status',
+    ];
+
+    protected $casts = [
+        'has_media' => 'boolean',
+        'comments_enabled' => 'boolean',
+        'likes_count' => 'integer',
+        'comments_count' => 'integer',
+    ];
+
+    protected $appends = ['is_liked', 'user_details'];
+
+    // Relaciรณn con el usuario que creรณ la publicaciรณn
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Relaciรณn con los medios asociados a la publicaciรณn
+    public function media()
+    {
+        return $this->hasMany(PublicationMedia::class, 'publication_id', 'id');
+    }
+
+    // Relación con los comentarios de la publicación
+    public function comments()
+    {
+        return $this->hasMany(PublicationComment::class)
+            ->whereNull('parent_comment_id')
+            ->with(['user:id,name', 'replies.user:id,name'])
+            ->orderBy('created_at', 'asc');
+    }
+
+    // Relaciรณn con los likes de la publicaciรณn
+    public function likes()
+    {
+        return $this->hasMany(PublicationLike::class);
+    }
+
+    // Verifica si el usuario actual ha dado like a la publicaciรณn
+    public function getIsLikedAttribute()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+        return $this->likes()->where('user_id', Auth::id())->exists();
+    }
+
+    // Obtiene los detalles del usuario que creรณ la publicaciรณn
+    public function getUserDetailsAttribute()
+    {
+        return $this->user()->select('id', 'name')->first();
+    }
+
+    // Obtiene los comentarios principales (sin padre)
+    public function parentComments()
+    {
+        return $this->comments()->whereNull('parent_comment_id');
+    }
+
+    // Scope para publicaciones pรบblicas
+    public function scopePublic($query)
+    {
+        return $query->where('visibility', 'public');
+    }
+
+    // Scope para publicaciones publicadas
+    public function scopePublished($query)
+    {
+        return $query->where('status', 'published');
+    }
+}

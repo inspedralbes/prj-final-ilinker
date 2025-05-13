@@ -27,8 +27,9 @@ export default function CompanyPage() {
     showLoader();
     async function fetchCompany() {
       try {
-        const response = await apiRequest<CompanyResponse>(`company/${slug}`);
-
+        console.log("inicio")
+        const response = await apiRequest(`company/${slug}`);
+        console.log(response)
         setCompanyData(response);
       } catch (err: any) {
         console.error("Error fetching company:", err);

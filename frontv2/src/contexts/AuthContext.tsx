@@ -6,15 +6,20 @@ import { User, AuthContextType } from '@/types/global'
 import { LoaderComponent } from '@/components/ui/loader-layout'
 import { apiRequest } from '@/services/requests/apiRequest'
 import { useRouter } from 'next/navigation'
+import socket from '@/services/websockets/sockets'
 
 // Valor por defecto del contexto
 const defaultAuthContext: AuthContextType = {
   loggedIn: false,
   userData: null,
   login: () => {},
+  token: '',
   logout: () => {},
   checkAuth: () => {},
+  notifications: [],
   isLoading: false, // Añadido isLoading
+  allUsers: [],
+  setAllUsers: () => {},
 }
 
 // Crear contexto
@@ -30,12 +35,14 @@ const router = useRouter();
 
   const [loggedIn, setLoggedIn] = useState<boolean>(false)
   const [userData, setUserData] = useState<User | null>(null)
+  const [notifications, setNotifications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true) // Estado de carga
+  const [allUsers, setAllUsers] = useState<User[]>([])
+  const [token, setToken] = useState<any | undefined | null>('')
 
   const checkAuth = async () => {
-    const token = Cookies.get('authToken')
-    
-    if (!token) {
+    const auxToken = Cookies.get('authToken')
+    if (!auxToken) {
       setIsLoading(false);
       return;
     }
@@ -44,7 +51,8 @@ const router = useRouter();
       const response = await apiRequest('auth/check');
       console.log(response)
       if (response.status === 'success') {
-        login(token, response.user)
+        login(auxToken, response.user, response.notifications);
+        setToken(auxToken);
       }else{
         logout();
       }
@@ -57,14 +65,23 @@ const router = useRouter();
   }
 
   useEffect(() => {
-    checkAuth()
+    checkAuth();
+
+    socket.on('new_notifications', (data)=>{
+      console.log(data)
+    });
+
+    return () => {
+      socket.off('new_notifications');
+    };
   }, [])
 
-  const login = (token: string, userDataObj: User) => {
+  const login = (token: string, userDataObj: User, notifications: any[]) => {
     Cookies.set('authToken', token)
     Cookies.set('userData', JSON.stringify(userDataObj))
     setLoggedIn(true)
     setUserData(userDataObj)
+    setNotifications(notifications)
   }
 
   const logout = () => {
@@ -84,9 +101,13 @@ const router = useRouter();
         loggedIn,
         userData,
         login,
+        token,
         logout,
         checkAuth,
+        notifications,
         isLoading, // Pasar el estado de carga al contexto
+        allUsers,
+        setAllUsers,
       }}
     >
       {children}

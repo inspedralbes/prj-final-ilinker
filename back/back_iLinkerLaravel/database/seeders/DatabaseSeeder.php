@@ -34,6 +34,8 @@ class DatabaseSeeder extends Seeder
             StudentSkillsSeeder::class,
             StudentProjectSeeder::class,
             RepotrsSeeder::class,
+            OfferUserSeeder::class,
+            PublicationsSeeder::class,
         ]);
     }
 }

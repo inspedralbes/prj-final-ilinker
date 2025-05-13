@@ -70,4 +70,33 @@ class Offer extends Model
             ->wherePivot('status', 'pending')
             ->withTimestamps();
     }
+
+    /**
+     * Verifica si un usuario ya ha optado a esta oferta.
+     *
+     * @param  int  $userId
+     * @return bool
+     */
+    public function hasUserApplied(int $userId): bool
+    {
+        return $this->usersInterested()
+            ->where('offer_users.user_id', $userId)
+            ->exists();
+    }
+
+    /**
+     * Obtener el estado de aplicación de un usuario en esta oferta.
+     * Retorna null si no ha aplicado, o la cadena de estado: 'pending', 'accept', 'rejected'.
+     *
+     * @param  int  $userId
+     * @return string|null
+     */
+    public function getUserApplicationStatus(int $userId): ?string
+    {
+        $relation = $this->usersInterested()
+            ->where('offer_users.user_id', $userId)
+            ->first();
+
+        return $relation ? $relation->pivot->status : null;
+    }
 }

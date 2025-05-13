@@ -14,10 +14,26 @@ use Illuminate\Support\Str;
 
 class InstitutionController extends Controller
 {
+
+    protected InstitutionService $institutionService;
+    public function __construct(InstitutionService $institutionService){
+        $this->institutionService = $institutionService;
+    }
+
     public function index()
     {
         $institutions = Institutions::with('user')->get();
         return response()->json($institutions);
+    }
+
+    public function getInstitutions(){
+        try {
+            $institutions = $this->institutionService->getInstitutions();
+
+            return response()->json(['success' => 'success', 'institutions' => $institutions]);
+        }catch (\Exception $exception){
+            return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
+        }
     }
 
     public function store(Request $request)
