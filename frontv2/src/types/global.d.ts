@@ -14,13 +14,15 @@ export interface User {
 // Contexto de autenticación
 export interface AuthContextType {
     loggedIn: boolean
-    userData: User | null,
-    token: any,
+    userData: User | null
     login: (token: string, userData: User, notifications: any[]) => void
+    token: string
     logout: () => void
     checkAuth: () => void
     notifications: any[]
     isLoading: boolean
+    allUsers: User[]
+    setAllUsers: (users: User[]) => void
 }
 
 // Interfaz para una respuesta genérica de la API

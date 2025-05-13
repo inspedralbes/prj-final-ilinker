@@ -207,4 +207,31 @@ class User extends Authenticatable
             ->withTimestamps();
     }
 
+
+
+    // Relacion entre user y publicaciones
+    // Relacion con las publicaciones creadas por este usuario
+    public function publications()
+    {
+        return $this->hasMany(Publication::class);
+    }
+
+    // Relacion con los comentarios realizados por este usuario
+    public function publicationComments()
+    {
+        return $this->hasMany(PublicationComment::class);
+    }
+
+    // Relacion con los likes dandos por este usuario
+    public function publicationLikes()
+    {
+        return $this->hasMany(PublicationLike::class);
+    }
+
+    // Relación con las publicaciones que le han gustado a este usuario
+    public function likedPublications()
+    {
+        return $this->belongsToMany(Publication::class, 'publication_likes', 'user_id', 'publication_id')
+            ->withTimestamps();
+    }
 }

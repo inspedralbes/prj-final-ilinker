@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Offer;
 use App\Models\OfferUser;
 use App\Models\Student;
+use App\Models\User;
 use App\Services\StudentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,6 +68,11 @@ class StudentController extends Controller
         $offer = OfferUser::with('offer')
             ->where('user_id', $student->user()->first()->id)
             ->get();
+
+        $companyFollowers = User::findOrFail($student->user_id)
+            ->followers->count();
+
+        $student->followers = $companyFollowers;
 
 
         // Agrupar las experiencias por company_id

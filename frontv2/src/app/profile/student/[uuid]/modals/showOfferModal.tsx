@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { X, Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import {X, Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2} from 'lucide-react';
+import {Button} from "@/components/ui/button";
 
 interface PropsModal {
     application: any;
@@ -25,7 +26,7 @@ export default function OfferModal({ application, onClose }: PropsModal) {
                 return 'text-green-600 bg-green-100';
             case 'pending':
                 return 'text-yellow-600 bg-yellow-100';
-            case 'reject':
+            case 'rejected':
                 return 'text-red-600 bg-red-100';
             default:
                 return 'text-gray-600 bg-gray-100';
@@ -39,7 +40,7 @@ export default function OfferModal({ application, onClose }: PropsModal) {
                 return 'Aceptada';
             case 'pending':
                 return 'Pendiente';
-            case 'reject':
+            case 'rejected':
                 return 'Rechazada';
             default:
                 return status;
@@ -52,8 +53,8 @@ export default function OfferModal({ application, onClose }: PropsModal) {
             case 'accept':
                 return <CheckCircle className="w-5 h-5 text-green-600" />;
             case 'pending':
-                return <Loader2 className="w-5 h-5 text-yellow-600" />;
-            case 'reject':
+                return <Loader2 className="w-5 h-5 text-yellow-600 animate-spin" />;
+            case 'rejected':
                 return <XCircle className="w-5 h-5 text-red-600" />;
             default:
                 return null;
@@ -130,7 +131,7 @@ export default function OfferModal({ application, onClose }: PropsModal) {
                             <h4 className="font-semibold mb-2">Habilidades requeridas:</h4>
                             <div className="flex flex-wrap gap-2">
                                 {skills.map((skill: any, index: number) => (
-                                    <span key={index} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                                    <span key={index} className="bg-black text-white text-bold px-3 py-1 rounded-full text-sm">
                     {skill}
                   </span>
                                 ))}
@@ -191,12 +192,12 @@ export default function OfferModal({ application, onClose }: PropsModal) {
 
                 {/* Footer */}
                 <div className="border-t p-4 flex justify-end sticky bottom-0 bg-white">
-                    <button
+                    <Button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-gray-800 font-medium transition-colors"
+                        className="px-4 py-2 rounded-md text-white font-medium transition-colors"
                     >
                         Cerrar
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

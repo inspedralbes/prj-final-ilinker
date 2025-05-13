@@ -33,7 +33,8 @@ class DatabaseSeeder extends Seeder
             StudentExperienceSeeder::class,
             StudentSkillsSeeder::class,
             StudentProjectSeeder::class,
-            OfferUserSeeder::class
+            OfferUserSeeder::class,
+            PublicationsSeeder::class,
         ]);
     }
 }

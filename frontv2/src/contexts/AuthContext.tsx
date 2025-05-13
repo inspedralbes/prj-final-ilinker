@@ -13,11 +13,13 @@ const defaultAuthContext: AuthContextType = {
   loggedIn: false,
   userData: null,
   login: () => {},
-  token: null,
+  token: '',
   logout: () => {},
   checkAuth: () => {},
   notifications: [],
   isLoading: false, // Añadido isLoading
+  allUsers: [],
+  setAllUsers: () => {},
 }
 
 // Crear contexto
@@ -35,6 +37,7 @@ const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null)
   const [notifications, setNotifications] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(true) // Estado de carga
+  const [allUsers, setAllUsers] = useState<User[]>([])
   const [token, setToken] = useState<any | undefined | null>('')
 
   const checkAuth = async () => {
@@ -103,6 +106,8 @@ const router = useRouter();
         checkAuth,
         notifications,
         isLoading, // Pasar el estado de carga al contexto
+        allUsers,
+        setAllUsers,
       }}
     >
       {children}

@@ -28,7 +28,8 @@ import {
     FileText,
     X,
     CreditCard,
-    Briefcase, Loader2
+    Briefcase, Loader2,
+    Folders, ChevronLeft, ChevronRight
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -75,6 +76,9 @@ import {Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValu
 import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
 import {SimpleEditor} from "@/components/templates/simple/SimpleEditor"
 import "@/styles/tiptap-content.scss"
+import {useModal} from "@/hooks/use-modal";
+import Modal from "@/components/ui/modal";
+import {useRouter} from "next/navigation";
 
 export interface User {
     id: number;
@@ -178,6 +182,7 @@ export interface Student {
     user_id: number;
     uuid: string;
     name: string;
+    followers: number;
     surname: string;
     type_document: string;
     id_document: string;
@@ -203,15 +208,34 @@ export interface Student {
     skills: Skill[];
 }
 
+interface Follower {
+    id: number;
+    name: string;
+    pivot: {
+        follower_id: number;
+    };
+    isFollowed: boolean;
+
+    [key: string]: any;
+}
+
 interface StudentClientMeProps {
     uuid: String;
     student: Student;
     experience_group: any;
     skills: any;
     offerUser: any;
+    publications: any;
 }
 
-export default function StudentClientMe({uuid, student, experience_group, skills, offerUser}: StudentClientMeProps) {
+export default function StudentClientMe({
+                                            uuid,
+                                            student,
+                                            experience_group,
+                                            skills,
+                                            offerUser,
+                                            publications
+                                        }: StudentClientMeProps) {
 
     const [studentEdit, setStudentEdit] = useState(student);
     const [experienceEdit, setExperienceEdit] = useState(experience_group);
@@ -220,6 +244,8 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [skillsEdit, setSkillsEdit] = useState(student.skills);
     const [userEdit, setUserEdit] = useState(student.user);
     const [offersEdit, setOfferEdit] = useState(offerUser);
+    const [publicationsEdit, setPublicationsEdit] = useState(publications);
+
     const [allSkills, setAllSkills] = useState(skills);
     const [isEditing, setIsEditing] = useState<string | null>(null);
     const [isEditingModal, setIsEditingModal] = useState<boolean | undefined>(false);
@@ -262,6 +288,14 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const [imageChangeCount, setImageChangeCount] = useState(0);
     const [statusFilter, setStatusFilter] = useState("all");
     const [isFiltering, setIsFiltering] = useState(false);
+    const router = useRouter();
+
+    const followersModal = useModal();
+
+    const [studentFollowersAll, setStudentFollowersAll] = useState<Follower[]>([]);
+    const [studentFollowers, setStudentFollowers] = useState<Follower[]>([]);
+    const [isLoadingToggleFollwer, setIsLoadingToggleFollwer] = useState(false);
+    const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
 
 
     // Función para manejar el cambio de filtro
@@ -677,8 +711,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     };
 
     const showOffer = (offer: any) => {
-        console.log("Edit Offer");
-        console.table(offer);
         setOfferSelect(offer)
         setModalOffer(!modalOffer)
     }
@@ -693,6 +725,233 @@ export default function StudentClientMe({uuid, student, experience_group, skills
         </div>
     );
 
+    const handleOpenModalFollowers = () => {
+        showLoader();
+        apiRequest(`followers`, 'POST', {
+            user_id: studentEdit.user_id,
+            me_id: userData?.id
+        })
+            .then((response) => {
+                console.log(response);
+                if (response.status === "success") {
+                    setStudentFollowersAll(response.followers);
+                    setStudentFollowers(response.followers);
+                    followersModal.openModal();
+                } else {
+                    toast({
+                        title: "Error",
+                        description: "Error al obtener los seguidores.",
+                        variant: "destructive",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "Error al obtener los seguidores.",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                hideLoader();
+            });
+    };
+
+    const handleSearchFollower = (query: string) => {
+        setSearchFollowerQuery(query);
+        const filteredFollowers = studentFollowersAll.filter((follower: any) => {
+            return follower.name.toLowerCase().includes(query.toLowerCase());
+        });
+        setStudentFollowers(filteredFollowers);
+    };
+
+    const handleRedirectToFollowerProfile = (follower: any) => {
+        showLoader();
+        switch (follower.rol) {
+            case "student":
+                router.push(`/profile/student/${follower.student.uuid}`);
+                break;
+            case "company":
+                router.push(`/profile/company/${follower.company.slug}`);
+                break;
+            case "institutions":
+                router.push(`/profile/institution/${follower.institutions.slug}`);
+                break;
+        }
+    };
+
+    const handleUnfollow = (user_id: number) => {
+        showLoader();
+        setIsLoadingToggleFollwer(true);
+        try {
+            apiRequest(`unfollow/${user_id}`, "DELETE")
+                .then((response) => {
+                    console.log(response);
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                            duration: 5000,
+                        });
+                        setStudentFollowers(prev =>
+                            prev.map(follower =>
+                                follower.pivot.follower_id === user_id
+                                    ? {...follower, isFollowed: false}
+                                    : follower
+                            )
+                        );
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: "Error al dejar de seguir a la empresa.",
+                        variant: "destructive",
+                        duration: 5000,
+                    });
+                })
+                .finally(() => {
+                    hideLoader();
+                    setIsLoadingToggleFollwer(false);
+                });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al dejar de seguir a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const handleFollow = (user_id: number) => {
+        setIsLoadingToggleFollwer(true);
+        showLoader();
+        try {
+            apiRequest("follow", "POST", {
+                user_id: user_id,
+            })
+                .then((response) => {
+                    console.log(response);
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                        });
+                        setStudentFollowers(prev =>
+                            prev.map(follower =>
+                                follower.pivot.follower_id === user_id
+                                    ? {...follower, isFollowed: true}
+                                    : follower
+                            )
+                        );
+                    } else if (response.status === "warning") {
+                        toast({
+                            title: "Advertencia",
+                            description: response.message,
+                            variant: "default",
+                            duration: 5000,
+                        });
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: "Error al seguir a la empresa.",
+                        variant: "destructive",
+                        duration: 5000,
+                    });
+                })
+                .finally(() => {
+                    hideLoader();
+                    setIsLoadingToggleFollwer(false);
+                });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al seguir a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const handleBlock = (user_id: number) => {
+        showLoader();
+        try {
+            apiRequest('block', 'POST', {user_id})
+                .then((response) => {
+                    if (response.status === "success") {
+                        toast({
+                            title: "Exito",
+                            description: response.message,
+                            variant: "success",
+                            duration: 5000,
+                        });
+                    } else if (response.status === "warning") {
+                        toast({
+                            title: "Advertencia",
+                            description: response.message,
+                            variant: "default",
+                            duration: 5000,
+                        });
+                    } else {
+                        toast({
+                            title: "Error",
+                            description: response.message,
+                            variant: "destructive",
+                            duration: 5000,
+                        });
+                    }
+                }).catch((error) => {
+                console.log(error);
+                toast({
+                    title: "Error",
+                    description: "Error al bloquear a la empresa.",
+                    variant: "destructive",
+                    duration: 5000,
+                });
+            }).finally(() => {
+                hideLoader();
+            });
+        } catch (error) {
+            console.log(error);
+            toast({
+                title: "Error",
+                description: "Error al bloquear a la empresa.",
+                variant: "destructive",
+                duration: 5000,
+            });
+        } finally {
+            hideLoader();
+        }
+    };
+
 
     useEffect(() => {
         handleSave();
@@ -702,12 +961,88 @@ export default function StudentClientMe({uuid, student, experience_group, skills
     const updateDesStudent = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setStudentEdit((prev: any) => ({
             ...prev,
             [name]: value,
         }));
     };
+
+    // Estados para controlar la paginación y la vista
+    const [currentPage, setCurrentPage] = useState(1);
+    const [viewMode, setViewMode] = useState("list"); // "list" o "gallery"
+    const [selectedPost, setSelectedPost] = useState(null);
+    const postsPerPage = 5;
+
+    // Calcular índices para la paginación
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+    // Publicaciones para la página actual
+    const currentPosts = publicationsEdit ? publicationsEdit.slice(indexOfFirstPost, indexOfLastPost) : [];
+
+    // Calcular número total de páginas
+    const totalPages = publicationsEdit ? Math.ceil(publicationsEdit.length / postsPerPage) : 0;
+
+    // Extraer todas las imágenes para la vista de galería
+    const galleryImages = publicationsEdit ? publicationsEdit.flatMap((post: any) =>
+        post.media?.map((media: any) => ({
+            id: `${post.id}-${media.id || Math.random()}`,
+            postId: post.id,
+            media: media,
+            post: post
+        })) || []
+    ) : [];
+
+    // Cambiar de página
+    const goToPage = (pageNumber: any) => {
+        setCurrentPage(pageNumber);
+    };
+
+    // Obtener números de página para la paginación
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 5;
+
+        if (totalPages <= maxVisiblePages) {
+            // Mostrar todos los números si hay pocas páginas
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            // Lógica para mostrar un subconjunto de números con elipsis
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 5; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push("...");
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(1);
+                pageNumbers.push("...");
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    pageNumbers.push(i);
+                }
+            } else {
+                pageNumbers.push(1);
+                pageNumbers.push("...");
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push("...");
+                pageNumbers.push(totalPages);
+            }
+        }
+
+        return pageNumbers;
+    };
+
+    // Formatear fecha relativa (2h, 5m, etc.)
+    const getRelativeTime = (timestamp: any) => {
+        // Implementar lógica real aquí
+        return "2h";
+    };
+
 
     return (
         <>
@@ -822,10 +1157,15 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                             Contactar
                                         </button>
 
-                                        <button
-                                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <Share2 className="h-5 w-5 text-gray-400"/>
-                                        </button>
+                                        <div
+                                            onClick={() => handleOpenModalFollowers()}
+                                            className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 cursor-pointer"
+                                        >
+                                            {studentEdit?.followers}{" "}
+                                            {studentEdit?.followers === 1
+                                                ? "seguidor"
+                                                : "seguidores"}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1003,7 +1343,14 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <FolderTree className="h-3 w-3 md:h-4 md:w-4"/>
-                                    <span className="md:block">Mis ofertas</span>
+                                    <span className="md:block">Mis Ofertas</span>
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="publications"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
+                                >
+                                    <Folders className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <span className="md:block">Mis Publicaciones</span>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -1343,36 +1690,6 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                                         </>
                                     )}
                                 </Card>
-                            </TabsContent>
-
-                            <TabsContent value="publicaciones" className="mt-6 space-y-4">
-                                {[1, 2, 3].map((post) => (
-                                    <Card key={post} className="p-6">
-                                        <div className="flex gap-4">
-                                            <Avatar className="h-12 w-12">
-                                                <img
-                                                    src={`https://images.unsplash.com/photo-${1500000000000 + post}?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-                                                    alt="Author"
-                                                    className="aspect-square h-full w-full"
-                                                />
-                                            </Avatar>
-                                            <div className="flex-1">
-                                                <div className="flex justify-between items-start">
-                                                    <div>
-                                                        <h3 className="font-semibold">María García</h3>
-                                                        <p className="text-sm text-gray-500">Directora de Innovación</p>
-                                                    </div>
-                                                    <span className="text-sm text-gray-500">2h</span>
-                                                </div>
-                                                <p className="mt-2 text-gray-600">
-                                                    Emocionados de anunciar nuestro nuevo proyecto de innovación en IA.
-                                                    ¡Grandes cosas están por venir! #Innovación #TechCompany
-                                                </p>
-                                                <div className="mt-4 bg-gray-100 rounded-lg aspect-video"></div>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                ))}
                             </TabsContent>
 
                             <TabsContent value="studies" className="mt-6 space-y-4">
@@ -2081,6 +2398,294 @@ export default function StudentClientMe({uuid, student, experience_group, skills
 
                             </TabsContent>
 
+                            <TabsContent value="publications" className="mt-6 space-y-4">
+                                {/* Selector de vista */}
+                                <div className="flex justify-end mb-4">
+                                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${
+                                                viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                            }`}
+                                            onClick={() => setViewMode("list")}
+                                        >
+                                            Lista
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${
+                                                viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                            }`}
+                                            onClick={() => setViewMode("gallery")}
+                                        >
+                                            Galería
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <Card className="p-6 mt-2 mb-6 relative">
+                                    {publicationsEdit && publicationsEdit.length > 0 ? (
+                                        <>
+                                            {/* Vista de lista */}
+                                            {viewMode === "list" && (
+                                                <div className="space-y-4">
+                                                    {currentPosts.map((post) => (
+                                                        <Card key={post.id} className="p-6">
+                                                            <div className="flex gap-4">
+                                                                <Avatar className="h-12 w-12">
+                                                                    <img
+                                                                        src={studentEdit?.photo_pic ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}` : logoImage}
+                                                                        alt="Author"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-start">
+                                                                        <div>
+                                                                            <h3 className="font-semibold">{post.user_details?.name}</h3>
+                                                                        </div>
+                                                                        <span className="text-sm text-gray-500">{getRelativeTime(post.created_at)}</span>
+                                                                    </div>
+                                                                    <p className="mt-2 text-gray-600">
+                                                                        {post.content}
+                                                                    </p>
+
+                                                                    {post.media && post.media.length > 0 ? (
+                                                                        <div className="mt-4 bg-gray-100 rounded-lg overflow-hidden">
+                                                                            {post.media.length === 1 ? (
+                                                                                // Una sola imagen
+                                                                                <div className="aspect-video relative">
+                                                                                    <Image
+                                                                                        src={post.media[0].file_path}
+                                                                                        alt={post.media[0].media_type}
+                                                                                        width={640}
+                                                                                        height={360}
+                                                                                        layout="responsive"
+                                                                                        objectFit="cover"
+                                                                                        className="rounded-lg"
+                                                                                    />
+                                                                                </div>
+                                                                            ) : (
+                                                                                // Múltiples imágenes
+                                                                                <div className="grid grid-cols-2 gap-1">
+                                                                                    {post.media.slice(0, 4).map((picture, index) => (
+                                                                                        <div key={picture.id} className={`aspect-square relative ${post.media.length === 3 && index === 0 ? "col-span-2" : ""}`}>
+                                                                                            <Image
+                                                                                                src={picture.file_path}
+                                                                                                alt={picture.media_type}
+                                                                                                width={300}
+                                                                                                height={300}
+                                                                                                layout="responsive"
+                                                                                                objectFit="cover"
+                                                                                                className="rounded-lg"
+                                                                                            />
+                                                                                            {/* Indicador de más imágenes */}
+                                                                                            {index === 3 && post.media.length > 4 && (
+                                                                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white rounded-lg">
+                                                                                                    <span className="text-xl font-bold">+{post.media.length - 4}</span>
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    ))}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    ) : null}
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Vista de galería */}
+                                            {viewMode === "gallery" && (
+                                                <div className="grid grid-cols-3 gap-1">
+                                                    {galleryImages.map((item) => (
+                                                        <div
+                                                            key={item.id}
+                                                            className="relative aspect-square overflow-hidden cursor-pointer"
+                                                            onClick={() => setSelectedPost(item.post)}
+                                                        >
+                                                            <Image
+                                                                src={item.media.file_path}
+                                                                alt="Contenido de la publicación"
+                                                                width={300}
+                                                                height={300}
+                                                                layout="responsive"
+                                                                objectFit="cover"
+                                                            />
+
+                                                            {/* Overlay al hacer hover con likes y comentarios */}
+                                                            <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                                                <div className="flex gap-6">
+                                                                    <div className="flex items-center">
+                                                                        <span className="text-xl">❤️</span>
+                                                                        <span className="ml-2">{item.post.likes_count || 78}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center">
+                                                                        <span className="text-xl">💬</span>
+                                                                        <span className="ml-2">{item.post.comments_count || 29}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Paginación */}
+                                            {totalPages > 1 && viewMode === "list" && (
+                                                <div className="mt-6 flex justify-center items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                                                        disabled={currentPage === 1}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </Button>
+
+                                                    {getPageNumbers().map((pageNumber, index) => (
+                                                        <React.Fragment key={index}>
+                                                            {pageNumber === "..." ? (
+                                                                <span className="px-2">...</span>
+                                                            ) : (
+                                                                <Button
+                                                                    variant={currentPage === pageNumber ? "default" : "outline"}
+                                                                    onClick={() => goToPage(pageNumber)}
+                                                                    size="sm"
+                                                                >
+                                                                    {pageNumber}
+                                                                </Button>
+                                                            )}
+                                                        </React.Fragment>
+                                                    ))}
+
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                                                        disabled={currentPage === totalPages}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-12 text-gray-500">
+                                            No hay publicaciones disponibles
+                                        </div>
+                                    )}
+                                </Card>
+
+                                {/* Modal para ver publicación detallada */}
+                                {selectedPost && (
+                                    <div
+                                        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                                        onClick={() => setSelectedPost(null)}
+                                    >
+                                        <div
+                                            className="bg-white max-w-4xl w-full flex h-3/4 rounded-md overflow-hidden"
+                                            onClick={e => e.stopPropagation()}
+                                        >
+                                            {/* Lado izquierdo - Imagen */}
+                                            <div className="w-7/12 bg-black flex items-center justify-center">
+                                                {selectedPost?.media && selectedPost?.media.length > 0 && (
+                                                    <img
+                                                        src={selectedPost?.media[0].file_path}
+                                                        alt="Contenido de la publicación"
+                                                        className="max-w-full max-h-full object-contain"
+                                                    />
+                                                )}
+                                            </div>
+
+                                            {/* Lado derecho - Comentarios */}
+                                            <div className="w-5/12 flex flex-col h-full">
+                                                {/* Cabecera */}
+                                                <div className="flex items-center p-4 border-b">
+                                                    <Avatar className="h-8 w-8">
+                                                        <img
+                                                            src={studentEdit?.photo_pic
+                                                                ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
+                                                                : logoImage}
+                                                            alt="Author"
+                                                            className="h-full w-full object-cover rounded-full"
+                                                        />
+                                                    </Avatar>
+                                                    <div className="ml-3 font-semibold">{selectedPost.user_details?.name}</div>
+                                                </div>
+
+                                                {/* Área de comentarios */}
+                                                <div className="flex-1 overflow-y-auto p-4">
+                                                    <div className="flex mb-4">
+                                                        <Avatar className="h-8 w-8 flex-shrink-0">
+                                                            <img
+                                                                src={studentEdit?.photo_pic
+                                                                    ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
+                                                                    : logoImage}
+                                                                alt="Author"
+                                                                className="h-full w-full object-cover rounded-full"
+                                                            />
+                                                        </Avatar>
+                                                        <div className="ml-3">
+                                                            <span className="font-semibold mr-2">{selectedPost.user_details?.name}</span>
+                                                            <span>{selectedPost.content}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Comentarios de ejemplo */}
+                                                    {selectedPost.comments && selectedPost.comments.length > 0 ? (
+                                                        selectedPost.comments.map(comment => (
+                                                            <div key={comment.id} className="flex mb-4">
+                                                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                                                    <img
+                                                                        src={comment.user?.photo_pic
+                                                                            ? `${config.storageUrl}users/photos/${comment.user.uuid}/${comment.user.photo_pic}`
+                                                                            : logoImage}
+                                                                        alt="Commenter"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="ml-3">
+                                                                    <span className="font-semibold mr-2">{comment.user?.name}</span>
+                                                                    <span>{comment.content}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))
+                                                    ) : (
+                                                        <div className="flex mb-4">
+                                                            <div className="text-gray-500 text-sm">Todavía no hay comentarios</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Barra de likes */}
+                                                <div className="p-4 border-t">
+                                                    <div className="flex mb-2">
+                                                        <button className="text-2xl mr-4">❤️</button>
+                                                        <button className="text-2xl mr-4">💬</button>
+                                                        <button className="text-2xl">📤</button>
+                                                    </div>
+                                                    <div className="font-semibold">{selectedPost.likes_count || 0} likes</div>
+                                                    <div className="text-xs text-gray-500 mt-1">{getRelativeTime(selectedPost.created_at)}</div>
+                                                </div>
+
+                                                {/* Input de comentario */}
+                                                <div className="p-4 border-t">
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Agrega un comentario..."
+                                                        className="w-full outline-none"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </TabsContent>
+
                         </Tabs>
                     </div>
                 </div>
@@ -2144,6 +2749,122 @@ export default function StudentClientMe({uuid, student, experience_group, skills
                     />
                 )
             }
+
+            <Modal
+                isOpen={followersModal.isOpen}
+                onClose={followersModal.closeModal}
+                id="followers-modal"
+                size="lg"
+                title={`Seguidores de ${studentEdit.name}`}
+                closeOnOutsideClick={false}
+            >
+                <div className="flex flex-col space-y-4 p-5">
+                    <p className="text-gray-600">Lista de seguidores de la
+                        empresa</p>
+                    <Input
+                        placeholder="Buscar seguidores..."
+                        value={searchFollowerQuery}
+                        onChange={(e) => handleSearchFollower(e.target.value)}
+                    />
+                    <div className="flex flex-col space-y-4">
+                        {studentFollowers?.map((follower: any) => (
+                            <div
+                                key={follower.id}
+                                className="flex items-center justify-between space-x-2 cursor-pointer"
+                                onClick={() => handleRedirectToFollowerProfile(follower)}
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <img
+                                        className="w-12 h-12 rounded-full"
+                                        src={
+                                            follower.student
+                                                ? follower.student.profile_pic
+                                                : follower.company
+                                                    ? follower.company.logo
+                                                    : follower.institutions?.logo
+                                        }
+                                        alt={
+                                            follower.student
+                                                ? follower.student.name
+                                                : follower.company
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name
+                                        }
+                                    />
+                                    <div>
+                                        <p className="font-semibold">
+                                            {follower.student
+                                                ? follower.student.name
+                                                : follower.company
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            {follower.student
+                                                ? follower.email
+                                                : follower.company
+                                                    ? follower.company.email
+                                                    : follower.institutions?.email}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    {/* Follow/Unfollow toggle */}
+                                    <Button
+                                        variant="ghost"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            follower.isFollowed
+                                                ? handleUnfollow(follower.pivot.follower_id)
+                                                : handleFollow(follower.pivot.follower_id);
+                                        }}
+                                        className="flex items-center space-x-2"
+                                    >
+                                        {isLoadingToggleFollwer ? (
+                                            <>
+                                                <Loader2 className="animate-spin"/>
+                                                <span>Cargando...</span>
+                                            </>
+                                        ) : follower.isFollowed ? (
+                                            <>
+                                                <span>Dejar de seguir</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <span>Seguir tambien</span>
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {/* Block button */}
+                                    <Button
+                                        variant="ghost"
+                                        size="default"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleBlock(follower.pivot.follower_id);
+                                        }}
+                                        className="flex items-center space-x-2 text-gray-700 hover:text-red-600"
+                                    >
+                                        <span>Bloquear</span>
+                                    </Button>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Sólo si companyFollowers existe y length === 0 */}
+                        {studentFollowers && studentFollowers.length === 0 && (
+                            <p className="text-gray-600">No hay seguidores</p>
+                        )}
+
+                        {/* Si quieres cubrir también el caso undefined/null */}
+                        {!studentFollowers && (
+                            <p className="text-gray-600">No hay seguidores</p>
+                        )}
+                    </div>
+                </div>
+            </Modal>
         </>
 
     )

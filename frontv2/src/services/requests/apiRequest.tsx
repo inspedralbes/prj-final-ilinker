@@ -35,12 +35,14 @@ export async function apiRequest(
       options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${routeApi}${endpoint}`, options);
+    // const response = await fetch(`${routeApi}${endpoint}`, options);
+    const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
 
     if (!response.ok) {
       const errorData: any = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
     }
+
 
     return await response.json();
   } catch (error: any) {

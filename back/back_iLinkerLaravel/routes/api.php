@@ -23,6 +23,9 @@ use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
+use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\PublicationsController;
+use \App\Http\Controllers\PublicationsCommentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -54,7 +57,6 @@ Route::prefix('/institution')->group(function () {
     Route::get('/{slug}', [InstitutionController::class, 'getInstitution'])->name('institution.getInstitution');
     Route::get('/custom/{customUrl}', [InstitutionController::class, 'getByCustomUrl'])->name('institution.getByCustomUrl');
     Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
-
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -69,7 +71,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
         // Marcar todas las notificaciones como leídas
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+
     });
+
+
 
     Route::prefix('/users')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('user.update');
@@ -77,6 +82,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('/info', [UserController::class, 'getUser'])->name('get.user');
         Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
         Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
+        // obtener todos los usuarios para que puedo mostrar el perfiles de los usuarios en la parte de publicaciones
+        Route::post('/all', [UserController::class, 'getAllUsers'])->name('user.all');
+
     });
 
     Route::prefix('/student')->group(function () {
@@ -171,6 +179,21 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Rutas para configuración de la cuenta
     Route::put('/settings/toggle-account-privacy', [UserSettingsController::class, 'toggleAccountPrivacy']);
     Route::get('/settings/account-status', [UserSettingsController::class, 'getAccountStatus']);
+
+    // Rutas de publicaciones
+    Route::get('/publications', [PublicationsController::class, 'index']);
+    Route::post('/publications', [PublicationsController::class, 'store']);
+    Route::get('/publications/{id}', [PublicationsController::class, 'show']);
+    Route::put('/publications/{id}', [PublicationsController::class, 'update']);
+    Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
+    // Publicaciones del usuario actual
+    Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
+    // Likes
+    Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
+    // Comentarios (NUEVAS RUTAS)
+    Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
+    Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
+    Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
 });
 
 Route::prefix('/skills')->group(function () {
