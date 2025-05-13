@@ -956,11 +956,12 @@ export default function StudentClientMe({
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
 
-    // Publicaciones para la página actual
+    // Publicaciones para la página actual                         //Num PRINCIPIO   //Num Final
     const currentPosts = publicationsEdit ? publicationsEdit.slice(indexOfFirstPost, indexOfLastPost) : [];
 
     // Calcular número total de páginas
     const totalPages = publicationsEdit ? Math.ceil(publicationsEdit.length / postsPerPage) : 0;
+
 
     // Extraer todas las imágenes para la vista de galería
     const galleryImages = publicationsEdit ? publicationsEdit.flatMap((post: any) =>
@@ -2449,11 +2450,11 @@ export default function StudentClientMe({
 
                                             {/* Vista de galería */}
                                             {viewMode === "gallery" && (
-                                                <div className="grid grid-cols-3 gap-1">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
                                                     {galleryImages.map((item: any) => (
-                                                        <div
+                                                        <Card
                                                             key={item.id}
-                                                            className="relative aspect-square overflow-hidden cursor-pointer"
+                                                            className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
                                                             onClick={() => selectPost(item.post)}
                                                         >
                                                             <Image
@@ -2463,6 +2464,7 @@ export default function StudentClientMe({
                                                                 height={300}
                                                                 layout="responsive"
                                                                 objectFit="cover"
+                                                                objectPosition="center"
                                                             />
 
                                                             {/* Overlay al hacer hover con likes y comentarios */}
@@ -2472,16 +2474,16 @@ export default function StudentClientMe({
                                                                     <div className="flex items-center">
                                                                         <Heart className="h-5 w-5"/>
                                                                         <span
-                                                                            className="ml-2">{item.post.likes_count || 78}</span>
+                                                                            className="ml-2">{item.post.likes_count || 0}</span>
                                                                     </div>
                                                                     <div className="flex items-center">
                                                                         <MessageCircle className="h-5 w-5"/>
                                                                         <span
-                                                                            className="ml-2">{item.post.comments_count || 29}</span>
+                                                                            className="ml-2">{item.post.comments_count || 0}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        </Card>
                                                     ))}
                                                 </div>
                                             )}

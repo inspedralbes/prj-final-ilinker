@@ -74,7 +74,6 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                     <div className="ml-3 font-semibold">{publicationEdit.user_details?.name}</div>
                 </div>
 
-                {/* Imagen (se muestra solo si hay media) */}
                 {/* Imagen o Carousel (se muestra solo si hay media) */}
                 {hasMedia && (
                     <div
@@ -95,16 +94,19 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
-                                <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2" />
-                                <CarouselNext className="right-1 top-1/2 -translate-y-1/2" />
+                                <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2"/>
+                                <CarouselNext className="right-1 top-1/2 -translate-y-1/2"/>
                             </Carousel>
                         ) : (
                             // Mostrar una sola imagen si solo hay una
-                            <img
-                                src={publicationEdit.media[0].file_path}
-                                alt="Contenido de la publicación"
-                                className="max-w-full max-h-full object-contain"
-                            />
+                            <div className="aspect-square flex items-center justify-center"
+                            >
+                                <img
+                                    src={publicationEdit.media[0].file_path}
+                                    alt="Contenido de la publicación"
+                                    className="max-w-full max-h-full object-contain"
+                                />
+                            </div>
                         )}
                     </div>
                 )}
@@ -127,46 +129,99 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
 
                     {/* Área de comentarios */}
                     <div className="flex-1 overflow-y-auto p-4">
-                        <div className="flex mb-4">
-                            <Avatar className="h-8 w-8 flex-shrink-0">
-                                <img
-                                    src={studentEdit?.photo_pic
-                                        ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
-                                        : ''}
-                                    alt="Author"
-                                    className="h-full w-full object-cover rounded-full"
-                                />
-                            </Avatar>
-                            <div className="ml-3">
-                                <span className="font-semibold mr-2">{publicationEdit.user_details?.name}</span>
-                                <span>{publicationEdit.content}</span>
-                            </div>
-                        </div>
-
-                        {/* Comentarios */}
-                        {publicationEdit.comments && publicationEdit.comments.length > 0 ? (
-                            publicationEdit.comments.map((comment: any) => (
-                                <div key={comment.id} className="flex mb-4">
-                                    <Avatar className="h-8 w-8 flex-shrink-0">
-                                        <img
-                                            src={comment.user?.photo_pic
-                                                ? `${config.storageUrl}users/photos/${comment.user.uuid}/${comment.user.photo_pic}`
-                                                : ''}
-                                            alt="Commenter"
-                                            className="h-full w-full object-cover rounded-full"
-                                        />
-                                    </Avatar>
-                                    <div className="ml-3">
-                                        <span className="font-semibold mr-2">{comment.user?.name}</span>
-                                        <span>{comment.content}</span>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
+                        {publicationEdit.content ? (
                             <div className="flex mb-4">
-                                <div className="text-gray-500 text-sm">Todavía no hay comentarios</div>
+                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                    <img
+                                        src={studentEdit?.photo_pic
+                                            ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
+                                            : ''}
+                                        alt="Author"
+                                        className="h-full w-full object-cover rounded-full"
+                                    />
+                                </Avatar>
+                                <div className="ml-3">
+                                    <span className="font-semibold mr-2">{publicationEdit.user_details?.name}</span>
+                                    <span>{publicationEdit.content}</span>
+                                </div>
                             </div>
-                        )}
+                        ) : null}
+
+
+                        {/* Comentarios con scroll */}
+                        <div className="max-h-64 md:max-h-80 overflow-y-auto pr-2">
+                            {publicationEdit.comments && publicationEdit.comments.length > 0 ? (
+                                publicationEdit.comments.map((comment: any) => (
+                                    <div key={comment.id}>
+                                        <div className="flex mb-4">
+                                            <Avatar className="h-8 w-8 flex-shrink-0">
+                                                <img
+                                                    src={
+                                                        comment.user?.rol === 'student'
+                                                            ? `${config.storageUrl}students/photos/${comment.user.student?.uuid}/${comment.user.student?.photo_pic}`
+                                                            : comment.user?.rol === 'company'
+                                                                ? `${config.storageUrl}/${comment.user.company?.logo}`
+                                                                : `${config.storageUrl}/${comment.user.institutions?.logo}`
+                                                    }
+                                                    alt="Commenter"
+                                                    className="h-full w-full object-cover rounded-full"
+                                                />
+                                            </Avatar>
+                                            <div className="ml-3 flex-1">
+                                                    <span
+                                                        className="font-semibold mr-2">
+                                                        {comment.user?.rol === 'student'
+                                                            ? comment.user.student.name
+                                                            : comment.user?.rol === 'company'
+                                                                ? comment.user.company.name
+                                                                : comment.user.institutions.name}
+                                                    </span>
+                                                <span className="break-words">{comment.content}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* PARA MENSAJE RESPONDIDOS*/}
+                                        {comment.replies && comment.replies.length > 0 && (
+                                            <div className="ml-6 mt-2">
+                                                {comment.replies.map((reply: any) => (
+                                                    <div key={reply.id} className="flex mb-4">
+                                                        <Avatar className="h-8 w-8 flex-shrink-0">
+                                                            <img
+                                                                src={
+                                                                    reply.user?.rol === 'student'
+                                                                        ? `${config.storageUrl}users/photos/${reply.user.student?.uuid}/${reply.user.student?.photo_pic}`
+                                                                        : reply.user?.rol === 'company'
+                                                                            ? `${config.storageUrl}/${reply.user.company?.logo}`
+                                                                            : `${config.storageUrl}/${reply.user.institutions?.logo}`
+                                                                }
+                                                                alt="Commenter"
+                                                                className="h-full w-full object-cover rounded-full"
+                                                            />
+                                                        </Avatar>
+                                                        <div className="ml-3 flex-1">
+                                                             <span
+                                                                 className="font-semibold mr-2">
+                                                                {reply.user?.rol === 'student'
+                                                                    ? reply.user.student.name
+                                                                    : reply.user?.rol === 'company'
+                                                                        ? reply.user.company.name
+                                                                        : reply.user.institutions.name}
+                                                             </span>
+                                                            <span className="break-words">{reply.content}</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="flex mb-4">
+                                    <div className="text-gray-500 text-sm">Todavía no hay comentarios</div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Barra de likes */}
@@ -182,10 +237,13 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                                 <Bookmark className="h-5 w-5"/>
                             </button>
                         </div>
-                        <div className="font-semibold">{publicationEdit.likes_count || 0} likes</div>
-                        <div className="text-xs text-gray-500 mt-1">
-                            {format((publicationEdit.created_at), 'dd/MM/yyyy')}
+                        <div className="flex items-center justify-between w-full">
+                            <div className="font-semibold">{publicationEdit.likes_count || 0} likes</div>
+                            <div className="text-xs text-gray-500">
+                                {format(publicationEdit.created_at, 'dd/MM/yyyy')}
+                            </div>
                         </div>
+
                     </div>
 
                     {/* Input de comentario */}
