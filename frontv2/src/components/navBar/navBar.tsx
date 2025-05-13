@@ -9,6 +9,8 @@ import {
   User,
   GraduationCap,
   FileEdit,
+  Handshake,
+  Bolt,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -59,8 +61,8 @@ export default function NavBar() {
                       : "text-muted-foreground"
                   }`}
                 >
-                  <FileEdit className="h-5 w-5" />
-                  <span className="text-[12px]">Publicaciones</span>
+                  <Handshake className="h-5 w-5" />
+                  <span className="text-[12px]">Comunidad</span>
                 </Link>
                 <Link
                   href="/messages"
@@ -88,6 +90,17 @@ export default function NavBar() {
                 >
                   <GraduationCap className="h-5 w-5" />
                   <span className="text-[12px]">Ofertas</span>
+                </Link>
+                <Link
+                  href="/publicacion"
+                  className={`flex flex-col items-center ${
+                    pathname === "/publicacion"
+                      ? "text-foreground"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <Handshake className="h-5 w-5" />
+                  <span className="text-[12px]">Comunidad</span>
                 </Link>
               </>
             )}
@@ -158,30 +171,45 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
         >
           {/* Opción "My Profile" */}
           {userData?.rol !== "company" && userData?.rol !== "institutions" && (
-            <li
-              role="menuitem"
-              className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-              onClick={() => setIsOpen(false)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                className="w-5 h-5 text-slate-400"
+            <>
+              <li
+                role="menuitem"
+                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                onClick={() => setIsOpen(false)}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <Link
-                href={`/profile/student/${userData?.student.uuid}`}
-                className="ml-2"
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  className="w-5 h-5 text-slate-400"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <Link
+                  href={`/profile/student/${userData?.student.uuid}`}
+                  className="ml-2"
+                >
+                  <p className="font-medium">Mi perfil</p>
+                </Link>
+              </li>
+              <li
+                role="menuitem"
+                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                onClick={() => {
+                  setIsOpen(false);
+                  router.push(`/profile/settings`);
+                }}
               >
-                <p className="font-medium">Mi perfil</p>
-              </Link>
-            </li>
+                <Bolt className="w-5 h-5 text-slate-400" />
+                <Link href={`/profile/settings`} className="ml-2">
+                  <p className="font-medium">Configuración</p>
+                </Link>
+              </li>
+            </>
           )}
 
           {/* Opción "My Profile" */}
@@ -214,6 +242,19 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
                   className="ml-2"
                 >
                   <p className="font-medium">Mi compañia</p>
+                </Link>
+              </li>
+              <li
+                role="menuitem"
+                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                onClick={() => {
+                  setIsOpen(false);
+                  router.push(`/profile/settings`);
+                }}
+              >
+                <Bolt className="w-5 h-5 text-slate-400" />
+                <Link href={`/profile/settings`} className="ml-2">
+                  <p className="font-medium">Configuración</p>
                 </Link>
               </li>
             </>
@@ -254,12 +295,24 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
                   <p className="font-medium">Mi institución</p>
                 </Link>
               </li>
+              <li
+                role="menuitem"
+                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+                onClick={() => {
+                  setIsOpen(false);
+                  router.push(`/profile/settings`);
+                }}
+              >
+                <Bolt className="w-5 h-5 text-slate-400" />
+                <Link href={`/profile/settings`} className="ml-2">
+                  <p className="font-medium">Configuración</p>
+                </Link>
+              </li>
             </>
           ) : (
             <></>
           )}
 
-        
           <hr className="my-2 border-slate-200" role="separator" />
           {/* Opción "Sign Out" */}
           <li
@@ -295,4 +348,3 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
     </div>
   );
 }
-

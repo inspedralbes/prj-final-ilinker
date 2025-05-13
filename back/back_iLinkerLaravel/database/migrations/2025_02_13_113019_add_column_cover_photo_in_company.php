@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('companies', function (Blueprint $table) {
             //
-            $table->string('cover_photo')->after('logo')->nullable();
+            $table->string('cover_photo')->after('logo')->nullable()->default('default-cover.jpg');
         });
     }
 

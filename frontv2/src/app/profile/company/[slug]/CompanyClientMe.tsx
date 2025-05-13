@@ -90,7 +90,7 @@ export default function CompanyClientMe({
     "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&h=300&q=80"
   );
   const [coverImage, setCoverImage] = useState(
-    "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1500&q=80"
+    "https://www.arpaindustriale.com/sites/default/files/styles/presentazione_decor/public/decors_fiches_default/new/blu_avio_0784_cover.jpg?itok=RiTkE9im"
   );
 
   const [companyEdited, setCompanyEdited] = useState(company);

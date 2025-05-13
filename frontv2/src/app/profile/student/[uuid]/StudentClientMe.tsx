@@ -1050,7 +1050,7 @@ export default function StudentClientMe({
                 {/* Cover Photo */}
                 <div className="relative h-80 bg-gray-300">
                     <img
-                        src={studentEdit?.cover_photo ? `${config.storageUrl + `students/covers/${studentEdit.uuid}/` + studentEdit.cover_photo}` : coverImage}
+                        src={studentEdit?.cover_photo ? `${config.storageUrl + studentEdit.cover_photo}` : coverImage}
                         alt="Cover"
                         className="w-full h-full object-cover"
                     />
@@ -1074,7 +1074,7 @@ export default function StudentClientMe({
                                     <div className="relative flex-shrink-0">
                                         <img
                                             className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                                            src={studentEdit?.photo_pic ? `${config.storageUrl + `students/photos/${studentEdit.uuid}/` + studentEdit.photo_pic}` : logoImage}
+                                            src={studentEdit?.photo_pic ? `${config.storageUrl + studentEdit.photo_pic}` : logoImage}
                                             alt="photo_pic"
                                         />
                                         <label className="absolute bottom-2 right-2 cursor-pointer">

@@ -23,7 +23,6 @@ use App\Http\Controllers\Auth\GoogleController;
 use \App\Http\Controllers\InstitutionController;
 use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
-use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\PublicationsController;
 use \App\Http\Controllers\PublicationsCommentController;
 
@@ -49,6 +48,24 @@ Route::get('student/{uuid}', [StudentController::class, 'getStudent'])->name('ge
 Route::get('/allCompanies', [CompanyController::class, 'allCompanies'])->name('all.companies');
 Route::get('institution/getInstitutions', [InstitutionController::class, 'getInstitutions'])->name('institution.getInstitutions');
 Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
+Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
+Route::get('/publications', [PublicationsController::class, 'index']);
+Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
+
+Route::prefix('/skills')->group(function () {
+    Route::get('/', [SkillsController::class, 'getSkills']);
+});
+
+Route::prefix('/sectors')->group(function () {
+    Route::get('/', [SectorController::class, 'getSectors']);
+});
+
+Route::prefix('/page')->group(function () {
+    Route::get('/register', [PagesController::class, 'registerPage']);
+    Route::get('/search', [PagesController::class, 'searchPractices']);
+    Route::post('/search-filtered', [PagesController::class, 'searchPracticeFiltered']);
+    Route::get('/profile/company', [PagesController::class, 'profileCompany']);
+});
 
 
 Route::prefix('/institution')->group(function () {
@@ -59,6 +76,7 @@ Route::prefix('/institution')->group(function () {
     Route::get('/id/{id}', [InstitutionController::class, 'show'])->name('institution.show');
 });
 
+//RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
 
@@ -83,7 +101,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/deactivate', [UserController::class, 'deactivate'])->name('user.deactivate');
         Route::post('/activate', [UserController::class, 'activate'])->name('user.activate');
         // obtener todos los usuarios para que puedo mostrar el perfiles de los usuarios en la parte de publicaciones
-        Route::post('/all', [UserController::class, 'getAllUsers'])->name('user.all');
 
     });
 
@@ -177,11 +194,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/blocked', [FollowerController::class, 'getBlockedUsers']);
 
     // Rutas para configuración de la cuenta
-    Route::put('/settings/toggle-account-privacy', [UserSettingsController::class, 'toggleAccountPrivacy']);
-    Route::get('/settings/account-status', [UserSettingsController::class, 'getAccountStatus']);
+    Route::prefix('/settings')->group(function () {
+        Route::put('/toggle-account-privacy', [UserSettingsController::class, 'toggleAccountPrivacy']);
+        Route::get('/account-status', [UserSettingsController::class, 'getAccountStatus']);
+        Route::get('/profile', [UserSettingsController::class, 'getProfile']);
+        Route::post('/profile/new-password', [UserSettingsController::class, 'updatePassword']);
+        Route::post('/profile/new-email', [UserSettingsController::class, 'updateEmail']);
+    });
+
 
     // Rutas de publicaciones
-    Route::get('/publications', [PublicationsController::class, 'index']);
     Route::post('/publications', [PublicationsController::class, 'store']);
     Route::get('/publications/{id}', [PublicationsController::class, 'show']);
     Route::put('/publications/{id}', [PublicationsController::class, 'update']);
@@ -191,22 +213,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Likes
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
     // Comentarios (NUEVAS RUTAS)
-    Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
     Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
     Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
 });
 
-Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getSkills']);
-});
-
-Route::prefix('/sectors')->group(function () {
-    Route::get('/', [SectorController::class, 'getSectors']);
-});
-
-Route::prefix('/page')->group(function () {
-    Route::get('/register', [PagesController::class, 'registerPage']);
-    Route::get('/search', [PagesController::class, 'searchPractices']);
-    Route::post('/search-filtered', [PagesController::class, 'searchPracticeFiltered']);
-    Route::get('/profile/company', [PagesController::class, 'profileCompany']);
-});
