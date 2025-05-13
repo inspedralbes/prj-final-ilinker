@@ -53,6 +53,7 @@ Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
 
+
 Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
 });
@@ -80,6 +81,10 @@ Route::prefix('/institution')->group(function () {
 //RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
+    
+    // Rutas para guardar y obtener publicaciones guardadas
+    Route::post('/publications/{publicationId}/save', [PublicationsController::class, 'toggleSave']);
+    Route::get('/publications/saved', [PublicationsController::class, 'getSavedPublications']);
 
     Route::prefix('/notifications')->group(function () {
         // Obtener todas las notificaciones
@@ -90,7 +95,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/{notification}/read', [NotificationController::class, 'markAsRead']);
         // Marcar todas las notificaciones como leídas
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
-
     });
 
 
@@ -211,4 +215,3 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
     Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
 });
-

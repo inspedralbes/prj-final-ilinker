@@ -88,4 +88,10 @@ class Publication extends Model
     {
         return $query->where('status', 'published');
     }
+
+    // relacion con guardar publicaciones
+    public function savedPublications()
+    {
+        return $this->hasMany(PublicationSaved::class);
+    }
 }

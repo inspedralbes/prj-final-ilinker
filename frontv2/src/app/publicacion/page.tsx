@@ -10,6 +10,7 @@ import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
 import CreatePostModal from "@/components/posts/CreatePostModal";
+import SavePublications from "./SavePublications";
 
 // Interfaces para definir la estructura de los datos
 interface Media {
@@ -68,6 +69,7 @@ export default function PublicationPage() {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
   // Cargar publicaciones al montar el componente
   useEffect(() => {
@@ -333,7 +335,11 @@ export default function PublicationPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-6 px-4 flex gap-6">
-        <ProfileSidebar userData={userData} onViewMore={handleViewMore} />
+        <ProfileSidebar
+          userData={userData}
+          onViewMore={handleViewMore}
+          onSavedClick={() => setIsSavedModalOpen(true)}
+        />
         <div className="flex-1 max-w-xl">
           <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
           <CreatePostModal
@@ -375,12 +381,24 @@ export default function PublicationPage() {
           }}
         />
       )}
+      <SavePublications
+        isOpen={isSavedModalOpen}
+        onClose={() => setIsSavedModalOpen(false)}
+      />
     </div>
   );
 }
 
 // Componente de la barra lateral del perfil
-const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onViewMore: () => void }) => {
+const ProfileSidebar = ({
+  userData,
+  onViewMore,
+  onSavedClick
+}: {
+  userData: User | null;
+  onViewMore: () => void;
+  onSavedClick: () => void;
+}) => {
   // Funciones auxiliares para obtener datos específicos según el rol del usuario
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
@@ -519,8 +537,11 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
             )}
 
             <nav className="space-y-2 mt-4">
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray rounded-md px-2">
-                <Bookmark className="w-4 h-4" /> Elementos guardados
+              <button
+                onClick={onSavedClick}
+                className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray rounded-md px-2"
+              >
+                <Bookmark className="w-4 h-4" /> Publicaciones guardadas
               </button>
               <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
                 <Users2 className="w-4 h-4" /> Grupos

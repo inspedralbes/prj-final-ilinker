@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
+use App\Models\PublicationSaved;
 
 class PublicationsController extends Controller
 {
@@ -31,7 +32,8 @@ class PublicationsController extends Controller
                 'user:id,name',
                 'media',
                 'comments.user:id,name',
-                'likes'
+                'likes',
+                'savedPublications'
             ])
             ->where('status', 'published')
             ->orderBy('created_at', 'desc')
@@ -40,6 +42,7 @@ class PublicationsController extends Controller
             // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
+                $publication->saved = $publication->savedPublications->contains('user_id', $userId);
                 
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
@@ -329,7 +332,8 @@ class PublicationsController extends Controller
             $publications = Publication::with([
                 'media',
                 'comments.user:id,name',
-                'likes'
+                'likes',
+                'savedPublications'
             ])
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
@@ -338,6 +342,7 @@ class PublicationsController extends Controller
             // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
+                $publication->saved = $publication->savedPublications->contains('user_id', $userId);
                 
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
@@ -404,6 +409,92 @@ class PublicationsController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error toggling like',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function toggleSave($publicationId)
+    {
+        try {
+            $publication = Publication::findOrFail($publicationId);
+            $userId = Auth::id();
+
+            $existingSave = PublicationSaved::where('publication_id', $publicationId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($existingSave) {
+                $existingSave->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication unsaved successfully',
+                    'saved' => false
+                ]);
+            } else {
+                PublicationSaved::create([
+                    'publication_id' => $publicationId,
+                    'user_id' => $userId
+                ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication saved successfully',
+                    'saved' => true
+                ]);
+            }
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Publication not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error toggling save',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getSavedPublications()
+    {
+        try {
+            $userId = Auth::id();
+            $savedPublications = Publication::with([
+                'user:id,name',
+                'media',
+                'comments.user:id,name',
+                'likes'
+            ])
+            ->whereHas('savedPublications', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+            // Add liked status and transform media URLs for each publication
+            $savedPublications->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+                $publication->saved = true;
+                
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
+                }
+                
+                return $publication;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $savedPublications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving saved publications',
                 'error' => $e->getMessage()
             ], 500);
         }
