@@ -80,7 +80,7 @@ export default function PublicationPage() {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      console.log('Respuesta de datos de publicaciones:', response);
+      // console.log('Respuesta de datos de publicaciones:', response);
 
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
@@ -150,7 +150,7 @@ export default function PublicationPage() {
           }
         });
 
-        console.log('Todos los usuarios:', transformedUsers);
+        // console.log('Todos los usuarios:', transformedUsers);
         setAllUsers(transformedUsers);
       } else {
         console.error('Error en el formato de respuesta de usuarios:', response);
