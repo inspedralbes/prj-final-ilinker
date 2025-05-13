@@ -12,7 +12,7 @@ const socket = io(config.socketUrl, {
 socket.on('connect', () => {
     console.log('Connected to server');
     if(Cookies.get('userData')){
-        socket.emit('login', {userData: JSON.parse(Cookies.get('userData'))});
+        socket.emit('login', {userData: JSON.parse(Cookies.get('userData') || '')});
     }
 });
 

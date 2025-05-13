@@ -5,15 +5,121 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Ver como implementar colores en el texto">
+      <change afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/UserService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/create-offer/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/create-offer/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/search/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/search/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/simple/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/navBar/NotificationDropDown.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/navBar/NotificationDropDown.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/profile/company/offer/ApplicantCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/profile/company/offer/ApplicantCard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-extension/link-extension.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-extension/selection-extension.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-extension/trailing-node-extension.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/align-center-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/align-justify-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/align-left-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/align-right-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/arrow-left-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/ban-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/block-quote-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/bold-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/chevron-down-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/close-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/code-block-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/code2-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/corner-down-left-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/external-link-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-five-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-four-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-one-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-six-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-three-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/heading-two-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/highlighter-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/image-plus-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/italic-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/link-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/list-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/list-ordered-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/list-todo-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/moon-star-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/redo2-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/strike-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/subscript-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/sun-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/superscript-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/trash-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/underline-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-icons/undo2-icon.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/code-block-node/code-block-node.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/image-node/image-node.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/image-upload-node/image-upload-node-extension.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/image-upload-node/image-upload-node.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/image-upload-node/image-upload-node.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/image-upload-node/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/list-node/list-node.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-node/paragraph-node/paragraph-node.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-templates/simple/data/content.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-templates/simple/simple-editor.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-templates/simple/simple-editor.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-templates/simple/theme-toggle.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/button/button-colors.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/button/button-group.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/button/button.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/button/button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/dropdown-menu/dropdown-menu.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/dropdown-menu/dropdown-menu.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/dropdown-menu/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/popover/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/popover/popover.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/popover/popover.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/separator/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/separator/separator.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/separator/separator.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/spacer/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/spacer/spacer.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/toolbar/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/toolbar/toolbar.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/toolbar/toolbar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/tooltip/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/tooltip/tooltip.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui-primitive/tooltip/tooltip.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/heading-button/heading-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/heading-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/heading-dropdown-menu/heading-dropdown-menu.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/heading-dropdown-menu/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/highlight-popover/highlight-popover.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/highlight-popover/highlight-popover.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/highlight-popover/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/image-upload-button/image-upload-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/image-upload-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/link-popover/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/link-popover/link-popover.scss" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/link-popover/link-popover.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/list-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/list-button/list-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/list-dropdown-menu/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/list-dropdown-menu/list-dropdown-menu.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/mark-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/mark-button/mark-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/node-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/node-button/node-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/text-align-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/text-align-button/text-align-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/undo-redo-button/index.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/tiptap-ui/undo-redo-button/undo-redo-button.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/ui/calendar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/ui/calendar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/contexts/AuthContext.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/contexts/AuthContext.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/types/global.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/types/global.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/helpers/MapsHelper.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/helpers/MapsHelper.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/services/websockets/sockets.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/services/websockets/sockets.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/types/config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/types/config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,12 +150,12 @@
     &quot;assignee&quot;: &quot;Deraybcbc&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
-    &quot;accountId&quot;: &quot;2a1c8b5b-7e5e-41f1-a3e4-282a7218eb84&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
+    "accountId": "5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6"
   }
-}</component>
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -66,14 +172,14 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "student-profile",
+    "git-widget-placeholder": "Merging student-profile",
     "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.keymap",
-    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -96,8 +202,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
-        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
+        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
       </set>
     </attachedChunks>
   </component>

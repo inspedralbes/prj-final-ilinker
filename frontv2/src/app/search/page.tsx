@@ -59,6 +59,7 @@ import { useModal } from "@/hooks/use-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import "@/styles/tiptap-content.scss"
 
 export default function SearchClient() {
   const [latestOffers, setLatestOffers] = useState<any | null>(null);
@@ -158,7 +159,7 @@ export default function SearchClient() {
     if (!sentinelRef.current || !nextPageUrl) return;
 
     const observer = new IntersectionObserver(
-      entries => {
+      (entries) => {
         if (entries[0].isIntersecting) {
           loadMore();
         }
@@ -247,7 +248,11 @@ export default function SearchClient() {
     return latestOffers?.length === 0 ? (
       <>
         <div className="flex flex-col justify-center items-center h-full w-full">
-          <img src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg" alt="No data" className="w-24 h-24 mb-2" />
+          <img
+            src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg"
+            alt="No data"
+            className="w-24 h-24 mb-2"
+          />
           <span className="mt-2 text-muted-foreground">
             Vaya… No encontramos ninguna oferta que coincida con tus criterios.
             Prueba cambiando tu búsqueda o recargando la página.
@@ -334,8 +339,8 @@ export default function SearchClient() {
               {selectedInfoJob.schedule_type === "full"
                 ? "Jornada completa"
                 : selectedInfoJob.schedule_type === "part"
-                  ? "Jornada parcial"
-                  : "Negociable"}
+                ? "Jornada parcial"
+                : "Negociable"}
             </span>
           </div>
 
@@ -359,7 +364,8 @@ export default function SearchClient() {
 
         <div className="space-y-4">
           <div
-            dangerouslySetInnerHTML={{ __html: selectedInfoJob.description }}
+            className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
+            dangerouslySetInnerHTML={{ __html: selectedInfoJob.description || "" }}
           />
         </div>
 
@@ -434,7 +440,7 @@ export default function SearchClient() {
         .catch((error) => {
           console.error(error);
         })
-        .finally(() => { });
+        .finally(() => {});
     } catch (error) {
       toast({
         title: "Error",
@@ -448,23 +454,33 @@ export default function SearchClient() {
   };
 
   const [searchQuery, setSearchQuery] = useState("");
-  const [locationQuery, setLocationQuery] = useState<any>({ address: "", lat: 0, lng: 0 });
-  const [scheduleTypeQuery, setScheduleTypeQuery] = useState<string | null>(null);
-  const [locationTypeQuery, setLocationTypeQuery] = useState<string | null>(null);
+  const [locationQuery, setLocationQuery] = useState<any>({
+    address: "",
+    lat: 0,
+    lng: 0,
+  });
+  const [scheduleTypeQuery, setScheduleTypeQuery] = useState<string | null>(
+    null
+  );
+  const [locationTypeQuery, setLocationTypeQuery] = useState<string | null>(
+    null
+  );
   const [dateQuery, setDateQuery] = useState<string | null>(null);
+  const [loaderOfferContainer, setLoaderOfferContainer] = useState(false);
+
   const filterOffers = () => {
-    showLoader();
+    setLoaderOfferContainer(true);
     try {
-      apiRequest('page/search-filtered', 'POST', {
+      apiRequest("page/search-filtered", "POST", {
         searchQuery,
         locationQuery,
         scheduleTypeQuery,
         locationTypeQuery,
-        dateQuery
+        dateQuery,
       })
         .then((response) => {
           console.log(response);
-          if (response.status === 'success') {
+          if (response.status === "success") {
             if (response.data.data.length > 0) {
               handleSelectedInfoJob(response.data.data[0]);
             }
@@ -475,21 +491,20 @@ export default function SearchClient() {
               title: "Error",
               description: "Error al buscar ofertas",
               variant: "destructive",
-            })
+            });
           }
         })
         .catch((error) => {
           console.error(error);
         })
         .finally(() => {
-          hideLoader();
+          setLoaderOfferContainer(false);
         });
     } catch (error) {
       console.log(error);
     } finally {
-      hideLoader();
     }
-  }
+  };
 
   return (
     <div className="">
@@ -511,10 +526,16 @@ export default function SearchClient() {
           <div className="relative flex-1 min-w-[200px]">
             <AddressAutocomplete
               value={locationQuery.address}
-              onChange={(newAddress: any) => setLocationQuery({ address: newAddress })}
+              onChange={(newAddress: any) =>
+                setLocationQuery({ address: newAddress })
+              }
               onSelect={(address: any) => {
                 console.log(address);
-                setLocationQuery({ address: address.place_name, lat: address.lat, lng: address.lng });
+                setLocationQuery({
+                  address: address.place_name,
+                  lat: address.lat,
+                  lng: address.lng,
+                });
               }}
             />
           </div>
@@ -522,139 +543,152 @@ export default function SearchClient() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                {scheduleTypeQuery ? scheduleTypeQuery === "full" ? "Jornada completa" : scheduleTypeQuery === "part" ? "Jornada parcial" : "Negociable" : "Todos"}
+                {scheduleTypeQuery
+                  ? scheduleTypeQuery === "full"
+                    ? "Jornada completa"
+                    : scheduleTypeQuery === "part"
+                    ? "Jornada parcial"
+                    : "Negociable"
+                  : "Todos"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setScheduleTypeQuery("full")}>Jornada completa</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setScheduleTypeQuery("part")}>Jornada parcial</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setScheduleTypeQuery("negociable")}>Nefociable</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setScheduleTypeQuery(null)}>Todos</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery("full")}>
+                Jornada completa
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery("part")}>
+                Jornada parcial
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setScheduleTypeQuery("negociable")}
+              >
+                Nefociable
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setScheduleTypeQuery(null)}>
+                Todos
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                {locationTypeQuery ? locationTypeQuery === "hibrido" ? "Híbrido" : locationTypeQuery === "remoto" ? "Remoto" : "Presencial" : "Todos"}
+                {locationTypeQuery
+                  ? locationTypeQuery === "hibrido"
+                    ? "Híbrido"
+                    : locationTypeQuery === "remoto"
+                    ? "Remoto"
+                    : "Presencial"
+                  : "Todos"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setLocationTypeQuery("hibrido")}>Híbrido</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocationTypeQuery("remoto")}>Remoto</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocationTypeQuery("presencial")}>Presencial</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocationTypeQuery(null)}>Todos</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery("hibrido")}>
+                Híbrido
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery("remoto")}>
+                Remoto
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setLocationTypeQuery("presencial")}
+              >
+                Presencial
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocationTypeQuery(null)}>
+                Todos
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                {dateQuery ? dateQuery === "24" ? "Hace 24 horas" : dateQuery === "week" ? "Hace una semana" : dateQuery === "month" ? "Hace un mes" : "Todos" : "Todos"}
+                {dateQuery
+                  ? dateQuery === "24"
+                    ? "Hace 24 horas"
+                    : dateQuery === "week"
+                    ? "Hace una semana"
+                    : dateQuery === "month"
+                    ? "Hace un mes"
+                    : "Todos"
+                  : "Todos"}
                 <ChevronDown className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setDateQuery("24")}>Hace 24 horas</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateQuery("week")}>Hace una semana</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateQuery("month")}>Hace un mes</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDateQuery(null)}>Todos</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("24")}>
+                Hace 24 horas
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("week")}>
+                Hace una semana
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery("month")}>
+                Hace un mes
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDateQuery(null)}>
+                Todos
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button onClick={filterOffers} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button
+            onClick={filterOffers}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
+          >
             Buscar
           </Button>
         </div>
 
+        {loaderOfferContainer && (
+          <div className="flex justify-center items-center h-[calc(100vh-170px)]">
+            <Loader2 className="animate-spin w-5 h-5" />
+            <span className="ml-2">Cargando...</span>
+          </div>
+        )}
+
+        {latestOffers?.length === 0 && !loaderOfferContainer && (
+          <div className="flex flex-col justify-center items-center h-[calc(100vh-170px)] max-w-[400px] mx-auto">
+            <img
+              src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg"
+              alt="No data"
+              className="w-24 h-24 mb-2"
+            />
+            <span className="mt-2 text-muted-foreground text-center">
+              Vaya… No encontramos ninguna oferta que coincida con tus
+              criterios. Prueba cambiando tu búsqueda o recargando la página.
+            </span>
+          </div>
+        )}
+
         {/* Split View Layout */}
-        <div className="grid grid-cols-1 md:[grid-template-columns:1fr_1.5fr] gap-6">
-          {/* Job Listings */}
-          <ScrollArea className="h-[calc(100vh-170px)]">
-            <div className="pr-4 relative">
-
-              {latestOffers?.length === 0 && (
-                <div className="flex flex-col justify-center items-center h-full w-full">
-                  <img src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg" alt="No data" className="w-24 h-24 mb-2" />
-                  <span className="mt-2 text-muted-foreground">
-                    Vaya… No encontramos ninguna oferta que coincida con tus criterios.
-                    Prueba cambiando tu búsqueda o recargando la página.
-                  </span>
-                </div>
-              )}
-              {/* Siempre mostramos los 3 primeros */}
-              <div className="space-y-4">
-                {latestOffers?.slice(0, 3).map((job: any) => (
-                  <Card
-                    key={job.id}
-                    className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
-                      }`}
-                    onClick={() => handleSelectedInfoJob(job)}
-                  >
-                    {/* Contenido del card */}
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-1">
-                            {job.title}
-                          </h3>
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <Building2 className="h-4 w-4" />
-                            <span>{job.company.name}</span>
-                            <MapPin className="h-4 w-4 ml-2" />
-                            <span>{job.address}</span>
-                          </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <Badge variant="secondary">{job.schedule_type === "full"
-                            ? "Jornada completa"
-                            : job.schedule_type === "part"
-                              ? "Jornada parcial"
-                              : "Negociable"}</Badge>
-                          <Badge variant="secondary">{job.location_type === "remoto"
-                            ? "Remoto"
-                            : job.location_type === "presencial"
-                              ? "Presencial"
-                              : "Híbrido"}</Badge>
-                        </div>
-                      </div>
-                      {/* <Button variant="ghost" size="icon">
-                        <BookmarkPlus className="h-5 w-5" />
-                      </Button> */}
-                    </div>
-                    <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        Posted{" "}
-                        {formatDistanceToNow(new Date(job.created_at), {
-                          addSuffix: true,
-                        })}
-                      </span>
-                      <Separator orientation="vertical" className="h-4" />
-                      <span>{job.users_interested.length === 0 ? "No hay aplicantes" : job.users_interested.length + " aplicantes"}</span>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Si NO está logeado y hay más de 3 ofertas, agregamos el overlay */}
-              {!loggedIn && latestOffers?.length > 3 && (
-                <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex justify-center items-center">
-                  <span className="text-white font-medium">
-                    Inicia sesión para ver más
-                  </span>
-                </div>
-              )}
-
-              {/* Si el usuario está logeado, mostramos el resto de las ofertas */}
-              <div className="space-y-4 mt-5">
-                {loggedIn &&
-                  latestOffers?.slice(3).map((job: any) => (
+        {latestOffers?.length > 0 && !loaderOfferContainer && (
+          <div className="grid grid-cols-1 md:[grid-template-columns:1fr_1.5fr] gap-6">
+            {/* Job Listings */}
+            <ScrollArea className="h-[calc(100vh-170px)]">
+              <div className="pr-4 relative">
+                {latestOffers?.length === 0 && (
+                  <div className="flex flex-col justify-center items-center h-full w-full">
+                    <img
+                      src="https://st4.depositphotos.com/11953928/25117/v/450/depositphotos_251178766-stock-illustration-cartoon-face-emoticon-caricature-character.jpg"
+                      alt="No data"
+                      className="w-24 h-24 mb-2"
+                    />
+                    <span className="mt-2 text-muted-foreground">
+                      Vaya… No encontramos ninguna oferta que coincida con tus
+                      criterios. Prueba cambiando tu búsqueda o recargando la
+                      página.
+                    </span>
+                  </div>
+                )}
+                {/* Siempre mostramos los 3 primeros */}
+                <div className="space-y-4">
+                  {latestOffers?.slice(0, 3).map((job: any) => (
                     <Card
                       key={job.id}
-                      className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${selectedJob === job ? "border-primary" : ""
-                        }`}
+                      className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
+                        selectedJob === job ? "border-primary" : ""
+                      }`}
                       onClick={() => handleSelectedInfoJob(job)}
                     >
                       {/* Contenido del card */}
@@ -672,21 +706,25 @@ export default function SearchClient() {
                             </div>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <Badge variant="secondary"> {job.schedule_type === "full"
-                              ? "Jornada completa"
-                              : job.schedule_type === "part"
+                            <Badge variant="secondary">
+                              {job.schedule_type === "full"
+                                ? "Jornada completa"
+                                : job.schedule_type === "part"
                                 ? "Jornada parcial"
-                                : "Negociable"}</Badge>
-                            <Badge variant="secondary">{job.location_type === "remoto"
-                              ? "Remoto"
-                              : job.location_type === "presencial"
+                                : "Negociable"}
+                            </Badge>
+                            <Badge variant="secondary">
+                              {job.location_type === "remoto"
+                                ? "Remoto"
+                                : job.location_type === "presencial"
                                 ? "Presencial"
-                                : "Híbrido"}</Badge>
+                                : "Híbrido"}
+                            </Badge>
                           </div>
                         </div>
                         {/* <Button variant="ghost" size="icon">
-                          <BookmarkPlus className="h-5 w-5" />
-                        </Button> */}
+                        <BookmarkPlus className="h-5 w-5" />
+                      </Button> */}
                       </div>
                       <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
@@ -697,50 +735,130 @@ export default function SearchClient() {
                           })}
                         </span>
                         <Separator orientation="vertical" className="h-4" />
-                        <span>{job.users_interested.length === 0 ? "No hay aplicantes" : job.users_interested.length + " aplicantes"} </span>
+                        <span>
+                          {job.users_interested.length === 0
+                            ? "No hay aplicantes"
+                            : job.users_interested.length + " aplicantes"}
+                        </span>
                       </div>
                     </Card>
                   ))}
-                <div ref={sentinelRef} />
+                </div>
 
-                {nextPageUrl && (
-                  <div className="flex justify-center items-center py-4">
-                    <Loader2 className="animate-spin" />
+                {/* Si NO está logeado y hay más de 3 ofertas, agregamos el overlay */}
+                {!loggedIn && latestOffers?.length > 3 && (
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/50 to-transparent pointer-events-none flex justify-center items-center">
+                    <span className="text-white font-medium">
+                      Inicia sesión para ver más
+                    </span>
                   </div>
                 )}
 
+                {/* Si el usuario está logeado, mostramos el resto de las ofertas */}
+                <div className="space-y-4 mt-5">
+                  {loggedIn &&
+                    latestOffers?.slice(3).map((job: any) => (
+                      <Card
+                        key={job.id}
+                        className={`p-6 hover:border-primary/50 transition-colors cursor-pointer ${
+                          selectedJob === job ? "border-primary" : ""
+                        }`}
+                        onClick={() => handleSelectedInfoJob(job)}
+                      >
+                        {/* Contenido del card */}
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-4">
+                            <div>
+                              <h3 className="text-lg font-semibold mb-1">
+                                {job.title}
+                              </h3>
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <Building2 className="h-4 w-4" />
+                                <span>{job.company.name}</span>
+                                <MapPin className="h-4 w-4 ml-2" />
+                                <span>{job.address}</span>
+                              </div>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge variant="secondary">
+                                {" "}
+                                {job.schedule_type === "full"
+                                  ? "Jornada completa"
+                                  : job.schedule_type === "part"
+                                  ? "Jornada parcial"
+                                  : "Negociable"}
+                              </Badge>
+                              <Badge variant="secondary">
+                                {job.location_type === "remoto"
+                                  ? "Remoto"
+                                  : job.location_type === "presencial"
+                                  ? "Presencial"
+                                  : "Híbrido"}
+                              </Badge>
+                            </div>
+                          </div>
+                          {/* <Button variant="ghost" size="icon">
+                          <BookmarkPlus className="h-5 w-5" />
+                        </Button> */}
+                        </div>
+                        <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            Posted{" "}
+                            {formatDistanceToNow(new Date(job.created_at), {
+                              addSuffix: true,
+                            })}
+                          </span>
+                          <Separator orientation="vertical" className="h-4" />
+                          <span>
+                            {job.users_interested.length === 0
+                              ? "No hay aplicantes"
+                              : job.users_interested.length +
+                                " aplicantes"}{" "}
+                          </span>
+                        </div>
+                      </Card>
+                    ))}
+                  <div ref={sentinelRef} />
+
+                  {nextPageUrl && (
+                    <div className="flex justify-center items-center py-4">
+                      <Loader2 className="animate-spin" />
+                    </div>
+                  )}
+                </div>
               </div>
+            </ScrollArea>
+
+            {/* Job Details - Desktop */}
+            <div className="hidden md:block">
+              <Card className="">
+                <ScrollArea className="h-[calc(100vh-170px)] p-8">
+                  <JobDetails />
+                </ScrollArea>
+              </Card>
             </div>
-          </ScrollArea>
 
-          {/* Job Details - Desktop */}
-          <div className="hidden md:block">
-            <Card className="">
-              <ScrollArea className="h-[calc(100vh-170px)] p-8">
+            {/* Job Details - Mobile */}
+            <Sheet open={isJobDetailOpen} onOpenChange={setIsJobDetailOpen}>
+              <SheetContent side="bottom" className="h-[100vh] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle className="flex justify-between items-center">
+                    Job Details
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsJobDetailOpen(false)}
+                    >
+                      {/*<X className="h-4 w-4"/>*/}
+                    </Button>
+                  </SheetTitle>
+                </SheetHeader>
                 <JobDetails />
-              </ScrollArea>
-            </Card>
+              </SheetContent>
+            </Sheet>
           </div>
-
-          {/* Job Details - Mobile */}
-          <Sheet open={isJobDetailOpen} onOpenChange={setIsJobDetailOpen}>
-            <SheetContent side="bottom" className="h-[100vh] overflow-y-auto">
-              <SheetHeader>
-                <SheetTitle className="flex justify-between items-center">
-                  Job Details
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsJobDetailOpen(false)}
-                  >
-                    {/*<X className="h-4 w-4"/>*/}
-                  </Button>
-                </SheetTitle>
-              </SheetHeader>
-              <JobDetails />
-            </SheetContent>
-          </Sheet>
-        </div>
+        )}
       </main>
 
       <Modal
@@ -1035,8 +1153,8 @@ export default function SearchClient() {
                         href={
                           studentData.cover_letter_attachment
                             ? URL.createObjectURL(
-                              studentData.cover_letter_attachment
-                            )
+                                studentData.cover_letter_attachment
+                              )
                             : "#"
                         }
                         download={studentData.cover_letter_attachment?.name}

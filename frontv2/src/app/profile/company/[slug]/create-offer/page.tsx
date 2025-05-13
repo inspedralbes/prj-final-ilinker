@@ -22,6 +22,8 @@ import { apiRequest } from "@/services/requests/apiRequest";
 import { useToast } from "@/hooks/use-toast";
 import { getUserLocationByIP, searchAddresses } from "@/helpers/MapsHelper";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import {SimpleEditor} from "@/components/templates/simple/SimpleEditor"
+import "@/styles/tiptap-content.scss"
 
 interface OfferFormData {
   title: string;
@@ -120,7 +122,7 @@ export default function CreateOffer() {
       console.log(addresses);
     });
     setFormData({ ...formData, address: e.target.value });
-  }
+  };
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
@@ -130,7 +132,7 @@ export default function CreateOffer() {
               Crear Nueva Oferta de Prácticas
             </h1>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               {/* Título de la oferta */}
               <div className="flex space-x-4">
                 {/* Título: 70% */}
@@ -222,8 +224,8 @@ export default function CreateOffer() {
                         ...prev,
                         address: val.place_name,
                         lat: val.lat,
-                        lng: val.lng
-                      }))
+                        lng: val.lng,
+                      }));
                     }}
                   />
                 </div>
@@ -250,9 +252,10 @@ export default function CreateOffer() {
                       }
                       className={`
                         flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium
-                        ${formData.location_type === type
-                          ? "bg-black border-black text-white"
-                          : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                        ${
+                          formData.location_type === type
+                            ? "bg-black border-black text-white"
+                            : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
                         }
                       `}
                     >
@@ -260,8 +263,8 @@ export default function CreateOffer() {
                       {type === "remoto"
                         ? "Remoto"
                         : type === "hibrido"
-                          ? "Híbrido"
-                          : "Presencial"}
+                        ? "Híbrido"
+                        : "Presencial"}
                     </button>
                   ))}
                 </div>
@@ -292,10 +295,11 @@ export default function CreateOffer() {
                       }
                       className={`
                       flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium
-                      ${formData.schedule_type === value
+                      ${
+                        formData.schedule_type === value
                           ? "bg-black border-black text-white"
                           : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                        }
+                      }
                     `}
                     >
                       <Clock className="h-4 w-4 mr-2" />
@@ -320,10 +324,11 @@ export default function CreateOffer() {
                       }
                       className={`
                       flex items-center justify-center px-4 py-2 border rounded-md text-sm font-medium
-                      ${formData.days_per_week === days
+                      ${
+                        formData.days_per_week === days
                           ? "bg-black border-black text-white"
                           : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
-                        }
+                      }
                     `}
                     >
                       <Calendar className="h-4 w-4 mr-2" />
@@ -378,16 +383,17 @@ export default function CreateOffer() {
                 >
                   Descripción de la oferta
                 </label>
-                <div className="mt-1">
-                  <textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
+                <SimpleEditor
+                  content={formData.description || ""}
+                  onChange={(html: string) => {
+                    if (formData.description !== html) {
+                      setFormData((prev: any) => ({
+                        ...prev,
+                        description: html,
+                      }));
                     }
-                    className="block w-full border border-gray-300 rounded-md focus:ring-black focus:border-black p-2"
-                  />
-                </div>
+                  }}
+                />
               </div>
 
               {/* Botones de acción */}
@@ -399,13 +405,14 @@ export default function CreateOffer() {
                   Cancelar
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={handleSubmit}
                   className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-black hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black"
                 >
                   Crear oferta
                 </button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

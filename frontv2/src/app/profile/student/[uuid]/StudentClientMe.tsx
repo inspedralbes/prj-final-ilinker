@@ -1,35 +1,11 @@
 "use client"
 
 import {
-    BriefcaseIcon,
-    Camera,
-    Globe,
-    Mail,
-    MapPin,
-    MessageCircle,
-    Pencil,
-    Phone,
-    Share2,
-    UserIcon,
-    Trash,
-    CheckCircle,
-    AlertTriangle,
-    TriangleAlert,
-    Plus,
-    BriefcaseBusiness,
-    Clock,
-    Building,
-    FolderCode,
-    FolderTree,
-    CalendarIcon,
-    AlertCircle,
-    Eye,
-    RefreshCw,
-    FileText,
-    X,
-    CreditCard,
-    Briefcase, Loader2,
-    Folders, ChevronLeft, ChevronRight
+    BriefcaseIcon, Camera, Globe, Mail, MapPin, Pencil, Phone,
+    Share2, UserIcon, Trash, CheckCircle, AlertTriangle, TriangleAlert,
+    Plus, BriefcaseBusiness, Clock, Building, FolderCode, FolderTree, CalendarIcon,
+    AlertCircle, Eye, RefreshCw, FileText, X, CreditCard, Briefcase, Loader2,
+    Folders, ChevronLeft, ChevronRight, Heart, MessageCircle
 } from "lucide-react";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {Card, CardContent} from "@/components/ui/card";
@@ -79,6 +55,7 @@ import "@/styles/tiptap-content.scss"
 import {useModal} from "@/hooks/use-modal";
 import Modal from "@/components/ui/modal";
 import {useRouter} from "next/navigation";
+import ShowPublication from "@/app/profile/student/[uuid]/modals/showPublication";
 
 export interface User {
     id: number;
@@ -258,6 +235,7 @@ export default function StudentClientMe({
     const [modalProjects, setModalProjects] = useState(false);
     const [modalModeEdit, setModalModeEdit] = useState(false);
     const [modalOffer, setModalOffer] = useState(false);
+    const [modalPubli, setModalPubli] = useState(false);
 
     const [currentStudy, setCurrentStudy] = useState(null);
     const [currentExperience, setCurrentExperience] = useState(null);
@@ -1042,6 +1020,11 @@ export default function StudentClientMe({
         // Implementar lógica real aquí
         return "2h";
     };
+
+    const selectPost = (post: any) => {
+        setSelectedPost(post);
+        setModalPubli(true);
+    }
 
 
     return (
@@ -2429,7 +2412,7 @@ export default function StudentClientMe({
                                             {/* Vista de lista */}
                                             {viewMode === "list" && (
                                                 <div className="space-y-4">
-                                                    {currentPosts.map((post) => (
+                                                    {currentPosts.map((post: any) => (
                                                         <Card key={post.id} className="p-6">
                                                             <div className="flex gap-4">
                                                                 <Avatar className="h-12 w-12">
@@ -2444,53 +2427,19 @@ export default function StudentClientMe({
                                                                         <div>
                                                                             <h3 className="font-semibold">{post.user_details?.name}</h3>
                                                                         </div>
-                                                                        <span className="text-sm text-gray-500">{getRelativeTime(post.created_at)}</span>
-                                                                    </div>
-                                                                    <p className="mt-2 text-gray-600">
-                                                                        {post.content}
-                                                                    </p>
-
-                                                                    {post.media && post.media.length > 0 ? (
-                                                                        <div className="mt-4 bg-gray-100 rounded-lg overflow-hidden">
-                                                                            {post.media.length === 1 ? (
-                                                                                // Una sola imagen
-                                                                                <div className="aspect-video relative">
-                                                                                    <Image
-                                                                                        src={post.media[0].file_path}
-                                                                                        alt={post.media[0].media_type}
-                                                                                        width={640}
-                                                                                        height={360}
-                                                                                        layout="responsive"
-                                                                                        objectFit="cover"
-                                                                                        className="rounded-lg"
-                                                                                    />
-                                                                                </div>
-                                                                            ) : (
-                                                                                // Múltiples imágenes
-                                                                                <div className="grid grid-cols-2 gap-1">
-                                                                                    {post.media.slice(0, 4).map((picture, index) => (
-                                                                                        <div key={picture.id} className={`aspect-square relative ${post.media.length === 3 && index === 0 ? "col-span-2" : ""}`}>
-                                                                                            <Image
-                                                                                                src={picture.file_path}
-                                                                                                alt={picture.media_type}
-                                                                                                width={300}
-                                                                                                height={300}
-                                                                                                layout="responsive"
-                                                                                                objectFit="cover"
-                                                                                                className="rounded-lg"
-                                                                                            />
-                                                                                            {/* Indicador de más imágenes */}
-                                                                                            {index === 3 && post.media.length > 4 && (
-                                                                                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center text-white rounded-lg">
-                                                                                                    <span className="text-xl font-bold">+{post.media.length - 4}</span>
-                                                                                                </div>
-                                                                                            )}
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            )}
+                                                                        <div
+                                                                            className="flex items-center gap-5 text-sm text-gray-500">
+                                                                            <span>{getRelativeTime(post.created_at)}</span>
+                                                                            <button
+                                                                                onClick={() => selectPost(post)}
+                                                                            >
+                                                                                <Eye className="h-5 w-5 text-black"/>
+                                                                            </button>
                                                                         </div>
-                                                                    ) : null}
+
+                                                                    </div>
+
+                                                                    <p className="mt-2 text-gray-600">{post.content}</p>
                                                                 </div>
                                                             </div>
                                                         </Card>
@@ -2501,11 +2450,11 @@ export default function StudentClientMe({
                                             {/* Vista de galería */}
                                             {viewMode === "gallery" && (
                                                 <div className="grid grid-cols-3 gap-1">
-                                                    {galleryImages.map((item) => (
+                                                    {galleryImages.map((item: any) => (
                                                         <div
                                                             key={item.id}
                                                             className="relative aspect-square overflow-hidden cursor-pointer"
-                                                            onClick={() => setSelectedPost(item.post)}
+                                                            onClick={() => selectPost(item.post)}
                                                         >
                                                             <Image
                                                                 src={item.media.file_path}
@@ -2517,15 +2466,18 @@ export default function StudentClientMe({
                                                             />
 
                                                             {/* Overlay al hacer hover con likes y comentarios */}
-                                                            <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                                            <div
+                                                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
                                                                 <div className="flex gap-6">
                                                                     <div className="flex items-center">
-                                                                        <span className="text-xl">❤️</span>
-                                                                        <span className="ml-2">{item.post.likes_count || 78}</span>
+                                                                        <Heart className="h-5 w-5"/>
+                                                                        <span
+                                                                            className="ml-2">{item.post.likes_count || 78}</span>
                                                                     </div>
                                                                     <div className="flex items-center">
-                                                                        <span className="text-xl">💬</span>
-                                                                        <span className="ml-2">{item.post.comments_count || 29}</span>
+                                                                        <MessageCircle className="h-5 w-5"/>
+                                                                        <span
+                                                                            className="ml-2">{item.post.comments_count || 29}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -2543,7 +2495,7 @@ export default function StudentClientMe({
                                                         disabled={currentPage === 1}
                                                         size="sm"
                                                     >
-                                                        <ChevronLeft className="h-4 w-4" />
+                                                        <ChevronLeft className="h-4 w-4"/>
                                                     </Button>
 
                                                     {getPageNumbers().map((pageNumber, index) => (
@@ -2568,7 +2520,7 @@ export default function StudentClientMe({
                                                         disabled={currentPage === totalPages}
                                                         size="sm"
                                                     >
-                                                        <ChevronRight className="h-4 w-4" />
+                                                        <ChevronRight className="h-4 w-4"/>
                                                     </Button>
                                                 </div>
                                             )}
@@ -2580,110 +2532,6 @@ export default function StudentClientMe({
                                     )}
                                 </Card>
 
-                                {/* Modal para ver publicación detallada */}
-                                {selectedPost && (
-                                    <div
-                                        className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
-                                        onClick={() => setSelectedPost(null)}
-                                    >
-                                        <div
-                                            className="bg-white max-w-4xl w-full flex h-3/4 rounded-md overflow-hidden"
-                                            onClick={e => e.stopPropagation()}
-                                        >
-                                            {/* Lado izquierdo - Imagen */}
-                                            <div className="w-7/12 bg-black flex items-center justify-center">
-                                                {selectedPost?.media && selectedPost?.media.length > 0 && (
-                                                    <img
-                                                        src={selectedPost?.media[0].file_path}
-                                                        alt="Contenido de la publicación"
-                                                        className="max-w-full max-h-full object-contain"
-                                                    />
-                                                )}
-                                            </div>
-
-                                            {/* Lado derecho - Comentarios */}
-                                            <div className="w-5/12 flex flex-col h-full">
-                                                {/* Cabecera */}
-                                                <div className="flex items-center p-4 border-b">
-                                                    <Avatar className="h-8 w-8">
-                                                        <img
-                                                            src={studentEdit?.photo_pic
-                                                                ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
-                                                                : logoImage}
-                                                            alt="Author"
-                                                            className="h-full w-full object-cover rounded-full"
-                                                        />
-                                                    </Avatar>
-                                                    <div className="ml-3 font-semibold">{selectedPost.user_details?.name}</div>
-                                                </div>
-
-                                                {/* Área de comentarios */}
-                                                <div className="flex-1 overflow-y-auto p-4">
-                                                    <div className="flex mb-4">
-                                                        <Avatar className="h-8 w-8 flex-shrink-0">
-                                                            <img
-                                                                src={studentEdit?.photo_pic
-                                                                    ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
-                                                                    : logoImage}
-                                                                alt="Author"
-                                                                className="h-full w-full object-cover rounded-full"
-                                                            />
-                                                        </Avatar>
-                                                        <div className="ml-3">
-                                                            <span className="font-semibold mr-2">{selectedPost.user_details?.name}</span>
-                                                            <span>{selectedPost.content}</span>
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Comentarios de ejemplo */}
-                                                    {selectedPost.comments && selectedPost.comments.length > 0 ? (
-                                                        selectedPost.comments.map(comment => (
-                                                            <div key={comment.id} className="flex mb-4">
-                                                                <Avatar className="h-8 w-8 flex-shrink-0">
-                                                                    <img
-                                                                        src={comment.user?.photo_pic
-                                                                            ? `${config.storageUrl}users/photos/${comment.user.uuid}/${comment.user.photo_pic}`
-                                                                            : logoImage}
-                                                                        alt="Commenter"
-                                                                        className="h-full w-full object-cover rounded-full"
-                                                                    />
-                                                                </Avatar>
-                                                                <div className="ml-3">
-                                                                    <span className="font-semibold mr-2">{comment.user?.name}</span>
-                                                                    <span>{comment.content}</span>
-                                                                </div>
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <div className="flex mb-4">
-                                                            <div className="text-gray-500 text-sm">Todavía no hay comentarios</div>
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Barra de likes */}
-                                                <div className="p-4 border-t">
-                                                    <div className="flex mb-2">
-                                                        <button className="text-2xl mr-4">❤️</button>
-                                                        <button className="text-2xl mr-4">💬</button>
-                                                        <button className="text-2xl">📤</button>
-                                                    </div>
-                                                    <div className="font-semibold">{selectedPost.likes_count || 0} likes</div>
-                                                    <div className="text-xs text-gray-500 mt-1">{getRelativeTime(selectedPost.created_at)}</div>
-                                                </div>
-
-                                                {/* Input de comentario */}
-                                                <div className="p-4 border-t">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Agrega un comentario..."
-                                                        className="w-full outline-none"
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
                             </TabsContent>
 
                         </Tabs>
@@ -2730,8 +2578,7 @@ export default function StudentClientMe({
                     initialData={currentProject}
                     isEditing={isEditingModal}
                 />
-            }
-            ,
+            },
             {
                 modalExperience && <ModalAddExperience
                     handleClose={handleCloseExperience}
@@ -2740,12 +2587,21 @@ export default function StudentClientMe({
                     initialData={currentExperience}
                     isEditing={isEditingModal}
                 />
-            }
+            },
             {
                 modalOffer && (
                     <OfferModal
                         application={offerSelect}
                         onClose={() => setModalOffer(false)}
+                    />
+                )
+            },
+            {
+                modalPubli && (
+                    <ShowPublication
+                        publication={selectedPost}
+                        student={studentEdit}
+                        onClose={() => setModalPubli(false)}
                     />
                 )
             }

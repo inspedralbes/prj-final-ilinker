@@ -49,6 +49,8 @@ import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
+import { SimpleEditor } from "@/components/templates/simple/SimpleEditor";
+import "@/styles/tiptap-content.scss";
 
 interface Follower {
   id: number;
@@ -174,9 +176,7 @@ export default function CompanyClientMe({
     handleSave();
   }, [imageChangeCount]); // Se ejecuta solo cuando cambia la imagen
 
-  const updateCompany = (
-    e: any
-  ) => {
+  const updateCompany = (e: any) => {
     const { name, value } = e.target;
     setCompanyEdited((prev: any) => ({
       ...prev,
@@ -207,15 +207,17 @@ export default function CompanyClientMe({
 
   const followersModal = useModal();
 
-  const [companyFollowersAll, setCompanyFollowersAll] = useState<Follower[]>([]);
+  const [companyFollowersAll, setCompanyFollowersAll] = useState<Follower[]>(
+    []
+  );
   const [companyFollowers, setCompanyFollowers] = useState<Follower[]>([]);
   const [isLoadingToggleFollwer, setIsLoadingToggleFollwer] = useState(false);
   const [searchFollowerQuery, setSearchFollowerQuery] = useState("");
   const handleOpenModalFollowers = () => {
     showLoader();
-    apiRequest(`followers`, 'POST', {
+    apiRequest(`followers`, "POST", {
       user_id: companyEdited.user_id,
-      me_id: userData?.id
+      me_id: userData?.id,
     })
       .then((response) => {
         console.log(response);
@@ -281,8 +283,8 @@ export default function CompanyClientMe({
               variant: "success",
               duration: 5000,
             });
-            setCompanyFollowers(prev =>
-              prev.map(follower =>
+            setCompanyFollowers((prev) =>
+              prev.map((follower) =>
                 follower.pivot.follower_id === user_id
                   ? { ...follower, isFollowed: false }
                   : follower
@@ -338,8 +340,8 @@ export default function CompanyClientMe({
               description: response.message,
               variant: "success",
             });
-            setCompanyFollowers(prev =>
-              prev.map(follower =>
+            setCompanyFollowers((prev) =>
+              prev.map((follower) =>
                 follower.pivot.follower_id === user_id
                   ? { ...follower, isFollowed: true }
                   : follower
@@ -390,7 +392,7 @@ export default function CompanyClientMe({
   const handleBlock = (user_id: number) => {
     showLoader();
     try {
-      apiRequest('block', 'POST', { user_id })
+      apiRequest("block", "POST", { user_id })
         .then((response) => {
           if (response.status === "success") {
             toast({
@@ -414,7 +416,8 @@ export default function CompanyClientMe({
               duration: 5000,
             });
           }
-        }).catch((error) => {
+        })
+        .catch((error) => {
           console.log(error);
           toast({
             title: "Error",
@@ -422,7 +425,8 @@ export default function CompanyClientMe({
             variant: "destructive",
             duration: 5000,
           });
-        }).finally(() => {
+        })
+        .finally(() => {
           hideLoader();
         });
     } catch (error) {
@@ -438,9 +442,6 @@ export default function CompanyClientMe({
     }
   };
 
-  useEffect(() => {
-    console.log(companyEdited);
-  }, [companyEdited]);
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -512,16 +513,19 @@ export default function CompanyClientMe({
                         <div className="flex items-center space-x-2">
                           <AddressAutocomplete
                             value={companyEdited.address}
-                            onChange={(val:any) =>
-                              setCompanyEdited((prev:any) => ({ ...prev, address: val }))
+                            onChange={(val: any) =>
+                              setCompanyEdited((prev: any) => ({
+                                ...prev,
+                                address: val,
+                              }))
                             }
-                            onSelect={(val:any) => {
-                              setCompanyEdited((prev:any) => ({
+                            onSelect={(val: any) => {
+                              setCompanyEdited((prev: any) => ({
                                 ...prev,
                                 address: val.place_name,
                                 lat: val.lat,
-                                lng: val.lng
-                              }))
+                                lng: val.lng,
+                              }));
                             }}
                           />
                         </div>
@@ -720,8 +724,8 @@ export default function CompanyClientMe({
 
               <TabsContent value="acerca" className="mt-6">
                 <Card className="p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold mb-4">
+                  <div className="flex justify-between items-center mb-0">
+                    <h2 className="text-xl font-semibold mb-0">
                       Acerca de {companyEdited.name}
                     </h2>
                     <button
@@ -735,21 +739,25 @@ export default function CompanyClientMe({
                   {isEditing === "description" ? (
                     <>
                       <div className="mb-6">
-                        <Textarea
-                          className="min-h-[150px]"
-                          name="description"
-                          value={companyEdited.description}
-                          onChange={updateCompany}
-                          placeholder="Escribe la descripción..."
+                        <SimpleEditor
+                          content={companyEdited.description || ""}
+                          onChange={(html: string) => {
+                            if (companyEdited.description !== html) {
+                              setCompanyEdited((prev: any) => ({
+                                ...prev,
+                                description: html,
+                              }));
+                            }
+                          }}
                         />
                       </div>
                     </>
                   ) : (
                     <>
                       <div
-                        className="mb-6"
+                        className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-0 p-0"
                         dangerouslySetInnerHTML={{
-                          __html: companyEdited.description,
+                          __html: companyEdited.description || "",
                         }}
                       />
                     </>
@@ -817,7 +825,7 @@ export default function CompanyClientMe({
                           <li>
                             <strong>Industria:</strong>{" "}
                             {companyEdited.sectors &&
-                              companyEdited.sectors.length > 0 ? (
+                            companyEdited.sectors.length > 0 ? (
                               companyEdited.sectors.map((sector: any) => (
                                 <Badge key={sector.id} className="mr-2">
                                   {sector.name} {/* Renderiza solo el nombre */}
@@ -867,7 +875,7 @@ export default function CompanyClientMe({
                         <>
                           <div className="flex flex-wrap gap-2 text-gray-600">
                             {companyEdited.skills &&
-                              companyEdited.skills.length > 0 ? (
+                            companyEdited.skills.length > 0 ? (
                               companyEdited.skills.map((skill: any) => (
                                 <Badge
                                   key={skill.id}
@@ -902,8 +910,9 @@ export default function CompanyClientMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${1500000000000 + post
-                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${
+                            1500000000000 + post
+                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -1008,13 +1017,13 @@ export default function CompanyClientMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-semibold text-gray-600 mb-2">
-                        No hay ofertas disponibles
-                      </p>
-                    </div>
-                  )}
+                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                    <p className="text-lg font-semibold text-gray-600 mb-2">
+                      No hay ofertas disponibles
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -1057,15 +1066,15 @@ export default function CompanyClientMe({
                       follower.student
                         ? follower.student.profile_pic
                         : follower.company
-                          ? follower.company.logo
-                          : follower.institutions?.logo
+                        ? follower.company.logo
+                        : follower.institutions?.logo
                     }
                     alt={
                       follower.student
                         ? follower.student.name
                         : follower.company
-                          ? follower.company.name
-                          : follower.institutions?.name
+                        ? follower.company.name
+                        : follower.institutions?.name
                     }
                   />
                   <div>
@@ -1073,15 +1082,15 @@ export default function CompanyClientMe({
                       {follower.student
                         ? follower.student.name
                         : follower.company
-                          ? follower.company.name
-                          : follower.institutions?.name}
+                        ? follower.company.name
+                        : follower.institutions?.name}
                     </p>
                     <p className="text-sm text-gray-600">
                       {follower.student
                         ? follower.email
                         : follower.company
-                          ? follower.company.email
-                          : follower.institutions?.email}
+                        ? follower.company.email
+                        : follower.institutions?.email}
                     </p>
                   </div>
                 </div>
