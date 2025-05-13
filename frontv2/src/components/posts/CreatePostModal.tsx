@@ -127,8 +127,8 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
       >
         <div className="sticky top-0 z-10 bg-white flex justify-between items-center p-4 border-b">
           <div className="flex items-center">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-              <User className="w-6 h-6 text-blue-600" />
+            <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+              <User className="w-6 h-6 text-black" />
             </div>
             <div>
               <h2 className="text-xl font-semibold">Crear publicación</h2>
@@ -138,7 +138,7 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
             onClick={onClose} 
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 text-black" />
           </button>
         </div>
 
@@ -160,36 +160,23 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
 
           {media.length > 0 && (
             <div className="mt-4">
-              <div className={`
-                grid gap-2
-                ${media.length === 1 ? 'grid-cols-1' : 
-                  media.length === 2 ? 'grid-cols-2' : 
-                  media.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}
-                ${media.length > 6 ? 'sm:grid-cols-4' : ''}
-              `}>
+              <div className="grid grid-cols-1 gap-4">
                 {media.map((item, index) => (
-                  <div key={index} className="relative group">
+                  <div key={index} className="relative group w-[250px] h-[250px]">
                     {item.type === 'image' ? (
-                      <div className="aspect-square relative rounded-lg overflow-hidden">
-                        <Image
-                          src={item.preview!}
-                          alt="Preview"
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
+                      <Image
+                        src={item.preview!}
+                        alt="Preview"
+                        width={500}
+                        height={500}
+                        className="object-cover rounded-lg"
+                      />
                     ) : (
-                      <div className="aspect-square relative rounded-lg overflow-hidden">
-                        <video
-                          src={item.preview}
-                          className="w-full h-full object-cover"
-                          controls
-                        />
-                      </div>
+                      <video src={item.preview} className="w-full h-full object-cover rounded-lg" controls />
                     )}
                     <button
                       onClick={() => removeMedia(index)}
-                      className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -197,9 +184,7 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
                 ))}
               </div>
               <div className="mt-2 text-right">
-                <span className={`text-sm ${media.length >= 8 ? 'text-amber-600 font-semibold' : 'text-gray-500'}`}>
-                  {media.length}/10 archivos
-                </span>
+                <span className={`text-sm ${media.length >= 8 ? 'text-amber-600 font-semibold' : 'text-gray-500'}`}>{media.length}/10 archivos</span>
               </div>
             </div>
           )}
@@ -225,23 +210,23 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
                 className="flex items-center justify-center p-2 hover:bg-white rounded-full transition-colors"
                 title="Añadir foto"
               >
-                <ImageIcon className="w-5 h-5 text-blue-600" />
-                <span className="ml-1 text-sm hidden sm:inline">Foto</span>
+                <ImageIcon className="w-5 h-5 text-black" />
+                <span className="ml-1 text-sm hidden sm:inline text-black">Foto</span>
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex items-center justify-center p-2 hover:bg-white rounded-full transition-colors"
                 title="Añadir video"
               >
-                <Video className="w-5 h-5 text-blue-600" />
-                <span className="ml-1 text-sm hidden sm:inline">Video</span>
+                <Video className="w-5 h-5 text-black" />
+                <span className="ml-1 text-sm hidden sm:inline text-black">Video</span>
               </button>
               <button
                 className="flex items-center justify-center p-2 hover:bg-white rounded-full transition-colors"
                 title="Añadir emoji"
               >
-                <Smile className="w-5 h-5 text-blue-600" />
-                <span className="ml-1 text-sm hidden sm:inline">Emoji</span>
+                <Smile className="w-5 h-5 text-black" />
+                <span className="ml-1 text-sm hidden sm:inline text-black">Emoji</span>
               </button>
             </div>
             
@@ -257,8 +242,8 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
                 font-medium
                 transition-all duration-200
                 ${(!content.trim() && media.length === 0)
-                  ? 'bg-blue-200 text-blue-400 cursor-not-allowed'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg'}
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-black hover:bg-gray-800 text-white shadow-md hover:shadow-lg transform hover:scale-105'}
               `}
             >
               Publicar
