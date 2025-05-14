@@ -53,6 +53,20 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     return "/default-avatar.png";
   };
 
+  const getUserName = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "Usuario";
+
+    if (user.rol === "student") {
+      return user.student?.name || user.name;
+    } else if (user.rol === "company") {
+      return user.company?.name || user.name;
+    } else if (user.rol === "institutions") {
+      return user.institution?.name || user.name;
+    }
+    return user.name;
+  };
+
   useEffect(() => {
     if (isOpen) fetchComments();
   }, [isOpen, publicationId]);
@@ -109,7 +123,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
           <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
             <Image
               src={getUserAvatar(comment.user_id)}
-              alt={comment.user.name}
+              alt={getUserName(comment.user_id)}
               fill
               className="object-cover"
               unoptimized
@@ -119,7 +133,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
         <div className="flex-1">
           <div className="bg-gray-100 rounded-lg p-3">
             <div className="flex justify-between items-start">
-              <p className="font-semibold text-gray-900">{comment.user.name}</p>
+              <p className="font-semibold text-gray-900">{getUserName(comment.user_id)}</p>
               {canDelete && (
                 <div className="relative">
                   <button
@@ -144,23 +158,23 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
                 </div>
               )}
             </div>
-            <p className="text-gray-800 mt-1 whitespace-pre-wrap">{comment.content}</p>
-          </div>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-            <span>{new Date(comment.created_at).toLocaleDateString()}</span>
-            {!isReply && (
-              <button
-                onClick={() => setReplyingTo(comment)}
-                className="flex items-center gap-1 hover:text-blue-600"
-              >
-                <Reply className="w-4 h-4" />
-                Responder
-              </button>
-            )}
+            <p className="text-gray-700 mt-1">{comment.content}</p>
+            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+              <span>{new Date(comment.created_at).toLocaleDateString()}</span>
+              {!isReply && (
+                <button
+                  onClick={() => setReplyingTo(comment)}
+                  className="flex items-center gap-1 hover:text-blue-600"
+                >
+                  <Reply className="w-4 h-4" />
+                  Responder
+                </button>
+              )}
+            </div>
           </div>
           {comment.replies && comment.replies.length > 0 && (
-            <div className="ml-6 mt-2">
-              {comment.replies.map(reply => renderComment(reply, true))}
+            <div className="mt-2 space-y-2">
+              {comment.replies.map((reply) => renderComment(reply, true))}
             </div>
           )}
         </div>
@@ -203,7 +217,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
               <div className="flex-1">
                 {replyingTo && (
                   <div className="mb-2 text-sm text-gray-600 flex items-center justify-between">
-                    <span>Respondiendo a {replyingTo.user.name}</span>
+                    <span>Respondiendo a {getUserName(replyingTo.user_id)}</span>
                     <button
                       onClick={() => setReplyingTo(null)}
                       className="ml-2 text-red-500 hover:text-red-700"

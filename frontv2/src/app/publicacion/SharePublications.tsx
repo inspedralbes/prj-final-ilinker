@@ -28,7 +28,22 @@ interface SharePublicationsProps {
 
 export default function SharePublications({ isOpen, onClose, publication, onShareSuccess }: SharePublicationsProps) {
   const [content, setContent] = useState('');
-  const { userData } = useContext(AuthContext);
+  const { userData, allUsers } = useContext(AuthContext);
+
+  // Función para obtener el nombre según el rol
+  const getUserName = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "Usuario";
+
+    if (user.rol === "student") {
+      return user.student?.name || user.name;
+    } else if (user.rol === "company") {
+      return user.company?.name || user.name;
+    } else if (user.rol === "institutions") {
+      return user.institution?.name || user.name;
+    }
+    return user.name;
+  };
 
   if (!isOpen || !publication) return null;
 
@@ -87,7 +102,7 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
                 />
               </div>
               <div>
-                <h3 className="font-semibold">{userData?.name} {userData?.surname}</h3>
+                {/* <h3 className="font-semibold">{getUserName(userData?.id)}</h3> */}
                 <p className="text-sm text-gray-500">Compartiendo publicación</p>
               </div>
             </div>
@@ -113,7 +128,7 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
                 />
               </div>
               <div>
-                <h4 className="font-medium text-sm">{publication.user.name}</h4>
+                <h4 className="font-medium text-sm">{getUserName(publication.user.id)}</h4>
                 <p className="text-xs text-gray-500">Publicación original</p>
               </div>
             </div>

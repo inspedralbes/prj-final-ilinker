@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect, useCallback, use } from "react";
 import Image from "next/image";
 import config from "@/types/config";
 import { useRouter } from "next/navigation";
-import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send } from "lucide-react";
+import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send, Linkedin } from "lucide-react";
 import CommentModal from "./comment";
 import { AuthContext } from "@/contexts/AuthContext";
 import { apiRequest } from "@/services/requests/apiRequest";
@@ -468,25 +468,16 @@ const ProfileSidebar = ({
   const getUserLocation = () => {
     if (!userData) return "";
 
-    const city =
-      (userData.rol === "student" && userData.student?.city) ||
-      (userData.rol === "company" && userData.company?.city) ||
-      (userData.rol === "institutions" && userData.institution?.city) ||
+    // mostrar Address
+    const address = 
+      (userData.rol === "student" && userData.student?.address) ||
+      (userData.rol === "company" && userData.company?.address) ||
+      (userData.rol === "institutions" && userData.institution?.address) ||
       "";
 
-    const country =
-      (userData.rol === "student" && userData.student?.country) ||
-      (userData.rol === "company" && userData.company?.country) ||
-      (userData.rol === "institutions" && userData.institution?.country) ||
-      "";
-
-    if (city && country) {
-      return `${city}, ${country}`;
-    } else if (city) {
-      return city;
-    } else if (country) {
-      return country;
-    }
+      if (address) {
+        return address;
+      }
 
     return "";
   };
@@ -543,14 +534,15 @@ const ProfileSidebar = ({
                 />
               </div>
             </div>
-            <h1 className="text-xl font-semibold">{userData?.name} {userData?.surname}</h1>
+            <h1 className="text-xl font-semibold">{userData?.rol === "student" ? userData.student?.name : userData?.rol === "company" ? userData.company?.name : userData?.rol === "institutions" ? userData.institution?.name : ""} </h1>
 
             {userData && (
               <>
                 {getUserSlogan() && (
                   <p className="text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
                 )}
-                <p className="text-sm text-gray-700 mt-1 mb-1"><br></br>{getUserTitle()}</p>
+                <br></br>
+                
 
                 {getUserLocation() && (
                   <p className="text-sm text-gray-600 flex items-center mb-4">
@@ -569,11 +561,9 @@ const ProfileSidebar = ({
                 <Bookmark className="w-4 h-4" /> Publicaciones guardadas
               </button>
               <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-                <Users2 className="w-4 h-4" /> Grupos
+                <Heart className="w-4 h-4" /> Likes
               </button>
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-                <CalendarDays className="w-4 h-4" /> Eventos
-              </button>
+
             </nav>
             <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
               Ver más
@@ -724,6 +714,21 @@ const PublicationCard = ({
   const { allUsers, userData } = useContext(AuthContext);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
+  // Función para obtener el nombre según el rol
+  const getUserName = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "Usuario";
+
+    if (user.rol === "student") {
+      return user.student?.name || user.name;
+    } else if (user.rol === "company") {
+      return user.company?.name || user.name;
+    } else if (user.rol === "institutions") {
+      return user.institution?.name || user.name;
+    }
+    return user.name;
+  };
+
   // Función para obtener el avatar del usuario según su rol
   const getUserAvatar = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
@@ -770,14 +775,14 @@ const PublicationCard = ({
           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <Image
               src={getUserAvatar(publication.shared_by.id)}
-              alt={publication.shared_by.name}
+              alt={getUserName(publication.shared_by.id)}
               fill
               className="object-cover"
               unoptimized={true}
             />
           </div>
           <div>
-            <h3 className="font-semibold">{publication.shared_by.name}</h3>
+            <h3 className="font-semibold">{getUserName(publication.shared_by.id)}</h3>
             <p className="text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
@@ -789,14 +794,14 @@ const PublicationCard = ({
           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <Image
               src={getUserAvatar(publication.user.id)}
-              alt={publication.user.name}
+              alt={getUserName(publication.user.id)}
               fill
               className="object-cover"
               unoptimized={true}
             />
           </div>
           <div>
-            <h3 className="font-semibold">{publication.user.name}</h3>
+            <h3 className="font-semibold">{getUserName(publication.user.id)}</h3>
             <div className="flex items-center text-sm text-gray-500">
               <span>{new Date(publication.created_at).toLocaleDateString()}</span>
               {publication.location && (
@@ -834,6 +839,8 @@ const PublicationCard = ({
             {publication.likes_count}
           </span>
         </button>
+
+
         <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
           <MessageCircle className="w-5 h-5" />
           <span>{publication.comments_count}</span>
@@ -845,7 +852,7 @@ const PublicationCard = ({
           <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
           <span>Guardar</span>
         </button>
-        <button 
+        <button
           onClick={() => setIsShareModalOpen(true)}
           className="flex items-center gap-1 hover:text-blue-600"
         >

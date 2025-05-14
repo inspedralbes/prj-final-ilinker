@@ -44,6 +44,21 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
     const [error, setError] = useState<string | null>(null);
     const { allUsers } = useContext(AuthContext);
 
+    // Función para obtener el nombre según el rol
+    const getUserName = (userId: number) => {
+        const user = allUsers.find(u => u.id === userId);
+        if (!user) return "Usuario";
+
+        if (user.rol === "student") {
+            return user.student?.name || user.name;
+        } else if (user.rol === "company") {
+            return user.company?.name || user.name;
+        } else if (user.rol === "institutions") {
+            return user.institution?.name || user.name;
+        }
+        return user.name;
+    };
+
     // Fetch saved publications when modal opens
     useEffect(() => {
         if (isOpen) {
@@ -157,7 +172,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                                         />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold">{publication.user.name}</h3>
+                                        <h3 className="font-semibold">{getUserName(publication.user.id)}</h3>
                                         <div className="flex items-center text-sm text-gray-500">
                                             <span>{new Date(publication.created_at).toLocaleDateString()}</span>
                                             {publication.location && (
