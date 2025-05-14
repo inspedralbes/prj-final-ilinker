@@ -7,23 +7,23 @@ import {
     AlertCircle, Eye, RefreshCw, FileText, X, CreditCard, Briefcase, Loader2,
     Folders, ChevronLeft, ChevronRight, Heart, MessageCircle
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Card, CardContent} from "@/components/ui/card";
-import {Textarea} from "@/components/ui/textarea";
-import {Input} from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import Select from "react-select";
 import AsyncSelect from 'react-select/async';
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
-import {Avatar} from "@/components/ui/avatar";
-import React, {useEffect, useState, useCallback, useContext, useMemo} from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
+import React, { useEffect, useState, useCallback, useContext, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link"
 import ModalAddStudies from "@/app/profile/student/[uuid]/modals/ModalAddStudies";
 import ModalAddExperience from "@/app/profile/student/[uuid]/modals/ModalAddExperience";
 import ModalAddProjects from "@/app/profile/student/[uuid]/modals/ModalAddProjects";
-import {apiRequest} from "@/services/requests/apiRequest";
-import {toast} from "@/hooks/use-toast";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { toast } from "@/hooks/use-toast";
 import ConfirmDialog from "@/components/dialog/confirmDialog";
 import {
     Carousel,
@@ -34,27 +34,28 @@ import {
     type CarouselApi,
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import {useRef} from "react";
-import {LoaderContext} from "@/contexts/LoaderContext";
+import { useRef } from "react";
+import { LoaderContext } from "@/contexts/LoaderContext";
 import makeAnimated from "react-select/animated";
-import {Calendar} from "@/components/ui/calendar"
-import {cn} from "@/lib/utils"
+import { Calendar } from "@/components/ui/calendar"
+import { cn } from "@/lib/utils"
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover"
-import {addDays, format} from "date-fns"
+import { addDays, format, formatDistanceToNow } from "date-fns"
+import { es } from 'date-fns/locale';
 import config from "@/types/config";
-import {AuthContext} from "@/contexts/AuthContext";
+import { AuthContext } from "@/contexts/AuthContext";
 import Cookies from "js-cookie";
-import {Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { Select as UISelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import OfferModal from '@/app/profile/student/[uuid]/modals/showOfferModal'
-import {SimpleEditor} from "@/components/templates/simple/SimpleEditor"
+import { SimpleEditor } from "@/components/templates/simple/SimpleEditor"
 import "@/styles/tiptap-content.scss"
-import {useModal} from "@/hooks/use-modal";
+import { useModal } from "@/hooks/use-modal";
 import Modal from "@/components/ui/modal";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 import ShowPublication from "@/app/profile/student/[uuid]/modals/showPublication";
 
 export interface User {
@@ -206,13 +207,13 @@ interface StudentClientMeProps {
 }
 
 export default function StudentClientMe({
-                                            uuid,
-                                            student,
-                                            experience_group,
-                                            skills,
-                                            offerUser,
-                                            publications
-                                        }: StudentClientMeProps) {
+    uuid,
+    student,
+    experience_group,
+    skills,
+    offerUser,
+    publications
+}: StudentClientMeProps) {
 
     const [studentEdit, setStudentEdit] = useState(student);
     const [experienceEdit, setExperienceEdit] = useState(experience_group);
@@ -228,7 +229,7 @@ export default function StudentClientMe({
     const [isEditingModal, setIsEditingModal] = useState<boolean | undefined>(false);
     const [coverImage, setCoverImage] = useState("https://img.freepik.com/fotos-premium/fondo-tecnologico-purpura-elementos-codigo-e-iconos-escudo_272306-172.jpg?semt=ais_hybrid&w=740");
     const [logoImage, setLogoImage] = useState("https://static-00.iconduck.com/assets.00/avatar-default-symbolic-icon-479x512-n8sg74wg.png");
-    const {userData, login, token} = useContext(AuthContext);
+    const { userData, login, token } = useContext(AuthContext);
 
     const [modalState, setModalState] = useState(false);
     const [modalExperience, setModalExperience] = useState(false);
@@ -250,16 +251,16 @@ export default function StudentClientMe({
 
     const [isExperience, setIsExperience] = useState(false);
     const [carouselStates, setCarouselStates] = useState<{ [key: number]: any }>({});
-    const {showLoader, hideLoader} = useContext(LoaderContext);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
     const animatedComponents = makeAnimated();
     const [openEndDate, setOpenEndDate] = useState<boolean>(false);
     const [nameLanguage, setNameLanguage] = useState("");
     const [error, setError] = useState("");
     const level = [
-        {id: 1, name: 'Básico'},
-        {id: 2, name: 'Intermedio'},
-        {id: 3, name: 'Avanzado'},
-        {id: 4, name: 'Nativo'}
+        { id: 1, name: 'Básico' },
+        { id: 2, name: 'Intermedio' },
+        { id: 3, name: 'Avanzado' },
+        { id: 4, name: 'Nativo' }
     ];
     const [optionLevel, setOptionLevel] = useState<string[]>([]);
     const [editingIndex, setEditingIndex] = useState(-1);
@@ -391,7 +392,7 @@ export default function StudentClientMe({
             const endpoint = educationSelect ? 'education/delete' : projectsSelect ? 'projects/delete' : 'experience/delete'
             //const idSection = educationSelect ? educationSelect?.id : projectsSelect ? projectsSelect?.id : experinceSelect?.id;
             const idSection = educationSelect?.id ?? projectsSelect?.id ?? experinceSelect?.id;
-            const response = await apiRequest(endpoint, 'DELETE', {id: idSection})
+            const response = await apiRequest(endpoint, 'DELETE', { id: idSection })
 
             if (response.status === 'success') {
                 toast({
@@ -461,23 +462,23 @@ export default function StudentClientMe({
             case 'remoto':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Remoto
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Remoto
+                    </span>
                 );
             case 'presencial':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <Building className="h-3 w-3 mr-1"/>
-            Presencial
-          </span>
+                        <Building className="h-3 w-3 mr-1" />
+                        Presencial
+                    </span>
                 );
             case 'hibrido':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Híbrido
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Híbrido
+                    </span>
                 );
             default:
                 return null;
@@ -491,7 +492,7 @@ export default function StudentClientMe({
     // Crear una instancia del plugin Autoplay para cada proyecto
     projectsEdit.forEach((pro) => {
         if (!pluginsRef.current[pro.id]) {
-            pluginsRef.current[pro.id] = Autoplay({delay: 3000, stopOnMouseEnter: true});
+            pluginsRef.current[pro.id] = Autoplay({ delay: 3000, stopOnMouseEnter: true });
         }
     });
 
@@ -552,7 +553,6 @@ export default function StudentClientMe({
 
     const handleSave = async () => {
         showLoader();
-
         const formattedData = {
             ...studentEdit,
             birthday: studentEdit.birthday
@@ -697,7 +697,7 @@ export default function StudentClientMe({
     const CardLoader = () => (
         <div className="absolute inset-0 bg-white/70 flex items-center justify-center z-10">
             <div className="flex items-center gap-2 text-black/80">
-                <Loader2 className="w-6 h-6 animate-spin"/>
+                <Loader2 className="w-6 h-6 animate-spin" />
                 <span className="text-sm">Cargando...</span>
             </div>
         </div>
@@ -776,7 +776,7 @@ export default function StudentClientMe({
                         setStudentFollowers(prev =>
                             prev.map(follower =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: false}
+                                    ? { ...follower, isFollowed: false }
                                     : follower
                             )
                         );
@@ -833,7 +833,7 @@ export default function StudentClientMe({
                         setStudentFollowers(prev =>
                             prev.map(follower =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: true}
+                                    ? { ...follower, isFollowed: true }
                                     : follower
                             )
                         );
@@ -882,7 +882,7 @@ export default function StudentClientMe({
     const handleBlock = (user_id: number) => {
         showLoader();
         try {
-            apiRequest('block', 'POST', {user_id})
+            apiRequest('block', 'POST', { user_id })
                 .then((response) => {
                     if (response.status === "success") {
                         toast({
@@ -907,16 +907,16 @@ export default function StudentClientMe({
                         });
                     }
                 }).catch((error) => {
-                console.log(error);
-                toast({
-                    title: "Error",
-                    description: "Error al bloquear a la empresa.",
-                    variant: "destructive",
-                    duration: 5000,
+                    console.log(error);
+                    toast({
+                        title: "Error",
+                        description: "Error al bloquear a la empresa.",
+                        variant: "destructive",
+                        duration: 5000,
+                    });
+                }).finally(() => {
+                    hideLoader();
                 });
-            }).finally(() => {
-                hideLoader();
-            });
         } catch (error) {
             console.log(error);
             toast({
@@ -939,7 +939,7 @@ export default function StudentClientMe({
     const updateDesStudent = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setStudentEdit((prev: any) => ({
             ...prev,
             [name]: value,
@@ -1017,14 +1017,38 @@ export default function StudentClientMe({
     };
 
     // Formatear fecha relativa (2h, 5m, etc.)
-    const getRelativeTime = (timestamp: any) => {
+    const getRelativeTime = (timestamp: string | Date) => {
         // Implementar lógica real aquí
-        return "2h";
+        const now = new Date();
+        const past = new Date(timestamp);
+
+        const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+        const units = [
+            { name: 'year', seconds: 31536000 },
+            { name: 'month', seconds: 2592000 },
+            { name: 'week', seconds: 604800 },
+            { name: 'day', seconds: 86400 },
+            { name: 'hour', seconds: 3600 },
+            { name: 'minute', seconds: 60 },
+            { name: 'second', seconds: 1 },
+        ];
+
+        for (const unit of units) {
+            const value = Math.floor(diffInSeconds / unit.seconds);
+            if (value >= 1) {
+                const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+                return rtf.format(-value, unit.name as Intl.RelativeTimeFormatUnit);
+            }
+        }
+
+        return 'justo ahora';
     };
 
     const selectPost = (post: any) => {
         setSelectedPost(post);
         setModalPubli(true);
+        console.log("getRelativeTime", getRelativeTime(new Date().toISOString())); // debería decir "justo ahora"
     }
 
 
@@ -1045,7 +1069,7 @@ export default function StudentClientMe({
                             accept="image/*"
                             onChange={(e) => handleImageUpload(e, 'cover_photo')}
                         />
-                        <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70"/>
+                        <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
                     </label>
                 </div>
 
@@ -1069,7 +1093,7 @@ export default function StudentClientMe({
                                                 onChange={(e) => handleImageUpload(e, 'photo_pic')}
                                             />
                                             <Camera
-                                                className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70"/>
+                                                className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
                                         </label>
                                     </div>
                                     <div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
@@ -1094,7 +1118,7 @@ export default function StudentClientMe({
                                                     className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
                                                 />
                                                 <div className="flex items-center space-x-2">
-                                                    <MapPin className="h-5 w-5 text-gray-400"/>
+                                                    <MapPin className="h-5 w-5 text-gray-400" />
                                                     <Input
                                                         type="text"
                                                         value={studentEdit.address}
@@ -1108,7 +1132,7 @@ export default function StudentClientMe({
 
                                                 <div className="flex justify-content-start gap-4 mt-4">
                                                     <Button className="bg-gray-200 text-black hover:bg-gray-300"
-                                                            onClick={handleCancelEdit}>Cancelar</Button>
+                                                        onClick={handleCancelEdit}>Cancelar</Button>
                                                     <Button onClick={handleSave}>Guardar</Button>
                                                 </div>
                                             </div>
@@ -1119,14 +1143,14 @@ export default function StudentClientMe({
                                                     {studentEdit?.surname}
                                                 </p>
                                                 <p className="text-gray-500 flex items-center mt-2">
-                                                    <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
+                                                    <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                                                     {studentEdit?.address}
                                                 </p>
                                                 <button
                                                     onClick={() => handleEdit('basic')}
                                                     className="mt-2 flex items-center text-blue-600 hover:text-blue-800"
                                                 >
-                                                    <Pencil className="h-4 w-4 mr-1"/>
+                                                    <Pencil className="h-4 w-4 mr-1" />
                                                     Editar información básica
                                                 </button>
                                             </div>
@@ -1137,7 +1161,7 @@ export default function StudentClientMe({
                                     <div className="flex space-x-2">
                                         <button
                                             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400"/>
+                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                                             Contactar
                                         </button>
 
@@ -1164,14 +1188,14 @@ export default function StudentClientMe({
                                         onClick={() => handleEdit("basic-2")}
                                         className="text-blue-600 hover:text-blue-800"
                                     >
-                                        <Pencil className="h-4 w-4"/>
+                                        <Pencil className="h-4 w-4" />
                                     </button>
                                 </div>
                                 {isEditing === "basic-2" ? (
                                     <>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div className="flex items-center">
-                                                <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Globe className="h-5 w-5 text-gray-400 mr-2" />
                                                 <Input
                                                     type="text"
                                                     name="website"
@@ -1186,7 +1210,7 @@ export default function StudentClientMe({
                                                 />
                                             </div>
                                             <div className="flex items-center">
-                                                <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                                 <Input
                                                     type="text"
                                                     name="phone"
@@ -1201,7 +1225,7 @@ export default function StudentClientMe({
                                                 />
                                             </div>
                                             <div className="flex items-center">
-                                                <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <Mail className="h-5 w-5 text-gray-400 mr-2" />
                                                 <Input
                                                     type="email"
                                                     name="company_email"
@@ -1218,14 +1242,14 @@ export default function StudentClientMe({
                                         </div>
                                         <div className="flex justify-content-start gap-4 mt-4">
                                             <Button className="bg-gray-200 text-black hover:bg-gray-300"
-                                                    onClick={handleCancelEdit}>Cancelar</Button>
+                                                onClick={handleCancelEdit}>Cancelar</Button>
                                             <Button onClick={handleSave}>Guardar</Button>
                                         </div>
                                     </>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div className="flex items-center">
-                                            <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <Globe className="h-5 w-5 text-gray-400 mr-2" />
                                             <a
                                                 href={studentEdit?.country || ""}
                                                 className="text-blue-600 hover:underline"
@@ -1234,11 +1258,11 @@ export default function StudentClientMe({
                                             </a>
                                         </div>
                                         <div className="flex items-center">
-                                            <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                             <span className="text-gray-600">{studentEdit?.phone}</span>
                                         </div>
                                         <div className="flex items-center">
-                                            <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                            <Mail className="h-5 w-5 text-gray-400 mr-2" />
                                             <span
                                                 className="text-gray-600">{studentEdit.user.email || "Sin dirección de correo"}</span>
                                         </div>
@@ -1254,7 +1278,7 @@ export default function StudentClientMe({
                                         onClick={() => handleEdit('about')}
                                         className="text-blue-600 hover:text-blue-800"
                                     >
-                                        <Pencil className="h-4 w-4"/>
+                                        <Pencil className="h-4 w-4" />
                                     </button>
                                 </div>
                                 {isEditing === 'about' ? (
@@ -1271,7 +1295,7 @@ export default function StudentClientMe({
                                         />
                                         <div className="flex justify-content-start gap-4 mt-4">
                                             <Button className="bg-gray-200 text-black hover:bg-gray-300"
-                                                    onClick={handleCancelEdit}>Cancelar</Button>
+                                                onClick={handleCancelEdit}>Cancelar</Button>
                                             <Button onClick={handleSave}>Guardar</Button>
                                         </div>
                                     </div>
@@ -1279,7 +1303,7 @@ export default function StudentClientMe({
                                     <div
                                         className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
                                     >
-                                        <p style={{whiteSpace: 'pre-wrap'}}>{studentEdit.short_description || ""}</p>
+                                        <p style={{ whiteSpace: 'pre-wrap' }}>{studentEdit.short_description || ""}</p>
 
                                     </div>
                                 )}
@@ -1294,7 +1318,7 @@ export default function StudentClientMe({
                                     value="acerca"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Acerca de</span>
                                 </TabsTrigger>
 
@@ -1302,7 +1326,7 @@ export default function StudentClientMe({
                                     value="studies"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Mis Estudios</span>
                                 </TabsTrigger>
 
@@ -1310,7 +1334,7 @@ export default function StudentClientMe({
                                     value="experience"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Mi Experiencia</span>
                                 </TabsTrigger>
 
@@ -1318,7 +1342,7 @@ export default function StudentClientMe({
                                     value="projects"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Mis Proyectos</span>
                                 </TabsTrigger>
 
@@ -1326,14 +1350,14 @@ export default function StudentClientMe({
                                     value="offer"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderTree className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <FolderTree className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Mis Ofertas</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="publications"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <Folders className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <Folders className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Mis Publicaciones</span>
                                 </TabsTrigger>
                             </TabsList>
@@ -1355,7 +1379,7 @@ export default function StudentClientMe({
                                                 {[1, 2, 3].map((i) => (
                                                     <div key={i} className="flex gap-4">
                                                         <div
-                                                            className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0"/>
+                                                            className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0" />
                                                         <div>
                                                             <p className="font-medium">Nuevo logro alcanzado</p>
                                                             <p className="text-sm text-gray-500">Hace {i} días</p>
@@ -1377,7 +1401,7 @@ export default function StudentClientMe({
                                             onClick={() => handleEdit('description')}
                                             className="text-blue-600 hover:text-blue-800"
                                         >
-                                            <Pencil className="h-4 w-4"/>
+                                            <Pencil className="h-4 w-4" />
                                         </button>
                                     </div>
 
@@ -1386,21 +1410,21 @@ export default function StudentClientMe({
                                             <div className="mb-6">
 
                                                 <SimpleEditor content={studentEdit.description || ""}
-                                                              onChange={(html: string) => {
-                                                                  if (studentEdit.description !== html) {
-                                                                      setStudentEdit(prev => ({
-                                                                          ...prev,
-                                                                          description: html
-                                                                      }));
-                                                                  }
-                                                              }}
+                                                    onChange={(html: string) => {
+                                                        if (studentEdit.description !== html) {
+                                                            setStudentEdit(prev => ({
+                                                                ...prev,
+                                                                description: html
+                                                            }));
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                         </>
                                     ) : (<>
                                         <div
                                             className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
-                                            dangerouslySetInnerHTML={{__html: studentEdit.description || ''}}
+                                            dangerouslySetInnerHTML={{ __html: studentEdit.description || '' }}
                                         />
 
                                     </>)}
@@ -1466,7 +1490,7 @@ export default function StudentClientMe({
                                                                     !studentEdit.birthday && "text-muted-foreground"
                                                                 )}
                                                             >
-                                                                <CalendarIcon/>
+                                                                <CalendarIcon />
                                                                 {studentEdit.birthday ? format(studentEdit.birthday, "dd/MM/yyyy") :
                                                                     <span>Pick a date</span>}
                                                             </Button>
@@ -1526,7 +1550,7 @@ export default function StudentClientMe({
                                                     {skillsEdit && skillsEdit.length > 0 ? (
                                                         skillsEdit.map((skill) => (
                                                             <Badge key={skill.id}
-                                                                   className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
+                                                                className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                                 {skill.name} {/* Renderiza solo el nombre de la habilidad */}
                                                             </Badge>
                                                         ))
@@ -1547,7 +1571,7 @@ export default function StudentClientMe({
                                                             <div className="flex flex-col gap-2 mb-4">
                                                                 {parsedLanguages.map((lan, idx) => (
                                                                     <div key={idx}
-                                                                         className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                        className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
                                                                         <Badge
                                                                             className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                                             {lan.language}
@@ -1560,14 +1584,14 @@ export default function StudentClientMe({
                                                                                 onClick={() => startEditingLanguage(idx)}
                                                                                 className="text-blue-600 hover:text-blue-800"
                                                                             >
-                                                                                <Pencil className="h-4 w-4"/>
+                                                                                <Pencil className="h-4 w-4" />
                                                                             </button>
                                                                             <button
 
                                                                                 onClick={() => deleteLanguage(idx)}
                                                                                 className="text-red-600 hover:text-red-800"
                                                                             >
-                                                                                <Trash className="h-4 w-4"/>
+                                                                                <Trash className="h-4 w-4" />
                                                                             </button>
                                                                         </div>
                                                                     </div>
@@ -1587,7 +1611,7 @@ export default function StudentClientMe({
                                                         {error && (
                                                             <div
                                                                 className="flex items-center p-2 mb-2 bg-red-50 text-red-700 rounded border border-red-200">
-                                                                <AlertCircle size={16} className="mr-2"/>
+                                                                <AlertCircle size={16} className="mr-2" />
                                                                 <span className="text-sm">{error}</span>
                                                             </div>
                                                         )}
@@ -1643,7 +1667,7 @@ export default function StudentClientMe({
                                                         <div className="flex flex-col gap-2 mb-4">
                                                             {parsedLanguages.map((lan, idx) => (
                                                                 <div key={idx}
-                                                                     className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                    className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
                                                                     <Badge
                                                                         className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                                         {lan.language}
@@ -1668,7 +1692,7 @@ export default function StudentClientMe({
                                         <>
                                             <div className="flex justify-end gap-4 mt-4">
                                                 <Button className="bg-gray-200 text-black hover:bg-gray-300"
-                                                        onClick={handleCancelEdit}>Cancelar</Button>
+                                                    onClick={handleCancelEdit}>Cancelar</Button>
                                                 <Button onClick={handleSave}>Guardar</Button>
                                             </div>
                                         </>
@@ -1689,7 +1713,7 @@ export default function StudentClientMe({
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
                                                 onClick={() => handleOpenModalAddStudies()}
                                             >
-                                                <Plus className="h-5 w-5"/>
+                                                <Plus className="h-5 w-5" />
                                             </Button>
                                         </div>
 
@@ -1730,10 +1754,10 @@ export default function StudentClientMe({
                                                                                 <Link
                                                                                     href={`/profile/institution/${studies.institution?.slug}`}
                                                                                     passHref>
-                                                                                        <span
-                                                                                            className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
-                                                                                            {studies.institute}
-                                                                                        </span>
+                                                                                    <span
+                                                                                        className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
+                                                                                        {studies.institute}
+                                                                                    </span>
                                                                                 </Link>
                                                                             ) : (
                                                                                 <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
@@ -1744,15 +1768,15 @@ export default function StudentClientMe({
                                                                                 {/* Fechas */}
                                                                                 <span
                                                                                     className="text-sm text-gray-500">
-                                                                                        {studies.start_date} - {studies.end_date || "Cursando"}
-                                                                                    </span>
+                                                                                    {studies.start_date} - {studies.end_date || "Cursando"}
+                                                                                </span>
 
                                                                                 {/* Botón de editar */}
                                                                                 <button
                                                                                     onClick={() => EditInfo("study", studies)} // asegúrate de tener esta función
                                                                                     className="text-blue-600 hover:text-blue-800"
                                                                                 >
-                                                                                    <Pencil className="h-4 w-4"/>
+                                                                                    <Pencil className="h-4 w-4" />
                                                                                 </button>
 
                                                                                 {/* Botón de eliminar */}
@@ -1760,7 +1784,7 @@ export default function StudentClientMe({
                                                                                     onClick={() => removeSection(studies, null, null)} // asegúrate de tener esta función
                                                                                     className="text-red-600 hover:text-red-800"
                                                                                 >
-                                                                                    <Trash className="h-4 w-4"/>
+                                                                                    <Trash className="h-4 w-4" />
                                                                                 </button>
                                                                             </div>
                                                                         </div>
@@ -1807,7 +1831,7 @@ export default function StudentClientMe({
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
                                                 onClick={() => openModalExperience(null)}
                                             >
-                                                <Plus className="h-5 w-5"/>
+                                                <Plus className="h-5 w-5" />
                                             </Button>
                                         </div>
 
@@ -1817,10 +1841,10 @@ export default function StudentClientMe({
                                         {/* Información General */}
                                         <div className="">
                                             {experienceEdit &&
-                                            Object.keys(experienceEdit).length > 0 &&
-                                            Object.keys(experienceEdit).some(key =>
-                                                Array.isArray(experienceEdit[key]) &&
-                                                experienceEdit[key].length > 0) ?
+                                                Object.keys(experienceEdit).length > 0 &&
+                                                Object.keys(experienceEdit).some(key =>
+                                                    Array.isArray(experienceEdit[key]) &&
+                                                    experienceEdit[key].length > 0) ?
                                                 (
                                                     <div className="space-y-8">
                                                         {Object.keys(experienceEdit).map((expId) => {
@@ -1836,7 +1860,7 @@ export default function StudentClientMe({
 
                                                             return (
                                                                 <div key={expId}
-                                                                     className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                                    className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
                                                                     <div
                                                                         className="flex items-center justify-between w-full mb-4">
                                                                         <div
@@ -1844,78 +1868,78 @@ export default function StudentClientMe({
 
                                                                     </div>
                                                                     {moreExperience ? (
-                                                                            // Línea de tiempo para múltiples experiencias
-                                                                            <div className="relative pl-6">
-                                                                                {/* Línea vertical */}
-                                                                                <div
-                                                                                    className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                                                                        // Línea de tiempo para múltiples experiencias
+                                                                        <div className="relative pl-6">
+                                                                            {/* Línea vertical */}
+                                                                            <div
+                                                                                className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                                {/* Experiencias */}
-                                                                                <div className="space-y-6">
-                                                                                    {experiences.map((exp) => (
-                                                                                        <div key={exp.id}
-                                                                                             className="relative">
-                                                                                            {/* Punto en la línea de tiempo */}
+                                                                            {/* Experiencias */}
+                                                                            <div className="space-y-6">
+                                                                                {experiences.map((exp) => (
+                                                                                    <div key={exp.id}
+                                                                                        className="relative">
+                                                                                        {/* Punto en la línea de tiempo */}
+                                                                                        <div
+                                                                                            className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+
+                                                                                        {/* Contenido de la experiencia */}
+                                                                                        <div
+                                                                                            className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
                                                                                             <div
-                                                                                                className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
-
-                                                                                            {/* Contenido de la experiencia */}
-                                                                                            <div
-                                                                                                className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
-                                                                                                <div
-                                                                                                    className="flex justify-between items-start">
-                                                                                                    <div>
-                                                                                                        <div
-                                                                                                            className="font-medium text-blue-800">{exp.department}
-                                                                                                        </div>
-
-                                                                                                        <div
-                                                                                                            className="font-medium text-gray-600">
-                                                                                                            {exp.start_date} - {exp.end_date}
-                                                                                                        </div>
-
-                                                                                                        <div
-                                                                                                            className="text-sm text-gray-700">{exp.employee_type}
-                                                                                                        </div>
+                                                                                                className="flex justify-between items-start">
+                                                                                                <div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-blue-800">{exp.department}
                                                                                                     </div>
 
                                                                                                     <div
-                                                                                                        className="flex space-x-2">
-                                                                                                        <button
-                                                                                                            onClick={() => EditInfoExp("experience", exp)}
-                                                                                                            className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
-                                                                                                        >
-                                                                                                            <Pencil
-                                                                                                                className="h-4 w-4"/>
-                                                                                                        </button>
-                                                                                                        <button
-                                                                                                            onClick={() => removeSection(null, exp, null)}
-                                                                                                            className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
-                                                                                                        >
-                                                                                                            <Trash
-                                                                                                                className="h-4 w-4"/>
-                                                                                                        </button>
+                                                                                                        className="font-medium text-gray-600">
+                                                                                                        {exp.start_date} - {exp.end_date}
+                                                                                                    </div>
 
+                                                                                                    <div
+                                                                                                        className="text-sm text-gray-700">{exp.employee_type}
                                                                                                     </div>
                                                                                                 </div>
 
                                                                                                 <div
-                                                                                                    className="mt-2 flex items-center space-x-3">
-                                                                                                    {renderLocationType(exp.location_type)}
-                                                                                                    {exp.company_address && (
-                                                                                                        <span
-                                                                                                            className="text-sm text-gray-600">
-                                                                                                        {exp.company_address}
-                                                                                                    </span>
-                                                                                                    )}
+                                                                                                    className="flex space-x-2">
+                                                                                                    <button
+                                                                                                        onClick={() => EditInfoExp("experience", exp)}
+                                                                                                        className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
+                                                                                                    >
+                                                                                                        <Pencil
+                                                                                                            className="h-4 w-4" />
+                                                                                                    </button>
+                                                                                                    <button
+                                                                                                        onClick={() => removeSection(null, exp, null)}
+                                                                                                        className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
+                                                                                                    >
+                                                                                                        <Trash
+                                                                                                            className="h-4 w-4" />
+                                                                                                    </button>
+
                                                                                                 </div>
                                                                                             </div>
-                                                                                        </div>
-                                                                                    ))}
-                                                                                </div>
-                                                                            </div>
 
-                                                                        ) :
+                                                                                            <div
+                                                                                                className="mt-2 flex items-center space-x-3">
+                                                                                                {renderLocationType(exp.location_type)}
+                                                                                                {exp.company_address && (
+                                                                                                    <span
+                                                                                                        className="text-sm text-gray-600">
+                                                                                                        {exp.company_address}
+                                                                                                    </span>
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+
+                                                                    ) :
                                                                         (
                                                                             // Tarjeta única para una sola experiencia
                                                                             <div className="bg-gray-50 rounded-lg p-4">
@@ -1937,32 +1961,32 @@ export default function StudentClientMe({
                                                                                                     className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
                                                                                                 >
                                                                                                     <Pencil
-                                                                                                        className="h-4 w-4"/>
+                                                                                                        className="h-4 w-4" />
                                                                                                 </button>
                                                                                                 <button
                                                                                                     onClick={() => removeSection(null, exp, null)}
                                                                                                     className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                                                 >
                                                                                                     <Trash
-                                                                                                        className="h-4 w-4"/>
+                                                                                                        className="h-4 w-4" />
                                                                                                 </button>
                                                                                             </div>
                                                                                         </div>
 
                                                                                         <div
                                                                                             className="mt-2 flex flex-wrap gap-3">
-                                                                                        <span
-                                                                                            className="flex items-center text-sm text-gray-500">
-                                                                                            <Clock
-                                                                                                className="h-3 w-3 mr-1"/>
-                                                                                            {exp.employee_type}
-                                                                                        </span>
+                                                                                            <span
+                                                                                                className="flex items-center text-sm text-gray-500">
+                                                                                                <Clock
+                                                                                                    className="h-3 w-3 mr-1" />
+                                                                                                {exp.employee_type}
+                                                                                            </span>
                                                                                             {renderLocationType(exp.location_type)}
                                                                                             {exp.company_address && (
                                                                                                 <span
                                                                                                     className="text-sm text-gray-600">
-                                                                                                {exp.company_address}
-                                                                                            </span>
+                                                                                                    {exp.company_address}
+                                                                                                </span>
                                                                                             )}
                                                                                         </div>
                                                                                     </div>
@@ -2009,7 +2033,7 @@ export default function StudentClientMe({
                                                 className="bg-blue-600 hover:bg-blue-700 rounded-full w-10 h-10 p-0 flex items-center justify-center shadow-md transition-colors"
                                                 onClick={() => openModalProjects(null)}
                                             >
-                                                <Plus className="h-5 w-5"/>
+                                                <Plus className="h-5 w-5" />
                                             </Button>
                                         </div>
 
@@ -2066,12 +2090,12 @@ export default function StudentClientMe({
                                                                         <div
                                                                             className="absolute inset-y-0 left-0 flex items-center">
                                                                             <CarouselPrevious
-                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                         <div
                                                                             className="absolute inset-y-0 right-0 flex items-center">
                                                                             <CarouselNext
-                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                     </Carousel>
                                                                 ) : (
@@ -2094,14 +2118,14 @@ export default function StudentClientMe({
                                                                         className="flex items-center">
 
                                                                         {pro.link ? (
-                                                                                <a
-                                                                                    href={pro.link}
-                                                                                    target={"_blank"}
-                                                                                >
-                                                                                    <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
-                                                                                </a>
+                                                                            <a
+                                                                                href={pro.link}
+                                                                                target={"_blank"}
+                                                                            >
+                                                                                <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
+                                                                            </a>
 
-                                                                            ) :
+                                                                        ) :
                                                                             (
                                                                                 <h3 className="font-semibold text-base">{pro.name}</h3>
                                                                             )
@@ -2112,14 +2136,14 @@ export default function StudentClientMe({
                                                                                 className="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded"
                                                                             >
                                                                                 <Pencil
-                                                                                    className="h-4 w-4"/>
+                                                                                    className="h-4 w-4" />
                                                                             </button>
                                                                             <button
                                                                                 onClick={() => removeSection(null, null, pro)}
                                                                                 className="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded"
                                                                             >
                                                                                 <Trash
-                                                                                    className="h-4 w-4"/>
+                                                                                    className="h-4 w-4" />
                                                                             </button>
                                                                         </div>
 
@@ -2130,7 +2154,7 @@ export default function StudentClientMe({
                                                                     </p>
                                                                     <div
                                                                         className="flex items-center mt-2 text-xs text-gray-500">
-                                                                        <Clock className="h-3 w-3 mr-1 text-red-500"/>
+                                                                        <Clock className="h-3 w-3 mr-1 text-red-500" />
                                                                         <span>Finalizado: {pro.end_project ? pro.end_project : "En progreso"}</span>
                                                                     </div>
                                                                 </div>
@@ -2163,7 +2187,7 @@ export default function StudentClientMe({
                                 {/* Card contenedora con menos padding para aprovechar espacio */}
                                 <Card className="p-6 mt-6 mb-6 relative">
                                     {/* Mostrar el loader en todas las cards cuando se está filtrando */}
-                                    {isFiltering && <CardLoader/>}
+                                    {isFiltering && <CardLoader />}
 
                                     <div className="flex justify-between items-center mb-4">
                                         <h2 className="text-xl font-semibold mb-4">Mis Solicitudes</h2>
@@ -2172,10 +2196,10 @@ export default function StudentClientMe({
                                         <div className="flex items-center space-x-2">
                                             <span className="text-sm text-gray-500">Filtrar por:</span>
                                             <UISelect defaultValue="all"
-                                                      onValueChange={handleStatusFilterChange}
-                                                      value={statusFilter}>
+                                                onValueChange={handleStatusFilterChange}
+                                                value={statusFilter}>
                                                 <SelectTrigger className="w-[150px] h-8 text-sm">
-                                                    <SelectValue placeholder="Estado"/>
+                                                    <SelectValue placeholder="Estado" />
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="all">Todos</SelectItem>
@@ -2225,7 +2249,7 @@ export default function StudentClientMe({
                                                 return (
 
                                                     <Card key={application.id}
-                                                          className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow relative">
+                                                        className="overflow-hidden h-full shadow-sm hover:shadow-md transition-shadow relative">
 
                                                         {/* Barra de estado en la parte superior */}
                                                         <div
@@ -2245,15 +2269,15 @@ export default function StudentClientMe({
 
                                                                 <div className="flex space-x-1">
                                                                     <Button variant="ghost" size="icon"
-                                                                            className="h-7 w-7"
-                                                                            onClick={() => showOffer(application)}>
-                                                                        <Eye className="h-4 w-4"/>
+                                                                        className="h-7 w-7"
+                                                                        onClick={() => showOffer(application)}>
+                                                                        <Eye className="h-4 w-4" />
                                                                     </Button>
 
                                                                     <Button variant="ghost" size="icon"
-                                                                            className="h-7 w-7"
-                                                                            onClick={() => UpdateChange()}>
-                                                                        <RefreshCw className="h-4 w-4"/>
+                                                                        className="h-7 w-7"
+                                                                        onClick={() => UpdateChange()}>
+                                                                        <RefreshCw className="h-4 w-4" />
                                                                     </Button>
 
                                                                 </div>
@@ -2262,35 +2286,35 @@ export default function StudentClientMe({
                                                             <div className="mt-3 space-y-2">
                                                                 <div
                                                                     className="flex items-center text-xs text-gray-600">
-                                                                    <MapPin className="h-3.5 w-3.5 mr-1.5"/>
+                                                                    <MapPin className="h-3.5 w-3.5 mr-1.5" />
                                                                     <span>{application.offer.city}, {application.offer.postal_code}</span>
                                                                 </div>
 
                                                                 <div
                                                                     className="flex items-center text-xs text-gray-600">
-                                                                    <CalendarIcon className="h-3.5 w-3.5 mr-1.5"/>
+                                                                    <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
                                                                     <span>Aplicada: {application.created_at ? format(application.created_at, "dd/MM/yyyy") : "Sin fecha"}</span>
                                                                 </div>
 
                                                                 {application.updated_at && (
                                                                     <div
                                                                         className="flex items-center text-xs text-gray-600">
-                                                                        <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                        <Clock className="h-3.5 w-3.5 mr-1.5" />
                                                                         <span>Última actualización: {application.updated_at ? format(application.updated_at, "dd/MM/yyyy") : "Sin fecha"}</span>
                                                                     </div>
                                                                 )}
 
                                                                 {application.availability ? (
-                                                                        <div
-                                                                            className="flex items-center text-xs text-gray-600">
-                                                                            <Clock className="h-3.5 w-3.5 mr-1.5"/>
-                                                                            <span>Disponibilidad: {application.availability}</span>
-                                                                        </div>
-                                                                    ) :
+                                                                    <div
+                                                                        className="flex items-center text-xs text-gray-600">
+                                                                        <Clock className="h-3.5 w-3.5 mr-1.5" />
+                                                                        <span>Disponibilidad: {application.availability}</span>
+                                                                    </div>
+                                                                ) :
                                                                     (
                                                                         <div
                                                                             className="flex items-center text-xs text-gray-600">
-                                                                            <Clock className="h-3.5 w-3.5 mr-1.5"/>
+                                                                            <Clock className="h-3.5 w-3.5 mr-1.5" />
                                                                             <span>Disponibilidad: Sin información</span>
                                                                         </div>
                                                                     )}
@@ -2314,7 +2338,7 @@ export default function StudentClientMe({
                                                                                     <span
                                                                                         className="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs flex items-center mr-1 hover:shadow-md transition-shadow">
                                                                                         <FileText
-                                                                                            className="h-3 w-3 mr-1"/>
+                                                                                            className="h-3 w-3 mr-1" />
                                                                                         CV
                                                                                     </span>
                                                                                 </a>
@@ -2332,7 +2356,7 @@ export default function StudentClientMe({
                                                                                     <span
                                                                                         className="px-2 py-1 bg-purple-50 text-purple-700 rounded-full text-xs flex items-center mr-1 hover:shadow-md transition-shadow">
                                                                                         <FileText
-                                                                                            className="h-3 w-3 mr-1"/>
+                                                                                            className="h-3 w-3 mr-1" />
                                                                                         Carta
                                                                                     </span>
                                                                                 </a>
@@ -2358,7 +2382,7 @@ export default function StudentClientMe({
                                             className="py-8 text-center border border-dashed border-black rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors duration-300">
                                             <p className="text-black">No te has inscrito a ninguna oferta todavía</p>
                                             <Link href="/search"
-                                                  className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-medium">
                                                 Ver ofertas disponibles
                                             </Link>
                                         </div>
@@ -2388,18 +2412,16 @@ export default function StudentClientMe({
                                     <div className="inline-flex rounded-md shadow-sm" role="group">
                                         <button
                                             type="button"
-                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${
-                                                viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
-                                            }`}
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
                                             onClick={() => setViewMode("list")}
                                         >
                                             Lista
                                         </button>
                                         <button
                                             type="button"
-                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${
-                                                viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
-                                            }`}
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
                                             onClick={() => setViewMode("gallery")}
                                         >
                                             Galería
@@ -2418,7 +2440,7 @@ export default function StudentClientMe({
                                                             <div className="flex gap-4">
                                                                 <Avatar className="h-12 w-12">
                                                                     <img
-                                                                        src={studentEdit?.photo_pic ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}` : logoImage}
+                                                                        src={studentEdit?.photo_pic ? `${config.storageUrl}${studentEdit.photo_pic}` : logoImage}
                                                                         alt="Author"
                                                                         className="h-full w-full object-cover rounded-full"
                                                                     />
@@ -2430,11 +2452,11 @@ export default function StudentClientMe({
                                                                         </div>
                                                                         <div
                                                                             className="flex items-center gap-5 text-sm text-gray-500">
-                                                                            <span>{getRelativeTime(post.created_at)}</span>
+                                                                            <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
                                                                             <button
                                                                                 onClick={() => selectPost(post)}
                                                                             >
-                                                                                <Eye className="h-5 w-5 text-black"/>
+                                                                                <Eye className="h-5 w-5 text-black" />
                                                                             </button>
                                                                         </div>
 
@@ -2472,12 +2494,12 @@ export default function StudentClientMe({
                                                                 className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
                                                                 <div className="flex gap-6">
                                                                     <div className="flex items-center">
-                                                                        <Heart className="h-5 w-5"/>
+                                                                        <Heart className="h-5 w-5" />
                                                                         <span
                                                                             className="ml-2">{item.post.likes_count || 0}</span>
                                                                     </div>
                                                                     <div className="flex items-center">
-                                                                        <MessageCircle className="h-5 w-5"/>
+                                                                        <MessageCircle className="h-5 w-5" />
                                                                         <span
                                                                             className="ml-2">{item.post.comments_count || 0}</span>
                                                                     </div>
@@ -2497,7 +2519,7 @@ export default function StudentClientMe({
                                                         disabled={currentPage === 1}
                                                         size="sm"
                                                     >
-                                                        <ChevronLeft className="h-4 w-4"/>
+                                                        <ChevronLeft className="h-4 w-4" />
                                                     </Button>
 
                                                     {getPageNumbers().map((pageNumber, index) => (
@@ -2522,7 +2544,7 @@ export default function StudentClientMe({
                                                         disabled={currentPage === totalPages}
                                                         size="sm"
                                                     >
-                                                        <ChevronRight className="h-4 w-4"/>
+                                                        <ChevronRight className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             )}
@@ -2558,7 +2580,7 @@ export default function StudentClientMe({
                 onCancel={handleCancel}
                 confirmText="Continuar"
                 cancelText="Cancelar"
-                icon={<TriangleAlert className="text-yellow-500"/>}
+                icon={<TriangleAlert className="text-yellow-500" />}
             />
 
 
@@ -2681,7 +2703,7 @@ export default function StudentClientMe({
                                     >
                                         {isLoadingToggleFollwer ? (
                                             <>
-                                                <Loader2 className="animate-spin"/>
+                                                <Loader2 className="animate-spin" />
                                                 <span>Cargando...</span>
                                             </>
                                         ) : follower.isFollowed ? (

@@ -1,21 +1,13 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
     X,
-    Calendar,
-    MapPin,
-    Briefcase,
-    Clock,
-    Users,
-    CreditCard,
-    CheckCircle,
-    XCircle,
-    Loader2,
-    Heart, MessageCircle, Bookmark
+    Calendar,MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
+    Heart, MessageCircle, Bookmark,
+    ChevronDown, ChevronUp, Ellipsis 
 } from 'lucide-react';
-import {Avatar} from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import config from "@/types/config";
-import {format} from "date-fns"
-import {Card, CardContent} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
     Carousel,
     CarouselContent,
@@ -23,6 +15,8 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"
+import { addDays, format, formatDistanceToNow } from "date-fns"
+import { es } from 'date-fns/locale';
 
 
 interface PropsModal {
@@ -31,7 +25,7 @@ interface PropsModal {
     onClose: () => void;
 }
 
-export default function ShowPublication({publication, student, onClose}: PropsModal) {
+export default function ShowPublication({ publication, student, onClose }: PropsModal) {
     const [loading, setLoading] = useState(false);
     const [publicationEdit, setPublicationEdit] = useState(publication);
     const [studentEdit, setStudentEdit] = useState(student);
@@ -41,6 +35,39 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
     const hasMedia = publicationEdit?.media && publicationEdit?.media.length > 0;
     const hasMultipleMedia = publicationEdit?.media && publicationEdit?.media.length > 1;
 
+
+    // Estado para controlar qué comentarios tienen las respuestas expandidas
+    const [expandedComments, setExpandedComments] = useState<any>({});
+
+    // Función para toggle el estado de expansión de un comentario
+    const toggleReplies = (commentId: number) => {
+        setExpandedComments((prev: any) => ({
+            ...prev,
+            [commentId]: !prev[commentId]
+        }));
+    };
+
+    // Función para obtener la URL de la imagen de perfil según el rol
+    const getProfileImageUrl = (user: any) => {
+        if (user?.rol === 'student') {
+            return `${config.storageUrl}${user.student?.photo_pic}`;
+        } else if (user?.rol === 'company') {
+            return `${config.storageUrl}/${user.company?.logo}`;
+        } else {
+            return `${config.storageUrl}/${user.institutions?.logo}`;
+        }
+    };
+
+    // Función para obtener el nombre del usuario según el rol
+    const getUserName = (user: any) => {
+        if (user?.rol === 'student') {
+            return user.student?.name;
+        } else if (user?.rol === 'company') {
+            return user.company?.name;
+        } else {
+            return user.institutions?.name;
+        }
+    };
 
     return (
         <div
@@ -56,7 +83,7 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                     onClick={onClose}
                     className="absolute top-4 right-4 p-1 rounded-full bg-white hover:bg-gray-100 transition-colors z-10"
                 >
-                    <X className="h-6 w-6 text-gray-500"/>
+                    <X className="h-6 w-6 text-gray-500" />
                 </button>
 
                 {/* En móvil primero aparecerá la cabecera, luego la imagen y finalmente el resto del contenido */}
@@ -64,20 +91,12 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                 <div className="flex md:hidden items-center p-4 border-b w-full">
                     <Avatar className="h-8 w-8">
                         <img
-                            src={publicationEdit.user_details?.rol === 'student' ?
-                                publicationEdit.user_details?.student.photo_pic
-                                : publicationEdit.user_details?.rol === 'company' ?
-                                    publicationEdit.user_details?.company.logo
-                                    : publicationEdit.user_details?.institutions.logo}
+                            src={getProfileImageUrl(publicationEdit.user_details)}
                             alt="Author"
                             className="h-full w-full object-cover rounded-full"
                         />
                     </Avatar>
-                    <div className="ml-3 font-semibold">{publicationEdit.user_details?.rol === 'student' ?
-                        publicationEdit.user_details?.student.name
-                        : publicationEdit.user_details?.rol === 'company' ?
-                            publicationEdit.user_details?.company.name
-                            : publicationEdit.user_details?.institutions.name}</div>
+                    <div className="ml-3 font-semibold">{getUserName(publicationEdit.user_details)}</div>
                 </div>
 
                 {/* Imagen o Carousel (se muestra solo si hay media) */}
@@ -100,8 +119,8 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
-                                <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2"/>
-                                <CarouselNext className="right-1 top-1/2 -translate-y-1/2"/>
+                                <CarouselPrevious className="left-1 top-1/2 -translate-y-1/2" />
+                                <CarouselNext className="right-1 top-1/2 -translate-y-1/2" />
                             </Carousel>
                         ) : (
                             // Mostrar una sola imagen si solo hay una
@@ -123,20 +142,17 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                     <div className="hidden md:flex items-center p-4 border-b">
                         <Avatar className="h-8 w-8">
                             <img
-                                src={publicationEdit.user_details?.rol === 'student' ?
-                                    publicationEdit.user_details?.student.photo_pic
-                                    : publicationEdit.user_details?.rol === 'company' ?
-                                        publicationEdit.user_details?.company.logo
-                                        : publicationEdit.user_details?.institutions.logo}
+                                src={getProfileImageUrl(publicationEdit.user_details)}
                                 alt="Author"
                                 className="h-full w-full object-cover rounded-full"
                             />
                         </Avatar>
-                        <div className="ml-3 font-semibold">{publicationEdit.user_details?.rol === 'student' ?
-                            publicationEdit.user_details?.student.name
-                            : publicationEdit.user_details?.rol === 'company' ?
-                                publicationEdit.user_details?.company.name
-                                : publicationEdit.user_details?.institutions.name}</div>
+                        <div className="ml-3 font-semibold">{getUserName(publicationEdit.user_details)}</div>
+                        <div className="ml-3">
+                            <button>
+                                <Ellipsis className="h-5 w-5" />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Área de comentarios */}
@@ -145,21 +161,13 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                             <div className="flex mb-4">
                                 <Avatar className="h-8 w-8 flex-shrink-0">
                                     <img
-                                        src={publicationEdit.user_details?.rol === 'student' ?
-                                            publicationEdit.user_details?.student.photo_pic
-                                            : publicationEdit.user_details?.rol === 'company' ?
-                                                publicationEdit.user_details?.company.logo
-                                                : publicationEdit.user_details?.institutions.logo}
+                                        src={getProfileImageUrl(publicationEdit.user_details)}
                                         alt="Author"
                                         className="h-full w-full object-cover rounded-full"
                                     />
                                 </Avatar>
                                 <div className="ml-3">
-                                    <span className="font-semibold mr-2">{publicationEdit.user_details?.rol === 'student' ?
-                                        publicationEdit.user_details?.student.name
-                                        : publicationEdit.user_details?.rol === 'company' ?
-                                            publicationEdit.user_details?.company.name
-                                            : publicationEdit.user_details?.institutions.name}</span>
+                                    <span className="font-semibold mr-2">{getUserName(publicationEdit.user_details)}</span>
                                     <span>{publicationEdit.content}</span>
                                 </div>
                             </div>
@@ -174,71 +182,85 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                                         <div className="flex mb-4">
                                             <Avatar className="h-8 w-8 flex-shrink-0">
                                                 <img
-                                                    src={
-                                                        comment.user?.rol === 'student'
-                                                            ? `${config.storageUrl}students/photos/${comment.user.student?.uuid}/${comment.user.student?.photo_pic}`
-                                                            : comment.user?.rol === 'company'
-                                                                ? `${config.storageUrl}/${comment.user.company?.logo}`
-                                                                : `${config.storageUrl}/${comment.user.institutions?.logo}`
-                                                    }
+                                                    src={getProfileImageUrl(comment.user)}
                                                     alt="Commenter"
                                                     className="h-full w-full object-cover rounded-full"
                                                 />
                                             </Avatar>
                                             <div className="ml-3 flex-1">
-                                                    <span
-                                                        className="font-semibold mr-2">
-                                                        {comment.user?.rol === 'student'
-                                                            ? comment.user.student.name
-                                                            : comment.user?.rol === 'company'
-                                                                ? comment.user.company.name
-                                                                : comment.user.institutions.name}
-                                                    </span>
+                                                <span
+                                                    className="font-semibold mr-2">
+                                                    {getUserName(comment.user)}
+                                                </span>
                                                 <span className="break-words">{comment.content}</span>
                                             </div>
                                         </div>
 
-                                        {/* PARA MENSAJE RESPONDIDOS*/}
+                                        {/* Respuestas a los comentarios */}
                                         {comment.replies && comment.replies.length > 0 && (
-                                            <>
-                                                {comment.replies.lenght > 1 ? (
-                                                    <div className="ml-6 mt-2">
+                                            <div className="ml-10">
+                                                {expandedComments[comment.id] ? (
+                                                    // Mostrar todas las respuestas cuando está expandido
+                                                    <>
                                                         {comment.replies.map((reply: any) => (
                                                             <div key={reply.id} className="flex mb-4">
                                                                 <Avatar className="h-8 w-8 flex-shrink-0">
                                                                     <img
-                                                                        src={
-                                                                            reply.user?.rol === 'student'
-                                                                                ? `${config.storageUrl}users/photos/${reply.user.student?.uuid}/${reply.user.student?.photo_pic}`
-                                                                                : reply.user?.rol === 'company'
-                                                                                    ? `${config.storageUrl}/${reply.user.company?.logo}`
-                                                                                    : `${config.storageUrl}/${reply.user.institutions?.logo}`
-                                                                        }
-                                                                        alt="Commenter"
+                                                                        src={getProfileImageUrl(reply.user)}
+                                                                        alt="Replier"
                                                                         className="h-full w-full object-cover rounded-full"
                                                                     />
                                                                 </Avatar>
                                                                 <div className="ml-3 flex-1">
-                                                             <span
-                                                                 className="font-semibold mr-2">
-                                                                {reply.user?.rol === 'student'
-                                                                    ? reply.user.student.name
-                                                                    : reply.user?.rol === 'company'
-                                                                        ? reply.user.company.name
-                                                                        : reply.user.institutions.name}
-                                                             </span>
+                                                                    <span className="font-semibold mr-2">{getUserName(reply.user)}</span>
                                                                     <span className="break-words">{reply.content}</span>
                                                                 </div>
                                                             </div>
                                                         ))}
-                                                    </div>
-                                                ) : (
-                                                    <div>
-                                                        Ver más {comment.replies.length}
-                                                    </div>
-                                                )}
-                                            </>
 
+                                                        {/* Botón para colapsar las respuestas */}
+                                                        <button
+                                                            onClick={() => toggleReplies(comment.id)}
+                                                            className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
+                                                        >
+                                                            <ChevronUp size={16} className="mr-1" />
+                                                            Ocultar respuestas
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    // Mostrar solo la primera respuesta y el botón "Ver más" cuando está colapsado
+                                                    <>
+                                                        {comment.replies.length > 0 && (
+                                                            <div className="flex mb-4">
+                                                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                                                    <img
+                                                                        src={getProfileImageUrl(comment.replies[0].user)}
+                                                                        alt="Replier"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="ml-3 flex-1">
+                                                                    <span className="font-semibold mr-2">
+                                                                        {getUserName(comment.replies[0].user)}
+                                                                    </span>
+                                                                    <span className="break-words">{comment.replies[0].content}</span>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Botón Ver más respuestas */}
+                                                        {comment.replies.length > 1 && (
+                                                            <button
+                                                                onClick={() => toggleReplies(comment.id)}
+                                                                className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
+                                                            >
+                                                                <ChevronDown size={16} className="mr-1" />
+                                                                Ver {comment.replies.length - 1} respuestas más
+                                                            </button>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </div>
                                         )}
 
                                     </div>
@@ -255,13 +277,13 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                     <div className="p-4 border-t">
                         <div className="flex mb-2">
                             <button className="mr-4">
-                                <Heart className="h-5 w-5"/>
+                                <Heart className="h-5 w-5" />
                             </button>
                             <button className="mr-4">
-                                <MessageCircle className="h-5 w-5"/>
+                                <MessageCircle className="h-5 w-5" />
                             </button>
                             <button>
-                                <Bookmark className="h-5 w-5"/>
+                                <Bookmark className="h-5 w-5" />
                             </button>
                         </div>
                         <div className="flex items-center justify-between w-full">
