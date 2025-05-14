@@ -133,6 +133,7 @@ export default function PublicationPage() {
                   uuid: user.student?.uuid,
                   photo_pic: user.student?.photo_pic,
                   cover_photo: user.student?.cover_photo,
+                  name: user.student?.name,
                 },
                 avatar: user.student?.photo_pic
               };
@@ -142,6 +143,7 @@ export default function PublicationPage() {
                 company: {
                   name: user.company?.name,
                   logo: user.company?.logo,
+                  slug: user.company?.slug,
                 },
                 avatar: user.company?.logo
               };
@@ -151,6 +153,7 @@ export default function PublicationPage() {
                 institution: {
                   name: user.institution?.name,
                   logo: user.institution?.logo,
+                  slug: user.institution?.slug,
                 },
                 avatar: user.institution?.logo
               };
@@ -159,7 +162,6 @@ export default function PublicationPage() {
           }
         });
 
-        // console.log('Todos los usuarios:', transformedUsers);
         setAllUsers(transformedUsers);
       } else {
         console.error('Error en el formato de respuesta de usuarios:', response);
@@ -717,6 +719,7 @@ const PublicationCard = ({
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
   const { allUsers, userData } = useContext(AuthContext);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const router = useRouter();
 
   // Función para obtener el nombre según el rol
   const getUserName = (userId: number) => {
@@ -746,6 +749,43 @@ const PublicationCard = ({
       return user.institution.logo.startsWith('http') ? user.institution.logo : `${config.storageUrl}${user.institution.logo}`;
     }
     return "/default-avatar.png";
+  };
+
+  // Función para manejar el clic en el perfil del usuario
+  const handleProfileClick = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) {
+      console.error('Usuario no encontrado:', userId);
+      return;
+    }
+
+    console.log('Usuario encontrado:', user);
+
+    let profileUrl = '';
+    switch (user.rol) {
+      case 'student':
+        if (user.student?.uuid) {
+          profileUrl = `/profile/student/${user.student.uuid}`;
+        }
+        break;
+      case 'company':
+        if (user.company?.slug) {
+          profileUrl = `/profile/company/${user.company.slug}`;
+        }
+        break;
+      case 'institutions':
+        if (user.institution?.slug) {
+          profileUrl = `/profile/institution/${user.institution.slug}`;
+        }
+        break;
+    }
+
+    if (profileUrl) {
+      console.log('Redirigiendo a:', profileUrl); // Para debugging
+      router.push(profileUrl);
+    } else {
+      console.error('No se pudo determinar la URL del perfil para el usuario:', user);
+    }
   };
 
   // Función para manejar el clic en el botón de like con animación
@@ -786,7 +826,12 @@ const PublicationCard = ({
             />
           </div>
           <div>
-            <h3 className="font-semibold">{getUserName(publication.shared_by.id)}</h3>
+            <h3 
+              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={() => publication.shared_by && handleProfileClick(publication.shared_by.id)}
+            >
+              {getUserName(publication.shared_by.id)}
+            </h3>
             <p className="text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
@@ -805,7 +850,12 @@ const PublicationCard = ({
             />
           </div>
           <div>
-            <h3 className="font-semibold">{getUserName(publication.user.id)}</h3>
+            <h3 
+              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={() => handleProfileClick(publication.user.id)}
+            >
+              {getUserName(publication.user.id)}
+            </h3>
             <div className="flex items-center text-sm text-gray-500">
               <span>{new Date(publication.created_at).toLocaleDateString()}</span>
               {publication.location && (
