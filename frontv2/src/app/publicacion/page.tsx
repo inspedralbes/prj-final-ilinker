@@ -89,7 +89,7 @@ export default function PublicationPage() {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      console.log('Respuesta de datos de publicaciones:', response);
+      // console.log('Respuesta de datos de publicaciones:', response);
 
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
@@ -130,10 +130,10 @@ export default function PublicationPage() {
               return {
                 ...baseUser,
                 student: {
+                  name: user.student?.name,
                   uuid: user.student?.uuid,
                   photo_pic: user.student?.photo_pic,
                   cover_photo: user.student?.cover_photo,
-                  name: user.student?.name,
                 },
                 avatar: user.student?.photo_pic
               };
@@ -759,7 +759,7 @@ const PublicationCard = ({
       return;
     }
 
-    console.log('Usuario encontrado:', user);
+    // console.log('Usuario encontrado:', user);
 
     let profileUrl = '';
     switch (user.rol) {
