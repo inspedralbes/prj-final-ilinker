@@ -58,10 +58,12 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
 
   // Guardar el estado cada vez que cambie
   useEffect(() => {
+    // Guardar en localStorage si todos los comentarios estan expandidos
     localStorage.setItem('expandedComments', JSON.stringify(expandedComments));
   }, [expandedComments]);
 
   useEffect(() => {
+    // Guardar en localStorage que comentarios estan expandidos
     localStorage.setItem('expandedReplies', JSON.stringify([...expandedReplies]));
   }, [expandedReplies]);
 
@@ -97,6 +99,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     if (isOpen) fetchComments();
   }, [isOpen, publicationId]);
 
+  // Función para obtener los comentarios desde bd usando api
   const fetchComments = async () => {
     try {
       setIsLoading(true);

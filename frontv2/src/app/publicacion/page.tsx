@@ -561,12 +561,12 @@ const ProfileSidebar = ({
               >
                 <Bookmark className="w-4 h-4" /> Publicaciones guardadas
               </button>
-              <button 
+              {/* <button 
                 onClick={() => router.push('/publicacion/likes')}
                 className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2"
               >
                 <Heart className="w-4 h-4" /> Publicaciones Likes
-              </button>
+              </button> */}
 
             </nav>
             <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
