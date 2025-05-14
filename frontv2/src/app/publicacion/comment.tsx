@@ -2,7 +2,7 @@
 
 import React, { useState, useContext, useEffect } from "react";
 import Image from "next/image";
-import { Heart, Reply, Send, MoreHorizontal, Trash2 } from "lucide-react";
+import { Heart, Reply, Send, MoreHorizontal, Trash2, ChevronDown, ChevronUp } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
 import config from "@/types/config";
 import { apiRequest } from "@/services/requests/apiRequest";
@@ -37,6 +37,8 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
   const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [expandedComments, setExpandedComments] = useState<boolean>(false);
+  const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
   const { userData, allUsers } = useContext(AuthContext);
 
   const getUserAvatar = (userId: number) => {
@@ -93,18 +95,38 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
         parent_comment_id: replyingTo?.id || null
       });
       if (response.status === 'success') {
+        const currentUser = allUsers.find(u => u.id === userData?.id);
+        const newCommentData = {
+          ...response.data,
+          user: currentUser,
+          replies: []
+        };
+
+        // Update comments state immediately with the new comment
         if (replyingTo) {
-          setComments(prev => prev.map(comment => {
-            if (comment.id === replyingTo.id) {
-              return {
-                ...comment,
-                replies: [...(comment.replies || []), response.data]
-              };
-            }
-            return comment;
-          }));
+          // Function to recursively find and update the parent comment
+          const updateCommentReplies = (comments: Comment[]): Comment[] => {
+            return comments.map(comment => {
+              if (comment.id === replyingTo.id) {
+                // Add reply to this comment
+                return {
+                  ...comment,
+                  replies: [...(comment.replies || []), newCommentData]
+                };
+              } else if (comment.replies && comment.replies.length > 0) {
+                // Search in nested replies
+                return {
+                  ...comment,
+                  replies: updateCommentReplies(comment.replies)
+                };
+              }
+              return comment;
+            });
+          };
+
+          setComments(prev => updateCommentReplies(prev));
         } else {
-          setComments(prev => [...prev, response.data]);
+          setComments(prev => [...prev, newCommentData]);
         }
         setNewComment("");
         setReplyingTo(null);
@@ -127,8 +149,25 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     }
   };
 
+  const toggleReplies = (commentId: number) => {
+    setExpandedReplies(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(commentId)) {
+        newSet.delete(commentId);
+      } else {
+        newSet.add(commentId);
+      }
+      return newSet;
+    });
+  };
+
   const renderComment = (comment: Comment, isReply: boolean = false) => {
     const canDelete = userData?.id === comment.user_id;
+    const hasReplies = comment.replies && comment.replies.length > 0;
+    const showRepliesButton = hasReplies && comment.replies!.length > 2;
+    const isExpanded = expandedReplies.has(comment.id);
+    const visibleReplies = isExpanded ? comment.replies : comment.replies?.slice(0, 2);
+
     return (
       <div key={comment.id} className={`flex space-x-3 pb-4 ${!isReply ? 'border-b' : 'mt-4'}`}>
         <div className="w-10 h-10 flex-shrink-0">
@@ -147,11 +186,15 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-semibold text-gray-900">{getUserName(comment.user_id)}</p>
-                {comment.parent_comment_id && (
-                  <p className="text-sm text-gray-500">
-                    Respondió a {getUserName(comments.find(c => c.id === comment.parent_comment_id)?.user_id || 0)}
-                  </p>
-                )}
+                <p className="text-sm text-gray-500">
+                  {comment.parent_comment_id ? (
+                    <>
+                      <span className="font-semibold">{getUserName(comment.user_id)}</span> respondió a <span className="font-semibold">{getUserName(comments.find(c => c.id === comment.parent_comment_id)?.user_id || 0)}</span>
+                    </>
+                  ) : (
+                    `${getUserName(comment.user_id)} comentó`
+                  )}
+                </p>
               </div>
               {canDelete && (
                 <div className="relative">
@@ -180,20 +223,38 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
             <p className="text-gray-700 mt-1">{comment.content}</p>
             <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
               <span>{new Date(comment.created_at).toLocaleDateString()}</span>
-              {!isReply && (
-                <button
-                  onClick={() => setReplyingTo(comment)}
-                  className="flex items-center gap-1 hover:text-blue-600"
-                >
-                  <Reply className="w-4 h-4" />
-                  Responder
-                </button>
-              )}
+              <button
+                onClick={() => setReplyingTo(comment)}
+                className="flex items-center gap-1 hover:text-blue-600"
+              >
+                <Reply className="w-4 h-4" />
+                Responder
+              </button>
             </div>
           </div>
-          {comment.replies && comment.replies.length > 0 && (
+          {hasReplies && (
             <div className="mt-2 space-y-2">
-              {comment.replies.map((reply) => renderComment(reply, true))}
+              {visibleReplies!.map((reply) => renderComment(reply, true))}
+              {showRepliesButton && (
+                <div className="ml-12 mt-2">
+                  <button
+                    onClick={() => toggleReplies(comment.id)}
+                    className="inline-flex items-center gap-1 px-3 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full border border-blue-200 transition-colors"
+                  >
+                    {isExpanded ? (
+                      <>
+                        <ChevronUp className="w-3 h-3" />
+                        <span>Ocultar respuestas</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-3 h-3" />
+                        <span>{comment.replies!.length - 2} respuestas más</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -216,7 +277,29 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
           ) : comments.length === 0 ? (
             <div className="text-center py-4 text-gray-500">No hay comentarios aún</div>
           ) : (
-            comments.map(comment => renderComment(comment))
+            <div className="space-y-4">
+              {(expandedComments ? comments : comments.slice(0, 2)).map(comment => renderComment(comment))}
+              {comments.length > 2 && (
+                <div className="text-center">
+                  <button
+                    onClick={() => setExpandedComments(!expandedComments)}
+                    className="inline-flex items-center gap-1 px-3 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-full border border-blue-200 transition-colors"
+                  >
+                    {expandedComments ? (
+                      <>
+                        <ChevronUp className="w-3 h-3" />
+                        <span>Ocultar comentarios</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-3 h-3" />
+                        <span>{comments.length - 2} comentarios más</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
           )}
         </div>
         <div className="p-4 border-t bg-white">
