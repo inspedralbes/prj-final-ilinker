@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Ver como implementar colores en el texto">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Publication.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Publication.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="cambios de imagen" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -184,7 +180,31 @@
       <option name="project" value="LOCAL" />
       <updated>1746383856249</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Cambios para ver la empresa bien">
+      <option name="closed" value="true" />
+      <created>1747211018602</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1747211018602</updated>
+    </task>
+    <task id="LOCAL-00010" summary="cambios de div">
+      <option name="closed" value="true" />
+      <created>1747211216207</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1747211216207</updated>
+    </task>
+    <task id="LOCAL-00011" summary="cambios de imagen">
+      <option name="closed" value="true" />
+      <created>1747211297537</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1747211297537</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,7 +224,10 @@
     <MESSAGE value="Añadir modal para crear una nueva experiencia laboral" />
     <MESSAGE value="Arreglos del perfil de estudiante" />
     <MESSAGE value="Ver como implementar colores en el texto" />
-    <option name="LAST_COMMIT_MESSAGE" value="Ver como implementar colores en el texto" />
+    <MESSAGE value="Cambios para ver la empresa bien" />
+    <MESSAGE value="cambios de div" />
+    <MESSAGE value="cambios de imagen" />
+    <option name="LAST_COMMIT_MESSAGE" value="cambios de imagen" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
