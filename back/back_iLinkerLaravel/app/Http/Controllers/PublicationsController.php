@@ -33,9 +33,9 @@ class PublicationsController extends Controller
                 'comments.user:id,name',
                 'likes'
             ])
-            ->where('status', 'published')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+                ->where('status', 'published')
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
 
             // Add liked status and transform media URLs for each publication
             $publications->getCollection()->transform(function ($publication) use ($userId) {
@@ -264,18 +264,18 @@ class PublicationsController extends Controller
 
         foreach ($files as $file) {
 
-                $order++;
-                $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
+            $order++;
+            $mediaType = strpos($file->getMimeType(), 'video') !== false ? 'video' : 'image';
 
-                // Store file using the file service
-                $filePath = $this->fileService->storeFile($file, Auth::id());
+            // Store file using the file service
+            $filePath = $this->fileService->storeFile($file, Auth::id());
 
-                PublicationMedia::create([
-                    'publication_id' => $publication->id,
-                    'file_path' => $filePath,
-                    'media_type' => $mediaType,
-                    'display_order' => $order
-                ]);
+            PublicationMedia::create([
+                'publication_id' => $publication->id,
+                'file_path' => $filePath,
+                'media_type' => $mediaType,
+                'display_order' => $order
+            ]);
 
         }
     }
@@ -328,17 +328,20 @@ class PublicationsController extends Controller
             $userId = Auth::id();
             $publications = Publication::with([
                 'media',
-                'comments.user:id,name',
+                'comments.user.student:id,user_id,name,uuid,photo_pic',
+                'comments.user.company:id,user_id,name,slug,logo',
+                'comments.user.institutions:id,user_id,name,slug,logo',
                 'likes.user.student:id,user_id,name,uuid,photo_pic',
                 'likes.user.company:id,user_id,name,slug,logo',
                 'likes.user.institutions:id,user_id,name,slug,logo',
             ])
-            ->where('user_id', $userId)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             // Add liked status and transform media URLs for each publication
-            $publications->getCollection()->transform(function ($publication) use ($userId) {
+            // Ahora puedes transformar la colección
+            $publications->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
 
                 // Transform media to include full URLs
