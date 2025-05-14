@@ -8,28 +8,23 @@ const HelpCenter: React.FC = () => {
   const faqs = [
     {
       id: 1,
-      question: 'How do I change my password?',
-      answer: 'Go to Profile settings, scroll down to the Security section, and click on "Change Password". Follow the prompts to set a new password.'
+      question: '¿Cómo cambio mi contraseña?',
+      answer: 'Vaya a la configuración de perfil, desplazarse hasta la sección de Contraseña. Siga los pasos para establecer una nueva contraseña, debera poner la contraseña actual y la nueva contraseña.'
     },
     {
       id: 2,
-      question: 'How can I delete my account?',
-      answer: 'Account deletion can be done through Profile settings under the "Account" section. Please note that this action is permanent and cannot be undone.'
+      question: '¿Cómo puedo deshabilitar mi cuenta?',
+      answer: 'La deshabilitación de la cuenta se puede hacer a través de la configuración de perfil en la sección de "Cuenta". Puede deshabilitar su cuenta en cualquier momento, pero no podrá acceder a su cuenta una vez deshabilitada. '
     },
     {
       id: 3,
-      question: 'Can I download my data?',
-      answer: 'Yes, you can request a download of your data from the Profile settings under "Privacy & Data". The download will be prepared and sent to your email address.'
+      question: '¿Cómo puedo reportar un error?',
+      answer: 'Si encuentra un error, por favor, use el formulario de "Contactar Soporte" y seleccione "Reportar un Error" desde el menú desplegable. Incluya lo más posible para ayudarnos a solucionar el problema.'
     },
     {
       id: 4,
-      question: 'How do I report a bug?',
-      answer: 'If you encounter a bug, please use the "Contact Support" form and select "Report a Bug" from the dropdown menu. Include as much detail as possible to help us fix the issue.'
-    },
-    {
-      id: 5,
-      question: 'Is my data secure?',
-      answer: 'We take data security very seriously. All data is encrypted in transit and at rest. We maintain strict access controls and regularly audit our systems to ensure your information remains protected.'
+      question: '¿Mis datos estan protegidos?',
+      answer: 'Tomanos la seguridad de los datos muy en serio. Todo los datos estan encriptados en el tránsito y en reposo. Mantenemos controles de acceso estrictos y audiamos regularmente nuestros sistemas para garantizar que su información permanezca protegida.'
     }
   ];
 
@@ -39,7 +34,7 @@ const HelpCenter: React.FC = () => {
 
   return (
     <div className="animate-fadeIn">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Help Center</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Centro de Ayuda</h2>
       
       <div className="grid gap-8 md:grid-cols-2 mb-8">
         <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 flex flex-col items-center text-center hover:border-indigo-200 hover:bg-indigo-50 transition-colors cursor-pointer">
@@ -61,7 +56,7 @@ const HelpCenter: React.FC = () => {
         </div>
       </div>
       
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Frequently Asked Questions</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-4">Preguntas Frecuentes</h3>
       
       <div className="mb-8 space-y-3">
         {faqs.map(faq => (

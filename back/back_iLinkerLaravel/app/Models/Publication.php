@@ -71,7 +71,7 @@ class Publication extends Model
     // Obtiene los detalles del usuario que creรณ la publicaciรณn
     public function getUserDetailsAttribute()
     {
-        return $this->user()->select('id', 'name')->first();
+        return $this->user()->with(['student', 'company', 'institutions'])->select('id', 'name', 'rol')->first();
     }
 
     // Obtiene los comentarios principales (sin padre)

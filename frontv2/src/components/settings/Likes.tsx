@@ -1,100 +1,125 @@
-import React, { useEffect } from 'react';
-import { Heart, ExternalLink } from 'lucide-react';
-import { apiRequest } from '@/services/requests/apiRequest';
+import React, { useEffect, useState, useContext } from "react";
+import { Heart, ExternalLink, MessageCircle, Loader2 } from "lucide-react";
+import { apiRequest } from "@/services/requests/apiRequest";
+import ShowPublication from "@/app/profile/student/[uuid]/modals/showPublication";
+import { Card, CardContent } from "@/components/ui/card";
+import { AuthContext } from "@/contexts/AuthContext";
+import Image from "next/image";
 
 const Likes: React.FC = () => {
-  const likedItems = [
-    {
-      id: 1,
-      title: 'The Art of Modern Web Development',
-      author: 'Emily Chen',
-      thumbnail: 'https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      likes: 234,
-      likedDate: '2 days ago',
-    },
-    {
-      id: 2,
-      title: 'Building Scalable Applications',
-      author: 'Marcus Johnson',
-      thumbnail: 'https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      likes: 189,
-      likedDate: '1 week ago',
-    },
-    {
-      id: 3,
-      title: 'Design Systems in Practice',
-      author: 'Sophie Taylor',
-      thumbnail: 'https://images.pexels.com/photos/196644/pexels-photo-196644.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-      likes: 156,
-      likedDate: '2 weeks ago',
-    },
-  ];
+  const [publicationsEdit, setPublicationsEdit] = useState<any>(null);
+  const [loaderContainer, setLoaderContainer] = useState(false);
+  const { userData } = useContext(AuthContext);
+  const galleryImages = publicationsEdit
+    ? publicationsEdit.flatMap(
+        (post: any) =>
+          post.media?.map((media: any) => ({
+            id: `${post.id}-${media.id || Math.random()}`,
+            postId: post.id,
+            media: media,
+            post: post,
+          })) || []
+      )
+    : [];
 
   useEffect(() => {
-    apiRequest('my-liked-publications')
-    .then((response)=>{
-      console.log(response);
-    }).catch((error)=>{
-      console.log(error);
-    }).finally(()=>{
-
-    });
+    setLoaderContainer(true);
+    apiRequest("my-liked-publications")
+      .then((response) => {
+        console.log(response);
+        setPublicationsEdit(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setLoaderContainer(false);
+      });
   }, []);
 
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [modalPubli, setModalPubli] = useState(false);
+
+  const selectPost = (post: any) => {
+    setSelectedPost(post);
+    setModalPubli(true);
+  };
+
   return (
-    <div className="animate-fadeIn">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Mis me gusta</h2>
-
-      {likedItems.length === 0 ? (
-        <div className="text-center py-12 border border-gray-200 rounded-lg">
-          <div className="flex justify-center mb-4">
-            <Heart className="h-12 w-12 text-gray-400" />
-          </div>
-          <p className="text-gray-500">No has dado me gusta a nada todavia.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {likedItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex gap-4 p-4 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors"
-            >
-              <div className="w-24 h-24 flex-shrink-0">
-                <img
-                  src={item.thumbnail}
-                  alt={item.title}
-                  className="w-full h-full object-cover rounded-md"
-                />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 truncate">{item.title}</h3>
-                    <p className="text-sm text-gray-500">by {item.author}</p>
-                  </div>
-                  <a
-                    href="#"
-                    className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
-                  >
-                    <ExternalLink className="h-5 w-5" />
-                  </a>
-                </div>
-
-                <div className="mt-2 flex items-center gap-4">
-                  <div className="flex items-center text-sm text-gray-500">
-                    <Heart className="h-4 w-4 mr-1 fill-current" />
-                    <span>{item.likes}</span>
-                  </div>
-                  <span className="text-sm text-gray-400">Liked {item.likedDate}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+    <>
+      {loaderContainer && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="animate-spin w-5 h-5 mr-2" /> Cargando...
         </div>
       )}
-    </div>
+      {!loaderContainer && (
+        <div className="animate-fadeIn">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
+            Mis me gusta
+          </h2>
+
+          {galleryImages.length === 0 ? (
+            <div className="text-center py-12 border border-gray-200 rounded-lg">
+              <div className="flex justify-center mb-4">
+                <Heart className="h-12 w-12 text-gray-400" />
+              </div>
+              <p className="text-gray-500">
+                No has dado me gusta a nada todavia.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                {galleryImages.map((item: any) => (
+                  <Card
+                    key={item.id}
+                    className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
+                    onClick={() => selectPost(item.post)}
+                  >
+                    <Image
+                      src={item.media.file_path}
+                      alt="Contenido de la publicación"
+                      width={300}
+                      height={300}
+                      layout="responsive"
+                      objectFit="cover"
+                      objectPosition="center"
+                    />
+
+                    {/* Overlay al hacer hover con likes y comentarios */}
+                    <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                      <div className="flex gap-6">
+                        <div className="flex items-center">
+                          <Heart className="h-5 w-5" />
+                          <span className="ml-2">
+                            {item.post.likes_count || 0}
+                          </span>
+                        </div>
+                        <div className="flex items-center">
+                          <MessageCircle className="h-5 w-5" />
+                          <span className="ml-2">
+                            {item.post.comments_count || 0}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {modalPubli && (
+        <ShowPublication
+          publication={selectedPost}
+          student={userData}
+          onClose={() => setModalPubli(false)}
+        />
+      )}
+    </>
   );
 };
 
-export default Likes
+export default Likes;

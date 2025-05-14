@@ -376,17 +376,19 @@ class PublicationsController extends Controller
 
             $publications = Publication::with([
                 'media',
-                'comments.user:id,name',
+                'comments.user.student:id,user_id,name,uuid,photo_pic',
+                'comments.user.company:id,user_id,name,slug,logo',
+                'comments.user.institutions:id,user_id,name,slug,logo',
                 'likes.user.student:id,user_id,name,uuid,photo_pic',
                 'likes.user.company:id,user_id,name,slug,logo',
                 'likes.user.institutions:id,user_id,name,slug,logo',
             ])
                 ->whereIn('id', $idsLikedPublications)
                 ->orderBy('created_at', 'desc')
-                ->paginate(10);
+                ->get();
 
             // Add liked status and transform media URLs for each publication
-            $publications->getCollection()->transform(function ($publication) use ($userId) {
+            $publications->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
 
                 // Transform media to include full URLs
