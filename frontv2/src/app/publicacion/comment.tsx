@@ -93,7 +93,19 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
         parent_comment_id: replyingTo?.id || null
       });
       if (response.status === 'success') {
-        setComments(prev => [...prev, response.data]);
+        if (replyingTo) {
+          setComments(prev => prev.map(comment => {
+            if (comment.id === replyingTo.id) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), response.data]
+              };
+            }
+            return comment;
+          }));
+        } else {
+          setComments(prev => [...prev, response.data]);
+        }
         setNewComment("");
         setReplyingTo(null);
         onCommentChange?.();
@@ -133,7 +145,14 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
         <div className="flex-1">
           <div className="bg-gray-100 rounded-lg p-3">
             <div className="flex justify-between items-start">
-              <p className="font-semibold text-gray-900">{getUserName(comment.user_id)}</p>
+              <div>
+                <p className="font-semibold text-gray-900">{getUserName(comment.user_id)}</p>
+                {comment.parent_comment_id && (
+                  <p className="text-sm text-gray-500">
+                    Respondió a {getUserName(comments.find(c => c.id === comment.parent_comment_id)?.user_id || 0)}
+                  </p>
+                )}
+              </div>
               {canDelete && (
                 <div className="relative">
                   <button
@@ -217,7 +236,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
               <div className="flex-1">
                 {replyingTo && (
                   <div className="mb-2 text-sm text-gray-600 flex items-center justify-between">
-                    <span>Respondiendo a {getUserName(replyingTo.user_id)}</span>
+                    <span>Respondiendo a <b>{getUserName(replyingTo.user_id)}</b></span>
                     <button
                       onClick={() => setReplyingTo(null)}
                       className="ml-2 text-red-500 hover:text-red-700"

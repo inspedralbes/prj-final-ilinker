@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X, Image as ImageIcon, Video, Globe2, Lock, Smile, AlertCircle, User, UserPlus } from 'lucide-react';
 
 interface Media {
+  id: string;
   url: string | File;
   type: "image" | "video";
   preview?: string;
@@ -67,6 +68,7 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
       }
       
       newMedia.push({
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         url: file,
         type: isImage ? 'image' : 'video',
         preview: URL.createObjectURL(file)
@@ -160,22 +162,21 @@ export default function CreatePostModal({ isOpen, onClose, onPublish }: CreatePo
 
           {media.length > 0 && (
             <div className="mt-4">
-              <div className="grid grid-cols-1 gap-4">
-                {media.map((item, index) => (
-                  <div key={index} className="relative group w-[250px] h-[250px]">
+              <div className="grid grid-cols-3 gap-8 max-w-[600px] mx-auto">
+                {media.map((item) => (
+                  <div key={item.id} className="relative group aspect-square max-w-[300px]">
                     {item.type === 'image' ? (
                       <Image
                         src={item.preview!}
                         alt="Preview"
-                        width={500}
-                        height={500}
+                        fill
                         className="object-cover rounded-lg"
                       />
                     ) : (
                       <video src={item.preview} className="w-full h-full object-cover rounded-lg" controls />
                     )}
                     <button
-                      onClick={() => removeMedia(index)}
+                      onClick={() => removeMedia(media.findIndex(m => m.id === item.id))}
                       className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                     >
                       <X className="w-4 h-4" />
