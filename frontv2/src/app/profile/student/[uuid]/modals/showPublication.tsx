@@ -129,14 +129,20 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                 <div className="hidden md:flex items-center p-4 border-b">
                     <Avatar className="h-8 w-8">
                         <img
-                            src={studentEdit?.photo_pic
-                                ? `${config.storageUrl}students/photos/${studentEdit.uuid}/${studentEdit.photo_pic}`
-                                : ''}
+                            src={publicationEdit.user_details?.rol === 'student' ?
+                                publicationEdit.user_details?.student.photo_pic
+                                : publicationEdit.user_details?.rol === 'company' ?
+                                    publicationEdit.user_details?.company.logo
+                                    : publicationEdit.user_details?.institutions.logo}
                             alt="Author"
                             className="h-full w-full object-cover rounded-full"
                         />
                     </Avatar>
-                    <div className="ml-3 font-semibold">{publicationEdit.user_details?.name}</div>
+                    <div className="ml-3 font-semibold">{publicationEdit.user_details?.rol === 'student' ?
+                        publicationEdit.user_details?.student.name
+                        : publicationEdit.user_details?.rol === 'company' ?
+                            publicationEdit.user_details?.company.name
+                            : publicationEdit.user_details?.institutions.name}</div>
                 </div>
 
                 {/* Área de comentarios */}
@@ -283,7 +289,6 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                 </div>
             </div>
         </div>
-</div>
 )
     ;
 }
