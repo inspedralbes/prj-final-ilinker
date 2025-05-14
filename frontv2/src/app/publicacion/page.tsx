@@ -424,6 +424,7 @@ const ProfileSidebar = ({
   onViewMore: () => void;
   onSavedClick: () => void;
 }) => {
+  const router = useRouter();
   // Funciones auxiliares para obtener datos específicos según el rol del usuario
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
@@ -560,8 +561,11 @@ const ProfileSidebar = ({
               >
                 <Bookmark className="w-4 h-4" /> Publicaciones guardadas
               </button>
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-                <Heart className="w-4 h-4" /> Likes
+              <button 
+                onClick={() => router.push('/publicacion/likes')}
+                className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2"
+              >
+                <Heart className="w-4 h-4" /> Publicaciones Likes
               </button>
 
             </nav>

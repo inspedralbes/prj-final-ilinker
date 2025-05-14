@@ -41,6 +41,30 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
   const [expandedReplies, setExpandedReplies] = useState<Set<number>>(new Set());
   const { userData, allUsers } = useContext(AuthContext);
 
+  // Guardar el estado de comentarios expandidos en localStorage
+  useEffect(() => {
+    // Cargar el estado guardado al iniciar
+    const savedExpandedReplies = localStorage.getItem('expandedReplies');
+    const savedExpandedComments = localStorage.getItem('expandedComments');
+
+    if (savedExpandedReplies) {
+      setExpandedReplies(new Set(JSON.parse(savedExpandedReplies)));
+    }
+
+    if (savedExpandedComments) {
+      setExpandedComments(JSON.parse(savedExpandedComments));
+    }
+  }, []);
+
+  // Guardar el estado cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem('expandedComments', JSON.stringify(expandedComments));
+  }, [expandedComments]);
+
+  useEffect(() => {
+    localStorage.setItem('expandedReplies', JSON.stringify([...expandedReplies]));
+  }, [expandedReplies]);
+
   const getUserAvatar = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return "/default-avatar.png";
@@ -125,6 +149,13 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
           };
 
           setComments(prev => updateCommentReplies(prev));
+
+          // Automáticamente expandir las respuestas del comentario al que se está respondiendo
+          setExpandedReplies(prev => {
+            const newSet = new Set(prev);
+            newSet.add(replyingTo.id);
+            return newSet;
+          });
         } else {
           setComments(prev => [...prev, newCommentData]);
         }
@@ -161,12 +192,12 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     });
   };
 
-  const renderComment = (comment: Comment, isReply: boolean = false) => {
+  const renderComment = (comment: Comment, isReply: boolean = false, depth: number = 0) => {
     const canDelete = userData?.id === comment.user_id;
     const hasReplies = comment.replies && comment.replies.length > 0;
-    const showRepliesButton = hasReplies && comment.replies!.length > 2;
+    const showRepliesButton = hasReplies && comment.replies!.length > 1;
     const isExpanded = expandedReplies.has(comment.id);
-    const visibleReplies = isExpanded ? comment.replies : comment.replies?.slice(0, 2);
+    const visibleReplies = isExpanded ? comment.replies : comment.replies?.slice(0, 1);
 
     return (
       <div key={comment.id} className={`flex space-x-3 pb-4 ${!isReply ? 'border-b' : 'mt-4'}`}>
@@ -234,7 +265,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
           </div>
           {hasReplies && (
             <div className="mt-2 space-y-2">
-              {visibleReplies!.map((reply) => renderComment(reply, true))}
+              {visibleReplies!.map((reply) => renderComment(reply, true, depth + 1))}
               {showRepliesButton && (
                 <div className="ml-12 mt-2">
                   <button
@@ -249,7 +280,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
                     ) : (
                       <>
                         <ChevronDown className="w-3 h-3" />
-                        <span>{comment.replies!.length - 2} respuestas más</span>
+                        <span>{comment.replies!.length - 1} respuestas más</span>
                       </>
                     )}
                   </button>
