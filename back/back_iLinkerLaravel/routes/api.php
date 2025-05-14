@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\FollowerController;
+use App\Http\Controllers\HelpUserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
@@ -91,8 +92,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 
     });
-
-
 
     Route::prefix('/users')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('user.update');
@@ -185,7 +184,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/follow/approve/{follower_id}', [FollowerController::class, 'approveFollowRequest']);
     Route::delete('/follow/reject/{follower_id}', [FollowerController::class, 'rejectFollowRequest']);
     Route::post('/block', [FollowerController::class, 'blockUser']);
-    Route::delete('/unblock/{user_id}', [FollowerController::class, 'unblockUser']);
+    Route::get('/unblock/{user_id}', [FollowerController::class, 'unblockUser']);
     Route::get('/following', [FollowerController::class, 'getFollowing']);
     Route::get('/follow/check/{user_id}', [FollowerController::class, 'followCheck']);
     Route::get('/my-followers', [FollowerController::class, 'getMyFollowers']);
@@ -202,12 +201,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/profile/new-email', [UserSettingsController::class, 'updateEmail']);
     });
 
-
     // Rutas de publicaciones
     Route::post('/publications', [PublicationsController::class, 'store']);
     Route::get('/publications/{id}', [PublicationsController::class, 'show']);
     Route::put('/publications/{id}', [PublicationsController::class, 'update']);
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
+
     // Publicaciones del usuario actual
     Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
     Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
@@ -216,5 +215,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Comentarios (NUEVAS RUTAS)
     Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
     Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
+
+    Route::prefix('/help')->group(function () {
+        Route::post('/send-help', [HelpUserController::class, 'sendHelp']);
+    });
+    Route::get('my-blocked-users', [HelpUserController::class, 'getMyBlockedUsers']);
 });
 

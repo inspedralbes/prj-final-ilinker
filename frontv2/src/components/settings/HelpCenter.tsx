@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, MessageCircle, FileText, Mail } from 'lucide-react';
+import React, { useState, useContext } from 'react';
+import { ChevronDown, ChevronUp, MessageCircle, FileText, Mail, Loader2 } from 'lucide-react';
+import { AuthContext } from '@/contexts/AuthContext';
+import { apiRequest } from '@/services/requests/apiRequest';
+import { toast } from '@/hooks/use-toast';
 
 const HelpCenter: React.FC = () => {
   // FAQ state
   const [openFaqId, setOpenFaqId] = useState<number | null>(1);
-  
+  const {userData} = useContext(AuthContext);
+  const [formDataHelp, setFormDataHelp] = useState({
+    subject: '',
+    message: '',
+  });
+  const [sendHelpLoaderContainer, setSendHelpLoaderContainer] = useState(false);
+
   const faqs = [
     {
       id: 1,
@@ -32,27 +41,62 @@ const HelpCenter: React.FC = () => {
     setOpenFaqId(openFaqId === id ? null : id);
   };
 
+  const handleSend = ()=>{
+    setSendHelpLoaderContainer(true);
+    apiRequest('help/send-help', 
+      "POST", 
+      formDataHelp).then((response) =>{
+        console.log(response);
+        if(response.status === 'success'){
+          toast({
+            title: 'Insidencia enviada',
+            description: 'Tu insidencia ha sido enviada correctamente, te llegara un correo cuando se haya resuelto',
+            variant: 'success',
+          })
+        }else{
+          toast({
+            title: 'Error',
+            description: 'Ocurrio un error al enviar tu insidencia',
+            variant: 'destructive',
+          })
+        }
+      }).catch((error) =>{
+        console.log(error);
+        toast({
+          title: 'Error',
+          description: 'Ocurrio un error al enviar tu insidencia',
+          variant: 'destructive',
+        })
+      }).finally(()=>{
+        setFormDataHelp({
+          subject: '',
+          message: ''
+        })
+        setSendHelpLoaderContainer(false);
+      })
+  }
+
   return (
     <div className="animate-fadeIn">
       <h2 className="text-xl font-semibold text-gray-900 mb-6">Centro de Ayuda</h2>
       
       <div className="grid gap-8 md:grid-cols-2 mb-8">
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 flex flex-col items-center text-center hover:border-indigo-200 hover:bg-indigo-50 transition-colors cursor-pointer">
-          <div className="bg-indigo-100 p-3 rounded-full mb-4">
-            <MessageCircle className="h-6 w-6 text-indigo-600" />
+        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 flex flex-col items-center text-center hover:border-black hover:bg-black/10 transition-colors cursor-pointer">
+          <div className="bg-black p-3 rounded-full mb-4">
+            <MessageCircle className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Live Chat Support</h3>
           <p className="text-sm text-gray-600 mb-4">Get real-time assistance from our support team</p>
-          <button className="text-indigo-600 font-medium text-sm hover:text-indigo-700">Start a Chat</button>
+          <button className="text-black font-medium text-sm hover:text-black/80">Start a Chat</button>
         </div>
         
-        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 flex flex-col items-center text-center hover:border-indigo-200 hover:bg-indigo-50 transition-colors cursor-pointer">
-          <div className="bg-indigo-100 p-3 rounded-full mb-4">
-            <FileText className="h-6 w-6 text-indigo-600" />
+        <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 flex flex-col items-center text-center hover:border-black hover:bg-black/10 transition-colors cursor-pointer">
+          <div className="bg-black p-3 rounded-full mb-4">
+            <FileText className="h-6 w-6 text-white" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">Knowledge Base</h3>
           <p className="text-sm text-gray-600 mb-4">Explore our comprehensive documentation</p>
-          <button className="text-indigo-600 font-medium text-sm hover:text-indigo-700">Browse Articles</button>
+          <button className="text-black font-medium text-sm hover:text-black/80">Browse Articles</button>
         </div>
       </div>
       
@@ -85,40 +129,43 @@ const HelpCenter: React.FC = () => {
         ))}
       </div>
       
-      <h3 className="text-lg font-medium text-gray-900 mb-4">Still Need Help?</h3>
+      <h3 className="text-lg font-medium text-gray-900 mb-4">¿Todavia necesitas ayuda?</h3>
       
       <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
         <div className="flex items-center gap-3 mb-4">
-          <Mail className="h-5 w-5 text-indigo-600" />
-          <h4 className="font-medium text-gray-900">Contact Support</h4>
+          <Mail className="h-5 w-5 text-black" />
+          <h4 className="font-medium text-gray-900">Contacto de soporte</h4>
         </div>
         
-        <form className="space-y-4">
+        <div className="space-y-4">
           <div>
             <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-              Subject
+              Asunto
             </label>
             <select
               id="subject"
               name="subject"
+              value={formDataHelp.subject}
+              onChange={(e) => setFormDataHelp({ ...formDataHelp, subject: e.target.value })}
               className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 py-2 px-3 text-gray-700"
             >
-              <option value="">Please select a topic</option>
-              <option value="account">Account Issues</option>
-              <option value="billing">Billing Questions</option>
-              <option value="bug">Report a Bug</option>
-              <option value="feature">Feature Request</option>
-              <option value="other">Other</option>
+              <option value="">Por favor, selecciona un tema</option>
+              <option value="account">Problemas de cuenta</option>
+              <option value="bug">Reportar un error</option>
+              <option value="feature">Solicitud de característica</option>
+              <option value="other">Otro</option>
             </select>
           </div>
           
           <div>
             <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-              Message
+              Mensaje
             </label>
             <textarea
               id="message"
               name="message"
+              value={formDataHelp.message}
+              onChange={(e) => setFormDataHelp({ ...formDataHelp, message: e.target.value })}
               rows={4}
               placeholder="Describe your issue in detail"
               className="w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 py-2 px-3 text-gray-700"
@@ -127,13 +174,18 @@ const HelpCenter: React.FC = () => {
           
           <div className="flex justify-end">
             <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+              type="button"
+              onClick={handleSend}  
+              disabled={sendHelpLoaderContainer}
+              className={`px-4 py-2 bg-black text-white rounded-lg hover:bg-black/80 transition-colors ${sendHelpLoaderContainer ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              Send Message
+              {sendHelpLoaderContainer ? <div className="flex items-center">
+                <Loader2 className="animate-spin w-5 h-5 mr-2" />
+                Cargando...
+                </div>: 'Enviar mensaje'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
