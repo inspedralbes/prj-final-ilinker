@@ -283,7 +283,6 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                 </div>
             </div>
         </div>
-</div>
 )
     ;
 }
