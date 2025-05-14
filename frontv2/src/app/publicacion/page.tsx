@@ -352,11 +352,11 @@ export default function PublicationPage() {
   const getUserAvatar = () => {
     if (!userData) return "/default-avatar.png";
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`;
+      return config.storageUrl + userData.student.photo_pic;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`;
+      return config.storageUrl + userData.company.logo;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`;
+      return config.storageUrl + userData.institution.logo;
     }
     return "/default-avatar.png";
   };
@@ -586,12 +586,13 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png"
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
-        <Image
+        <img
           src={userAvatar}
           alt="Perfil"
-          fill
-          className="object-cover"
-          unoptimized={true}
+          className="w-full h-full object-cover"
+          onError={(e) => { 
+            e.currentTarget.src = "/default-avatar.png";
+          }}
         />
       </div>
       <button
@@ -609,7 +610,6 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaError, setMediaError] = useState<Record<number, boolean>>({});
 
-  // Funciones para navegar por el carrusel
   const goToPrev = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? media.length - 1 : prevIndex - 1
@@ -623,21 +623,24 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   };
 
   const handleMediaError = (id: number) => {
-    console.error(`Error loading media with id: ${id}`);
     setMediaError(prev => ({ ...prev, [id]: true }));
   };
 
   if (!media || media.length === 0) return null;
 
+  const getMediaUrl = (filePath: string) => {
+    if (!filePath) return '';
+    return filePath.startsWith('http') ? filePath : `${config.storageUrl}${filePath}`;
+  };
+
   return (
     <div className="relative mb-4">
       <div className="overflow-hidden rounded-lg">
-        {/* Contenedor principal del carrusel */}
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {media.map((item: { id: number; file_path: string; media_type: "image" | "video" }) => (
+          {media.map((item) => (
             <div key={item.id} className="min-w-full flex-shrink-0">
               {mediaError[item.id] ? (
                 <div className="h-64 w-full bg-gray-200 flex items-center justify-center">
@@ -645,22 +648,22 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                 </div>
               ) : item.media_type === "image" ? (
                 <div className="relative h-64 w-full">
-                  <Image
-                    src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
+                  <img
+                    src={getMediaUrl(item.file_path)}
                     alt="Imagen de publicación"
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                     onError={() => handleMediaError(item.id)}
-                    unoptimized={true}
+                    loading="lazy"
                   />
                 </div>
               ) : (
                 <video
-                  src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
+                  src={getMediaUrl(item.file_path)}
                   controls
                   className="w-full h-64 object-cover rounded-lg"
                   playsInline
                   onError={() => handleMediaError(item.id)}
+                  preload="metadata"
                 />
               )}
             </div>
@@ -668,22 +671,17 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
         </div>
       </div>
 
-      {/* Indicadores de posición del carrusel */}
-      {media.length > 1 && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-          {media.map((_, idx) => (
-            <button
-              key={idx}
-              className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
-              onClick={() => setCurrentIndex(idx)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Botones de navegación del carrusel */}
       {media.length > 1 && (
         <>
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+            {media.map((_, idx) => (
+              <button
+                key={idx}
+                className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
+                onClick={() => setCurrentIndex(idx)}
+              />
+            ))}
+          </div>
           <button
             className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
             onClick={goToPrev}
@@ -721,7 +719,6 @@ const PublicationCard = ({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const router = useRouter();
 
-  // Función para obtener el nombre según el rol
   const getUserName = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return "Usuario";
@@ -736,30 +733,25 @@ const PublicationCard = ({
     return user.name;
   };
 
-  // Función para obtener el avatar del usuario según su rol
-  const getUserAvatar = (userId: number) => {
+  const getAvatarUrl = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return "/default-avatar.png";
 
+    let avatarPath = '';
     if (user.rol === "student" && user.student?.photo_pic) {
-      return user.student.photo_pic.startsWith('http') ? user.student.photo_pic : `${config.storageUrl}${user.student.photo_pic}`;
+      avatarPath = user.student.photo_pic;
     } else if (user.rol === "company" && user.company?.logo) {
-      return user.company.logo.startsWith('http') ? user.company.logo : `${config.storageUrl}${user.company.logo}`;
+      avatarPath = user.company.logo;
     } else if (user.rol === "institutions" && user.institution?.logo) {
-      return user.institution.logo.startsWith('http') ? user.institution.logo : `${config.storageUrl}${user.institution.logo}`;
+      avatarPath = user.institution.logo;
     }
-    return "/default-avatar.png";
+
+    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : "/default-avatar.png";
   };
 
-  // Función para manejar el clic en el perfil del usuario
   const handleProfileClick = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
-    if (!user) {
-      console.error('Usuario no encontrado:', userId);
-      return;
-    }
-
-    // console.log('Usuario encontrado:', user);
+    if (!user) return;
 
     let profileUrl = '';
     switch (user.rol) {
@@ -781,48 +773,40 @@ const PublicationCard = ({
     }
 
     if (profileUrl) {
-      console.log('Redirigiendo a:', profileUrl); // Para debugging
       router.push(profileUrl);
-    } else {
-      console.error('No se pudo determinar la URL del perfil para el usuario:', user);
     }
   };
 
-  // Función para manejar el clic en el botón de like con animación
   const handleLikeClick = (id: number) => {
     setIsLikeAnimating(true);
-    // Si es una publicación compartida, usamos el ID de la publicación original
     const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
     onLike(targetId);
     setTimeout(() => setIsLikeAnimating(false), 1000);
   };
 
-  // Función para manejar el clic en el botón de comentario
   const handleCommentClick = (id: number) => {
-    // Si es una publicación compartida, usamos el ID de la publicación original
     const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
     onComment(targetId);
   };
 
-  // Función para manejar el clic en el botón de guardar
   const handleSaveClick = (id: number) => {
-    // Si es una publicación compartida, usamos el ID de la publicación original
     const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
     onSave(targetId);
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-      {/* Si es una publicación compartida, mostrar el usuario que la compartió primero */}
       {publication.shared_by && (
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
-            <Image
-              src={getUserAvatar(publication.shared_by.id)}
+            <img
+              src={getAvatarUrl(publication.shared_by.id)}
               alt={getUserName(publication.shared_by.id)}
-              fill
-              className="object-cover"
-              unoptimized={true}
+              className="w-full h-full object-cover"
+              onError={(e) => { 
+                e.currentTarget.src = "/default-avatar.png";
+              }}
+              loading="lazy"
             />
           </div>
           <div>
@@ -837,16 +821,17 @@ const PublicationCard = ({
         </div>
       )}
 
-      {/* Contenido de la publicación original */}
       <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-4 border border-gray-200' : ''}`}>
         <div className="flex items-center space-x-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
-            <Image
-              src={getUserAvatar(publication.user.id)}
+            <img
+              src={getAvatarUrl(publication.user.id)}
               alt={getUserName(publication.user.id)}
-              fill
-              className="object-cover"
-              unoptimized={true}
+              className="w-full h-full object-cover"
+              onError={(e) => { 
+                e.currentTarget.src = "/default-avatar.png";
+              }}
+              loading="lazy"
             />
           </div>
           <div>
@@ -871,15 +856,12 @@ const PublicationCard = ({
 
         <div className={`${publication.shared_by ? 'pl-11' : ''}`}>
           <p className="text-gray-800 mb-4">{publication.content}</p>
-
-          {/* Carrusel de medios si la publicación tiene contenido multimedia */}
           {publication.has_media && publication.media && publication.media.length > 0 && (
             <MediaCarousel media={publication.media} />
           )}
         </div>
       </div>
 
-      {/* Barra de acciones de la publicación */}
       <div className="flex items-center justify-between text-gray-500 border-t pt-3 mt-4">
         <button
           onClick={() => handleLikeClick(publication.id)}
@@ -893,7 +875,6 @@ const PublicationCard = ({
             {publication.likes_count}
           </span>
         </button>
-
 
         <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
           <MessageCircle className="w-5 h-5" />
@@ -915,7 +896,6 @@ const PublicationCard = ({
         </button>
       </div>
 
-      {/* Modal de compartir */}
       {isShareModalOpen && (
         <SharePublications
           isOpen={isShareModalOpen}
