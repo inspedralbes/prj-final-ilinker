@@ -12,27 +12,28 @@ import {
     Share2, Trash,
     UserIcon, UserMinus, UserPlus
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Card, CardContent} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import Autoplay from "embla-carousel-autoplay";
-import {Avatar} from "@/components/ui/avatar";
-import React, {useState, useRef, useContext} from "react";
+import { Avatar } from "@/components/ui/avatar";
+import React, { useState, useRef, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link"
 import config from "@/types/config";
-import {format} from "date-fns";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel";
-import {apiRequest} from "@/services/requests/apiRequest";
-import {LoaderContext} from "@/contexts/LoaderContext";
-import {toast} from "@/hooks/use-toast";
-import {AuthContext} from "@/contexts/AuthContext";
-import {Input} from "@/components/ui/input";
+import { format } from "date-fns";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { LoaderContext } from "@/contexts/LoaderContext";
+import { toast } from "@/hooks/use-toast";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
 import Modal from "@/components/ui/modal";
-import {useModal} from "@/hooks/use-modal";
+import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "next/navigation";
-
+import { Flag, AlertTriangle } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 
 export interface User {
@@ -181,7 +182,7 @@ interface StudentClientMeProps {
     publications: any;
 }
 
-export default function StudentClientNotMe({student, experience_group, publications}: StudentClientMeProps) {
+export default function StudentClientNotMe({ student, experience_group, publications }: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
@@ -202,13 +203,63 @@ export default function StudentClientNotMe({student, experience_group, publicati
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowingLoading, setIsFollowingLoading] = useState(false);
 
-    const {showLoader, hideLoader} = useContext(LoaderContext);
-    const {userData, login, token} = useContext(AuthContext);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
+    const { userData, login, token } = useContext(AuthContext);
 
     const followersModal = useModal();
     const router = useRouter();
 
+    const reportModal = useModal();
+    const [reportReason, setReportReason] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
 
+    const handleReportUser = () => {
+        if (!reportReason.trim()) {
+            toast({
+                title: "Error",
+                description: "Por favor ingresa un motivo para el reporte",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setIsReporting(true);
+        showLoader();
+
+        apiRequest("report-user", "POST", {
+            reported_user_id: studentEdit.user_id,
+            reason: reportReason,
+        })
+            .then((response) => {
+                if (response.status === "success") {
+                    toast({
+                        title: "Reporte enviado",
+                        description: "Gracias por reportar este usuario. Revisaremos tu reporte pronto.",
+                        variant: "success",
+                    });
+                    reportModal.closeModal();
+                    setReportReason("");
+                } else {
+                    toast({
+                        title: "Error",
+                        description: response.message || "Error al enviar el reporte",
+                        variant: "destructive",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                toast({
+                    title: "Error",
+                    description: "Ocurrió un error al enviar el reporte",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                setIsReporting(false);
+                hideLoader();
+            });
+    };
 
     // Asegúrate que esto está dentro de tu componente:
     let parsedLanguages: { language: string; level: string }[] = [];
@@ -227,7 +278,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
     // Crear una instancia del plugin Autoplay para cada proyecto
     projectsEdit.forEach((pro) => {
         if (!pluginsRef.current[pro.id]) {
-            pluginsRef.current[pro.id] = Autoplay({delay: 3000, stopOnMouseEnter: true});
+            pluginsRef.current[pro.id] = Autoplay({ delay: 3000, stopOnMouseEnter: true });
         }
     });
 
@@ -263,23 +314,23 @@ export default function StudentClientNotMe({student, experience_group, publicati
             case 'remoto':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Remoto
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Remoto
+                    </span>
                 );
             case 'presencial':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <Building className="h-3 w-3 mr-1"/>
-            Presencial
-          </span>
+                        <Building className="h-3 w-3 mr-1" />
+                        Presencial
+                    </span>
                 );
             case 'hibrido':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Híbrido
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Híbrido
+                    </span>
                 );
             default:
                 return null;
@@ -485,7 +536,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                         setStudentFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: false}
+                                    ? { ...follower, isFollowed: false }
                                     : follower
                             )
                         );
@@ -542,7 +593,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                         setStudentFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: true}
+                                    ? { ...follower, isFollowed: true }
                                     : follower
                             )
                         );
@@ -591,7 +642,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
     const handleBlock = (user_id: number) => {
         showLoader();
         try {
-            apiRequest("block", "POST", {user_id})
+            apiRequest("block", "POST", { user_id })
                 .then((response) => {
                     if (response.status === "success") {
                         toast({
@@ -675,7 +726,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                 {studentEdit?.name}
                                             </p>
                                             <p className="text-gray-500 flex items-center mt-2">
-                                                <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                                                 {studentEdit?.address}
                                             </p>
                                         </div>
@@ -686,7 +737,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     <div className="flex space-x-2">
                                         <button
                                             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400"/>
+                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                                             Contactar
                                         </button>
 
@@ -698,38 +749,37 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                     : handleFollowCompany(studentEdit?.user_id)
                                             }
                                             disabled={isFollowingLoading}
-                                            className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${
-                                                isFollowingLoading || isFollowing
+                                            className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${isFollowingLoading || isFollowing
                                                     ? "bg-gray-400 border-gray-400"
                                                     : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
-                                            }`}
+                                                }`}
                                         >
                                             {isFollowingLoading ? (
                                                 <>
-                                                    <Loader2 className="h-5 w-5 animate-spin mr-2"/>
+                                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
                                                     Cargando...
                                                 </>
                                             ) : isFollowing ? (
                                                 // Cuando ya sigues, cambiamos texto e icono al hacer hover
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span className="block group-hover:hidden">
-                              Siguiendo
-                            </span>
-                            <span className="hidden group-hover:block">
-                              Dejar de seguir
-                            </span>
-                            <UserPlus className="h-5 w-5 group-hover:hidden ml-2"/>
-                            <UserMinus className="h-5 w-5 hidden group-hover:block ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span className="block group-hover:hidden">
+                                                            Siguiendo
+                                                        </span>
+                                                        <span className="hidden group-hover:block">
+                                                            Dejar de seguir
+                                                        </span>
+                                                        <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
+                                                        <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
+                                                    </span>
                                                 </>
                                             ) : (
                                                 // Cuando no sigues
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span>Seguir</span>
-                            <UserPlus className="h-5 w-5 ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span>Seguir</span>
+                                                        <UserPlus className="h-5 w-5 ml-2" />
+                                                    </span>
                                                 </>
                                             )}
                                         </button>
@@ -758,7 +808,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="flex items-center">
-                                        <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Globe className="h-5 w-5 text-gray-400 mr-2" />
                                         <a
                                             href={studentEdit?.country || ""}
                                             className="text-blue-600 hover:underline"
@@ -767,11 +817,11 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                         </a>
                                     </div>
                                     <div className="flex items-center">
-                                        <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                         <span className="text-gray-600">{studentEdit?.phone}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Mail className="h-5 w-5 text-gray-400 mr-2" />
                                         <span
                                             className="text-gray-600">{studentEdit.user.email || "Sin dirección de correo"}</span>
                                     </div>
@@ -788,7 +838,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                 <div
                                     className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
                                 >
-                                    <p style={{whiteSpace: 'pre-wrap'}}>{studentEdit.short_description || ""}</p>
+                                    <p style={{ whiteSpace: 'pre-wrap' }}>{studentEdit.short_description || ""}</p>
 
                                 </div>
                             </div>
@@ -802,7 +852,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="acerca"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Acerca de</span>
                                 </TabsTrigger>
 
@@ -810,7 +860,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="studies"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Estudios</span>
                                 </TabsTrigger>
 
@@ -818,7 +868,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="experience"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Experiencia</span>
                                 </TabsTrigger>
 
@@ -826,7 +876,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="projects"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Proyectos</span>
                                 </TabsTrigger>
 
@@ -842,7 +892,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     <>
                                         <div
                                             className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
-                                            dangerouslySetInnerHTML={{__html: studentEdit.description || ''}}
+                                            dangerouslySetInnerHTML={{ __html: studentEdit.description || '' }}
                                         />
 
                                     </>
@@ -871,7 +921,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                 {skillsEdit && skillsEdit.length > 0 ? (
                                                     skillsEdit.map((skill) => (
                                                         <Badge key={skill.id}
-                                                               className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
+                                                            className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                             {skill.name} {/* Renderiza solo el nombre de la habilidad */}
                                                         </Badge>
                                                     ))
@@ -890,7 +940,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                     <div className="flex flex-col gap-2 mb-4">
                                                         {parsedLanguages.map((lan, idx) => (
                                                             <div key={idx}
-                                                                 className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
                                                                 <Badge
                                                                     className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                                     {lan.language}
@@ -983,10 +1033,10 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                                 <Link
                                                                                     href={`/profile/institution/${studies.institution?.slug}`}
                                                                                     passHref>
-                                                                                        <span
-                                                                                            className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
-                                                                                            {studies.institute}
-                                                                                        </span>
+                                                                                    <span
+                                                                                        className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
+                                                                                        {studies.institute}
+                                                                                    </span>
                                                                                 </Link>
                                                                             ) : (
                                                                                 <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
@@ -997,8 +1047,8 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                                 {/* Fechas */}
                                                                                 <span
                                                                                     className="text-sm text-gray-500">
-                                                                                        {studies.start_date} - {studies.end_date || "Cursando"}
-                                                                                    </span>
+                                                                                    {studies.start_date} - {studies.end_date || "Cursando"}
+                                                                                </span>
                                                                             </div>
                                                                         </div>
                                                                         <div
@@ -1037,10 +1087,10 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                         {/* Información General */}
                                         <div className="">
                                             {experienceEdit &&
-                                            Object.keys(experienceEdit).length > 0 &&
-                                            Object.keys(experienceEdit).some(key =>
-                                                Array.isArray(experienceEdit[key]) &&
-                                                experienceEdit[key].length > 0) ?
+                                                Object.keys(experienceEdit).length > 0 &&
+                                                Object.keys(experienceEdit).some(key =>
+                                                    Array.isArray(experienceEdit[key]) &&
+                                                    experienceEdit[key].length > 0) ?
                                                 (
                                                     <div className="space-y-8">
                                                         {Object.keys(experienceEdit).map((expId) => {
@@ -1056,7 +1106,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                             return (
                                                                 <div key={expId}
-                                                                     className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                                    className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
                                                                     <div
                                                                         className="flex items-center justify-between w-full mb-4">
                                                                         <div
@@ -1064,59 +1114,59 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                                     </div>
                                                                     {moreExperience ? (
-                                                                            // Línea de tiempo para múltiples experiencias
-                                                                            <div className="relative pl-6">
-                                                                                {/* Línea vertical */}
-                                                                                <div
-                                                                                    className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                                                                        // Línea de tiempo para múltiples experiencias
+                                                                        <div className="relative pl-6">
+                                                                            {/* Línea vertical */}
+                                                                            <div
+                                                                                className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                                {/* Experiencias */}
-                                                                                <div className="space-y-6">
-                                                                                    {experiences.map((exp) => (
-                                                                                        <div key={exp.id}
-                                                                                             className="relative">
-                                                                                            {/* Punto en la línea de tiempo */}
+                                                                            {/* Experiencias */}
+                                                                            <div className="space-y-6">
+                                                                                {experiences.map((exp) => (
+                                                                                    <div key={exp.id}
+                                                                                        className="relative">
+                                                                                        {/* Punto en la línea de tiempo */}
+                                                                                        <div
+                                                                                            className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+
+                                                                                        {/* Contenido de la experiencia */}
+                                                                                        <div
+                                                                                            className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
                                                                                             <div
-                                                                                                className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+                                                                                                className="flex justify-between items-start">
+                                                                                                <div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-blue-800">{exp.department}
+                                                                                                    </div>
 
-                                                                                            {/* Contenido de la experiencia */}
-                                                                                            <div
-                                                                                                className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
-                                                                                                <div
-                                                                                                    className="flex justify-between items-start">
-                                                                                                    <div>
-                                                                                                        <div
-                                                                                                            className="font-medium text-blue-800">{exp.department}
-                                                                                                        </div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-gray-600">
+                                                                                                        {exp.start_date} - {exp.end_date}
+                                                                                                    </div>
 
-                                                                                                        <div
-                                                                                                            className="font-medium text-gray-600">
-                                                                                                            {exp.start_date} - {exp.end_date}
-                                                                                                        </div>
-
-                                                                                                        <div
-                                                                                                            className="text-sm text-gray-700">{exp.employee_type}
-                                                                                                        </div>
+                                                                                                    <div
+                                                                                                        className="text-sm text-gray-700">{exp.employee_type}
                                                                                                     </div>
                                                                                                 </div>
+                                                                                            </div>
 
-                                                                                                <div
-                                                                                                    className="mt-2 flex items-center space-x-3">
-                                                                                                    {renderLocationType(exp.location_type)}
-                                                                                                    {exp.company_address && (
-                                                                                                        <span
-                                                                                                            className="text-sm text-gray-600">
+                                                                                            <div
+                                                                                                className="mt-2 flex items-center space-x-3">
+                                                                                                {renderLocationType(exp.location_type)}
+                                                                                                {exp.company_address && (
+                                                                                                    <span
+                                                                                                        className="text-sm text-gray-600">
                                                                                                         {exp.company_address}
                                                                                                     </span>
-                                                                                                    )}
-                                                                                                </div>
+                                                                                                )}
                                                                                             </div>
                                                                                         </div>
-                                                                                    ))}
-                                                                                </div>
+                                                                                    </div>
+                                                                                ))}
                                                                             </div>
+                                                                        </div>
 
-                                                                        ) :
+                                                                    ) :
                                                                         (
                                                                             // Tarjeta única para una sola experiencia
                                                                             <div className="bg-gray-50 rounded-lg p-4">
@@ -1134,18 +1184,18 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                                                         <div
                                                                                             className="mt-2 flex flex-wrap gap-3">
-                                                                                        <span
-                                                                                            className="flex items-center text-sm text-gray-500">
-                                                                                            <Clock
-                                                                                                className="h-3 w-3 mr-1"/>
-                                                                                            {exp.employee_type}
-                                                                                        </span>
+                                                                                            <span
+                                                                                                className="flex items-center text-sm text-gray-500">
+                                                                                                <Clock
+                                                                                                    className="h-3 w-3 mr-1" />
+                                                                                                {exp.employee_type}
+                                                                                            </span>
                                                                                             {renderLocationType(exp.location_type)}
                                                                                             {exp.company_address && (
                                                                                                 <span
                                                                                                     className="text-sm text-gray-600">
-                                                                                                {exp.company_address}
-                                                                                            </span>
+                                                                                                    {exp.company_address}
+                                                                                                </span>
                                                                                             )}
                                                                                         </div>
                                                                                     </div>
@@ -1232,12 +1282,12 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                         <div
                                                                             className="absolute inset-y-0 left-0 flex items-center">
                                                                             <CarouselPrevious
-                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                         <div
                                                                             className="absolute inset-y-0 right-0 flex items-center">
                                                                             <CarouselNext
-                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                     </Carousel>
                                                                 ) : (
@@ -1260,14 +1310,14 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                         className="flex items-center">
 
                                                                         {pro.link ? (
-                                                                                <a
-                                                                                    href={pro.link}
-                                                                                    target={"_blank"}
-                                                                                >
-                                                                                    <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
-                                                                                </a>
+                                                                            <a
+                                                                                href={pro.link}
+                                                                                target={"_blank"}
+                                                                            >
+                                                                                <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
+                                                                            </a>
 
-                                                                            ) :
+                                                                        ) :
                                                                             (
                                                                                 <h3 className="font-semibold text-base">{pro.name}</h3>
                                                                             )
@@ -1279,7 +1329,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                     </p>
                                                                     <div
                                                                         className="flex items-center mt-2 text-xs text-gray-500">
-                                                                        <Clock className="h-3 w-3 mr-1 text-red-500"/>
+                                                                        <Clock className="h-3 w-3 mr-1 text-red-500" />
                                                                         <span>Finalizado: {pro.end_project ? pro.end_project : "En progreso"}</span>
                                                                     </div>
                                                                 </div>
@@ -1423,9 +1473,61 @@ export default function StudentClientNotMe({student, experience_group, publicati
                 </div>
             </Modal>
 
+            <Modal
+                isOpen={reportModal.isOpen}
+                onClose={reportModal.closeModal}
+                id="report-modal"
+                size="md"
+                title={`Reportar a ${studentEdit.name}`}
+                closeOnOutsideClick={true}
+            >
+                <div className="flex flex-col space-y-4 p-5">
+                    <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <div>
+                            <p className="text-sm text-yellow-800">
+                                Por favor, proporciona detalles sobre el problema que has encontrado con este usuario.
+                                Revisaremos tu reporte y tomaremos las medidas necesarias.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Motivo del reporte</label>
+                        <Textarea
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            placeholder="Describe el motivo de tu reporte..."
+                            rows={5}
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                        <Button
+                            variant="outline"
+                            onClick={reportModal.closeModal}
+                            disabled={isReporting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleReportUser}
+                            disabled={isReporting || !reportReason.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isReporting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                "Enviar reporte"
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
         </>
     );
-
-
-
 }

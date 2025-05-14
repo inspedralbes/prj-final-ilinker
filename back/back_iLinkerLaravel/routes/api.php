@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\AdminStudentController;
 use App\Http\Controllers\Admin\AdminInstitutionController;
 use App\Http\Controllers\Admin\AdminOfferController;
 use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Controllers\ReportController;
 
 
 Route::get('/user', function (Request $request) {
@@ -71,6 +72,7 @@ Route::prefix('/institution')->group(function () {
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
+    Route::post('/report-user', [ReportController::class, 'store']);
 
     Route::prefix('/notifications')->group(function () {
         // Obtener todas las notificaciones

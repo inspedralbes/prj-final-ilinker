@@ -44,25 +44,8 @@ export async function  apiRequest(
       options.body = JSON.stringify(body);
     }
 
-    // const response = await fetch(`${routeApi}${endpoint}`, options);
-    const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
-    if (body instanceof FormData) { 
-      options.body = body; 
-    } else if (body != null) { 
-      headers["Content-Type"] = "application/json"; 
-      options.body = JSON.stringify(body); 
-    } 
- 
-    const response = await fetch(`${config.apiUrl}${endpoint}`, options); 
-
-    // Manejar error 401 específicamente 
-    if (response.status === 401) { 
-      localStorage.removeItem("authToken");
-      if (typeof window !== "undefined") {
-        window.location.href = '/auth/login';
-      }
-      throw new Error('Unauthorized');
-    }
+    const response = await fetch(`${routeApi}${endpoint}`, options);
+    //const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

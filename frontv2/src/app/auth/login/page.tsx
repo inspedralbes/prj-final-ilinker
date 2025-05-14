@@ -85,7 +85,7 @@ const Login: React.FC = () => {
                     }
 
                     socket.emit('login', { userData: response.user }); 
-                    login(response.token, response.user); 
+                    login(response.token, response.user, response.notifications); 
                 } else { 
                     setApiError("Correo electrónico o contraseña incorrectos");
                 } 

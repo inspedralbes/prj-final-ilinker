@@ -33,6 +33,8 @@ import {
   Home,
   CalendarDays,
   Banknote,
+  Flag,
+  AlertTriangle,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -644,6 +646,59 @@ export default function CompanyClientNotMe({
       return [];
     }
   }, [infoOfferDataModal?.skills]);
+
+  const reportModal = useModal();
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+
+  const handleReportUser = () => {
+    if (!reportReason.trim()) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa un motivo para el reporte",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsReporting(true);
+    showLoader();
+
+    apiRequest("report-user", "POST", {
+      reported_user_id: companyEdited.user_id,
+      reason: reportReason,
+    })
+      .then((response) => {
+        if (response.status === "success") {
+          toast({
+            title: "Reporte enviado",
+            description:
+              "Gracias por reportar este usuario. Revisaremos tu reporte pronto.",
+            variant: "success",
+          });
+          reportModal.closeModal();
+          setReportReason("");
+        } else {
+          toast({
+            title: "Error",
+            description: response.message || "Error al enviar el reporte",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Ocurrió un error al enviar el reporte",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsReporting(false);
+        hideLoader();
+      });
+  };
 
   return (
     <>
@@ -1630,6 +1685,64 @@ export default function CompanyClientNotMe({
             {!companyFollowers && (
               <p className="text-gray-600">No hay seguidores</p>
             )}
+          </div>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={reportModal.isOpen}
+        onClose={reportModal.closeModal}
+        id="report-modal"
+        size="md"
+        title={`Reportar a ${companyEdited.name}`}
+        closeOnOutsideClick={true}
+      >
+        <div className="flex flex-col space-y-4 p-5">
+          <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div>
+              <p className="text-sm text-yellow-800">
+                Por favor, proporciona detalles sobre el problema que has
+                encontrado con este usuario. Revisaremos tu reporte y tomaremos
+                las medidas necesarias.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">
+              Motivo del reporte
+            </label>
+            <Textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              placeholder="Describe el motivo de tu reporte..."
+              rows={5}
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={reportModal.closeModal}
+              disabled={isReporting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleReportUser}
+              disabled={isReporting || !reportReason.trim()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isReporting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                "Enviar reporte"
+              )}
+            </Button>
           </div>
         </div>
       </Modal>
