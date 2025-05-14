@@ -182,23 +182,25 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
 
                                         {/* PARA MENSAJE RESPONDIDOS*/}
                                         {comment.replies && comment.replies.length > 0 && (
-                                            <div className="ml-6 mt-2">
-                                                {comment.replies.map((reply: any) => (
-                                                    <div key={reply.id} className="flex mb-4">
-                                                        <Avatar className="h-8 w-8 flex-shrink-0">
-                                                            <img
-                                                                src={
-                                                                    reply.user?.rol === 'student'
-                                                                        ? `${config.storageUrl}users/photos/${reply.user.student?.uuid}/${reply.user.student?.photo_pic}`
-                                                                        : reply.user?.rol === 'company'
-                                                                            ? `${config.storageUrl}/${reply.user.company?.logo}`
-                                                                            : `${config.storageUrl}/${reply.user.institutions?.logo}`
-                                                                }
-                                                                alt="Commenter"
-                                                                className="h-full w-full object-cover rounded-full"
-                                                            />
-                                                        </Avatar>
-                                                        <div className="ml-3 flex-1">
+                                            <>
+                                                {comment.replies.lenght > 1 ? (
+                                                    <div className="ml-6 mt-2">
+                                                        {comment.replies.map((reply: any) => (
+                                                            <div key={reply.id} className="flex mb-4">
+                                                                <Avatar className="h-8 w-8 flex-shrink-0">
+                                                                    <img
+                                                                        src={
+                                                                            reply.user?.rol === 'student'
+                                                                                ? `${config.storageUrl}users/photos/${reply.user.student?.uuid}/${reply.user.student?.photo_pic}`
+                                                                                : reply.user?.rol === 'company'
+                                                                                    ? `${config.storageUrl}/${reply.user.company?.logo}`
+                                                                                    : `${config.storageUrl}/${reply.user.institutions?.logo}`
+                                                                        }
+                                                                        alt="Commenter"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="ml-3 flex-1">
                                                              <span
                                                                  className="font-semibold mr-2">
                                                                 {reply.user?.rol === 'student'
@@ -207,11 +209,18 @@ export default function ShowPublication({publication, student, onClose}: PropsMo
                                                                         ? reply.user.company.name
                                                                         : reply.user.institutions.name}
                                                              </span>
-                                                            <span className="break-words">{reply.content}</span>
-                                                        </div>
+                                                                    <span className="break-words">{reply.content}</span>
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                ))}
-                                            </div>
+                                                ) : (
+                                                    <div>
+                                                        Ver más {comment.replies.length}
+                                                    </div>
+                                                )}
+                                            </>
+
                                         )}
 
                                     </div>
