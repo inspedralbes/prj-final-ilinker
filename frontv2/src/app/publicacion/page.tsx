@@ -350,7 +350,7 @@ export default function PublicationPage() {
     }
   };
   const getUserAvatar = () => {
-    if (!userData) return "/default-avatar.png";
+    if (!userData) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
     if (userData.rol === "student" && userData.student?.photo_pic) {
       return config.storageUrl + userData.student.photo_pic;
     } else if (userData.rol === "company" && userData.company?.logo) {
@@ -358,7 +358,7 @@ export default function PublicationPage() {
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
       return config.storageUrl + userData.institution.logo;
     }
-    return "/default-avatar.png";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
   };
 
   const handleShare = (sharedPublication: any) => {
@@ -582,7 +582,7 @@ const ProfileSidebar = ({
 };
 
 // Componente para crear una nueva publicación estilo LinkedIn
-const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png" }: { onOpenModal: () => void; userAvatar?: string }) => (
+const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" }: { onOpenModal: () => void; userAvatar?: string }) => (
   <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
     <div className="flex items-center space-x-3">
       <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
@@ -735,7 +735,7 @@ const PublicationCard = ({
 
   const getAvatarUrl = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
-    if (!user) return "/default-avatar.png";
+    if (!user) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
 
     let avatarPath = '';
     if (user.rol === "student" && user.student?.photo_pic) {
@@ -746,7 +746,7 @@ const PublicationCard = ({
       avatarPath = user.institution.logo;
     }
 
-    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : "/default-avatar.png";
+    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
   };
 
   const handleProfileClick = (userId: number) => {
