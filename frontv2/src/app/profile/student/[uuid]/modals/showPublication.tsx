@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import {
     X,
-    Calendar,MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
+    Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
     Heart, MessageCircle, Bookmark,
-    ChevronDown, ChevronUp, Ellipsis 
+    ChevronDown, ChevronUp, Ellipsis
 } from 'lucide-react';
 import { Avatar } from "@/components/ui/avatar";
 import config from "@/types/config";
@@ -275,16 +275,37 @@ export default function ShowPublication({ publication, student, onClose }: Props
 
                     {/* Barra de likes */}
                     <div className="p-4 border-t">
-                        <div className="flex mb-2">
-                            <button className="mr-4">
-                                <Heart className="h-5 w-5" />
-                            </button>
-                            <button className="mr-4">
-                                <MessageCircle className="h-5 w-5" />
-                            </button>
-                            <button>
-                                <Bookmark className="h-5 w-5" />
-                            </button>
+                        <div className="flex justify-between mb-2">
+
+                            <div className="flex items-center space-x-3">
+
+                                <div className="flex items-center space-x-1">
+                                    <button className="mr-1">
+                                        {publicationEdit.liked && publicationEdit.is_liked ? (
+                                            <Heart className="h-5 w-5 text-red-500 hover:text-red-600" fill='red' />
+                                        ) : (
+                                            <Heart className="h-5 w-5 hover:text-red-600" />
+                                        )}
+                                    </button>
+                                    <span>{publicationEdit.likes_count}</span>
+                                </div>
+
+                                <div className="flex items-center space-x-1">
+                                    <button className="mr-1">
+                                        <MessageCircle className="h-5 w-5" />
+                                    </button>
+                                    <span>{publicationEdit.comments_count}</span>
+                                </div>
+
+                            </div>
+
+
+                            <div className="flex items-center">
+                                <button>
+                                    <Bookmark className="h-5 w-5" />
+                                </button>
+                            </div>
+
                         </div>
                         <div className="flex items-center justify-between w-full">
                             <div className="font-semibold">{publicationEdit.likes_count || 0} likes</div>

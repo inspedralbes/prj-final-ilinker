@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modal cambios">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -38,12 +37,12 @@
     &quot;assignee&quot;: &quot;Deraybcbc&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/inspedralbes/prj-final-ilinker.git&quot;,
-    &quot;accountId&quot;: &quot;5f08f5cb-ec5a-4cbd-8ef2-ef507e329ed6&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/inspedralbes/prj-final-ilinker.git",
+    "accountId": "2a1c8b5b-7e5e-41f1-a3e4-282a7218eb84"
   }
-}</component>
+}]]></component>
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="C:\xampp\php\php.exe" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -56,21 +55,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;student-profile&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "student-profile",
+    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Proyectos programacion\daw2\prj-final-ilinker\back\back_iLinkerLaravel" />
@@ -90,8 +89,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-PS-243.22562.233" />
-        <option value="bundled-php-predefined-a98d8de5180a-7980c7aaca61-com.jetbrains.php.sharedIndexes-PS-243.22562.233" />
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PS-242.23339.16" />
+        <option value="bundled-php-predefined-a98d8de5180a-90914f2295cb-com.jetbrains.php.sharedIndexes-PS-242.23339.16" />
       </set>
     </attachedChunks>
   </component>
