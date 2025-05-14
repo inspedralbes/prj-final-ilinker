@@ -210,6 +210,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
     // Publicaciones del usuario actual
     Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
+    Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
     // Likes
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
     // Comentarios (NUEVAS RUTAS)

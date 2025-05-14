@@ -364,6 +364,51 @@ class PublicationsController extends Controller
         }
     }
 
+    public function myLikedPublications(){
+        try {
+            $userId = Auth::id();
+            $idsLikedPublications = PublicationLike::where('user_id', $userId)
+                ->get()
+                ->pluck('publication_id');
+
+            $publications = Publication::with([
+                'media',
+                'comments.user:id,name',
+                'likes.user.student:id,user_id,name,uuid,photo_pic',
+                'likes.user.company:id,user_id,name,slug,logo',
+                'likes.user.institutions:id,user_id,name,slug,logo',
+            ])
+                ->whereIn('id', $idsLikedPublications)
+                ->orderBy('created_at', 'desc')
+                ->paginate(10);
+
+            // Add liked status and transform media URLs for each publication
+            $publications->getCollection()->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
+                }
+
+                return $publication;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $publications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error recogiendo tus me gusta.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function toggleLike($publicationId, Request $request)
     {
         try {

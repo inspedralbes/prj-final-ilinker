@@ -39,11 +39,11 @@ const SavedItems: React.FC = () => {
 
   return (
     <div className="animate-fadeIn">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Saved Items</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Guardados</h2>
       
       {savedItems.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">You haven't saved any items yet.</p>
+          <p className="text-gray-500">No has guardado nada todavia.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -70,14 +70,6 @@ const SavedItems: React.FC = () => {
               </div>
               
               <div className="flex sm:flex-col gap-2 justify-end items-end">
-                <a 
-                  href={item.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="p-1.5 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
-                >
-                  <ExternalLink className="h-5 w-5" />
-                </a>
                 <button 
                   className="p-1.5 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                 >

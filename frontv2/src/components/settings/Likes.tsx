@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Heart, ExternalLink } from 'lucide-react';
+import { apiRequest } from '@/services/requests/apiRequest';
 
 const Likes: React.FC = () => {
   const likedItems = [
@@ -29,16 +30,27 @@ const Likes: React.FC = () => {
     },
   ];
 
+  useEffect(() => {
+    apiRequest('my-liked-publications')
+    .then((response)=>{
+      console.log(response);
+    }).catch((error)=>{
+      console.log(error);
+    }).finally(()=>{
+
+    });
+  }, []);
+
   return (
     <div className="animate-fadeIn">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Liked Items</h2>
+      <h2 className="text-xl font-semibold text-gray-900 mb-6">Mis me gusta</h2>
 
       {likedItems.length === 0 ? (
         <div className="text-center py-12 border border-gray-200 rounded-lg">
           <div className="flex justify-center mb-4">
             <Heart className="h-12 w-12 text-gray-400" />
           </div>
-          <p className="text-gray-500">You haven't liked any items yet.</p>
+          <p className="text-gray-500">No has dado me gusta a nada todavia.</p>
         </div>
       ) : (
         <div className="space-y-4">

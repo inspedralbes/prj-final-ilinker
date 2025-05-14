@@ -13,7 +13,9 @@ const ProfileSettings: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [passwordLoader, setPasswordLoader] = useState(false);
   const [emailLoader, setEmailLoader] = useState(false);
-
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -90,19 +92,25 @@ const ProfileSettings: React.FC = () => {
   };
 
   const handleSaveNewPassword = () => {
-    showLoader();
     setPasswordLoader(true);
     apiRequest("settings/profile/new-password", "POST", {
-      currentPassword: profile?.currentPassword,
-      newPassword: profile?.newPassword,
-      confirmPassword: profile?.confirmPassword,
+      current_password: currentPassword,
+      new_password: newPassword,
+      confirm_password: confirmPassword,
     })
       .then((response) => {
+        console.log(response)
         if (response.status === "success") {
           toast({
-            title: "Success",
+            title: "Exito",
             description: "Contraseña actualizada exitosamente",
-            variant: "default",
+            variant: "success",
+          });
+        }else{
+          toast({
+            title: "Error",
+            description: `Error al actualizar la contraseña, ${response.message}`,
+            variant: "destructive",
           });
         }
       })
@@ -128,9 +136,15 @@ const ProfileSettings: React.FC = () => {
       .then((response) => {
         if (response.status === "success") {
           toast({
-            title: "Success",
+            title: "Cambio de correo exitoso",
             description: "Email actualizado exitosamente",
             variant: "success",
+          });
+        }else{
+          toast({
+            title: "Error",
+            description: "Error al actualizar el email",
+            variant: "destructive",
           });
         }
       })
@@ -241,8 +255,8 @@ const ProfileSettings: React.FC = () => {
                   type="password"
                   id="currentPassword"
                   name="currentPassword"
-                  value={profile?.currentPassword || ""}
-                  onChange={handleChange}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
                   className="pl-10 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 py-2 px-3 text-gray-700"
                 />
               </div>
@@ -263,8 +277,8 @@ const ProfileSettings: React.FC = () => {
                   type="password"
                   id="newPassword"
                   name="newPassword"
-                  value={profile?.newPassword || ""}
-                  onChange={handleChange}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="pl-10 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 py-2 px-3 text-gray-700"
                 />
               </div>
@@ -285,8 +299,8 @@ const ProfileSettings: React.FC = () => {
                   type="password"
                   id="confirmPassword"
                   name="confirmPassword"
-                  value={profile?.confirmPassword}
-                  onChange={handleChange}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 w-full rounded-lg border border-gray-300 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 py-2 px-3 text-gray-700"
                 />
               </div>
