@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from "react";
 import Image from "next/image";
 import { Bookmark, X, Heart, MessageCircle, Share2, MapPin } from "lucide-react";
 import { AuthContext } from "@/contexts/AuthContext";
+import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import config from "@/types/config";
 
@@ -49,6 +50,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { allUsers, userData } = useContext(AuthContext);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
 
     // Función para obtener el nombre según el rol
     const getUserName = (userId: number) => {
@@ -75,6 +77,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
     const fetchSavedPublications = async () => {
         try {
             setIsLoading(true);
+            showLoader(); // Mostrar loader al iniciar la carga
             const response = await apiRequest('/publications/saved', 'GET');
 
             if (response.status === 'success') {
@@ -92,11 +95,13 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
             setError('Error al cargar las publicaciones guardadas');
         } finally {
             setIsLoading(false);
+            hideLoader(); // Ocultar loader al finalizar la carga
         }
     };
 
     const handleUnsave = async (publicationId: number) => {
         try {
+            showLoader(); // Mostrar loader al iniciar la acción
             const response = await apiRequest(`/publications/${publicationId}/save`, 'POST');
 
             if (response.status === 'success') {
@@ -107,11 +112,14 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
             }
         } catch (err) {
             console.error('Error al quitar la publicación guardada:', err);
+        } finally {
+            hideLoader(); // Ocultar loader al finalizar la acción
         }
     };
 
     const handleLike = async (publicationId: number) => {
         try {
+            showLoader(); // Mostrar loader al iniciar la acción
             const response = await apiRequest(`/publications/${publicationId}/like`, 'POST');
 
             if (response.status === 'success') {
@@ -133,6 +141,8 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
             }
         } catch (err) {
             console.error('Error al dar like a la publicación:', err);
+        } finally {
+            hideLoader(); // Ocultar loader al finalizar la acción
         }
     };
 

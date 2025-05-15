@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send, Linkedin } from "lucide-react";
 import CommentModal from "./comment";
 import { AuthContext } from "@/contexts/AuthContext";
+import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
 import CreatePostModal from "@/components/posts/CreatePostModal";
@@ -78,6 +79,7 @@ export default function PublicationPage() {
     publicationId: null
   });
   const { userData, allUsers, setAllUsers } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
   const [publications, setPublications] = useState<Publication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -94,6 +96,7 @@ export default function PublicationPage() {
   const fetchPublications = async () => {
     try {
       setIsLoading(true);
+      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('publications', 'GET');
 
       if (response.status === 'success') {
@@ -112,12 +115,14 @@ export default function PublicationPage() {
       setError('Error al cargar las publicaciones');
     } finally {
       setIsLoading(false);
+      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
   // Función para obtener todos los usuarios
   const fetchAllUsers = async () => {
     try {
+      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('/users/all', 'POST');
 
       if (response.status === 'success' && response.users) {
@@ -174,6 +179,8 @@ export default function PublicationPage() {
       }
     } catch (err) {
       console.error('Error al obtener usuarios:', err);
+    } finally {
+      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
