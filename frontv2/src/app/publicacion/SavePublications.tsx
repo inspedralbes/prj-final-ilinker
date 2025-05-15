@@ -164,29 +164,29 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-2 md:p-4">
             <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-hidden">
-                <div className="p-4 border-b flex justify-between items-center">
-                    <h2 className="text-xl font-semibold">Publicaciones Guardadas</h2>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full">
-                        <X className="w-6 h-6" />
+                <div className="p-3 md:p-4 border-b flex justify-between items-center">
+                    <h2 className="text-lg md:text-xl font-semibold">Publicaciones Guardadas</h2>
+                    <button onClick={onClose} className="p-1.5 md:p-2 hover:bg-gray-100 rounded-full">
+                        <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
                 </div>
 
                 <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
                     {isLoading ? (
-                        <div className="p-4 text-center">Cargando publicaciones...</div>
+                        <div className="p-3 md:p-4 text-center text-sm md:text-base">Cargando publicaciones...</div>
                     ) : error ? (
-                        <div className="p-4 text-center text-red-500">{error}</div>
+                        <div className="p-3 md:p-4 text-center text-red-500 text-sm md:text-base">{error}</div>
                     ) : savedPublications.length === 0 ? (
-                        <div className="p-4 text-center text-gray-500">
+                        <div className="p-3 md:p-4 text-center text-gray-500 text-sm md:text-base">
                             No tienes publicaciones guardadas
                         </div>
                     ) : (
                         savedPublications.map((publication) => (
-                            <div key={publication.id} className="p-4 border-b">
-                                <div className="flex items-center space-x-3 mb-4">
-                                    <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+                            <div key={publication.id} className="p-3 md:p-4 border-b">
+                                <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
                                         <Image
                                             src={getUserAvatar(publication.user.id)}
                                             alt={publication.user.name}
@@ -196,13 +196,13 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                                         />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold">{getUserName(publication.user.id)}</h3>
-                                        <div className="flex items-center text-sm text-gray-500">
+                                        <h3 className="text-sm md:text-base font-semibold">{getUserName(publication.user.id)}</h3>
+                                        <div className="flex items-center text-xs md:text-sm text-gray-500">
                                             <span>{new Date(publication.created_at).toLocaleDateString()}</span>
                                             {publication.location && (
                                                 <>
                                                     <span className="mx-1">•</span>
-                                                    <MapPin className="w-4 h-4 mr-1" />
+                                                    <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                                                     <span>{publication.location}</span>
                                                 </>
                                             )}
@@ -210,12 +210,12 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                                     </div>
                                 </div>
 
-                                <p className="text-gray-800 mb-4">{publication.content}</p>
+                                <p className="text-sm md:text-base text-gray-800 mb-3 md:mb-4">{publication.content}</p>
 
                                 {publication.has_media && publication.media && publication.media.length > 0 && (
-                                    <div className="mb-4">
+                                    <div className="mb-3 md:mb-4">
                                         {publication.media[0].media_type === "image" ? (
-                                            <div className="relative h-64 w-full">
+                                            <div className="relative h-48 md:h-64 w-full">
                                                 <Image
                                                     src={publication.media[0].file_path.startsWith('http')
                                                         ? publication.media[0].file_path
@@ -232,7 +232,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                                                     ? publication.media[0].file_path
                                                     : `${config.storageUrl}${publication.media[0].file_path}`}
                                                 controls
-                                                className="w-full h-64 object-cover rounded-lg"
+                                                className="w-full h-48 md:h-64 object-cover rounded-lg"
                                                 playsInline
                                             />
                                         )}
@@ -246,25 +246,25 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                                             }`}
                                     >
                                         <Heart
-                                            className={`w-5 h-5 ${publication.liked ? 'fill-current scale-110' : ''
+                                            className={`w-4 h-4 md:w-5 md:h-5 ${publication.liked ? 'fill-current scale-110' : ''
                                                 }`}
                                         />
-                                        <span>{publication.likes_count}</span>
+                                        <span className="text-xs md:text-sm">{publication.likes_count}</span>
                                     </button>
                                     <button className="flex items-center gap-1 hover:text-blue-600">
-                                        <MessageCircle className="w-5 h-5" />
-                                        <span>{publication.comments_count}</span>
+                                        <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+                                        <span className="text-xs md:text-sm">{publication.comments_count}</span>
                                     </button>
                                     <button
                                         onClick={() => handleUnsave(publication.id)}
                                         className="flex items-center gap-1 text-yellow-500 hover:text-yellow-600"
                                     >
-                                        <Bookmark className="w-5 h-5 fill-current" />
-                                        <span>Quitar</span>
+                                        <Bookmark className="w-4 h-4 md:w-5 md:h-5 fill-current" />
+                                        <span className="text-xs md:text-sm">Quitar</span>
                                     </button>
                                     <button className="flex items-center gap-1 hover:text-blue-600">
-                                        <Share2 className="w-5 h-5" />
-                                        <span>Compartir</span>
+                                        <Share2 className="w-4 h-4 md:w-5 md:h-5" />
+                                        <span className="text-xs md:text-sm">Compartir</span>
                                     </button>
                                 </div>
                             </div>

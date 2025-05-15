@@ -427,13 +427,28 @@ export default function PublicationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 px-4 flex gap-6">
-        <ProfileSidebar
-          userData={userData}
-          onViewMore={handleViewMore}
-          onSavedClick={() => setIsSavedModalOpen(true)}
-        />
-        <div className="flex-1 max-w-xl">
+      <div className="max-w-7xl mx-auto py-4 md:py-6 px-2 md:px-4 flex flex-col md:flex-row gap-4 md:gap-6">
+        {/* Mobile Profile Sidebar - Only visible on mobile */}
+        <div className="md:hidden w-full mb-4">
+          <ProfileSidebar
+            userData={userData}
+            onViewMore={handleViewMore}
+            onSavedClick={() => setIsSavedModalOpen(true)}
+            isMobile={true}
+          />
+        </div>
+
+        {/* Desktop Profile Sidebar - Only visible on desktop */}
+        <div className="hidden md:block w-80 flex-shrink-0">
+          <ProfileSidebar
+            userData={userData}
+            onViewMore={handleViewMore}
+            onSavedClick={() => setIsSavedModalOpen(true)}
+            isMobile={false}
+          />
+        </div>
+
+        <div className="flex-1 max-w-full md:max-w-xl mx-auto">
           <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
           <CreatePostModal
             isOpen={isModalOpen}
@@ -479,11 +494,13 @@ export default function PublicationPage() {
 const ProfileSidebar = ({
   userData,
   onViewMore,
-  onSavedClick
+  onSavedClick,
+  isMobile
 }: {
   userData: User | null;
   onViewMore: () => void;
   onSavedClick: () => void;
+  isMobile: boolean;
 }) => {
   const router = useRouter();
   // Funciones auxiliares para obtener datos específicos según el rol del usuario
@@ -559,81 +576,62 @@ const ProfileSidebar = ({
   };
 
   return (
-    <div className="hidden md:block w-80 flex-shrink-0">
-      <div className="sticky top-6">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="h-20 bg-slate-200 relative">
-            <Image
-              src={userData?.rol === "institutions" && userData.institution?.cover
-                ? (userData.institution.cover.startsWith('http') ? userData.institution.cover : `${config.storageUrl}${userData.institution.cover}`)
-                : userData?.rol === "company" && userData.company?.cover_photo
-                  ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
-                  : userData?.rol === "student" && userData.student?.postal_code
-                    ? (userData.student.postal_code.startsWith('http') ? userData.student.postal_code : `${config.storageUrl}${userData.student.postal_code}`)
-                    : "/default-cover.jpg"}
-              alt="Portada"
-              fill
-              className="object-cover"
-              unoptimized={true}
-            />
-          </div>
-          <div className="px-4 pb-4">
-            <div className="relative -mt-12 mb-3">
-              <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
-                <Image
-                  src={userData?.rol === "institutions" && userData.institution?.logo
-                    ? (userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`)
-                    : userData?.rol === "company" && userData.company?.logo
-                      ? (userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`)
-                      : userData?.rol === "student" && userData.student?.photo_pic
-                        ? (userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`)
-                        : "/default-avatar.png"}
-                  alt="Perfil"
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                  unoptimized={true}
-                />
-              </div>
+    <div className={`${isMobile ? 'w-full' : 'w-80'} ${isMobile ? '' : 'sticky top-6'}`}>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="h-16 md:h-20 bg-slate-200 relative">
+          <Image
+            src={getUserCoverPhoto()}
+            alt="Portada"
+            fill
+            className="object-cover"
+            unoptimized={true}
+          />
+        </div>
+        <div className="px-3 md:px-4 pb-3 md:pb-4">
+          <div className="relative -mt-10 md:-mt-12 mb-2 md:mb-3">
+            <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
+              <Image
+                src={getUserProfilePic()}
+                alt="Perfil"
+                fill
+                sizes="96px"
+                className="object-cover"
+                unoptimized={true}
+              />
             </div>
-            <h1 className="text-xl font-semibold">{userData?.rol === "student" ? userData.student?.name : userData?.rol === "company" ? userData.company?.name : userData?.rol === "institutions" ? userData.institution?.name : ""} </h1>
-
-            {userData && (
-              <>
-                {getUserSlogan() && (
-                  <p className="text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
-                )}
-                <br></br>
-                
-
-                {getUserLocation() && (
-                  <p className="text-sm text-gray-600 flex items-center mb-4">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {getUserLocation()}
-                  </p>
-                )}
-              </>
-            )}
-
-            <nav className="space-y-2 mt-4">
-              <button
-                onClick={onSavedClick}
-                className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray rounded-md px-2"
-              >
-                <Bookmark className="w-4 h-4" /> Publicaciones guardadas
-              </button>
-              {/* <button 
-                onClick={() => router.push('/publicacion/likes')}
-                className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2"
-              >
-                <Heart className="w-4 h-4" /> Publicaciones Likes
-              </button> */}
-
-            </nav>
-            <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
-              Ver más
-            </button>
           </div>
+          <h1 className="text-lg md:text-xl font-semibold">{getUserTitle()}</h1>
+
+          {userData && (
+            <>
+              {getUserSlogan() && (
+                <p className="text-xs md:text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
+              )}
+              <br></br>
+
+              {getUserLocation() && (
+                <p className="text-xs md:text-sm text-gray-600 flex items-center mb-3 md:mb-4">
+                  <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                  {getUserLocation()}
+                </p>
+              )}
+            </>
+          )}
+
+          <nav className="space-y-1 md:space-y-2 mt-3 md:mt-4">
+            <button
+              onClick={onSavedClick}
+              className="flex items-center gap-2 w-full py-1.5 md:py-2 text-xs md:text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2"
+            >
+              <Bookmark className="w-3 h-3 md:w-4 md:h-4" /> Publicaciones guardadas
+            </button>
+          </nav>
+          <button 
+            onClick={onViewMore} 
+            className="w-full text-center py-2 md:py-3 text-xs md:text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-3 md:mt-4"
+          >
+            Ver más
+          </button>
         </div>
       </div>
     </div>
@@ -642,9 +640,9 @@ const ProfileSidebar = ({
 
 // Componente para crear una nueva publicación estilo LinkedIn
 const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" }: { onOpenModal: () => void; userAvatar?: string }) => (
-  <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-    <div className="flex items-center space-x-3">
-      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
+  <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
+    <div className="flex items-center space-x-2 md:space-x-3">
+      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200 overflow-hidden relative">
         <img
           src={userAvatar}
           alt="Perfil"
@@ -656,7 +654,7 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%
       </div>
       <button
         onClick={onOpenModal}
-        className="flex-1 text-left bg-gray-50 rounded-full px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
+        className="flex-1 text-left bg-gray-50 rounded-full px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
       >
         Crear publicación
       </button>
@@ -860,10 +858,10 @@ const PublicationCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
+    <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
       {publication.shared_by && (
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+        <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <img
               src={getAvatarUrl(publication.shared_by.id)}
               alt={getUserName(publication.shared_by.id)}
@@ -876,19 +874,19 @@ const PublicationCard = ({
           </div>
           <div>
             <h3 
-              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              className="text-sm md:text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
               onClick={() => publication.shared_by && handleProfileClick(publication.shared_by.id)}
             >
               {getUserName(publication.shared_by.id)}
             </h3>
-            <p className="text-sm text-gray-500">Compartió esta publicación</p>
+            <p className="text-xs md:text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
       )}
 
-      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-4 border border-gray-200' : ''}`}>
-        <div className="flex items-center space-x-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200' : ''}`}>
+        <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <img
               src={getAvatarUrl(publication.user.id)}
               alt={getUserName(publication.user.id)}
@@ -901,17 +899,17 @@ const PublicationCard = ({
           </div>
           <div>
             <h3 
-              className="font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              className="text-sm md:text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
               onClick={() => handleProfileClick(publication.user.id)}
             >
               {getUserName(publication.user.id)}
             </h3>
-            <div className="flex items-center text-sm text-gray-500">
+            <div className="flex items-center text-xs md:text-sm text-gray-500">
               <span>{new Date(publication.created_at).toLocaleDateString()}</span>
               {publication.location && (
                 <>
                   <span className="mx-1">•</span>
-                  <MapPin className="w-4 h-4 mr-1" />
+                  <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                   <span>{publication.location}</span>
                 </>
               )}
@@ -919,45 +917,45 @@ const PublicationCard = ({
           </div>
         </div>
 
-        <div className={`${publication.shared_by ? 'pl-11' : ''}`}>
-          <p className="text-gray-800 mb-4">{publication.content}</p>
+        <div className={`${publication.shared_by ? 'pl-9 md:pl-11' : ''}`}>
+          <p className="text-sm md:text-base text-gray-800 mb-3 md:mb-4">{publication.content}</p>
           {publication.has_media && publication.media && publication.media.length > 0 && (
             <MediaCarousel media={publication.media} />
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-gray-500 border-t pt-3 mt-4">
+      <div className="flex items-center justify-between text-gray-500 border-t pt-2 md:pt-3 mt-3 md:mt-4">
         <button
           onClick={() => handleLikeClick(publication.id)}
           className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
         >
           <Heart
-            className={`w-5 h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
+            className={`w-4 h-4 md:w-5 md:h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
               } ${publication.liked ? 'fill-current scale-110' : ''}`}
           />
-          <span className={`transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
+          <span className={`text-xs md:text-sm transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
             {publication.likes_count}
           </span>
         </button>
 
         <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
-          <MessageCircle className="w-5 h-5" />
-          <span>{publication.comments_count}</span>
+          <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="text-xs md:text-sm">{publication.comments_count}</span>
         </button>
         <button
           onClick={() => handleSaveClick(publication.id)}
           className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
         >
-          <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
-          <span>Guardar</span>
+          <Bookmark className={`w-4 h-4 md:w-5 md:h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
+          <span className="text-xs md:text-sm">Guardar</span>
         </button>
         <button
           onClick={() => setIsShareModalOpen(true)}
           className="flex items-center gap-1 hover:text-blue-600"
         >
-          <Share2 className="w-5 h-5" />
-          <span>Compartir</span>
+          <Share2 className="w-4 h-4 md:w-5 md:h-5" />
+          <span className="text-xs md:text-sm">Compartir</span>
         </button>
       </div>
 

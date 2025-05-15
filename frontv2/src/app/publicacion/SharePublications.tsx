@@ -83,20 +83,20 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-2xl mx-4">
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Compartir publicación</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
+      <div className="bg-white rounded-lg w-full max-w-2xl mx-auto">
+        <div className="p-3 md:p-4 border-b flex justify-between items-center">
+          <h2 className="text-lg md:text-xl font-semibold">Compartir publicación</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 md:w-6 md:h-6" />
           </button>
         </div>
 
-        <div className="p-4">
+        <div className="p-3 md:p-4">
           {/* User's new post content */}
-          <div className="mb-4">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+          <div className="mb-3 md:mb-4">
+            <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
                 <Image
                   src={getUserAvatar()}
                   alt={userData?.name || 'User'}
@@ -106,23 +106,22 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
                 />
               </div>
               <div>
-                {/* <h3 className="font-semibold">{getUserName(userData?.id)}</h3> */}
-                <p className="text-sm text-gray-500">Compartiendo publicación</p>
+                <p className="text-xs md:text-sm text-gray-500">Compartiendo publicación</p>
               </div>
             </div>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Añade un comentario a tu publicación..."
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full p-2 md:p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm md:text-base"
               rows={3}
             />
           </div>
 
           {/* Original post being shared */}
-          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden relative">
+          <div className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+            <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-3">
+              <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-200 overflow-hidden relative">
                 <Image
                   src={publication.user.avatar || "/default-avatar.png"}
                   alt={publication.user.name}
@@ -132,14 +131,14 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
                 />
               </div>
               <div>
-                <h4 className="font-medium text-sm">{getUserName(publication.user.id)}</h4>
+                <h4 className="font-medium text-xs md:text-sm">{getUserName(publication.user.id)}</h4>
                 <p className="text-xs text-gray-500">Publicación original</p>
               </div>
             </div>
-            <div className="pl-11">
-              <p className="text-sm text-gray-700 mb-3">{publication.content}</p>
+            <div className="pl-8 md:pl-11">
+              <p className="text-xs md:text-sm text-gray-700 mb-2 md:mb-3">{publication.content}</p>
               {publication.has_media && publication.media && publication.media.length > 0 && (
-                <div className="relative h-48 w-full rounded-lg overflow-hidden">
+                <div className="relative h-36 md:h-48 w-full rounded-lg overflow-hidden">
                   {publication.media[0].media_type === "image" ? (
                     <Image
                       src={publication.media[0].file_path.startsWith('http') 
@@ -165,16 +164,16 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
           </div>
         </div>
 
-        <div className="p-4 border-t flex justify-end space-x-3">
+        <div className="p-3 md:p-4 border-t flex justify-end space-x-2 md:space-x-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            className="px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
           >
             Cancelar
           </button>
           <button
             onClick={handleShare}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-3 md:px-4 py-1.5 md:py-2 bg-blue-600 text-white text-xs md:text-sm rounded-lg hover:bg-blue-700"
           >
             Compartir
           </button>

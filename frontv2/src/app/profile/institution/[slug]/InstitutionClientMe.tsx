@@ -460,19 +460,28 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   }
 
   const renderSpecialties = () => (
-    <div className="mt-6 md:mt-0">
+    <div className="mt-4 md:mt-0">
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-gray-800" />
-            Especialidades
+        <CardHeader className="flex flex-row items-center justify-between p-2 md:p-6">
+          <CardTitle className="flex items-center gap-1.5">
+            <Award className="h-3.5 w-3.5 md:h-6 md:w-6 text-blue-600" />
+            <span className="text-xs md:text-lg">Especialidades</span>
           </CardTitle>
+          {!isEditing && (
+            <button
+              onClick={() => handleEdit("specialties")}
+              className="flex items-center gap-1 text-[10px] md:text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <Pencil className="h-2.5 w-2.5 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Editar</span>
+            </button>
+          )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
           {isEditing === "specialties" ? (
-            <div>
+            <div className="space-y-1.5">
               {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
-                <div key={index} className="flex items-center mb-2">
+                <div key={index} className="flex items-center gap-1.5">
                   <select
                     value={specialty}
                     onChange={(e) => {
@@ -480,9 +489,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       newSpecialties[index] = e.target.value
                       updateInstitution("specialties", newSpecialties)
                     }}
-                    className="flex-1 border rounded px-2 py-1 mr-2"
+                    className="flex-1 border rounded-lg px-1.5 py-1 text-[10px] md:text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value=" ">Seleccionar una especialidad</option>
+                    <option value="">Seleccionar una especialidad</option>
                     {Array.isArray(availableSkills) && availableSkills.map((skill) => (
                       <option key={skill.id} value={skill.name}>
                         {skill.name}
@@ -494,9 +503,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       const newSpecialties = (institutionData.specialties || []).filter((_, i) => i !== index)
                       updateInstitution("specialties", newSpecialties)
                     }}
-                    className="text-red-600 hover:text-red-800"
+                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-2.5 w-2.5 md:h-4 md:w-4" />
                   </button>
                 </div>
               ))}
@@ -504,34 +513,31 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 onClick={() => {
                   updateInstitution("specialties", [...(institutionData.specialties || []), ""])
                 }}
-                className="mt-2 text-blue-600 hover:text-blue-800"
+                className="flex items-center gap-1 text-[10px] md:text-sm text-blue-600 hover:text-blue-800 transition-colors"
               >
-                <Plus className="h-4 w-4 inline mr-1" />
-                Añadir
+                <Plus className="h-2.5 w-2.5 md:h-4 md:w-4" />
+                Añadir especialidad
               </button>
               {renderActionButtons()}
               {renderErrorMessage()}
             </div>
           ) : (
-            <div>
-              <div className="flex flex-wrap gap-2">
-                {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
-                  >
-                    <Award className="h-4 w-4 mr-1.5 text-gray-600" />
-                    {specialty}
-                  </span>
-                ))}
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap gap-1 md:gap-2">
+                {ensureArray(institutionData.specialties).length > 0 ? (
+                  ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-1.5 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                    >
+                      <Award className="h-2.5 w-2.5 md:h-4 md:w-4 mr-0.5 md:mr-1.5 text-blue-600" />
+                      {specialty}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-[10px] md:text-sm text-gray-500 italic">No hay especialidades añadidas</p>
+                )}
               </div>
-              <button
-                onClick={() => handleEdit("specialties")}
-                className="mt-4 text-gray-600 hover:text-gray-800"
-              >
-                <Pencil className="h-4 w-4 inline mr-1 text-gray-600" />
-                Editar especialidades
-              </button>
             </div>
           )}
         </CardContent>
