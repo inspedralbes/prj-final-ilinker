@@ -151,55 +151,55 @@ export default function OfferModal({ application, onClose }: PropsModal) {
                     </div>
 
                     {/* Información adicional */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-semibold mb-2">Detalles del trabajo:</h4>
-                            <ul className="space-y-2 text-gray-700">
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">Tipo de ubicación:</span>
-                                    <span>{application.offer.location_type || 'No especificado'}</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">Tipo de horario:</span>
-                                    <span>{application.offer.schedule_type || 'No especificado'}</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">Días por semana:</span>
-                                    <span>{application.offer.days_per_week || 'No especificado'}</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                            <h4 className="font-semibold mb-2">Tu aplicación:</h4>
-                            <ul className="space-y-2 text-gray-700">
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">CV:</span>
-                                    <span>{application.cv_attachment ? 'Enviado' : 'No enviado'}</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">Carta de presentación:</span>
-                                    <span>{application.cover_letter_attachment ? 'Enviada' : 'No enviada'}</span>
-                                </li>
-                                <li className="flex items-center">
-                                    <span className="w-32 text-gray-600">Disponibilidad:</span>
-                                    <span>{application.availability}</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="border-t p-4 flex justify-end sticky bottom-0 bg-white">
-                    <Button
-                        onClick={onClose}
-                        className="px-4 py-2 rounded-md text-white font-medium transition-colors"
-                    >
-                        Cerrar
-                    </Button>
-                </div>
-            </div>
-        </div>
-    );
-}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"> 
+                        <div className="bg-gray-50 p-4 rounded-lg"> 
+                            <h4 className="font-semibold mb-2">Detalles del trabajo:</h4> 
+                            <ul className="space-y-2 text-gray-700"> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">Tipo de ubicación:</span> 
+                                    <span>{application.offer.location_type || 'No especificado'}</span> 
+                                </li> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">Tipo de horario:</span> 
+                                    <span>{application.offer.schedule_type || 'No especificado'}</span> 
+                                </li> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">Días por semana:</span> 
+                                    <span>{application.offer.days_per_week || 'No especificado'}</span> 
+                                </li> 
+                            </ul> 
+                        </div> 
+ 
+                        <div className="bg-gray-50 p-4 rounded-lg"> 
+                            <h4 className="font-semibold mb-2">Tu aplicación:</h4> 
+                            <ul className="space-y-2 text-gray-700"> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">CV:</span> 
+                                    <span>{application.cv_attachment ? 'Enviado' : 'No enviado'}</span> 
+                                </li> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">Carta de presentación:</span> 
+                                    <span>{application.cover_letter_attachment ? 'Enviada' : 'No enviada'}</span> 
+                                </li> 
+                                <li className="flex items-center"> 
+                                    <span className="w-32 text-gray-600">Disponibilidad:</span> 
+                                    <span>{application.availability}</span> 
+                                </li> 
+                            </ul> 
+                        </div> 
+                    </div> 
+                </div> 
+ 
+                {/* Footer */} 
+                <div className="border-t p-4 flex justify-end sticky bottom-0 bg-white"> 
+                    <Button 
+                        onClick={onClose} 
+                        className="px-4 py-2 rounded-md text-white font-medium transition-colors" 
+                    > 
+                        Cerrar 
+                    </Button> 
+                </div> 
+            </div> 
+        </div> 
+    ); 
+} 
