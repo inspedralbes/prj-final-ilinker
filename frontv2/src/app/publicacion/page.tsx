@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useContext, useEffect, useCallback, use } from "react";
+import React, { useState, useContext, useEffect, useCallback, use, useRef } from "react";
 import Image from "next/image";
 import config from "@/types/config";
 import { useRouter } from "next/navigation";
@@ -446,51 +446,59 @@ export default function PublicationPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-4 md:py-6 px-2 md:px-4 flex flex-col md:flex-row gap-4 md:gap-6">
-        {/* Mobile Profile Sidebar - Only visible on mobile */}
-        <div className="md:hidden w-full mb-4">
-          <ProfileSidebar
-            userData={userData}
-            onViewMore={handleViewMore}
-            onSavedClick={() => setIsSavedModalOpen(true)}
-            isMobile={true}
-          />
-        </div>
+      <div className="max-w-7xl mx-auto py-4 md:py-6 px-2 md:px-4">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+          {/* Mobile Profile Sidebar - Only visible on mobile */}
+          <div className="lg:hidden w-full mb-4">
+            <ProfileSidebar
+              userData={userData}
+              onViewMore={handleViewMore}
+              onSavedClick={() => setIsSavedModalOpen(true)}
+              isMobile={true}
+            />
+          </div>
 
-        {/* Desktop Profile Sidebar - Only visible on desktop */}
-        <div className="hidden md:block w-80 flex-shrink-0">
-          <ProfileSidebar
-            userData={userData}
-            onViewMore={handleViewMore}
-            onSavedClick={() => setIsSavedModalOpen(true)}
-            isMobile={false}
-          />
-        </div>
+          {/* Desktop Profile Sidebar - Only visible on desktop */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <ProfileSidebar
+              userData={userData}
+              onViewMore={handleViewMore}
+              onSavedClick={() => setIsSavedModalOpen(true)}
+              isMobile={false}
+            />
+          </div>
 
-        <div className="flex-1 max-w-full md:max-w-xl mx-auto">
-          <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
-          <CreatePostModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onPublish={handlePublish}
-          />
+          {/* Main Content - Centered with max width */}
+          <div className="flex-1 max-w-2xl mx-auto w-full">
+            <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
+            <CreatePostModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onPublish={handlePublish}
+            />
 
-          {isLoading ? (
-            <div className="text-center py-4">Cargando publicaciones...</div>
-          ) : error ? (
-            <div className="text-center py-4 text-red-500">{error}</div>
-          ) : (
-            publications.map((publication) => (
-              <PublicationCard
-                key={publication.id}
-                publication={publication}
-                onLike={handleLike}
-                onComment={handleComment}
-                onSave={handleSavePublication}
-                onShare={handleShare}
-              />
-            ))
-          )}
+            {isLoading ? (
+              <div className="text-center py-4">Cargando publicaciones...</div>
+            ) : error ? (
+              <div className="text-center py-4 text-red-500">{error}</div>
+            ) : (
+              publications.map((publication) => (
+                <PublicationCard
+                  key={publication.id}
+                  publication={publication}
+                  onLike={handleLike}
+                  onComment={handleComment}
+                  onSave={handleSavePublication}
+                  onShare={handleShare}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Right Sidebar - Only visible on desktop */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            {/* Puedes agregar contenido adicional aquí si lo necesitas */}
+          </div>
         </div>
       </div>
       {activeComment.isOpen && activeComment.publicationId && (
@@ -597,7 +605,7 @@ const ProfileSidebar = ({
   return (
     <div className={`${isMobile ? 'w-full' : 'w-80'} ${isMobile ? '' : 'sticky top-6'}`}>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-16 md:h-20 bg-slate-200 relative">
+        <div className="h-24 md:h-32 bg-slate-200 relative">
           <Image
             src={getUserCoverPhoto()}
             alt="Portada"
@@ -606,48 +614,48 @@ const ProfileSidebar = ({
             unoptimized={true}
           />
         </div>
-        <div className="px-3 md:px-4 pb-3 md:pb-4">
-          <div className="relative -mt-10 md:-mt-12 mb-2 md:mb-3">
-            <div className="w-20 h-20 md:w-24 md:h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
+        <div className="px-4 md:px-6 pb-4 md:pb-6">
+          <div className="relative -mt-12 md:-mt-16 mb-3 md:mb-4">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
               <Image
                 src={getUserProfilePic()}
                 alt="Perfil"
                 fill
-                sizes="96px"
+                sizes="128px"
                 className="object-cover"
                 unoptimized={true}
               />
             </div>
           </div>
-          <h1 className="text-lg md:text-xl font-semibold">{getUserTitle()}</h1>
+          <h1 className="text-xl md:text-2xl font-semibold mb-1">{getUserTitle()}</h1>
 
           {userData && (
             <>
               {getUserSlogan() && (
-                <p className="text-xs md:text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
+                <p className="text-sm md:text-base text-gray-600 italic mb-3">"{getUserSlogan()}"</p>
               )}
-              <br></br>
 
               {getUserLocation() && (
-                <p className="text-xs md:text-sm text-gray-600 flex items-center mb-3 md:mb-4">
-                  <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                <p className="text-sm md:text-base text-gray-600 flex items-center mb-4">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                   {getUserLocation()}
                 </p>
               )}
             </>
           )}
 
-          <nav className="space-y-1 md:space-y-2 mt-3 md:mt-4">
+          <nav className="space-y-2 md:space-y-3 mt-4 md:mt-6">
             <button
               onClick={onSavedClick}
-              className="flex items-center gap-2 w-full py-1.5 md:py-2 text-xs md:text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2"
+              className="flex items-center gap-3 w-full py-2 md:py-3 text-sm md:text-base text-gray-600 hover:bg-gray-50 rounded-md px-3 transition-colors duration-200"
             >
-              <Bookmark className="w-3 h-3 md:w-4 md:h-4" /> Publicaciones guardadas
+              <Bookmark className="w-5 h-5 md:w-6 md:h-6" /> 
+              <span>Publicaciones guardadas</span>
             </button>
           </nav>
           <button 
             onClick={onViewMore} 
-            className="w-full text-center py-2 md:py-3 text-xs md:text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-3 md:mt-4"
+            className="w-full text-center py-2.5 md:py-3 text-sm md:text-base text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4 md:mt-6 border border-gray-200"
           >
             Ver más
           </button>
@@ -724,11 +732,11 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
           {media.map((item) => (
             <div key={item.id} className="min-w-full flex-shrink-0">
               {mediaError[item.id] ? (
-                <div className="h-64 w-full bg-gray-200 flex items-center justify-center">
+                <div className="h-48 sm:h-64 w-full bg-gray-200 flex items-center justify-center">
                   <p className="text-gray-500">No se pudo cargar el medio</p>
                 </div>
               ) : item.media_type === "image" ? (
-                <div className="relative h-64 w-full">
+                <div className="relative h-48 sm:h-64 w-full">
                   <img
                     src={getMediaUrl(item.file_path)}
                     alt="Imagen de publicación"
@@ -738,14 +746,17 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                   />
                 </div>
               ) : (
-                <video
-                  src={getMediaUrl(item.file_path)}
-                  controls
-                  className="w-full h-64 object-cover rounded-lg"
-                  playsInline
-                  onError={() => handleMediaError(item.id, item.file_path)}
-                  preload="auto"
-                />
+                <div className="relative h-48 sm:h-64 w-full">
+                  <video
+                    src={getMediaUrl(item.file_path)}
+                    controls
+                    className="w-full h-full object-cover rounded-lg"
+                    playsInline
+                    onError={() => handleMediaError(item.id, item.file_path)}
+                    preload="auto"
+                    controlsList="nodownload"
+                  />
+                </div>
               )}
             </div>
           ))}
@@ -754,26 +765,26 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
 
       {media.length > 1 && (
         <>
-          <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
+          <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center space-x-1.5 sm:space-x-2">
             {media.map((_, idx) => (
               <button
                 key={idx}
-                className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
+                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
                 onClick={() => setCurrentIndex(idx)}
               />
             ))}
           </div>
           <button
-            className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            className="absolute top-1/2 left-1 sm:left-2 -translate-y-1/2 bg-white/80 sm:bg-white/70 rounded-full p-1.5 sm:p-1 hover:bg-white/90 transition-colors"
             onClick={goToPrev}
           >
-            <ChevronLeft className="w-5 h-5 text-gray-800" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800" />
           </button>
           <button
-            className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            className="absolute top-1/2 right-1 sm:right-2 -translate-y-1/2 bg-white/80 sm:bg-white/70 rounded-full p-1.5 sm:p-1 hover:bg-white/90 transition-colors"
             onClick={goToNext}
           >
-            <ChevronRight className="w-5 h-5 text-gray-800" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800" />
           </button>
         </>
       )}
@@ -876,10 +887,10 @@ const PublicationCard = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
+    <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4">
       {publication.shared_by && (
-        <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <img
               src={getAvatarUrl(publication.shared_by.id)}
               alt={getUserName(publication.shared_by.id)}
@@ -892,19 +903,19 @@ const PublicationCard = ({
           </div>
           <div>
             <h3 
-              className="text-sm md:text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              className="text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
               onClick={() => publication.shared_by && handleProfileClick(publication.shared_by.id)}
             >
               {getUserName(publication.shared_by.id)}
             </h3>
-            <p className="text-xs md:text-sm text-gray-500">Compartió esta publicación</p>
+            <p className="text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
       )}
 
-      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200' : ''}`}>
-        <div className="flex items-center space-x-2 md:space-x-3 mb-3 md:mb-4">
-          <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-gray-200 overflow-hidden relative">
+      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-4 border border-gray-200' : ''}`}>
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
             <img
               src={getAvatarUrl(publication.user.id)}
               alt={getUserName(publication.user.id)}
@@ -917,17 +928,17 @@ const PublicationCard = ({
           </div>
           <div>
             <h3 
-              className="text-sm md:text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              className="text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
               onClick={() => handleProfileClick(publication.user.id)}
             >
               {getUserName(publication.user.id)}
             </h3>
-            <div className="flex items-center text-xs md:text-sm text-gray-500">
+            <div className="flex items-center text-sm text-gray-500">
               <span>{new Date(publication.created_at).toLocaleDateString()}</span>
               {publication.location && (
                 <>
-                  <span className="mx-1">•</span>
-                  <MapPin className="w-3 h-3 md:w-4 md:h-4 mr-1" />
+                  <span className="mx-2">•</span>
+                  <MapPin className="w-4 h-4 mr-1" />
                   <span>{publication.location}</span>
                 </>
               )}
@@ -935,45 +946,45 @@ const PublicationCard = ({
           </div>
         </div>
 
-        <div className={`${publication.shared_by ? 'pl-9 md:pl-11' : ''}`}>
-          <p className="text-sm md:text-base text-gray-800 mb-3 md:mb-4">{publication.content}</p>
+        <div className={`${publication.shared_by ? 'pl-12' : ''}`}>
+          <p className="text-base text-gray-800 mb-4 whitespace-pre-wrap">{publication.content}</p>
           {publication.has_media && publication.media && publication.media.length > 0 && (
             <MediaCarousel media={publication.media} />
           )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between text-gray-500 border-t pt-2 md:pt-3 mt-3 md:mt-4">
+      <div className="flex items-center justify-between text-gray-500 border-t pt-3 mt-4">
         <button
           onClick={() => handleLikeClick(publication.id)}
-          className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
+          className={`flex items-center gap-2 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
         >
           <Heart
-            className={`w-4 h-4 md:w-5 md:h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
+            className={`w-5 h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
               } ${publication.liked ? 'fill-current scale-110' : ''}`}
           />
-          <span className={`text-xs md:text-sm transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
+          <span className={`text-sm transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
             {publication.likes_count}
           </span>
         </button>
 
-        <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
-          <MessageCircle className="w-4 h-4 md:w-5 md:h-5" />
-          <span className="text-xs md:text-sm">{publication.comments_count}</span>
+        <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-2 hover:text-blue-600">
+          <MessageCircle className="w-5 h-5" />
+          <span className="text-sm">{publication.comments_count}</span>
         </button>
         <button
           onClick={() => handleSaveClick(publication.id)}
-          className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+          className={`flex items-center gap-2 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
         >
-          <Bookmark className={`w-4 h-4 md:w-5 md:h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
-          <span className="text-xs md:text-sm">Guardar</span>
+          <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
+          <span className="text-sm">Guardar</span>
         </button>
         <button
           onClick={() => setIsShareModalOpen(true)}
-          className="flex items-center gap-1 hover:text-blue-600"
+          className="flex items-center gap-2 hover:text-blue-600"
         >
-          <Share2 className="w-4 h-4 md:w-5 md:h-5" />
-          <span className="text-xs md:text-sm">Compartir</span>
+          <Share2 className="w-5 h-5" />
+          <span className="text-sm">Compartir</span>
         </button>
       </div>
 
