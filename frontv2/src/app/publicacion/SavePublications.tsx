@@ -101,7 +101,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
 
     const handleUnsave = async (publicationId: number) => {
         try {
-            showLoader(); // Mostrar loader al iniciar la acción
+            showLoader();
             const response = await apiRequest(`/publications/${publicationId}/save`, 'POST');
 
             if (response.status === 'success') {
@@ -113,13 +113,13 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
         } catch (err) {
             console.error('Error al quitar la publicación guardada:', err);
         } finally {
-            hideLoader(); // Ocultar loader al finalizar la acción
+            hideLoader();
         }
     };
 
     const handleLike = async (publicationId: number) => {
         try {
-            showLoader(); // Mostrar loader al iniciar la acción
+            showLoader();
             const response = await apiRequest(`/publications/${publicationId}/like`, 'POST');
 
             if (response.status === 'success') {
@@ -142,7 +142,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
         } catch (err) {
             console.error('Error al dar like a la publicación:', err);
         } finally {
-            hideLoader(); // Ocultar loader al finalizar la acción
+            hideLoader();
         }
     };
 

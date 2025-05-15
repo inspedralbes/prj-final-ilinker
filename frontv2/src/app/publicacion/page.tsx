@@ -91,7 +91,6 @@ export default function PublicationPage() {
     fetchPublications();
     fetchAllUsers();
   }, []);
-
   // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
     try {
@@ -101,10 +100,16 @@ export default function PublicationPage() {
 
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked y saved correctamente establecida
+        // y que las URLs de los medios sean completas
         const publicationsWithState = response.data.data.map((pub: Publication) => ({
           ...pub,
           liked: pub.likes?.some(like => like.user_id === userData?.id) || false,
-          saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false
+          saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false,
+          // Procesar las URLs de los medios para asegurar que sean completas
+          media: pub.media?.map(m => ({
+            ...m,
+            file_path: m.file_path.startsWith('http') ? m.file_path : `${config.storageUrl}${m.file_path}`
+          }))
         }));
         setPublications(publicationsWithState);
       } else {
@@ -235,6 +240,7 @@ export default function PublicationPage() {
   // Función para dar like a una publicación
   const handleLike = async (id: number) => {
     try {
+      showLoader();
       const response = await apiRequest(`/publications/${id}/like`, 'POST');
       console.log('Respuesta del like:', response);
 
@@ -256,12 +262,15 @@ export default function PublicationPage() {
       }
     } catch (err) {
       console.error('Error al dar like a la publicación:', err);
+    } finally {
+      hideLoader();
     }
   };
 
   // Función para guardar una publicación
   const handleSavePublication = async (id: number) => {
     try {
+      showLoader();
       const response = await apiRequest(`/publications/${id}/save`, 'POST');
       console.log('Respuesta del guardado:', response);
 
@@ -282,6 +291,8 @@ export default function PublicationPage() {
       }
     } catch (err) {
       console.error('Error al guardar la publicación:', err);
+    } finally {
+      hideLoader();
     }
   };
 
@@ -334,9 +345,7 @@ export default function PublicationPage() {
     } else {
       console.log('No se encontraron datos de perfil válidos');
     }
-  };
-
-  const handlePublish = async (data: {
+  };  const handlePublish = async (data: {
     content: string;
     media: Media[];
     visibility: "public" | "private";
@@ -360,7 +369,31 @@ export default function PublicationPage() {
       const response = await apiRequest('/publications', 'POST', formData);
 
       if (response.status === 'success') {
-        setPublications([response.data, ...publications]);
+        console.log('Respuesta de creación de publicación:', response.data);
+        
+        // Normalizar la estructura de los medios si existen y asegurar que las URLs sean completas
+        const normalizedPublication = {
+          ...response.data,
+          liked: false,
+          saved: false,
+          // Asegurarnos de que media tenga la estructura correcta y URLs completas
+          media: response.data.media?.map((m: any) => {
+            // Asegurar que file_path siempre tiene la URL completa
+            const completePath = m.file_path.startsWith('http') 
+              ? m.file_path 
+              : `${config.storageUrl}${m.file_path}`;
+            
+            return {
+              id: m.id,
+              file_path: completePath,
+              media_type: m.media_type || "image",
+              display_order: m.display_order || 0
+            };
+          }) || []
+        };
+        
+        console.log('Publicación normalizada:', normalizedPublication);
+        setPublications([normalizedPublication, ...publications]);
         setIsModalOpen(false);
       }
     } catch (err) {
@@ -380,9 +413,16 @@ export default function PublicationPage() {
     return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
   };
 
-  const handleShare = (sharedPublication: any) => {
-    // Agregar la publicación compartida al inicio del array de publicaciones
-    setPublications(prevPublications => [sharedPublication, ...prevPublications]);
+  const handleShare = async (sharedPublication: any) => {
+    try {
+      showLoader();
+      // Actualizar la lista de publicaciones con la nueva publicación compartida
+      setPublications(prevPublications => [sharedPublication, ...prevPublications]);
+    } catch (err) {
+      console.error('Error al compartir la publicación:', err);
+    } finally {
+      hideLoader();
+    }
   };
 
   return (
@@ -628,6 +668,11 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%
 const MediaCarousel = ({ media }: { media: { id: number; file_path: string; media_type: "image" | "video" }[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaError, setMediaError] = useState<Record<number, boolean>>({});
+  
+  // Resetear errores cuando cambian los medios
+  useEffect(() => {
+    setMediaError({});
+  }, [media]);
 
   const goToPrev = () => {
     setCurrentIndex((prevIndex) =>
@@ -639,17 +684,20 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
     setCurrentIndex((prevIndex) =>
       prevIndex === media.length - 1 ? 0 : prevIndex + 1
     );
-  };
-
-  const handleMediaError = (id: number) => {
+  };  const handleMediaError = (id: number, url: string) => {
+    console.error(`Error loading media with id: ${id} from URL: ${url}`);
     setMediaError(prev => ({ ...prev, [id]: true }));
   };
 
   if (!media || media.length === 0) return null;
-
   const getMediaUrl = (filePath: string) => {
     if (!filePath) return '';
-    return filePath.startsWith('http') ? filePath : `${config.storageUrl}${filePath}`;
+    
+    // Si ya es una URL completa, devolverla como está
+    if (filePath.startsWith('http')) return filePath;
+    
+    // Si es una ruta relativa, añadir la URL base
+    return `${config.storageUrl}${filePath}`;
   };
 
   return (
@@ -666,22 +714,20 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
                   <p className="text-gray-500">No se pudo cargar el medio</p>
                 </div>
               ) : item.media_type === "image" ? (
-                <div className="relative h-64 w-full">
-                  <img
+                <div className="relative h-64 w-full">                  <img
                     src={getMediaUrl(item.file_path)}
                     alt="Imagen de publicación"
                     className="w-full h-full object-cover"
-                    onError={() => handleMediaError(item.id)}
+                    onError={() => handleMediaError(item.id, getMediaUrl(item.file_path))}
                     loading="lazy"
                   />
                 </div>
-              ) : (
-                <video
+              ) : (                <video
                   src={getMediaUrl(item.file_path)}
                   controls
                   className="w-full h-64 object-cover rounded-lg"
                   playsInline
-                  onError={() => handleMediaError(item.id)}
+                  onError={() => handleMediaError(item.id, getMediaUrl(item.file_path))}
                   preload="metadata"
                 />
               )}

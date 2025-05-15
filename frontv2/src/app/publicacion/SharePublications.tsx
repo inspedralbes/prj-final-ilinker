@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { X } from 'lucide-react';
 import { apiRequest } from '@/services/requests/apiRequest';
 import { AuthContext } from '@/contexts/AuthContext';
+import { LoaderContext } from '@/contexts/LoaderContext';
 import Image from 'next/image';
 import config from '@/types/config';
 
@@ -29,6 +30,7 @@ interface SharePublicationsProps {
 export default function SharePublications({ isOpen, onClose, publication, onShareSuccess }: SharePublicationsProps) {
   const [content, setContent] = useState('');
   const { userData, allUsers } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useContext(LoaderContext);
 
   // Función para obtener el nombre según el rol
   const getUserName = (userId: number) => {
@@ -48,21 +50,23 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
   if (!isOpen || !publication) return null;
 
   const handleShare = async () => {
+    if (!publication) return;
+
     try {
+      showLoader();
       const response = await apiRequest('/publications/share', 'POST', {
-        original_publication_id: publication.id,
-        content: content,
+        publication_id: publication.id,
+        content: content
       });
 
-      if (response.status === 'success') {
-        if (onShareSuccess) {
-          onShareSuccess(response.data);
-        }
+      if (response.status === 'success' && onShareSuccess) {
+        onShareSuccess(response.data);
         onClose();
-        setContent('');
       }
-    } catch (error) {
-      console.error('Error sharing publication:', error);
+    } catch (err) {
+      console.error('Error al compartir la publicación:', err);
+    } finally {
+      hideLoader();
     }
   };
 
