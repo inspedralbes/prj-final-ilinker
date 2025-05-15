@@ -404,18 +404,13 @@ export default function PublicationPage() {
           comments_enabled: response.data.comments_enabled !== false,
           status: response.data.status || "published",
           
-          // Usar directamente el file_path del backend
-          media: response.data.media?.map((m: any) => ({
-            id: m.id,
-            file_path: m.file_path,
-            media_type: m.media_type || "image",
-            display_order: m.display_order || 0
-          })) || []
+          // Las URLs ya vienen procesadas del backend
+          media: response.data.media || []
         };
         
         console.log('Publicación normalizada:', normalizedPublication);
         
-        // Añadir la nueva publicación al principio de la lista
+        // Añadir la nueva publicación al principio de la lista y asegurar que el estado se actualice inmediatamente
         setPublications(prevPublications => [normalizedPublication, ...prevPublications]);
         setIsModalOpen(false);
       }
@@ -716,10 +711,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   if (!media || media.length === 0) return null;
 
   const getMediaUrl = (path: string) => {
-    // Si el path ya es una URL completa, lo devolvemos tal cual
-    if (path.startsWith('http')) return path;
-    // Si no, lo concatenamos con la URL base de Laravel
-    return `${config.storageUrl}${path}`;
+    return normalizeUrl(path);
   };
 
   return (

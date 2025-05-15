@@ -162,6 +162,13 @@ class PublicationsController extends Controller
 
             $publication->load(['user:id,name', 'media']);
 
+            // Process media URLs before returning
+            if ($publication->media && count($publication->media) > 0) {
+                foreach ($publication->media as $media) {
+                    $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                }
+            }
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Publication created successfully',
