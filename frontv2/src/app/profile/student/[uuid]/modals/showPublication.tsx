@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     X,
     Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
@@ -17,18 +17,20 @@ import {
 } from "@/components/ui/carousel"
 import { addDays, format, formatDistanceToNow } from "date-fns"
 import { es } from 'date-fns/locale';
+import { apiRequest } from "@/services/requests/apiRequest";
 
 
 interface PropsModal {
     publication: any;
     student: any;
     onClose: () => void;
+    onSave: (data: any) => void;
 }
 
-export default function ShowPublication({ publication, student, onClose }: PropsModal) {
-    const [loading, setLoading] = useState(false);
+export default function ShowPublication({ publication, student, onClose, onSave }: PropsModal) {
     const [publicationEdit, setPublicationEdit] = useState(publication);
-    const [studentEdit, setStudentEdit] = useState(student);
+    const [error, setError] = useState<string | null>(null);
+    const commentInputRef = useRef<HTMLInputElement>(null);
 
 
     // Verificar si la publicación tiene imágenes
@@ -69,6 +71,29 @@ export default function ShowPublication({ publication, student, onClose }: Props
         }
     };
 
+    const handleLike = async (id: number) => {
+        try {
+            const response = await apiRequest(`/publications/${id}/like`, 'POST');
+            console.log('Respuesta del like:', response);
+
+            if (response.status === 'success') {
+                // Actualizar el estado de las publicaciones con la nueva información del like
+                setPublicationEdit({
+                    ...publicationEdit,
+                    likes_count: response.likes_count,
+                    liked: response.liked
+                });
+
+                onSave(publicationEdit.id);
+        
+            }
+        } catch (err) {
+            console.error('Error al dar like a la publicación:', err);
+            setError('Error al dar like a la publicación');
+        }
+    }
+
+
     return (
         <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
@@ -91,12 +116,12 @@ export default function ShowPublication({ publication, student, onClose }: Props
                 <div className="flex md:hidden items-center p-4 border-b w-full">
                     <Avatar className="h-8 w-8">
                         <img
-                            src={getProfileImageUrl(publicationEdit.user_details)}
+                            src={getProfileImageUrl(publicationEdit?.user_details)}
                             alt="Author"
                             className="h-full w-full object-cover rounded-full"
                         />
                     </Avatar>
-                    <div className="ml-3 font-semibold">{getUserName(publicationEdit.user_details)}</div>
+                    <div className="ml-3 font-semibold">{getUserName(publicationEdit?.user_details)}</div>
                 </div>
 
                 {/* Imagen o Carousel (se muestra solo si hay media) */}
@@ -280,8 +305,10 @@ export default function ShowPublication({ publication, student, onClose }: Props
                             <div className="flex items-center space-x-3">
 
                                 <div className="flex items-center space-x-1">
-                                    <button className="mr-1">
-                                        {publicationEdit.liked && publicationEdit.is_liked ? (
+                                    <button className="mr-1"
+                                        onClick={() => handleLike(publicationEdit.id)}
+                                    >
+                                        {publicationEdit.liked ? (
                                             <Heart className="h-5 w-5 text-red-500 hover:text-red-600" fill='red' />
                                         ) : (
                                             <Heart className="h-5 w-5 hover:text-red-600" />
@@ -291,7 +318,12 @@ export default function ShowPublication({ publication, student, onClose }: Props
                                 </div>
 
                                 <div className="flex items-center space-x-1">
-                                    <button className="mr-1">
+                                    <button className="mr-1"
+                                        onClick={() => {
+                                            commentInputRef.current?.focus();
+                                            commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        }}
+                                    >
                                         <MessageCircle className="h-5 w-5" />
                                     </button>
                                     <span>{publicationEdit.comments_count}</span>
@@ -319,6 +351,7 @@ export default function ShowPublication({ publication, student, onClose }: Props
                     {/* Input de comentario */}
                     <div className="p-4 border-t">
                         <input
+                            ref={commentInputRef}
                             type="text"
                             placeholder="Agrega un comentario..."
                             className="w-full outline-none"

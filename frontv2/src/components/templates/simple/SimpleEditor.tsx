@@ -1,6 +1,6 @@
 "use client"
 
-import {useEditor, EditorContent} from '@tiptap/react'
+import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Document from '@tiptap/extension-document'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -14,7 +14,7 @@ import Image from '@tiptap/extension-image'
 import Color from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
-import React, {useRef, useEffect, useState} from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import {
     Bold,
     Italic,
@@ -38,8 +38,8 @@ import {
 } from 'lucide-react'
 import '@/styles/tiptap.scss'
 // import Image from '@tiptap/extension-image'
-import {ResizableImage} from '@/contexts/ResizableImage'
-import {Button} from "@/components/ui/button";
+import { ResizableImage } from '@/contexts/ResizableImage'
+import { Button } from "@/components/ui/button";
 
 
 interface SimpleEditorProps {
@@ -47,7 +47,7 @@ interface SimpleEditorProps {
     onChange: (html: string) => void
 }
 
-export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) => {
+export const SimpleEditor: React.FC<SimpleEditorProps> = ({ content, onChange }) => {
     const colorTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null!);
 
     const [showImageMenu, setShowImageMenu] = useState(false);
@@ -88,7 +88,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
             }),
             HardBreak.configure({
                 keepMarks: true,
-                HTMLAttributes: {class: 'my-hard-break'},
+                HTMLAttributes: { class: 'my-hard-break' },
             }),
             BulletList.configure({
                 HTMLAttributes: {
@@ -110,7 +110,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                 allowBase64: true,
             }),
             Typography,
-            TextAlign.configure({types: ['heading', 'paragraph']}),
+            TextAlign.configure({ types: ['heading', 'paragraph'] }),
             Image.configure({
                 inline: true,
                 allowBase64: true,
@@ -130,14 +130,18 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
             }),
         ],
         content,
-        onUpdate: ({editor}) => {
-            onChange(editor.getHTML())
-        },
         editorProps: {
             attributes: {
                 class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl focus:outline-none mx-auto p-4',
             },
         },
+
+        onUpdate: ({ editor }) => {
+            onChange(editor.getHTML())
+        },
+
+        immediatelyRender: false,
+
     })
 
     const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -197,7 +201,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
             }
             // Si hay una URL, la usamos
             else if (imageUrl) {
-                editor.chain().focus().setImage({src: imageUrl, alt: imageAlt}).run();
+                editor.chain().focus().setImage({ src: imageUrl, alt: imageAlt }).run();
                 setShowImageMenu(false);
                 setImageUrl('');
                 setImageAlt('');
@@ -222,11 +226,11 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
 
         if (isValidUrl(linkWord)) {
             // Solo aplicar si es un enlace válido
-            editor.chain().focus().extendMarkRange('link').setLink({href: linkWord}).run();
+            editor.chain().focus().extendMarkRange('link').setLink({ href: linkWord }).run();
             setShowLinkMenu(false);
             setErrorMsg('')
             setLinkWord('');
-        }else{
+        } else {
             setErrorMsg('No es un link valido');
             return;
         }
@@ -243,72 +247,72 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('bold') ? 'bg-gray-200' : ''}`}
                         title="Negrita"
                     >
-                        <Bold className="w-5 h-5"/>
+                        <Bold className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => editor?.chain().focus().toggleItalic().run()}
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('italic') ? 'bg-gray-200' : ''}`}
                         title="Cursiva"
                     >
-                        <Italic className="w-5 h-5"/>
+                        <Italic className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => editor?.chain().focus().toggleStrike().run()}
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('strike') ? 'bg-gray-200' : ''}`}
                         title="Tachado"
                     >
-                        <Strikethrough className="w-5 h-5"/>
+                        <Strikethrough className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="w-px bg-gray-300 mx-1"/>
+                <div className="w-px bg-gray-300 mx-1" />
 
                 <div className="flex items-center gap-1 px-1">
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 1}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 1}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 1 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 1 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 1"
                     >
-                        <Heading1 className="w-5 h-5"/>
+                        <Heading1 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 2}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 2}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 2 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 2"
                     >
-                        <Heading2 className="w-5 h-5"/>
+                        <Heading2 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 3}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 3}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 3 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 3"
                     >
-                        <Heading3 className="w-5 h-5"/>
+                        <Heading3 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 4}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 4}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 4 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 4 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 4"
                     >
-                        <Heading4 className="w-5 h-5"/>
+                        <Heading4 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 5}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 5}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 5 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 5 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 5"
                     >
-                        <Heading5 className="w-5 h-5"/>
+                        <Heading5 className="w-5 h-5" />
                     </button>
                     <button
-                        onClick={() => editor?.chain().focus().toggleHeading({level: 6}).run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', {level: 6}) ? 'bg-gray-200' : ''}`}
+                        onClick={() => editor?.chain().focus().toggleHeading({ level: 6 }).run()}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('heading', { level: 6 }) ? 'bg-gray-200' : ''}`}
                         title="Encabezado 6"
                     >
-                        <Heading6 className="w-5 h-5"/>
+                        <Heading6 className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="w-px bg-gray-300 mx-1"/>
+                <div className="w-px bg-gray-300 mx-1" />
 
                 <div className="flex items-center gap-1 px-1">
                     <button
@@ -316,44 +320,44 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('bulletList') ? 'bg-gray-200' : ''}`}
                         title="Lista con viñetas"
                     >
-                        <List className="w-5 h-5"/>
+                        <List className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => editor?.chain().focus().toggleOrderedList().run()}
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive('orderedList') ? 'bg-gray-200' : ''}`}
                         title="Lista numerada"
                     >
-                        <ListOrdered className="w-5 h-5"/>
+                        <ListOrdered className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="w-px bg-gray-300 mx-1"/>
+                <div className="w-px bg-gray-300 mx-1" />
 
                 <div className="flex items-center gap-1 px-1">
                     <button
                         onClick={() => editor?.chain().focus().setTextAlign('left').run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({textAlign: 'left'}) ? 'bg-gray-200' : ''}`}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({ textAlign: 'left' }) ? 'bg-gray-200' : ''}`}
                         title="Alinear a la izquierda"
                     >
-                        <AlignLeft className="w-5 h-5"/>
+                        <AlignLeft className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => editor?.chain().focus().setTextAlign('center').run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({textAlign: 'center'}) ? 'bg-gray-200' : ''}`}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({ textAlign: 'center' }) ? 'bg-gray-200' : ''}`}
                         title="Centrar"
                     >
-                        <AlignCenter className="w-5 h-5"/>
+                        <AlignCenter className="w-5 h-5" />
                     </button>
                     <button
                         onClick={() => editor?.chain().focus().setTextAlign('right').run()}
-                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({textAlign: 'right'}) ? 'bg-gray-200' : ''}`}
+                        className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${editor?.isActive({ textAlign: 'right' }) ? 'bg-gray-200' : ''}`}
                         title="Alinear a la derecha"
                     >
-                        <AlignRight className="w-5 h-5"/>
+                        <AlignRight className="w-5 h-5" />
                     </button>
                 </div>
 
-                <div className="w-px bg-gray-300 mx-1"/>
+                <div className="w-px bg-gray-300 mx-1" />
 
                 <div className="relative" title="Color de texto">
                     <button
@@ -364,7 +368,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                 : 'none'
                         }}
                     >
-                        <Palette className="w-5 h-5"/>
+                        <Palette className="w-5 h-5" />
                     </button>
                     <input
                         type="color"
@@ -381,7 +385,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                     />
                 </div>
 
-                <div className="w-px bg-gray-300 mx-1"/>
+                <div className="w-px bg-gray-300 mx-1" />
 
                 <div className="flex items-center gap-1 px-1 relative">
                     <button
@@ -389,7 +393,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                         onClick={() => setShowLinkMenu(!showLinkMenu)}
                         className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
                     >
-                        <LinkIcon className="w-5 h-5"/>
+                        <LinkIcon className="w-5 h-5" />
                     </button>
 
                     <button
@@ -397,7 +401,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                         onClick={() => editor?.chain().focus().unsetLink().run()}
                         className="p-2 rounded-md hover:bg-gray-200 transition-colors duration-200"
                     >
-                        <Unlink className="w-5 h-5"/>
+                        <Unlink className="w-5 h-5" />
                     </button>
 
                     <button
@@ -406,13 +410,13 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                         className={`p-2 rounded-md hover:bg-gray-200 transition-colors duration-200 ${showImageMenu ? 'bg-gray-200' : ''}`}
                         title="Insertar imagen"
                     >
-                        <ImageUp className="w-5 h-5"/>
+                        <ImageUp className="w-5 h-5" />
                     </button>
 
                 </div>
             </div>
 
-            <EditorContent editor={editor}/>
+            <EditorContent editor={editor} />
 
             {/* Modal de inserción de imagen */}
             {showImageMenu && (
@@ -427,7 +431,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                 onClick={() => setShowImageMenu(false)}
                                 className="p-1 hover:bg-gray-100 rounded-full"
                             >
-                                <X className="w-5 h-5"/>
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -461,13 +465,13 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                 </button>
                                 {selectedFileName && (
                                     <>
-                                    {errosMsg && (
-                                        <div
-                                            className="flex items-center p-2 mb-2 bg-red-50 text-red-700 rounded border border-red-200">
-                                            <AlertCircle size={16} className="mr-2"/>
-                                            <span className="text-sm">{errosMsg}</span>
-                                        </div>
-                                    )}
+                                        {errosMsg && (
+                                            <div
+                                                className="flex items-center p-2 mb-2 bg-red-50 text-red-700 rounded border border-red-200">
+                                                <AlertCircle size={16} className="mr-2" />
+                                                <span className="text-sm">{errosMsg}</span>
+                                            </div>
+                                        )}
 
                                         <div
                                             className="text-sm bg-blue-50 border border-blue-100 p-2 rounded flex items-center">
@@ -484,7 +488,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                                 }}
                                                 className="ml-2 text-gray-500 hover:text-gray-700"
                                             >
-                                                <X className="w-4 h-4"/>
+                                                <X className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </>
@@ -537,7 +541,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                 onClick={() => setShowLinkMenu(false)}
                                 className="p-1 hover:bg-gray-100 rounded-full"
                             >
-                                <X className="w-5 h-5"/>
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
@@ -548,7 +552,7 @@ export const SimpleEditor: React.FC<SimpleEditorProps> = ({content, onChange}) =
                                 {errosMsg && (
                                     <div
                                         className="flex items-center p-2 mb-2 bg-red-50 text-red-700 rounded border border-red-200">
-                                        <AlertCircle size={16} className="mr-2"/>
+                                        <AlertCircle size={16} className="mr-2" />
                                         <span className="text-sm">{errosMsg}</span>
                                     </div>
                                 )}

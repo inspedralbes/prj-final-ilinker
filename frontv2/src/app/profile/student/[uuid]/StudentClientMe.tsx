@@ -351,6 +351,18 @@ export default function StudentClientMe({
 
     }
 
+    const UpdatePublication = async () => {
+        showLoader();
+        const response = await apiRequest('my-publications');
+        if (response.status === 'success') {
+            setPublicationsEdit(response.data)
+            hideLoader();
+        } else {
+            hideLoader();
+        }
+
+    }
+
     const EditInfo = (section: string, education: any) => {
 
         setIsEditingModal(true);
@@ -1287,9 +1299,10 @@ export default function StudentClientMe({
                                             className="min-h-[150px]"
                                             value={studentEdit.short_description || ""}
                                             onChange={(e) =>
-                                                updateDesStudent(
-                                                    e as React.ChangeEvent<HTMLTextAreaElement>
-                                                )
+                                                setStudentEdit({
+                                                    ...studentEdit,
+                                                    short_description: e.target.value
+                                                })
                                             }
                                             placeholder="Escribe la descripción..."
                                         />
@@ -2626,6 +2639,7 @@ export default function StudentClientMe({
                         publication={selectedPost}
                         student={studentEdit}
                         onClose={() => setModalPubli(false)}
+                        onSave={UpdatePublication}
                     />
                 )
             }
