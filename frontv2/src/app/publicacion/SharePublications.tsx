@@ -82,6 +82,20 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
     return "/default-avatar.png";
   };
 
+  const getOriginalUserAvatar = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "/default-avatar.png";
+
+    if (user.rol === "student" && user.student?.photo_pic) {
+      return user.student.photo_pic.startsWith('http') ? user.student.photo_pic : `${config.storageUrl}${user.student.photo_pic}`;
+    } else if (user.rol === "company" && user.company?.logo) {
+      return user.company.logo.startsWith('http') ? user.company.logo : `${config.storageUrl}${user.company.logo}`;
+    } else if (user.rol === "institutions" && user.institution?.logo) {
+      return user.institution.logo.startsWith('http') ? user.institution.logo : `${config.storageUrl}${user.institution.logo}`;
+    }
+    return "/default-avatar.png";
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4">
       <div className="bg-white rounded-lg w-full max-w-2xl mx-auto">
@@ -123,7 +137,7 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
             <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-3">
               <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-gray-200 overflow-hidden relative">
                 <Image
-                  src={publication.user.avatar || "/default-avatar.png"}
+                  src={getOriginalUserAvatar(publication.user.id)}
                   alt={publication.user.name}
                   fill
                   className="object-cover"
