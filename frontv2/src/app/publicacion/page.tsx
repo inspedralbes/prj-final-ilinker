@@ -49,6 +49,9 @@ interface Publication {
     name: string;
   };
   original_publication_id?: number;
+  likes?: {
+    user_id: number;
+  }[];
 }
 
 interface NewPublication {
@@ -89,13 +92,12 @@ export default function PublicationPage() {
     try {
       setIsLoading(true);
       const response = await apiRequest('publications', 'GET');
-      // console.log('Respuesta de datos de publicaciones:', response);
 
       if (response.status === 'success') {
         // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
         const publicationsWithLikeState = response.data.data.map((pub: Publication) => ({
           ...pub,
-          liked: pub.liked || false // Asegurar que liked sea siempre un booleano
+          liked: pub.likes?.some(like => like.user_id === userData?.id) || false
         }));
         setPublications(publicationsWithLikeState);
       } else {
@@ -232,7 +234,10 @@ export default function PublicationPage() {
             return {
               ...pub,
               likes_count: response.likes_count,
-              liked: response.liked
+              liked: response.liked,
+              likes: response.liked 
+                ? [...(pub.likes || []), { user_id: userData?.id || 0 }]
+                : (pub.likes || []).filter(like => like.user_id !== userData?.id)
             };
           }
           return pub;

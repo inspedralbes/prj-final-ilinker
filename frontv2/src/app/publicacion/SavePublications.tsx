@@ -31,6 +31,9 @@ interface Publication {
     status: "published" | "draft" | "archived";
     liked?: boolean;
     saved?: boolean;
+    likes?: {
+        user_id: number;
+    }[];
 }
 
 interface SavePublicationsProps {
@@ -42,7 +45,7 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
     const [savedPublications, setSavedPublications] = useState<Publication[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { allUsers } = useContext(AuthContext);
+    const { allUsers, userData } = useContext(AuthContext);
 
     // Función para obtener el nombre según el rol
     const getUserName = (userId: number) => {
@@ -72,7 +75,11 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
             const response = await apiRequest('/publications/saved', 'GET');
 
             if (response.status === 'success') {
-                setSavedPublications(response.data);
+                const publicationsWithLikeState = response.data.map((pub: Publication) => ({
+                    ...pub,
+                    liked: pub.likes?.some(like => like.user_id === userData?.id) || false
+                }));
+                setSavedPublications(publicationsWithLikeState);
             } else {
                 setError('Error al cargar las publicaciones guardadas');
             }
@@ -111,7 +118,10 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
                             ? {
                                 ...pub,
                                 likes_count: response.likes_count,
-                                liked: response.liked
+                                liked: response.liked,
+                                likes: response.liked 
+                                    ? [...(pub.likes || []), { user_id: userData?.id || 0 }]
+                                    : (pub.likes || []).filter(like => like.user_id !== userData?.id)
                             }
                             : pub
                     )
