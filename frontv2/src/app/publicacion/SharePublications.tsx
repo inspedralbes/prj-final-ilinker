@@ -55,7 +55,7 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
     try {
       showLoader();
       const response = await apiRequest('/publications/share', 'POST', {
-        publication_id: publication.id,
+        original_publication_id: publication.id,
         content: content
       });
 
@@ -195,4 +195,4 @@ export default function SharePublications({ isOpen, onClose, publication, onShar
       </div>
     </div>
   );
-} 
+}
