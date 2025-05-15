@@ -44,7 +44,7 @@ export default function StudentClient({uuid, student, experience_group, offerUse
                 console.log("DATOS PUBLI");
                 console.table(response2)
                 if (response2.status === 'success') {
-                    setPublications(response2.data.data);
+                    setPublications(response2.data);
                 }
             } catch (error) {
                 console.error("Error al obtener las skills:", error);

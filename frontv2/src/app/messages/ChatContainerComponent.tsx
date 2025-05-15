@@ -1,11 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { BookMarked, Check, PenSquare, Save, Send, Star } from "lucide-react";
+import {
+  BookMarked,
+  Check,
+  CheckCheck,
+  PenSquare,
+  Save,
+  Send,
+  Star,
+} from "lucide-react";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { toast } from "@/hooks/use-toast";
 import { useContext } from "react";
 import { LoaderContext } from "@/contexts/LoaderContext";
 import socket from "@/services/websockets/sockets";
-import clsx from 'clsx';
+import clsx from "clsx";
 
 interface UserProfile {
   rol: "student" | "company" | "institution";
@@ -74,12 +82,12 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
   type StudentKeys = keyof NonNullable<UserProfile["student"]>;
   type CompanyKeys = keyof NonNullable<UserProfile["company"]>;
   type InstitutionKeys = keyof NonNullable<UserProfile["institution"]>;
-  
+
   const getProfileValue = (
     key: StudentKeys | CompanyKeys | InstitutionKeys
   ) => {
     if (!profile) return "";
-  
+
     switch (profile.rol) {
       case "student":
         return profile.student?.[key as StudentKeys] ?? "";
@@ -135,7 +143,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   const handleBookMarkedChat = () => {
@@ -151,7 +159,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       .catch((error) => {
         console.error(error);
       })
-      .finally(() => { });
+      .finally(() => {});
   };
 
   return (
@@ -160,14 +168,11 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       <div className="p-4 border-b border-gray-200 flex justify-between">
         <div className="flex items-center">
           <img
-            src={
-              getProfileValue('photo_pic') ||
-              getProfileValue('logo')
-            }
+            src={getProfileValue("photo_pic") || getProfileValue("logo")}
             alt="Chat avatar"
             className="w-10 h-10 rounded-full object-cover mr-3"
           />
-          <h3 className="font-bold">{getProfileValue('name')}</h3>
+          <h3 className="font-bold">{getProfileValue("name")}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -188,25 +193,19 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
           </button>
           {/* Botón “BookMarked” actualizado para usar la misma lógica */}
           <button
-            className={clsx(
-              "p-2 rounded-lg transition-colors duration-300",
-              {
-                // Si está guardado, fondo dorado claro:
-                "bg-yellow-100 hover:bg-yellow-200": isSaved,
-                // Si no, fondo transparente
-                "bg-transparent hover:bg-gray-300": !isSaved,
-              }
-            )}
+            className={clsx("p-2 rounded-lg transition-colors duration-300", {
+              // Si está guardado, fondo dorado claro:
+              "bg-yellow-100 hover:bg-yellow-200": isSaved,
+              // Si no, fondo transparente
+              "bg-transparent hover:bg-gray-300": !isSaved,
+            })}
             onClick={() => handleBookMarkedChat()}
           >
             <BookMarked
-              className={clsx(
-                "w-5 h-5 transition-colors duration-300",
-                {
-                  "text-yellow-500": isSaved,
-                  "text-black": !isSaved,
-                }
-              )}
+              className={clsx("w-5 h-5 transition-colors duration-300", {
+                "text-yellow-500": isSaved,
+                "text-black": !isSaved,
+              })}
             />
           </button>
         </div>
@@ -236,10 +235,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
                     (!message.is_read ? (
                       <Check className="h-4 w-4 text-gray-400 opacity-75" />
                     ) : (
-                      <div className="flex -space-x-1">
-                        <Check className="h-4 w-4 text-blue-500 opacity-90" />
-                        <Check className="h-4 w-4 text-blue-500 opacity-90 translate-y-0.5" />
-                      </div>
+                      <CheckCheck className="h-4 w-4 text-blue-500 opacity-90" />
                     ))}
                 </div>
               </div>

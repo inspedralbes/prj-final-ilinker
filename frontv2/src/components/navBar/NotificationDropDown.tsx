@@ -27,7 +27,7 @@ export default function NotificationDropDown() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button onClick={toggleDropdown} className=" rounded-full relative">
-        <div className={`flex flex-col items-center text-foreground relative`}>
+        <div className={`flex flex-col items-center ${notifications.length > 0 ? "text-foreground" : "text-muted-foreground"} relative`}>
           <Icons.Bell className="h-5 w-5" />
           {notifications.length > 0 && (
             <span className="absolute -top-1 -right-0 inline-flex items-center justify-center px-1 text-[10px] font-semibold text-white bg-red-600 rounded-full">
@@ -58,7 +58,7 @@ export default function NotificationDropDown() {
                   }}
                 >
                   {IconComp && (
-                    <IconComp className="w-5 h-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <IconComp className="w-5 h-5 text-black mr-3 flex-shrink-0" />
                   )}
                   <div className="flex-1">
                     <p className="font-medium text-gray-800 text-sm">

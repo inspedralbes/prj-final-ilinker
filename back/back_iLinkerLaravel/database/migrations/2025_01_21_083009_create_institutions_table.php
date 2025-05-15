@@ -31,8 +31,8 @@ return new class extends Migration
             $table->json('specialties')->nullable();
 
             // Imagenes de la institucion
-            $table->string('logo')->nullable();
-            $table->string('cover')->nullable();
+            $table->string('logo')->nullable()->default('default.jpg');
+            $table->string('cover')->nullable()->default('default-cover.jpg');
 
             //Informacion de contacto
             $table->string('website')->nullable();

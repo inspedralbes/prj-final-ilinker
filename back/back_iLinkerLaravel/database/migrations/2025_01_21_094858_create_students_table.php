@@ -23,8 +23,8 @@ return new class extends Migration
             $table->enum('type_document', ['DNI', 'NIE', 'PASAPORTE']);
             $table->string('id_document');
             $table->string('nationality')->nullable();
-            $table->string('photo_pic')->nullable();
-            $table->string('cover_photo')->nullable();
+            $table->string('photo_pic')->nullable()->default('default.jpg');
+            $table->string('cover_photo')->nullable()->default('default-cover.jpg');
             $table->text('short_description')->nullable();
             $table->longText('description')->nullable();
             $table->date('birthday')->nullable();

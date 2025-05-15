@@ -88,15 +88,18 @@ class StudentService
 
                 Log::info("FOTo perfil", ['name' => $filename]);
 
-                // Guardar el archivo en el almacenamiento
+                // Guardar referencia al archivo anterior
+                $oldPhoto = $students->photo_pic;
+
+                // Guardar el archivo nuevo
                 $path = $file->storeAs("students/photos/{$students->uuid}", $filename, 'public');
 
                 // Actualizar la ruta en los datos del estudiante
-                $students->photo_pic = $filename;
+                $students->photo_pic = $path;
 
-                // Opcional: Eliminar archivo anterior si existe
-                if ($students->photo_pic && Storage::disk('public')->exists($students->photo_pic)) {
-                    Storage::disk('public')->delete($students->photo_pic);
+                // Eliminar archivo anterior si existe y es diferente al nuevo
+                if ($oldPhoto && $oldPhoto !== $path && Storage::disk('public')->exists($oldPhoto)) {
+                    Storage::disk('public')->delete($oldPhoto);
                 }
             }
 
@@ -107,15 +110,17 @@ class StudentService
 
                 Log::info("cover foto", ['name' => $filename]);
 
+                $oldPhoto = $students->cover_photo;
+
                 // Guardar el archivo en el almacenamiento
                 $path = $file->storeAs("students/covers/{$students->uuid}", $filename, 'public');
 
                 // Actualizar la ruta en los datos del estudiante
-                $students->cover_photo = $filename;
+                $students->cover_photo = $path;
 
                 // Opcional: Eliminar archivo anterior si existe
-                if ($students->cover_photo && Storage::disk('public')->exists($students->cover_photo)) {
-                    Storage::disk('public')->delete($students->cover_photo);
+                if ($oldPhoto && $oldPhoto !== $path && Storage::disk('public')->exists($oldPhoto)) {
+                    Storage::disk('public')->delete($oldPhoto);
                 }
             }
         }

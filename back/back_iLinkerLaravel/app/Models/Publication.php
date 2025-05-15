@@ -46,8 +46,11 @@ class Publication extends Model
     {
         return $this->hasMany(PublicationComment::class)
             ->whereNull('parent_comment_id')
-            ->with(['user:id,name', 'replies.user:id,name'])
-            ->orderBy('created_at', 'asc');
+            ->with(['user:id,name',
+                'replies.user.student:id,user_id,uuid,name,photo_pic',
+                'replies.user.company:id,user_id,slug,name,logo',
+                'replies.user.institutions:id,user_id,slug,name,logo'])
+            ->orderBy('created_at', 'desc');
     }
 
     // Relaciรณn con los likes de la publicaciรณn
@@ -68,7 +71,7 @@ class Publication extends Model
     // Obtiene los detalles del usuario que creรณ la publicaciรณn
     public function getUserDetailsAttribute()
     {
-        return $this->user()->select('id', 'name')->first();
+        return $this->user()->with(['student', 'company', 'institutions'])->select('id', 'name', 'rol')->first();
     }
 
     // Obtiene los comentarios principales (sin padre)
