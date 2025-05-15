@@ -34,6 +34,9 @@ interface Publication {
     likes?: {
         user_id: number;
     }[];
+    saved_by?: {
+        user_id: number;
+    }[];
 }
 
 interface SavePublicationsProps {
@@ -75,11 +78,12 @@ const SavePublications: React.FC<SavePublicationsProps> = ({ isOpen, onClose }) 
             const response = await apiRequest('/publications/saved', 'GET');
 
             if (response.status === 'success') {
-                const publicationsWithLikeState = response.data.map((pub: Publication) => ({
+                const publicationsWithState = response.data.map((pub: Publication) => ({
                     ...pub,
-                    liked: pub.likes?.some(like => like.user_id === userData?.id) || false
+                    liked: pub.likes?.some(like => like.user_id === userData?.id) || false,
+                    saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false
                 }));
-                setSavedPublications(publicationsWithLikeState);
+                setSavedPublications(publicationsWithState);
             } else {
                 setError('Error al cargar las publicaciones guardadas');
             }

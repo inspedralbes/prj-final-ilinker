@@ -52,6 +52,9 @@ interface Publication {
   likes?: {
     user_id: number;
   }[];
+  saved_by?: {
+    user_id: number;
+  }[];
 }
 
 interface NewPublication {
@@ -94,12 +97,13 @@ export default function PublicationPage() {
       const response = await apiRequest('publications', 'GET');
 
       if (response.status === 'success') {
-        // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
-        const publicationsWithLikeState = response.data.data.map((pub: Publication) => ({
+        // Asegurar que cada publicación tenga la propiedad liked y saved correctamente establecida
+        const publicationsWithState = response.data.data.map((pub: Publication) => ({
           ...pub,
-          liked: pub.likes?.some(like => like.user_id === userData?.id) || false
+          liked: pub.likes?.some(like => like.user_id === userData?.id) || false,
+          saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false
         }));
-        setPublications(publicationsWithLikeState);
+        setPublications(publicationsWithState);
       } else {
         setError('Error al cargar las publicaciones');
       }
@@ -260,7 +264,10 @@ export default function PublicationPage() {
           if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
             return {
               ...pub,
-              saved: response.saved
+              saved: response.saved,
+              saved_by: response.saved 
+                ? [...(pub.saved_by || []), { user_id: userData?.id || 0 }]
+                : (pub.saved_by || []).filter(saved => saved.user_id !== userData?.id)
             };
           }
           return pub;
