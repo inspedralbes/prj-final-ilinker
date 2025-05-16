@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
+use App\Models\PublicationSaved;
+use App\Models\SharedPublication;
 
 class PublicationsController extends Controller
 {
@@ -27,20 +29,70 @@ class PublicationsController extends Controller
     {
         try {
             $userId = Auth::id();
+            
+            // Obtener publicaciones normales
             $publications = Publication::with([
                 'user:id,name',
                 'media',
                 'comments.user:id,name',
-                'likes'
+                'likes',
+                'savedPublications',
+                'sharedPublications.user:id,name'
             ])
-                ->where('status', 'published')
-                ->orderBy('created_at', 'desc')
-                ->paginate(10);
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            // Add liked status and transform media URLs for each publication
-            $publications->getCollection()->transform(function ($publication) use ($userId) {
+            // Obtener publicaciones compartidas
+            $sharedPublications = SharedPublication::with([
+                'user:id,name',
+                'originalPublication.user:id,name',
+                'originalPublication.media',
+                'originalPublication.likes',
+                'originalPublication.comments.user:id,name',
+                'originalPublication.savedPublications'
+            ])
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($sharedPub) use ($userId) {
+                // Transformar las URLs de los medios
+                $media = $sharedPub->originalPublication->media->map(function ($media) {
+                    return [
+                        'id' => $media->id,
+                        'file_path' => $this->fileService->getFileUrl($media->file_path),
+                        'media_type' => $media->media_type,
+                        'display_order' => $media->display_order
+                    ];
+                });
+
+                return [
+                    'id' => $sharedPub->id,
+                    'content' => $sharedPub->content,
+                    'created_at' => $sharedPub->created_at,
+                    'shared_by' => [
+                        'id' => $sharedPub->user->id,
+                        'name' => $sharedPub->user->name,
+                    ],
+                    'user' => [
+                        'id' => $sharedPub->originalPublication->user->id,
+                        'name' => $sharedPub->originalPublication->user->name,
+                    ],
+                    'content' => $sharedPub->originalPublication->content,
+                    'media' => $media,
+                    'has_media' => $sharedPub->originalPublication->has_media,
+                    'location' => $sharedPub->originalPublication->location,
+                    'likes_count' => $sharedPub->originalPublication->likes_count,
+                    'comments_count' => $sharedPub->originalPublication->comments_count,
+                    'liked' => $sharedPub->originalPublication->likes->contains('user_id', $userId),
+                    'saved' => $sharedPub->originalPublication->savedPublications->contains('user_id', $userId),
+                    'shared' => true,
+                    'original_publication_id' => $sharedPub->original_publication_id
+                ];
+            });
+
+            // Combinar y ordenar todas las publicaciones por fecha
+            $allPublications = $publications->map(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
-
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
                     foreach ($publication->media as $media) {
@@ -49,11 +101,19 @@ class PublicationsController extends Controller
                 }
 
                 return $publication;
-            });
+            })->concat($sharedPublications)
+              ->sortByDesc('created_at')
+              ->values();
 
             return response()->json([
                 'status' => 'success',
-                'data' => $publications
+                'data' => [
+                    'data' => $allPublications,
+                    'total' => $allPublications->count(),
+                    'current_page' => 1,
+                    'per_page' => $allPublications->count(),
+                    'last_page' => 1
+                ]
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -98,6 +158,13 @@ class PublicationsController extends Controller
             }
 
             $publication->load(['user:id,name', 'media']);
+
+            // Process media URLs before returning
+            if ($publication->media && count($publication->media) > 0) {
+                foreach ($publication->media as $media) {
+                    $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                }
+            }
 
             return response()->json([
                 'status' => 'success',
@@ -334,6 +401,9 @@ class PublicationsController extends Controller
                 'likes.user.student:id,user_id,name,uuid,photo_pic',
                 'likes.user.company:id,user_id,name,slug,logo',
                 'likes.user.institutions:id,user_id,name,slug,logo',
+                'comments.user:id,name',
+                'likes',
+                'savedPublications'
             ])
                 ->where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
@@ -343,7 +413,8 @@ class PublicationsController extends Controller
             // Ahora puedes transformar la colección
             $publications->transform(function ($publication) use ($userId) {
                 $publication->liked = $publication->likes->contains('user_id', $userId);
-
+                $publication->saved = $publication->savedPublications->contains('user_id', $userId);
+                
                 // Transform media to include full URLs
                 if ($publication->media && count($publication->media) > 0) {
                     foreach ($publication->media as $media) {
@@ -418,12 +489,13 @@ class PublicationsController extends Controller
     {
         try {
             $publication = Publication::findOrFail($publicationId);
+            $userId = Auth::id();
 
             Log::info("Usuario logueado", ["user" => Auth::user()]);
             Log::info("Usuario Reques", ["user" => $request->all()]);
 
             $existingLike = PublicationLike::where('publication_id', $publicationId)
-                ->where('user_id', Auth::id())
+                ->where('user_id', $userId)
                 ->first();
 
             if ($existingLike) {
@@ -439,7 +511,7 @@ class PublicationsController extends Controller
             } else {
                 PublicationLike::create([
                     'publication_id' => $publicationId,
-                    'user_id' => Auth::id()
+                    'user_id' => $userId
                 ]);
                 $publication->increment('likes_count');
 
@@ -456,9 +528,96 @@ class PublicationsController extends Controller
                 'message' => 'Publication not found'
             ], 404);
         } catch (\Exception $e) {
+            Log::error('Error in toggleLike: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Error toggling like',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function toggleSave($publicationId)
+    {
+        try {
+            $publication = Publication::findOrFail($publicationId);
+            $userId = Auth::id();
+
+            $existingSave = PublicationSaved::where('publication_id', $publicationId)
+                ->where('user_id', $userId)
+                ->first();
+
+            if ($existingSave) {
+                $existingSave->delete();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication unsaved successfully',
+                    'saved' => false
+                ]);
+            } else {
+                PublicationSaved::create([
+                    'publication_id' => $publicationId,
+                    'user_id' => $userId
+                ]);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Publication saved successfully',
+                    'saved' => true
+                ]);
+            }
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Publication not found'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error toggling save',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getSavedPublications()
+    {
+        try {
+            $userId = Auth::id();
+            $savedPublications = Publication::with([
+                'user:id,name',
+                'media',
+                'comments.user:id,name',
+                'likes'
+            ])
+            ->whereHas('savedPublications', function($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+            // Add liked status and transform media URLs for each publication
+            $savedPublications->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+                $publication->saved = true;
+                
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
+                }
+                
+                return $publication;
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $savedPublications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error retrieving saved publications',
                 'error' => $e->getMessage()
             ], 500);
         }

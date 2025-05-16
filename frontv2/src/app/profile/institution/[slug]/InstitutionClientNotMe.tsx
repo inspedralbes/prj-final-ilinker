@@ -166,26 +166,30 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
   )
 
   const renderSpecialties = () => (
-    <div className="mt-6 md:mt-0">
+    <div className="mt-4 md:mt-0">
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-blue-600" />
-            Especialidades
+        <CardHeader className="p-2 md:p-6">
+          <CardTitle className="flex items-center gap-1.5">
+            <Award className="h-3.5 w-3.5 md:h-6 md:w-6 text-blue-600" />
+            <span className="text-xs md:text-lg">Especialidades</span>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div>
-            <div className="flex flex-wrap gap-2">
-              {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200"
-                >
-                  <Award className="h-4 w-4 mr-1.5" />
-                  {specialty}
-                </span>
-              ))}
+        <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap gap-1 md:gap-2">
+              {ensureArray(institutionData.specialties).length > 0 ? (
+                ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-1.5 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                  >
+                    <Award className="h-2.5 w-2.5 md:h-4 md:w-4 mr-0.5 md:mr-1.5 text-blue-600" />
+                    {specialty}
+                  </span>
+                ))
+              ) : (
+                <p className="text-[10px] md:text-sm text-gray-500 italic">No hay especialidades añadidas</p>
+              )}
             </div>
           </div>
         </CardContent>

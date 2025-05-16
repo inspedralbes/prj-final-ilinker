@@ -1,15 +1,28 @@
 "use client";
 
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect, useCallback, use, useRef } from "react";
 import Image from "next/image";
 import config from "@/types/config";
 import { useRouter } from "next/navigation";
-import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send } from "lucide-react";
+import { Bookmark, Users2, CalendarDays, MessageCircle, Share2, MapPin, Heart, ChevronLeft, ChevronRight, ImageIcon, Calendar, FileText, Send, Linkedin } from "lucide-react";
 import CommentModal from "./comment";
 import { AuthContext } from "@/contexts/AuthContext";
+import { LoaderContext } from "@/contexts/LoaderContext";
 import { apiRequest } from "@/services/requests/apiRequest";
 import { User } from "@/types/global";
 import CreatePostModal from "@/components/posts/CreatePostModal";
+import SavePublications from "./SavePublications";
+import SharePublications from "./SharePublications";
+
+// Add this utility function at the top of the file
+const normalizeUrl = (path: string): string => {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  
+  // Remove any leading slashes from the path
+  const normalizedPath = path.startsWith('/') ? path.substring(1) : path;
+  return `${config.storageUrl}${normalizedPath}`;
+};
 
 // Interfaces para definir la estructura de los datos
 interface Media {
@@ -41,6 +54,18 @@ interface Publication {
   status: "published" | "draft" | "archived";
   liked?: boolean;
   saved?: boolean;
+  shared?: boolean;
+  shared_by?: {
+    id: number;
+    name: string;
+  };
+  original_publication_id?: number;
+  likes?: {
+    user_id: number;
+  }[];
+  saved_by?: {
+    user_id: number;
+  }[];
 }
 
 interface NewPublication {
@@ -64,31 +89,39 @@ export default function PublicationPage() {
     publicationId: null
   });
   const { userData, allUsers, setAllUsers } = useContext(AuthContext);
+  const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
   const [publications, setPublications] = useState<Publication[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
   // Cargar publicaciones al montar el componente
   useEffect(() => {
     fetchPublications();
     fetchAllUsers();
   }, []);
-
   // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
     try {
       setIsLoading(true);
+      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('publications', 'GET');
-      console.log('Respuesta de datos de publicaciones:', response);
 
       if (response.status === 'success') {
-        // Asegurar que cada publicación tenga la propiedad liked correctamente establecida
-        const publicationsWithLikeState = response.data.data.map((pub: Publication) => ({
+        // Asegurar que cada publicación tenga la propiedad liked y saved correctamente establecida
+        // y que las URLs de los medios sean completas
+        const publicationsWithState = response.data.data.map((pub: Publication) => ({
           ...pub,
-          liked: pub.liked || false // Asegurar que liked sea siempre un booleano
+          liked: pub.likes?.some(like => like.user_id === userData?.id) || false,
+          saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false,
+          // Procesar las URLs de los medios para asegurar que sean completas
+          media: pub.media?.map(m => ({
+            ...m,
+            file_path: normalizeUrl(m.file_path)
+          }))
         }));
-        setPublications(publicationsWithLikeState);
+        setPublications(publicationsWithState);
       } else {
         setError('Error al cargar las publicaciones');
       }
@@ -97,12 +130,14 @@ export default function PublicationPage() {
       setError('Error al cargar las publicaciones');
     } finally {
       setIsLoading(false);
+      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
   // Función para obtener todos los usuarios
   const fetchAllUsers = async () => {
     try {
+      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('/users/all', 'POST');
 
       if (response.status === 'success' && response.users) {
@@ -121,6 +156,7 @@ export default function PublicationPage() {
               return {
                 ...baseUser,
                 student: {
+                  name: user.student?.name,
                   uuid: user.student?.uuid,
                   photo_pic: user.student?.photo_pic,
                   cover_photo: user.student?.cover_photo,
@@ -133,6 +169,7 @@ export default function PublicationPage() {
                 company: {
                   name: user.company?.name,
                   logo: user.company?.logo,
+                  slug: user.company?.slug,
                 },
                 avatar: user.company?.logo
               };
@@ -142,6 +179,7 @@ export default function PublicationPage() {
                 institution: {
                   name: user.institution?.name,
                   logo: user.institution?.logo,
+                  slug: user.institution?.slug,
                 },
                 avatar: user.institution?.logo
               };
@@ -150,13 +188,14 @@ export default function PublicationPage() {
           }
         });
 
-        console.log('Todos los usuarios:', transformedUsers);
         setAllUsers(transformedUsers);
       } else {
         console.error('Error en el formato de respuesta de usuarios:', response);
       }
     } catch (err) {
       console.error('Error al obtener usuarios:', err);
+    } finally {
+      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
@@ -211,40 +250,59 @@ export default function PublicationPage() {
   // Función para dar like a una publicación
   const handleLike = async (id: number) => {
     try {
+      showLoader();
       const response = await apiRequest(`/publications/${id}/like`, 'POST');
       console.log('Respuesta del like:', response);
 
       if (response.status === 'success') {
-        // Actualizar el estado de las publicaciones con la nueva información del like
-        setPublications(publications.map((pub) =>
-          pub.id === id ? {
-            ...pub,
-            likes_count: response.likes_count,
-            liked: response.liked
-          } : pub
-        ));
+        // Actualizar solo los datos necesarios sin recargar las imágenes
+        setPublications(publications.map((pub) => {
+          if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
+            return {
+              ...pub,
+              likes_count: response.likes_count,
+              liked: response.liked,
+              likes: response.liked 
+                ? [...(pub.likes || []), { user_id: userData?.id || 0 }]
+                : (pub.likes || []).filter(like => like.user_id !== userData?.id)
+            };
+          }
+          return pub;
+        }));
       }
     } catch (err) {
       console.error('Error al dar like a la publicación:', err);
+    } finally {
+      hideLoader();
     }
   };
 
   // Función para guardar una publicación
   const handleSavePublication = async (id: number) => {
     try {
+      showLoader();
       const response = await apiRequest(`/publications/${id}/save`, 'POST');
       console.log('Respuesta del guardado:', response);
 
       if (response.status === 'success') {
-        setPublications(publications.map((pub) =>
-          pub.id === id ? {
-            ...pub,
-            saved: response.saved
-          } : pub
-        ));
+        // Actualizar solo el estado de guardado
+        setPublications(publications.map((pub) => {
+          if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
+            return {
+              ...pub,
+              saved: response.saved,
+              saved_by: response.saved 
+                ? [...(pub.saved_by || []), { user_id: userData?.id || 0 }]
+                : (pub.saved_by || []).filter(saved => saved.user_id !== userData?.id)
+            };
+          }
+          return pub;
+        }));
       }
     } catch (err) {
       console.error('Error al guardar la publicación:', err);
+    } finally {
+      hideLoader();
     }
   };
 
@@ -261,6 +319,19 @@ export default function PublicationPage() {
       isOpen: false,
       publicationId: null
     });
+  };
+
+  // Función para actualizar el contador de comentarios sin recargar la publicación
+  const handleCommentChange = (publicationId: number) => {
+    setPublications(publications.map((pub) => {
+      if ((pub.shared && pub.original_publication_id === publicationId) || pub.id === publicationId) {
+        return {
+          ...pub,
+          comments_count: pub.comments_count + 1
+        };
+      }
+      return pub;
+    }));
   };
 
   // Función para navegar al perfil del usuario
@@ -310,7 +381,37 @@ export default function PublicationPage() {
       const response = await apiRequest('/publications', 'POST', formData);
 
       if (response.status === 'success') {
-        setPublications([response.data, ...publications]);
+        console.log('Respuesta de creación de publicación:', response.data);
+        
+        // Create a complete publication object with all required fields
+        const normalizedPublication = {
+          ...response.data,
+          id: response.data.id,
+          content: response.data.content || "",
+          user: {
+            id: response.data.user_id,
+            name: response.data.user?.name || userData?.name || "",
+            avatar: userData?.avatar || ""
+          },
+          created_at: response.data.created_at,
+          likes_count: 0,
+          comments_count: 0,
+          has_media: response.data.has_media || false,
+          location: response.data.location || null,
+          liked: false,
+          saved: false,
+          visibility: response.data.visibility || "public",
+          comments_enabled: response.data.comments_enabled !== false,
+          status: response.data.status || "published",
+          
+          // Las URLs ya vienen procesadas del backend
+          media: response.data.media || []
+        };
+        
+        console.log('Publicación normalizada:', normalizedPublication);
+        
+        // Añadir la nueva publicación al principio de la lista y asegurar que el estado se actualice inmediatamente
+        setPublications(prevPublications => [normalizedPublication, ...prevPublications]);
         setIsModalOpen(false);
       }
     } catch (err) {
@@ -318,45 +419,86 @@ export default function PublicationPage() {
       setError('Error al crear la publicación');
     }
   };
+
   const getUserAvatar = () => {
-    if (!userData) return "/default-avatar.png";
+    if (!userData) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`;
+      return config.storageUrl + userData.student.photo_pic;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`;
+      return config.storageUrl + userData.company.logo;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`;
+      return config.storageUrl + userData.institution.logo;
     }
-    return "/default-avatar.png";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+  };
+
+  const handleShare = async (sharedPublication: any) => {
+    try {
+      showLoader();
+      // Actualizar la lista de publicaciones con la nueva publicación compartida
+      setPublications(prevPublications => [sharedPublication, ...prevPublications]);
+    } catch (err) {
+      console.error('Error al compartir la publicación:', err);
+    } finally {
+      hideLoader();
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto py-6 px-4 flex gap-6">
-        <ProfileSidebar userData={userData} onViewMore={handleViewMore} />
-        <div className="flex-1 max-w-xl">
-          <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
-          <CreatePostModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onPublish={handlePublish}
-          />
+      <div className="max-w-7xl mx-auto py-4 md:py-6 px-2 md:px-4">
+        <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+          {/* Mobile Profile Sidebar - Only visible on mobile */}
+          <div className="lg:hidden w-full mb-4">
+            <ProfileSidebar
+              userData={userData}
+              onViewMore={handleViewMore}
+              onSavedClick={() => setIsSavedModalOpen(true)}
+              isMobile={true}
+            />
+          </div>
 
-          {isLoading ? (
-            <div className="text-center py-4">Cargando publicaciones...</div>
-          ) : error ? (
-            <div className="text-center py-4 text-red-500">{error}</div>
-          ) : (
-            publications.map((publication) => (
-              <PublicationCard
-                key={publication.id}
-                publication={publication}
-                onLike={handleLike}
-                onComment={handleComment}
-                onSave={handleSavePublication}
-              />
-            ))
-          )}
+          {/* Desktop Profile Sidebar - Only visible on desktop */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <ProfileSidebar
+              userData={userData}
+              onViewMore={handleViewMore}
+              onSavedClick={() => setIsSavedModalOpen(true)}
+              isMobile={false}
+            />
+          </div>
+
+          {/* Main Content - Centered with max width */}
+          <div className="flex-1 max-w-2xl mx-auto w-full">
+            <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
+            <CreatePostModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onPublish={handlePublish}
+            />
+
+            {isLoading ? (
+              <div className="text-center py-4">Cargando publicaciones...</div>
+            ) : error ? (
+              <div className="text-center py-4 text-red-500">{error}</div>
+            ) : (
+              publications.map((publication) => (
+                <PublicationCard
+                  key={publication.id}
+                  publication={publication}
+                  onLike={handleLike}
+                  onComment={handleComment}
+                  onSave={handleSavePublication}
+                  onShare={handleShare}
+                />
+              ))
+            )}
+          </div>
+
+          {/* Right Sidebar - Only visible on desktop */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            {/* Puedes agregar contenido adicional aquí si lo necesitas */}
+          </div>
         </div>
       </div>
       {activeComment.isOpen && activeComment.publicationId && (
@@ -364,21 +506,30 @@ export default function PublicationPage() {
           publicationId={activeComment.publicationId}
           isOpen={activeComment.isOpen}
           onClose={handleCloseComment}
-          onCommentChange={() => {
-            // Update the comment count for the specific publication
-            const currentPublication = publications.find(p => p.id === activeComment.publicationId);
-            if (currentPublication) {
-              fetchPublications(); // Refresh publications to get updated comment count
-            }
-          }}
+          onCommentChange={() => activeComment.publicationId && handleCommentChange(activeComment.publicationId)}
         />
       )}
+      <SavePublications
+        isOpen={isSavedModalOpen}
+        onClose={() => setIsSavedModalOpen(false)}
+      />
     </div>
   );
 }
 
 // Componente de la barra lateral del perfil
-const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onViewMore: () => void }) => {
+const ProfileSidebar = ({
+  userData,
+  onViewMore,
+  onSavedClick,
+  isMobile
+}: {
+  userData: User | null;
+  onViewMore: () => void;
+  onSavedClick: () => void;
+  isMobile: boolean;
+}) => {
+  const router = useRouter();
   // Funciones auxiliares para obtener datos específicos según el rol del usuario
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
@@ -423,25 +574,16 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
   const getUserLocation = () => {
     if (!userData) return "";
 
-    const city =
-      (userData.rol === "student" && userData.student?.city) ||
-      (userData.rol === "company" && userData.company?.city) ||
-      (userData.rol === "institutions" && userData.institution?.city) ||
+    // mostrar Address
+    const address = 
+      (userData.rol === "student" && userData.student?.address) ||
+      (userData.rol === "company" && userData.company?.address) ||
+      (userData.rol === "institutions" && userData.institution?.address) ||
       "";
 
-    const country =
-      (userData.rol === "student" && userData.student?.country) ||
-      (userData.rol === "company" && userData.company?.country) ||
-      (userData.rol === "institutions" && userData.institution?.country) ||
-      "";
-
-    if (city && country) {
-      return `${city}, ${country}`;
-    } else if (city) {
-      return city;
-    } else if (country) {
-      return country;
-    }
+      if (address) {
+        return address;
+      }
 
     return "";
   };
@@ -461,76 +603,62 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
   };
 
   return (
-    <div className="hidden md:block w-80 flex-shrink-0">
-      <div className="sticky top-6">
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="h-20 bg-slate-200 relative">
-            <Image
-              src={userData?.rol === "institutions" && userData.institution?.cover
-                ? (userData.institution.cover.startsWith('http') ? userData.institution.cover : `${config.storageUrl}${userData.institution.cover}`)
-                : userData?.rol === "company" && userData.company?.cover_photo
-                  ? (userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`)
-                  : userData?.rol === "student" && userData.student?.postal_code
-                    ? (userData.student.postal_code.startsWith('http') ? userData.student.postal_code : `${config.storageUrl}${userData.student.postal_code}`)
-                    : "/default-cover.jpg"}
-              alt="Portada"
-              fill
-              className="object-cover"
-              unoptimized={true}
-            />
-          </div>
-          <div className="px-4 pb-4">
-            <div className="relative -mt-12 mb-3">
-              <div className="w-24 h-24 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
-                <Image
-                  src={userData?.rol === "institutions" && userData.institution?.logo
-                    ? (userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`)
-                    : userData?.rol === "company" && userData.company?.logo
-                      ? (userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`)
-                      : userData?.rol === "student" && userData.student?.photo_pic
-                        ? (userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`)
-                        : "/default-avatar.png"}
-                  alt="Perfil"
-                  fill
-                  sizes="96px"
-                  className="object-cover"
-                  unoptimized={true}
-                />
-              </div>
+    <div className={`${isMobile ? 'w-full' : 'w-80'} ${isMobile ? '' : 'sticky top-6'}`}>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="h-24 md:h-32 bg-slate-200 relative">
+          <Image
+            src={getUserCoverPhoto()}
+            alt="Portada"
+            fill
+            className="object-cover"
+            unoptimized={true}
+          />
+        </div>
+        <div className="px-4 md:px-6 pb-4 md:pb-6">
+          <div className="relative -mt-12 md:-mt-16 mb-3 md:mb-4">
+            <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
+              <Image
+                src={getUserProfilePic()}
+                alt="Perfil"
+                fill
+                sizes="128px"
+                className="object-cover"
+                unoptimized={true}
+              />
             </div>
-            <h1 className="text-xl font-semibold">{userData?.name} {userData?.surname}</h1>
-
-            {userData && (
-              <>
-                {getUserSlogan() && (
-                  <p className="text-sm text-gray-600 italic mb-2">"{getUserSlogan()}"</p>
-                )}
-                <p className="text-sm text-gray-700 mt-1 mb-1"><br></br>{getUserTitle()}</p>
-
-                {getUserLocation() && (
-                  <p className="text-sm text-gray-600 flex items-center mb-4">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    {getUserLocation()}
-                  </p>
-                )}
-              </>
-            )}
-
-            <nav className="space-y-2 mt-4">
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray rounded-md px-2">
-                <Bookmark className="w-4 h-4" /> Elementos guardados
-              </button>
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-                <Users2 className="w-4 h-4" /> Grupos
-              </button>
-              <button className="flex items-center gap-2 w-full py-2 text-sm text-gray-600 hover:bg-gray-50 rounded-md px-2">
-                <CalendarDays className="w-4 h-4" /> Eventos
-              </button>
-            </nav>
-            <button onClick={onViewMore} className="w-full text-center py-3 text-sm text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4">
-              Ver más
-            </button>
           </div>
+          <h1 className="text-xl md:text-2xl font-semibold mb-1">{getUserTitle()}</h1>
+
+          {userData && (
+            <>
+              {getUserSlogan() && (
+                <p className="text-sm md:text-base text-gray-600 italic mb-3">"{getUserSlogan()}"</p>
+              )}
+
+              {getUserLocation() && (
+                <p className="text-sm md:text-base text-gray-600 flex items-center mb-4">
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 mr-2" />
+                  {getUserLocation()}
+                </p>
+              )}
+            </>
+          )}
+
+          <nav className="space-y-2 md:space-y-3 mt-4 md:mt-6">
+            <button
+              onClick={onSavedClick}
+              className="flex items-center gap-3 w-full py-2 md:py-3 text-sm md:text-base text-gray-600 hover:bg-gray-50 rounded-md px-3 transition-colors duration-200"
+            >
+              <Bookmark className="w-5 h-5 md:w-6 md:h-6" /> 
+              <span>Publicaciones guardadas</span>
+            </button>
+          </nav>
+          <button 
+            onClick={onViewMore} 
+            className="w-full text-center py-2.5 md:py-3 text-sm md:text-base text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4 md:mt-6 border border-gray-200"
+          >
+            Ver más
+          </button>
         </div>
       </div>
     </div>
@@ -538,21 +666,22 @@ const ProfileSidebar = ({ userData, onViewMore }: { userData: User | null; onVie
 };
 
 // Componente para crear una nueva publicación estilo LinkedIn
-const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png" }: { onOpenModal: () => void; userAvatar?: string }) => (
-  <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-    <div className="flex items-center space-x-3">
-      <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden relative">
-        <Image
+const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" }: { onOpenModal: () => void; userAvatar?: string }) => (
+  <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
+    <div className="flex items-center space-x-2 md:space-x-3">
+      <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200 overflow-hidden relative">
+        <img
           src={userAvatar}
           alt="Perfil"
-          fill
-          className="object-cover"
-          unoptimized={true}
+          className="w-full h-full object-cover"
+          onError={(e) => { 
+            e.currentTarget.src = "/default-avatar.png";
+          }}
         />
       </div>
       <button
         onClick={onOpenModal}
-        className="flex-1 text-left bg-gray-50 rounded-full px-4 py-3 text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
+        className="flex-1 text-left bg-gray-50 rounded-full px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm text-gray-500 hover:bg-gray-100 border border-gray-200"
       >
         Crear publicación
       </button>
@@ -564,8 +693,12 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = "/default-avatar.png"
 const MediaCarousel = ({ media }: { media: { id: number; file_path: string; media_type: "image" | "video" }[] }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mediaError, setMediaError] = useState<Record<number, boolean>>({});
+  
+  // Resetear errores cuando cambian los medios
+  useEffect(() => {
+    setMediaError({});
+  }, [media]);
 
-  // Funciones para navegar por el carrusel
   const goToPrev = () => {
     setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? media.length - 1 : prevIndex - 1
@@ -578,79 +711,80 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
     );
   };
 
-  const handleMediaError = (id: number) => {
-    console.error(`Error loading media with id: ${id}`);
+  const handleMediaError = (id: number, path: string) => {
+    console.error(`Error loading media with id: ${id} from path: ${path}`);
     setMediaError(prev => ({ ...prev, [id]: true }));
   };
 
   if (!media || media.length === 0) return null;
 
+  const getMediaUrl = (path: string) => {
+    return normalizeUrl(path);
+  };
+
   return (
     <div className="relative mb-4">
       <div className="overflow-hidden rounded-lg">
-        {/* Contenedor principal del carrusel */}
         <div
           className="flex transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {media.map((item: { id: number; file_path: string; media_type: "image" | "video" }) => (
+          {media.map((item) => (
             <div key={item.id} className="min-w-full flex-shrink-0">
               {mediaError[item.id] ? (
-                <div className="h-64 w-full bg-gray-200 flex items-center justify-center">
+                <div className="h-48 sm:h-64 w-full bg-gray-200 flex items-center justify-center">
                   <p className="text-gray-500">No se pudo cargar el medio</p>
                 </div>
               ) : item.media_type === "image" ? (
-                <div className="relative h-64 w-full">
-                  <Image
-                    src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
+                <div className="relative h-48 sm:h-64 w-full">
+                  <img
+                    src={getMediaUrl(item.file_path)}
                     alt="Imagen de publicación"
-                    fill
-                    className="object-cover"
-                    onError={() => handleMediaError(item.id)}
-                    unoptimized={true}
+                    className="w-full h-full object-cover"
+                    onError={() => handleMediaError(item.id, item.file_path)}
+                    loading="eager"
                   />
                 </div>
               ) : (
-                <video
-                  src={item.file_path.startsWith('http') ? item.file_path : `${config.storageUrl}${item.file_path}`}
-                  controls
-                  className="w-full h-64 object-cover rounded-lg"
-                  playsInline
-                  onError={() => handleMediaError(item.id)}
-                />
+                <div className="relative h-48 sm:h-64 w-full">
+                  <video
+                    src={getMediaUrl(item.file_path)}
+                    controls
+                    className="w-full h-full object-cover rounded-lg"
+                    playsInline
+                    onError={() => handleMediaError(item.id, item.file_path)}
+                    preload="auto"
+                    controlsList="nodownload"
+                  />
+                </div>
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Indicadores de posición del carrusel */}
-      {media.length > 1 && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center space-x-2">
-          {media.map((_, idx) => (
-            <button
-              key={idx}
-              className={`w-2 h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
-              onClick={() => setCurrentIndex(idx)}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Botones de navegación del carrusel */}
       {media.length > 1 && (
         <>
+          <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 flex justify-center space-x-1.5 sm:space-x-2">
+            {media.map((_, idx) => (
+              <button
+                key={idx}
+                className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${idx === currentIndex ? 'bg-blue-600' : 'bg-gray-300'}`}
+                onClick={() => setCurrentIndex(idx)}
+              />
+            ))}
+          </div>
           <button
-            className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            className="absolute top-1/2 left-1 sm:left-2 -translate-y-1/2 bg-white/80 sm:bg-white/70 rounded-full p-1.5 sm:p-1 hover:bg-white/90 transition-colors"
             onClick={goToPrev}
           >
-            <ChevronLeft className="w-5 h-5 text-gray-800" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800" />
           </button>
           <button
-            className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/70 rounded-full p-1 hover:bg-white/90 transition-colors"
+            className="absolute top-1/2 right-1 sm:right-2 -translate-y-1/2 bg-white/80 sm:bg-white/70 rounded-full p-1.5 sm:p-1 hover:bg-white/90 transition-colors"
             onClick={goToNext}
           >
-            <ChevronRight className="w-5 h-5 text-gray-800" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-800" />
           </button>
         </>
       )}
@@ -663,101 +797,205 @@ const PublicationCard = ({
   publication,
   onLike,
   onComment,
-  onSave
+  onSave,
+  onShare
 }: {
   publication: Publication;
   onLike: (id: number) => void;
   onComment: (id: number) => void;
   onSave: (id: number) => void;
+  onShare?: (sharedPublication: any) => void;
 }) => {
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
-  const { allUsers } = useContext(AuthContext);
+  const { allUsers, userData } = useContext(AuthContext);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const router = useRouter();
 
-  // Función para obtener el avatar del usuario según su rol
-  const getUserAvatar = (userId: number) => {
+  const getUserName = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
-    if (!user) return "/default-avatar.png";
+    if (!user) return "Usuario";
 
-    if (user.rol === "student" && user.student?.photo_pic) {
-      return user.student.photo_pic.startsWith('http') ? user.student.photo_pic : `${config.storageUrl}${user.student.photo_pic}`;
-    } else if (user.rol === "company" && user.company?.logo) {
-      return user.company.logo.startsWith('http') ? user.company.logo : `${config.storageUrl}${user.company.logo}`;
-    } else if (user.rol === "institutions" && user.institution?.logo) {
-      return user.institution.logo.startsWith('http') ? user.institution.logo : `${config.storageUrl}${user.institution.logo}`;
+    if (user.rol === "student") {
+      return user.student?.name || user.name;
+    } else if (user.rol === "company") {
+      return user.company?.name || user.name;
+    } else if (user.rol === "institutions") {
+      return user.institution?.name || user.name;
     }
-    return "/default-avatar.png";
+    return user.name;
   };
 
-  // Función para manejar el clic en el botón de like con animación
+  const getAvatarUrl = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+
+    let avatarPath = '';
+    if (user.rol === "student" && user.student?.photo_pic) {
+      avatarPath = user.student.photo_pic;
+    } else if (user.rol === "company" && user.company?.logo) {
+      avatarPath = user.company.logo;
+    } else if (user.rol === "institutions" && user.institution?.logo) {
+      avatarPath = user.institution.logo;
+    }
+
+    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+  };
+
+  const handleProfileClick = (userId: number) => {
+    const user = allUsers.find(u => u.id === userId);
+    if (!user) return;
+
+    let profileUrl = '';
+    switch (user.rol) {
+      case 'student':
+        if (user.student?.uuid) {
+          profileUrl = `/profile/student/${user.student.uuid}`;
+        }
+        break;
+      case 'company':
+        if (user.company?.slug) {
+          profileUrl = `/profile/company/${user.company.slug}`;
+        }
+        break;
+      case 'institutions':
+        if (user.institution?.slug) {
+          profileUrl = `/profile/institution/${user.institution.slug}`;
+        }
+        break;
+    }
+
+    if (profileUrl) {
+      router.push(profileUrl);
+    }
+  };
+
   const handleLikeClick = (id: number) => {
     setIsLikeAnimating(true);
-    onLike(id);
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onLike(targetId);
     setTimeout(() => setIsLikeAnimating(false), 1000);
   };
 
+  const handleCommentClick = (id: number) => {
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onComment(targetId);
+  };
+
+  const handleSaveClick = (id: number) => {
+    const targetId = publication.shared && publication.original_publication_id ? publication.original_publication_id : id;
+    onSave(targetId);
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
-      <div className="flex items-center space-x-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
-          <Image
-            src={getUserAvatar(publication.user.id)}
-            alt={publication.user.name}
-            fill
-            className="object-cover"
-            unoptimized={true}
-          />
-        </div>
-        <div>
-          <h3 className="font-semibold">{publication.user.name}</h3>
-          <div className="flex items-center text-sm text-gray-500">
-            <span>{new Date(publication.created_at).toLocaleDateString()}</span>
-            {publication.location && (
-              <>
-                <span className="mx-1">•</span>
-                <MapPin className="w-4 h-4 mr-1" />
-                <span>{publication.location}</span>
-              </>
-            )}
+    <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 mb-4">
+      {publication.shared_by && (
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+            <img
+              src={getAvatarUrl(publication.shared_by.id)}
+              alt={getUserName(publication.shared_by.id)}
+              className="w-full h-full object-cover"
+              onError={(e) => { 
+                e.currentTarget.src = "/default-avatar.png";
+              }}
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <h3 
+              className="text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={() => publication.shared_by && handleProfileClick(publication.shared_by.id)}
+            >
+              {getUserName(publication.shared_by.id)}
+            </h3>
+            <p className="text-sm text-gray-500">Compartió esta publicación</p>
           </div>
         </div>
-      </div>
-      <p className="text-gray-800 mb-4">{publication.content}</p>
-
-      {/* Carrusel de medios si la publicación tiene contenido multimedia */}
-      {publication.has_media && publication.media && publication.media.length > 0 && (
-        <MediaCarousel media={publication.media} />
       )}
 
-      {/* Barra de acciones de la publicación */}
-      <div className="flex items-center justify-between text-gray-500 border-t pt-3">
+      <div className={`${publication.shared_by ? 'bg-gray-50 rounded-lg p-4 border border-gray-200' : ''}`}>
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative">
+            <img
+              src={getAvatarUrl(publication.user.id)}
+              alt={getUserName(publication.user.id)}
+              className="w-full h-full object-cover"
+              onError={(e) => { 
+                e.currentTarget.src = "/default-avatar.png";
+              }}
+              loading="lazy"
+            />
+          </div>
+          <div>
+            <h3 
+              className="text-base font-semibold cursor-pointer hover:text-blue-600 transition-colors"
+              onClick={() => handleProfileClick(publication.user.id)}
+            >
+              {getUserName(publication.user.id)}
+            </h3>
+            <div className="flex items-center text-sm text-gray-500">
+              <span>{new Date(publication.created_at).toLocaleDateString()}</span>
+              {publication.location && (
+                <>
+                  <span className="mx-2">•</span>
+                  <MapPin className="w-4 h-4 mr-1" />
+                  <span>{publication.location}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className={`${publication.shared_by ? 'pl-12' : ''}`}>
+          <p className="text-base text-gray-800 mb-4 whitespace-pre-wrap">{publication.content}</p>
+          {publication.has_media && publication.media && publication.media.length > 0 && (
+            <MediaCarousel media={publication.media} />
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between text-gray-500 border-t pt-3 mt-4">
         <button
           onClick={() => handleLikeClick(publication.id)}
-          className={`flex items-center gap-1 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
+          className={`flex items-center gap-2 transition-all duration-200 ${publication.liked ? 'text-red-500' : 'hover:text-red-500'}`}
         >
           <Heart
             className={`w-5 h-5 transition-all duration-200 ${isLikeAnimating ? 'animate-[heartbeat_1s_ease-in-out]' : ''
               } ${publication.liked ? 'fill-current scale-110' : ''}`}
           />
-          <span className={`transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
+          <span className={`text-sm transition-all duration-200 ${publication.liked ? 'font-semibold' : ''}`}>
             {publication.likes_count}
           </span>
         </button>
-        <button onClick={() => onComment(publication.id)} className="flex items-center gap-1 hover:text-blue-600">
+
+        <button onClick={() => handleCommentClick(publication.id)} className="flex items-center gap-2 hover:text-blue-600">
           <MessageCircle className="w-5 h-5" />
-          <span>{publication.comments_count}</span>
+          <span className="text-sm">{publication.comments_count}</span>
         </button>
         <button
-          onClick={() => onSave(publication.id)}
-          className={`flex items-center gap-1 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
+          onClick={() => handleSaveClick(publication.id)}
+          className={`flex items-center gap-2 transition-colors duration-200 ${publication.saved ? 'text-yellow-500' : 'hover:text-yellow-500'}`}
         >
           <Bookmark className={`w-5 h-5 ${publication.saved ? 'fill-yellow-500' : ''}`} />
-          <span>Guardar</span>
+          <span className="text-sm">Guardar</span>
         </button>
-        <button className="flex items-center gap-1 hover:text-blue-600">
+        <button
+          onClick={() => setIsShareModalOpen(true)}
+          className="flex items-center gap-2 hover:text-blue-600"
+        >
           <Share2 className="w-5 h-5" />
-          <span>Compartir</span>
+          <span className="text-sm">Compartir</span>
         </button>
       </div>
+
+      {isShareModalOpen && (
+        <SharePublications
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          publication={publication}
+          onShareSuccess={onShare}
+        />
+      )}
     </div>
   );
 };

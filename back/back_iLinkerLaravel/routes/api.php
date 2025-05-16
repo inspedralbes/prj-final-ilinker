@@ -26,6 +26,7 @@ use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PublicationsController;
 use \App\Http\Controllers\PublicationsCommentController;
+use App\Http\Controllers\SharedPublicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -52,6 +53,7 @@ Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
+
 
 Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
@@ -81,6 +83,10 @@ Route::prefix('/institution')->group(function () {
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
 
+    // Rutas para guardar y obtener publicaciones guardadas
+    Route::post('/publications/{publicationId}/save', [PublicationsController::class, 'toggleSave']);
+    Route::get('/publications/saved', [PublicationsController::class, 'getSavedPublications']);
+
     Route::prefix('/notifications')->group(function () {
         // Obtener todas las notificaciones
         Route::get('/', [NotificationController::class, 'index']);
@@ -92,6 +98,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 
     });
+
+
 
     Route::prefix('/users')->group(function () {
         Route::post('/update', [UserController::class, 'update'])->name('user.update');
@@ -220,5 +228,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/send-help', [HelpUserController::class, 'sendHelp']);
     });
     Route::get('my-blocked-users', [HelpUserController::class, 'getMyBlockedUsers']);
+
+    Route::post('/publications/share', [SharedPublicationController::class, 'share']);
+    Route::delete('/shared-publications/{id}', [SharedPublicationController::class, 'delete']);
+    
 });
 
+
+    // Rutas para publicaciones compartidas
+    Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);

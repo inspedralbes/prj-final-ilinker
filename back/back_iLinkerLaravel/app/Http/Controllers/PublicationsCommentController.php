@@ -27,13 +27,19 @@ class PublicationsCommentController extends Controller
             }
 
             $comments = PublicationComment::where('publication_id', $publicationId)
-                ->whereNull('parent_comment_id')                ->with(['user' => function($query) {
+                ->whereNull('parent_comment_id')
+                ->with(['user' => function($query) {
                     $query->select('id', 'name', 'rol')
                         ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
                 }, 'replies' => function($query) {
                     $query->with(['user' => function($q) {
                         $q->select('id', 'name', 'rol')
                             ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                    }, 'replies' => function($q) {
+                        $q->with(['user' => function($u) {
+                            $u->select('id', 'name', 'rol')
+                                ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                        }]);
                     }]);
                 }])
                 ->orderBy('created_at', 'asc')
