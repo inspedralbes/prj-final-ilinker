@@ -7,8 +7,9 @@ import {
 import { SimpleEditor } from "@/components/templates/simple/SimpleEditor"
 import "@/styles/tiptap-content.scss"
 import { EmptyStateCard } from "./EmptyStateCard"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { apiRequest } from "@/services/requests/apiRequest"
 import config from "@/types/config"
 import { LoaderContext } from "@/contexts/LoaderContext"
@@ -195,7 +196,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     } catch (error: any) {
       console.error('Error saving institution:', error)
       setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
-    } finally {
+    } finally{
       hideLoader();
     }
   }
@@ -546,150 +547,206 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div className="relative h-80 bg-gray-300">
+      <div className="relative h-40 sm:h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-300">
         <img
-          src={institution.cover_url || coverImage}
+          src={config.storageUrl+institutionData.cover}
           alt="Cover"
           className="w-full h-full object-cover"
+          onError={() => handleImageError('cover')}
         />
-        <label className="absolute top-4 right-4 cursor-pointer bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
-          <input
-            type="file"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => handleImageUpload(e, 'cover')}
-          />
-          <Camera className="h-6 w-6 text-white" />
+        <label className="absolute bottom-4 right-4 cursor-pointer">
+          <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "cover")} />
+          <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
         </label>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative -mt-32">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="sm:flex sm:items-center sm:justify-between">
-              <div className="sm:flex sm:space-x-5">
-                <div className="relative flex-shrink-0">
-                  <div className="relative">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8 -mt-16 sm:-mt-20">
+        <Tabs defaultValue="inicio">
+          <div className="relative">
+            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+              {/* Reorganizado para móvil: foto a la izquierda e información a la derecha */}
+              <div className="flex flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-row space-x-4">
+                  <div className="relative flex-shrink-0">
                     <img
-                      className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={institution.logo_url || logoImage}
-                      alt={institution.name}
+                      className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
+                      src={config.storageUrl+institutionData.logo}
+                      alt={institutionData.name}
+                      onError={() => handleImageError('logo')}
                     />
-                    <label className="absolute bottom-0 right-24 md:right-0 cursor-pointer bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, "logo")}
-                      />
-                      <Camera className="h-6 w-6 text-white" />
+                    <label className="absolute bottom-1 right-1 sm:bottom-2 sm:right-2 cursor-pointer">
+                      <input type="file" className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "logo")} />
+                      <Camera className="h-6 w-6 sm:h-8 sm:w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
                     </label>
                   </div>
-                </div>
-                <div className="flex-1 pt-1">
-                  {isEditing === "basic" ? (
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={institutionData.name}
-                        onChange={(e) => updateInstitution("name", e.target.value)}
-                        className="text-xl font-bold text-gray-900 border rounded px-2 py-1 w-full"
-                      />
-                      <input
-                        type="text"
-                        value={institutionData.slogan}
-                        onChange={(e) => updateInstitution("slogan", e.target.value)}
-                        className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
-                      />
-                      <div className="flex items-center space-x-2">
-                        <MapPin className="h-5 w-5 text-indigo-500" />
+                  <div className="flex-1 pt-1">
+                    {isEditing === "basic" ? (
+                      <div className="space-y-3">
                         <input
                           type="text"
-                          value={institutionData.location}
-                          onChange={(e) => updateInstitution("location", e.target.value)}
-                          className="text-gray-600 border rounded px-2 py-1 flex-1"
+                          value={institutionData.name}
+                          onChange={(e) => updateInstitution("name", e.target.value)}
+                          className="text-xl font-bold text-gray-900 border rounded px-2 py-1 w-full"
                         />
+                        <input
+                          type="text"
+                          value={institutionData.slogan}
+                          onChange={(e) => updateInstitution("slogan", e.target.value)}
+                          className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
+                        />
+                        <div className="flex items-center space-x-2">
+                          <MapPin className="h-5 w-5 text-indigo-500" />
+                          <input
+                            type="text"
+                            value={institutionData.location}
+                            onChange={(e) => updateInstitution("location", e.target.value)}
+                            className="text-gray-600 border rounded px-2 py-1 flex-1"
+                          />
+                        </div>
+                        {renderActionButtons()}
+                        {renderErrorMessage()}
                       </div>
-                      {renderActionButtons()}
-                      {renderErrorMessage()}
+                    ) : (
+                      <div>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{institutionData.name}</h1>
+                        <p className="text-base sm:text-lg text-gray-600">{institutionData.slogan}</p>
+                        <p className="text-gray-500 flex items-center mt-2">
+                          <MapPin className="h-5 w-5 text-indigo-500 mr-2" />
+                          {institutionData.location}
+                        </p>
+                        <button
+                          onClick={() => handleEdit("basic")}
+                          className="mt-2 flex items-center text-gray-600 hover:text-gray-800"
+                        >
+                          <Pencil className="h-4 w-4 mr-1 text-gray-600" />
+                          Editar información básica
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Sección de contacto */}
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                <div className="flex flex-wrap justify-center items-center gap-4">
+                  {isEditing === "contact" ? (
+                    <div className="w-full">
+                      <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4">
+                        <div className="flex items-center flex-1">
+                          <Globe className="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0" />
+                          <input
+                            type="text"
+                            value={institutionData.website}
+                            onChange={(e) => updateInstitution("website", e.target.value)}
+                            className="flex-1 border rounded px-2 py-1"
+                            placeholder="Sitio web"
+                          />
+                        </div>
+                        <div className="flex items-center flex-1">
+                          <Phone className="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0" />
+                          <input
+                            type="text"
+                            value={institutionData.phone}
+                            onChange={(e) => updateInstitution("phone", e.target.value)}
+                            className="flex-1 border rounded px-2 py-1"
+                            placeholder="Teléfono"
+                          />
+                        </div>
+                        <div className="flex items-center flex-1">
+                          <Mail className="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0" />
+                          <input
+                            type="text"
+                            value={institutionData.email}
+                            onChange={(e) => updateInstitution("email", e.target.value)}
+                            className="flex-1 border rounded px-2 py-1"
+                            placeholder="Email"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        {renderActionButtons()}
+                        {renderErrorMessage()}
+                      </div>
                     </div>
                   ) : (
-                    <div>
-                      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">{institutionData.name}</h1>
-                      <p className="text-base sm:text-lg text-gray-600">{institutionData.slogan}</p>
-                      <p className="text-gray-500 flex items-center mt-2">
-                        <MapPin className="h-5 w-5 text-indigo-500 mr-2" />
-                        {institutionData.location}
-                      </p>
-                      <button
-                        onClick={() => handleEdit("basic")}
-                        className="mt-2 flex items-center text-gray-600 hover:text-gray-800"
-                      >
-                        <Pencil className="h-4 w-4 mr-1 text-gray-600" />
-                        Editar información básica
-                      </button>
+                    <div className="w-full">
+                      <div className="flex flex-wrap justify-center gap-4">
+                        <div className="flex items-center">
+                          <Globe className="h-5 w-5 text-gray-600 mr-2" />
+                          <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
+                            {institutionData.website}
+                          </a>
+                        </div>
+                        <div className="flex items-center">
+                          <Phone className="h-5 w-5 text-gray-600 mr-2" />
+                          <span className="text-gray-600">{institutionData.phone}</span>
+                        </div>
+                        <div className="flex items-center">
+                          <Mail className="h-5 w-5 text-gray-600 mr-2" />
+                          <span className="text-gray-600">{institutionData.email}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-center mt-4">
+                        <button
+                          onClick={() => handleEdit("contact")}
+                          className="text-blue-600 hover:text-blue-800 px-4 py-2 rounded-md hover:bg-blue-50"
+                        >
+                          <Pencil className="h-4 w-4 inline mr-2 text-blue-600" />
+                          Editar información
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
 
-            <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-            <Tabs defaultValue="acerca" className="w-full mt-5">
-              <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
-                <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                  <Home className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                  <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
-                </TabsTrigger>
-                <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                  <Info className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                  <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
-                </TabsTrigger>
-                <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                  <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                  <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
-                </TabsTrigger>
-                <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                  <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                  <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
-                </TabsTrigger>
-                <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                  <School className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                  <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
-                <TabsContent value="inicio">
-                  <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                    {renderAcercaDe()}
-                    <div className="mt-6 sm:mt-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        {renderDetails()}
-                        {renderSpecialties()}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="acerca">
-                  <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                    {renderAcercaDe()}
-                    <div className="mt-6 sm:mt-8">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        {renderDetails()}
-                        {renderSpecialties()}
-                      </div>
-                    </div>
-                  </div>
-                </TabsContent>
-                <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
-                <TabsContent value="instituto">{renderInstituto()}</TabsContent>
-                <TabsContent value="publicaciones">{renderPublicaciones()}</TabsContent>
+              {/* Esta parte es de la sección de tabs */}
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
+                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
+                  </TabsTrigger>
+                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
+                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
+                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            </Tabs>
             </div>
           </div>
-        </div>
+
+          <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+            <TabsContent value="inicio">
+              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                {renderAcercaDe()}
+                <div className="mt-6 sm:mt-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                    {renderDetails()}
+                    {renderSpecialties()}
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="acerca">{renderAcercaDe(true)}</TabsContent>
+            <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
+            <TabsContent value="instituto">{renderInstituto()}</TabsContent>
+            <TabsContent value="publicaciones">{renderPublicaciones()}</TabsContent>
+          </div>
+        </Tabs>
       </div>
     </div>
   )
