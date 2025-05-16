@@ -82,6 +82,8 @@ interface ActiveComment {
   publicationId: number | null;
 }
 
+const defaultAvatarSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+
 // Componente principal de la página de publicaciones
 export default function PublicationPage() {
   const [activeComment, setActiveComment] = useState<ActiveComment>({
@@ -530,42 +532,56 @@ const ProfileSidebar = ({
   isMobile: boolean;
 }) => {
   const router = useRouter();
-  // Funciones auxiliares para obtener datos específicos según el rol del usuario
+
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
 
-    if (userData.rol === "institutions" && userData.institution?.cover) {
-      return userData.institution.cover.startsWith('http') ? userData.institution.cover : `${config.storageUrl}${userData.institution.cover}`;
+    if (userData.rol === "student" && userData.student?.cover_photo) {
+      return userData.student.cover_photo.startsWith('http') 
+        ? userData.student.cover_photo 
+        : `${config.storageUrl}${userData.student.cover_photo}`;
     } else if (userData.rol === "company" && userData.company?.cover_photo) {
-      return userData.company.cover_photo.startsWith('http') ? userData.company.cover_photo : `${config.storageUrl}${userData.company.cover_photo}`;
-    } else if (userData.rol === "student" && userData.student?.postal_code) {
-      return userData.student.postal_code.startsWith('http') ? userData.student.postal_code : `${config.storageUrl}${userData.student.postal_code}`;
+      return userData.company.cover_photo.startsWith('http') 
+        ? userData.company.cover_photo 
+        : `${config.storageUrl}${userData.company.cover_photo}`;
+    } else if (userData.rol === "institutions" && userData.institution?.cover) {
+      return userData.institution.cover.startsWith('http') 
+        ? userData.institution.cover 
+        : `${config.storageUrl}${userData.institution.cover}`;
     }
 
     return "/default-cover.jpg";
   };
 
   const getUserProfilePic = () => {
-    if (!userData) return "/default-avatar.png";
+    if (!userData) return defaultAvatarSvg;
 
-    if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo.startsWith('http') ? userData.institution.logo : `${config.storageUrl}${userData.institution.logo}`;
+    if (userData.rol === "student" && userData.student?.photo_pic) {
+      return userData.student.photo_pic.startsWith('http') 
+        ? userData.student.photo_pic 
+        : `${config.storageUrl}${userData.student.photo_pic}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo.startsWith('http') ? userData.company.logo : `${config.storageUrl}${userData.company.logo}`;
-    } else if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic.startsWith('http') ? userData.student.photo_pic : `${config.storageUrl}${userData.student.photo_pic}`;
+      return userData.company.logo.startsWith('http') 
+        ? userData.company.logo 
+        : `${config.storageUrl}${userData.company.logo}`;
+    } else if (userData.rol === "institutions" && userData.institution?.logo) {
+      return userData.institution.logo.startsWith('http') 
+        ? userData.institution.logo 
+        : `${config.storageUrl}${userData.institution.logo}`;
     }
 
-    return "/default-avatar.png";
+    return defaultAvatarSvg;
   };
 
   const getUserSlogan = () => {
     if (!userData) return "";
 
-    if (userData.rol === "institutions" && userData.institution?.slogan) {
-      return userData.institution.slogan;
+    if (userData.rol === "student" && userData.student?.bio) {
+      return userData.student.bio;
     } else if (userData.rol === "company" && userData.company?.slogan) {
       return userData.company.slogan;
+    } else if (userData.rol === "institutions" && userData.institution?.slogan) {
+      return userData.institution.slogan;
     }
 
     return "";
@@ -574,16 +590,16 @@ const ProfileSidebar = ({
   const getUserLocation = () => {
     if (!userData) return "";
 
-    // mostrar Address
-    const address = 
-      (userData.rol === "student" && userData.student?.address) ||
-      (userData.rol === "company" && userData.company?.address) ||
-      (userData.rol === "institutions" && userData.institution?.address) ||
-      "";
-
-      if (address) {
-        return address;
-      }
+    if (userData.rol === "student") {
+      const location = [];
+      if (userData.student?.city) location.push(userData.student.city);
+      if (userData.student?.country) location.push(userData.student.country);
+      return location.join(", ");
+    } else if (userData.rol === "company" && userData.company?.address) {
+      return userData.company.address;
+    } else if (userData.rol === "institutions" && userData.institution?.address) {
+      return userData.institution.address;
+    }
 
     return "";
   };
@@ -591,12 +607,33 @@ const ProfileSidebar = ({
   const getUserTitle = () => {
     if (!userData) return "";
 
-    if (userData.rol === "student" && userData.student?.title) {
-      return userData.student.title;
+    if (userData.rol === "student") {
+      const name = userData.student?.name || userData.name || "";
+      const surname = userData.student?.surname || userData.surname || "";
+      return `${name} ${surname}`.trim();
     } else if (userData.rol === "company" && userData.company?.name) {
       return userData.company.name;
     } else if (userData.rol === "institutions" && userData.institution?.name) {
       return userData.institution.name;
+    }
+
+    return userData.name || "";
+  };
+
+  // Función para obtener la descripción corta
+  const getShortDescription = () => {
+    if (!userData) return "";
+
+    if (userData.rol === "student") {
+      if (userData.student?.short_description) {
+        return userData.student.short_description;
+      } else if (userData.student?.title) {
+        return userData.student.title;
+      }
+    } else if (userData.rol === "company" && userData.company?.short_description) {
+      return userData.company.short_description;
+    } else if (userData.rol === "institutions" && userData.institution?.short_description) {
+      return userData.institution.short_description;
     }
 
     return "";
@@ -612,6 +649,9 @@ const ProfileSidebar = ({
             fill
             className="object-cover"
             unoptimized={true}
+            onError={(e) => {
+              e.currentTarget.src = "/default-cover.jpg";
+            }}
           />
         </div>
         <div className="px-4 md:px-6 pb-4 md:pb-6">
@@ -624,10 +664,17 @@ const ProfileSidebar = ({
                 sizes="128px"
                 className="object-cover"
                 unoptimized={true}
+                onError={(e) => {
+                  e.currentTarget.src = defaultAvatarSvg;
+                }}
               />
             </div>
           </div>
           <h1 className="text-xl md:text-2xl font-semibold mb-1">{getUserTitle()}</h1>
+          
+          {getShortDescription() && (
+            <p className="text-sm md:text-base text-gray-600 mb-3">{getShortDescription()}</p>
+          )}
 
           {userData && (
             <>
@@ -647,15 +694,15 @@ const ProfileSidebar = ({
           <nav className="space-y-2 md:space-y-3 mt-4 md:mt-6">
             <button
               onClick={onSavedClick}
-              className="flex items-center gap-3 w-full py-2 md:py-3 text-sm md:text-base text-gray-600 hover:bg-gray-50 rounded-md px-3 transition-colors duration-200"
+              className="group flex items-center gap-3 w-full py-3 md:py-3.5 text-sm md:text-base bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-800 rounded-xl px-4 transition-all duration-300 border border-gray-200/50 hover:border-gray-300/50"
             >
-              <Bookmark className="w-5 h-5 md:w-6 md:h-6" /> 
-              <span>Publicaciones guardadas</span>
+              <Bookmark className="w-5 h-5 md:w-6 md:h-6 text-gray-700 group-hover:scale-110 transition-transform duration-300" /> 
+              <span className="font-medium tracking-wide">Publicaciones guardadas</span>
             </button>
           </nav>
           <button 
             onClick={onViewMore} 
-            className="w-full text-center py-2.5 md:py-3 text-sm md:text-base text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200 rounded-md mt-4 md:mt-6 border border-gray-200"
+            className="w-full text-center py-3 md:py-3.5 text-sm md:text-base font-medium bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-900 hover:to-black text-white rounded-xl mt-4 md:mt-6 transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]"
           >
             Ver más
           </button>
@@ -666,7 +713,7 @@ const ProfileSidebar = ({
 };
 
 // Componente para crear una nueva publicación estilo LinkedIn
-const CreatePublicationCard = ({ onOpenModal, userAvatar = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" }: { onOpenModal: () => void; userAvatar?: string }) => (
+const CreatePublicationCard = ({ onOpenModal, userAvatar = defaultAvatarSvg }: { onOpenModal: () => void; userAvatar?: string }) => (
   <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
     <div className="flex items-center space-x-2 md:space-x-3">
       <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200 overflow-hidden relative">
@@ -827,7 +874,7 @@ const PublicationCard = ({
 
   const getAvatarUrl = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
-    if (!user) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+    if (!user) return defaultAvatarSvg;
 
     let avatarPath = '';
     if (user.rol === "student" && user.student?.photo_pic) {
@@ -838,7 +885,7 @@ const PublicationCard = ({
       avatarPath = user.institution.logo;
     }
 
-    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : defaultAvatarSvg;
   };
 
   const handleProfileClick = (userId: number) => {
@@ -896,7 +943,7 @@ const PublicationCard = ({
               alt={getUserName(publication.shared_by.id)}
               className="w-full h-full object-cover"
               onError={(e) => { 
-                e.currentTarget.src = "/default-avatar.png";
+                e.currentTarget.src = defaultAvatarSvg;
               }}
               loading="lazy"
             />
@@ -921,7 +968,7 @@ const PublicationCard = ({
               alt={getUserName(publication.user.id)}
               className="w-full h-full object-cover"
               onError={(e) => { 
-                e.currentTarget.src = "/default-avatar.png";
+                e.currentTarget.src = defaultAvatarSvg;
               }}
               loading="lazy"
             />
