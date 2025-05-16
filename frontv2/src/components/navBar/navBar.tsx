@@ -155,7 +155,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
           src={
             config.storageUrl +
               ((userData?.company && userData?.company?.logo) ||
-                userData?.student?.photo_pic) ||
+                userData?.student?.photo_pic || (userData?.institution && userData?.institution?.logo)) || 
             "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
           }
           alt="Profile"
