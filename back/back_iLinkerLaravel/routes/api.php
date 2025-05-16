@@ -231,7 +231,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/publications/share', [SharedPublicationController::class, 'share']);
     Route::delete('/shared-publications/{id}', [SharedPublicationController::class, 'delete']);
-    
+
 });
 
 
