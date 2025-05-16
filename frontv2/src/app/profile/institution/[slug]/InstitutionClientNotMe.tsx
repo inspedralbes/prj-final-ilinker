@@ -9,6 +9,7 @@ import { EmptyStateCard } from "./EmptyStateCard"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import config from "@/types/config"
 
 interface Institution {
   id: string | number;
@@ -125,35 +126,35 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-6 w-6 text-blue-600" />
+            <Building2 className="h-6 w-6 text-gray-800" />
             Detalles del Instituto
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-center">
-              <Building2 className="h-5 w-5 text-blue-600 mr-3" />
+              <Building2 className="h-5 w-5 text-gray-600 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Tipo de institución</p>
                 <p className="text-gray-900">{institutionData.academic_sector}</p>
               </div>
             </div>
             <div className="flex items-center">
-              <Users className="h-5 w-5 text-blue-600 mr-3" />
+              <Users className="h-5 w-5 text-gray-600 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Tamaño</p>
                 <p className="text-gray-900">{institutionData.size}</p>
               </div>
             </div>
             <div className="flex items-center">
-              <Calendar className="h-5 w-5 text-blue-600 mr-3" />
+              <Calendar className="h-5 w-5 text-gray-600 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Año de fundación</p>
                 <p className="text-gray-900">{institutionData.founded_year}</p>
               </div>
             </div>
             <div className="flex items-center">
-              <Languages className="h-5 w-5 text-blue-600 mr-3" />
+              <Languages className="h-5 w-5 text-gray-600 mr-3" />
               <div>
                 <p className="text-sm text-gray-500">Idiomas</p>
                 <p className="text-gray-900">{Array.isArray(institutionData.languages) ? institutionData.languages.join(", ") : institutionData.languages}</p>
@@ -168,7 +169,7 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
   const renderSpecialties = () => (
     <div className="mt-4 md:mt-0">
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
-        <CardHeader className="p-2 md:p-6">
+        <CardHeader className="flex flex-row items-center justify-between p-2 md:p-6">
           <CardTitle className="flex items-center gap-1.5">
             <Award className="h-3.5 w-3.5 md:h-6 md:w-6 text-blue-600" />
             <span className="text-xs md:text-lg">Especialidades</span>
@@ -201,7 +202,7 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-40 sm:h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-300">
         <img
-          src={coverImage}
+          src={config.storageUrl + institutionData.cover}
           alt="Cover"
           className="w-full h-full object-cover"
           onError={() => handleImageError('cover')}
@@ -212,13 +213,12 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
         <Tabs defaultValue="inicio">
           <div className="relative">
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
-              {/* Reorganizado para móvil: foto a la izquierda e información a la derecha */}
               <div className="flex flex-row sm:items-center sm:justify-between">
                 <div className="flex flex-row space-x-4">
                   <div className="relative flex-shrink-0">
                     <img
                       className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={logoImage}
+                      src={config.storageUrl + institutionData.logo}
                       alt={institutionData.name}
                       onError={() => handleImageError('logo')}
                     />
@@ -236,56 +236,69 @@ export default function InstitutionClientNotMe({ institution }: InstitutionClien
                 </div>
               </div>
 
-              {/* Sección de contacto */}
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+              <div className="mt-4 border-t border-gray-200 pt-4 sm:pt-6">
                 <div className="flex flex-wrap justify-center items-center gap-4">
                   <div className="w-full">
-                    <div className="flex flex-wrap justify-center gap-4">
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Globe className="h-5 w-5 text-indigo-500 mr-2" />
+                    <div className="flex flex-wrap justify-center gap-12">
+                      <div className="flex items-center px-4 py-2">
+                        <Globe className="h-5 w-5 text-gray-600 mr-2" />
                         <a href={institutionData.website?.startsWith('http') ? institutionData.website : `https://${institutionData.website}`} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
                           {institutionData.website}
                         </a>
                       </div>
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Phone className="h-5 w-5 text-indigo-500 mr-2" />
+                      <div className="flex items-center px-4 py-2">
+                        <Phone className="h-5 w-5 text-gray-600 mr-2" />
                         <span className="text-gray-600">{institutionData.phone}</span>
                       </div>
-                      <div className="flex items-center px-3 py-2 rounded-md">
-                        <Mail className="h-5 w-5 text-indigo-500 mr-2" />
+                      <div className="flex items-center px-4 py-2">
+                        <Mail className="h-5 w-5 text-gray-600 mr-2" />
                         <span className="text-gray-600">{institutionData.email}</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
-              {/* Esta parte es de la sección de tabs */}
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
-                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-blue-50 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-700">
-                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-indigo-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
             </div>
+          </div>
+
+          <div className="mt-4 sm:mt-2 pt-2 sm:pt-6">
+            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
+              <TabsTrigger
+                value="inicio"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Home className="h-4 w-4" />
+                Inicio
+              </TabsTrigger>
+              <TabsTrigger
+                value="acerca"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Info className="h-4 w-4" />
+                Acerca de
+              </TabsTrigger>
+              <TabsTrigger
+                value="publicaciones"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Plus className="h-4 w-4" />
+                Publicaciones
+              </TabsTrigger>
+              <TabsTrigger
+                value="empleos"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <BriefcaseIcon className="h-4 w-4" />
+                Empleos
+              </TabsTrigger>
+              <TabsTrigger
+                value="instituto"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <School className="h-4 w-4" />
+                Vida en el instituto
+              </TabsTrigger>
+            </TabsList>
           </div>
 
           <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
