@@ -635,7 +635,8 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
             </div>
 
             <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-              <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
+            <Tabs defaultValue="acerca" className="w-full mt-5">
+              <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
                 <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
                   <Home className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
                   <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
@@ -657,28 +658,38 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                   <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
                 </TabsTrigger>
               </TabsList>
+
+              <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
+                <TabsContent value="inicio">
+                  <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                    {renderAcercaDe()}
+                    <div className="mt-6 sm:mt-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        {renderDetails()}
+                        {renderSpecialties()}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="acerca">
+                  <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+                    {renderAcercaDe()}
+                    <div className="mt-6 sm:mt-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        {renderDetails()}
+                        {renderSpecialties()}
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+                <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
+                <TabsContent value="instituto">{renderInstituto()}</TabsContent>
+                <TabsContent value="publicaciones">{renderPublicaciones()}</TabsContent>
+              </div>
+            </Tabs>
             </div>
           </div>
         </div>
-
-        <Tabs defaultValue="inicio">
-          <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
-            <TabsContent value="inicio">
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                {renderAcercaDe()}
-                <div className="mt-6 sm:mt-8">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                    {renderDetails()}
-                    {renderSpecialties()}
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="empleos">{renderEmpleos()}</TabsContent>
-            <TabsContent value="instituto">{renderInstituto()}</TabsContent>
-            <TabsContent value="publicaciones">{renderPublicaciones()}</TabsContent>
-          </div>
-        </Tabs>
       </div>
     </div>
   )
