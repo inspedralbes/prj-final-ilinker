@@ -456,14 +456,14 @@ export default function CompanyClientMe({
             alt="Cover"
             className="w-full h-full object-cover"
           />
-          <label className="absolute bottom-4 right-4 cursor-pointer">
+          <label className="absolute top-4 right-4 cursor-pointer bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
             <input
               type="file"
               className="hidden"
               accept="image/*"
               onChange={(e) => handleImageUpload(e, "cover_photo")}
             />
-            <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
+            <Camera className="h-6 w-6 text-white" />
           </label>
         </div>
 
@@ -474,24 +474,26 @@ export default function CompanyClientMe({
               <div className="sm:flex sm:items-center sm:justify-between">
                 <div className="sm:flex sm:space-x-5">
                   <div className="relative flex-shrink-0">
-                    <img
-                      className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={
-                        companyEdited?.logo
-                          ? `${config.storageUrl}${companyEdited.logo}`
-                          : logoImage
-                      }
-                      alt={companyEdited?.logo}
-                    />
-                    <label className="absolute bottom-2 right-2 cursor-pointer">
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={(e) => handleImageUpload(e, "logo")}
+                    <div className="relative">
+                      <img
+                        className="mx-auto h-40 w-40 rounded-lg border-4 border-white shadow-lg object-cover"
+                        src={
+                          companyEdited?.logo
+                            ? `${config.storageUrl}${companyEdited.logo}`
+                            : logoImage
+                        }
+                        alt={companyEdited?.logo}
                       />
-                      <Camera className="h-8 w-8 text-white bg-black/50 p-1.5 rounded-full hover:bg-black/70" />
-                    </label>
+                      <label className="absolute bottom-0 right-24 md:right-0 cursor-pointer bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(e, "logo")}
+                        />
+                        <Camera className="h-6 w-6 text-white" />
+                      </label>
+                    </div>
                   </div>
                   <div className="mt-4 text-center sm:mt-0 sm:pt-1 sm:text-left">
                     {isEditing === "basic" ? (
@@ -825,7 +827,7 @@ export default function CompanyClientMe({
                           <li>
                             <strong>Industria:</strong>{" "}
                             {companyEdited.sectors &&
-                            companyEdited.sectors.length > 0 ? (
+                              companyEdited.sectors.length > 0 ? (
                               companyEdited.sectors.map((sector: any) => (
                                 <Badge key={sector.id} className="mr-2">
                                   {sector.name} {/* Renderiza solo el nombre */}
@@ -875,7 +877,7 @@ export default function CompanyClientMe({
                         <>
                           <div className="flex flex-wrap gap-2 text-gray-600">
                             {companyEdited.skills &&
-                            companyEdited.skills.length > 0 ? (
+                              companyEdited.skills.length > 0 ? (
                               companyEdited.skills.map((skill: any) => (
                                 <Badge
                                   key={skill.id}
@@ -910,9 +912,8 @@ export default function CompanyClientMe({
                     <div className="flex gap-4">
                       <Avatar className="h-12 w-12">
                         <img
-                          src={`https://images.unsplash.com/photo-${
-                            1500000000000 + post
-                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                          src={`https://images.unsplash.com/photo-${1500000000000 + post
+                            }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
                           alt="Author"
                           className="aspect-square h-full w-full"
                         />
@@ -1017,13 +1018,13 @@ export default function CompanyClientMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                    <p className="text-lg font-semibold text-gray-600 mb-2">
-                      No hay ofertas disponibles
-                    </p>
-                  </div>
-                )}
+                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                      <p className="text-lg font-semibold text-gray-600 mb-2">
+                        No hay ofertas disponibles
+                      </p>
+                    </div>
+                  )}
               </TabsContent>
             </Tabs>
           </div>
@@ -1066,15 +1067,15 @@ export default function CompanyClientMe({
                       follower.student
                         ? follower.student.profile_pic
                         : follower.company
-                        ? follower.company.logo
-                        : follower.institutions?.logo
+                          ? follower.company.logo
+                          : follower.institutions?.logo
                     }
                     alt={
                       follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name
+                          ? follower.company.name
+                          : follower.institutions?.name
                     }
                   />
                   <div>
@@ -1082,15 +1083,15 @@ export default function CompanyClientMe({
                       {follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name}
+                          ? follower.company.name
+                          : follower.institutions?.name}
                     </p>
                     <p className="text-sm text-gray-600">
                       {follower.student
                         ? follower.email
                         : follower.company
-                        ? follower.company.email
-                        : follower.institutions?.email}
+                          ? follower.company.email
+                          : follower.institutions?.email}
                     </p>
                   </div>
                 </div>
