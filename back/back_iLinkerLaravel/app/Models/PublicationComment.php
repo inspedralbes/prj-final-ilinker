@@ -34,7 +34,16 @@ class PublicationComment extends Model
     public function replies()
     {
         return $this->hasMany(PublicationComment::class, 'parent_comment_id')
-            ->with('user:id,name')
+            ->with(['user:id,name,rol', 'replies' => function($query) {
+                $query->with(['user' => fn($q) => $q->select('id', 'name', 'rol'),
+                    'user.student' => fn($q) => $q->select('user_id','name','photo_pic','uuid'),
+                    'user.company' => fn($q) => $q->select('user_id','name', 'logo','slug'),
+                    'user.institutions' => fn($q) => $q->select('user_id','name','logo','slug'),
+                    'replies']);
+            }])
             ->orderBy('created_at', 'asc');
     }
+
+//return $this->hasMany(PublicationComment::class, 'parent_comment_id')
+//->with('user:id,name');
 }

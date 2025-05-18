@@ -3,7 +3,8 @@ import {
     X,
     Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
     Heart, MessageCircle, Bookmark,
-    ChevronDown, ChevronUp, Ellipsis
+    ChevronDown, ChevronUp, Ellipsis,
+    Send, Reply
 } from 'lucide-react';
 import { Avatar } from "@/components/ui/avatar";
 import config from "@/types/config";
@@ -18,6 +19,7 @@ import {
 import { addDays, format, formatDistanceToNow } from "date-fns"
 import { es } from 'date-fns/locale';
 import { apiRequest } from "@/services/requests/apiRequest";
+import ReplyThread from "@/components/comments/ReplyThread";
 
 
 interface PropsModal {
@@ -32,14 +34,15 @@ export default function ShowPublication({ publication, student, onClose, onSave 
     const [error, setError] = useState<string | null>(null);
     const commentInputRef = useRef<HTMLInputElement>(null);
 
-
     // Verificar si la publicación tiene imágenes
     const hasMedia = publicationEdit?.media && publicationEdit?.media.length > 0;
     const hasMultipleMedia = publicationEdit?.media && publicationEdit?.media.length > 1;
 
-
     // Estado para controlar qué comentarios tienen las respuestas expandidas
     const [expandedComments, setExpandedComments] = useState<any>({});
+
+    const [newComment, setNewComment] = useState("");
+    const [replyingTo, setReplyingTo] = useState<any>(null);
 
     // Función para toggle el estado de expansión de un comentario
     const toggleReplies = (commentId: number) => {
@@ -85,7 +88,6 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                 });
 
                 onSave(publicationEdit.id);
-        
             }
         } catch (err) {
             console.error('Error al dar like a la publicación:', err);
@@ -93,6 +95,60 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         }
     }
 
+    const fetchComments = async () => {
+        try {
+            //setIsLoading(true);
+            const response = await apiRequest(`publications/${publicationEdit?.id}/comments`, 'GET');
+            if (response.status === 'success' && Array.isArray(response.data)) {
+                console.log("COMMENTS");
+                console.log(response.data);
+                setPublicationEdit({
+                    ...publicationEdit,
+                    comments: response.data
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching comments:', error);
+        } finally {
+            //setIsLoading(false);
+        }
+    };
+
+    const handleSubmitComment = async () => {
+        if (!newComment.trim()) return;
+
+        try {
+            const response = await apiRequest(`publications/${publicationEdit?.id}/comments`, 'POST', {
+                content: newComment,
+                parent_comment_id: replyingTo?.id || null
+            });
+
+            if (response.status === 'success') {
+                fetchComments();
+                setNewComment("");
+                setReplyingTo(null);
+            }
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+        }
+    };
+
+    // Función para iniciar respuesta a un comentario
+    const handleReplyClick = (comment: any) => {
+        console.log("comment");
+        console.log(comment);
+        setReplyingTo(comment);
+        setNewComment(`@${getUserName(comment.user)} `);
+        // Enfocar el input de comentario
+        commentInputRef.current?.focus();
+        commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    };
+
+    // Función para cancelar respuesta
+    const cancelReply = () => {
+        setReplyingTo(null);
+        setNewComment("");
+    };
 
     return (
         <div
@@ -198,7 +254,6 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                             </div>
                         ) : null}
 
-
                         {/* Comentarios con scroll */}
                         <div className="max-h-64 md:max-h-80 overflow-y-auto pr-2">
                             {publicationEdit.comments && publicationEdit.comments.length > 0 ? (
@@ -218,6 +273,17 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                     {getUserName(comment.user)}
                                                 </span>
                                                 <span className="break-words">{comment.content}</span>
+
+                                                {/* Agregar botón de responder */}
+                                                <div className="mt-1">
+                                                    <button
+                                                        onClick={() => handleReplyClick(comment)}
+                                                        className="text-gray-500 hover:text-blue-600 text-xs flex items-center"
+                                                    >
+                                                        <Reply className="h-3 w-3 mr-1" />
+                                                        Responder
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
 
@@ -228,22 +294,13 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                     // Mostrar todas las respuestas cuando está expandido
                                                     <>
                                                         {comment.replies.map((reply: any) => (
-                                                            <div key={reply.id} className="flex mb-4">
-                                                                <Avatar className="h-8 w-8 flex-shrink-0">
-                                                                    <img
-                                                                        src={getProfileImageUrl(reply.user)}
-                                                                        alt="Replier"
-                                                                        className="h-full w-full object-cover rounded-full"
-                                                                    />
-                                                                </Avatar>
-                                                                <div className="ml-3 flex-1">
-                                                                    <span className="font-semibold mr-2">{getUserName(reply.user)}</span>
-                                                                    <span className="break-words">{reply.content}</span>
-                                                                </div>
-                                                            </div>
+                                                            <ReplyThread
+                                                                key={reply.id}
+                                                                reply={reply}
+                                                                handleReplyClick={handleReplyClick}
+                                                            />
                                                         ))}
 
-                                                        {/* Botón para colapsar las respuestas */}
                                                         <button
                                                             onClick={() => toggleReplies(comment.id)}
                                                             className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
@@ -252,6 +309,8 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                             Ocultar respuestas
                                                         </button>
                                                     </>
+
+
                                                 ) : (
                                                     // Mostrar solo la primera respuesta y el botón "Ver más" cuando está colapsado
                                                     <>
@@ -269,25 +328,38 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                                         {getUserName(comment.replies[0].user)}
                                                                     </span>
                                                                     <span className="break-words">{comment.replies[0].content}</span>
+                                                                    <span className="ml-2 text-xs text-gray-500">{format(comment.replies[0].created_at, 'dd/MM/yyyy')}</span>
+
+                                                                    {/* Agregar botón de responder */}
+                                                                    <div className="mt-1">
+                                                                        <button
+                                                                            onClick={() => handleReplyClick(comment.replies[0])} // Responde al comentario principal
+                                                                            className="text-gray-500 hover:text-blue-600 text-xs flex items-center"
+                                                                        >
+                                                                            <Reply className="h-3 w-3 mr-1" />
+                                                                            Responder
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         )}
 
                                                         {/* Botón Ver más respuestas */}
-                                                        {comment.replies.length > 1 && (
-                                                            <button
-                                                                onClick={() => toggleReplies(comment.id)}
-                                                                className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
-                                                            >
-                                                                <ChevronDown size={16} className="mr-1" />
-                                                                Ver {comment.replies.length - 1} respuestas más
-                                                            </button>
-                                                        )}
+                                                        {(comment.replies.length > 1 ||
+                                                            (comment.replies[0] && comment.replies[0].replies && comment.replies[0].replies.length > 0)) && (
+                                                                <button
+                                                                    onClick={() => toggleReplies(comment.id)}
+                                                                    className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
+                                                                >
+                                                                    <ChevronDown size={16} className="mr-1" />
+                                                                    Ver {comment.replies.length + (comment.replies[0]?.replies?.length || 0) - 1} respuestas más
+                                                                </button>
+                                                            )}
+
                                                     </>
                                                 )}
                                             </div>
                                         )}
-
                                     </div>
                                 ))
                             ) : (
@@ -301,9 +373,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                     {/* Barra de likes */}
                     <div className="p-4 border-t">
                         <div className="flex justify-between mb-2">
-
                             <div className="flex items-center space-x-3">
-
                                 <div className="flex items-center space-x-1">
                                     <button className="mr-1"
                                         onClick={() => handleLike(publicationEdit.id)}
@@ -328,16 +398,13 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                     </button>
                                     <span>{publicationEdit.comments_count}</span>
                                 </div>
-
                             </div>
-
 
                             <div className="flex items-center">
                                 <button>
                                     <Bookmark className="h-5 w-5" />
                                 </button>
                             </div>
-
                         </div>
                         <div className="flex items-center justify-between w-full">
                             <div className="font-semibold">{publicationEdit.likes_count || 0} likes</div>
@@ -345,17 +412,46 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                 {format(publicationEdit.created_at, 'dd/MM/yyyy')}
                             </div>
                         </div>
-
                     </div>
 
-                    {/* Input de comentario */}
+                    {/* Input de comentario con indicador de respuesta */}
                     <div className="p-4 border-t">
-                        <input
-                            ref={commentInputRef}
-                            type="text"
-                            placeholder="Agrega un comentario..."
-                            className="w-full outline-none"
-                        />
+                        {/* Indicador de respuesta */}
+                        {replyingTo && (
+                            <div className="mb-2 flex items-center justify-between text-xs text-gray-600 bg-gray-100 p-2 rounded">
+                                <div>
+                                    Respondiendo a <span className="font-semibold">{getUserName(replyingTo.user)}</span>
+                                </div>
+                                <button
+                                    onClick={cancelReply}
+                                    className="text-gray-500 hover:text-gray-800"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Input de comentario */}
+                        <div className="flex items-center">
+                            <input
+                                ref={commentInputRef}
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                type="text"
+                                placeholder={replyingTo ? "Escribe tu respuesta..." : "Agrega un comentario..."}
+                                className="w-full outline-none"
+                                onKeyPress={(e) => {
+                                    if (e.key === 'Enter') handleSubmitComment();
+                                }}
+                            />
+                            <button
+                                onClick={handleSubmitComment}
+                                disabled={!newComment.trim()}
+                                className="p-2 text-black hover:bg-black hover:text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <Send className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

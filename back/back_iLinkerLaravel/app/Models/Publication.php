@@ -46,10 +46,13 @@ class Publication extends Model
     {
         return $this->hasMany(PublicationComment::class)
             ->whereNull('parent_comment_id')
-            ->with(['user:id,name',
-                'replies.user.student:id,user_id,uuid,name,photo_pic',
-                'replies.user.company:id,user_id,slug,name,logo',
-                'replies.user.institutions:id,user_id,slug,name,logo'])
+            ->with([
+                'user:id,name,rol',
+                'user.student:id,user_id,name,photo_pic,uuid',
+                'user.company:id,user_id,name,logo,slug',
+                'user.institutions:id,user_id,name,logo,slug',
+                'replies'
+            ])
             ->orderBy('created_at', 'desc');
     }
 

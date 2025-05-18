@@ -54,6 +54,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function profileable()
+    {
+        return $this->morphTo(); // opcional si ho tens així, però pots tenir relacions normals
+    }
+
     public function company()
     {
         return $this->hasOne(Company::class, 'user_id', 'id');

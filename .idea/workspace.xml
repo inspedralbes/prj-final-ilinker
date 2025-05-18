@@ -4,11 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modal cambios">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Modificar componente para poder hacer los comentarios">
+      <change afterPath="$PROJECT_DIR$/frontv2/src/components/comments/ReplyThread.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Publication.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/Publication.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/PublicationComment.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/PublicationComment.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Models/User.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/components/templates/simple/SimpleEditor.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/templates/simple/SimpleEditor.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +72,7 @@
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "preferences.keymap",
-    "ts.external.directory.path": "C:\\Users\\deray\\Documents\\Cosas\\iLinker\\frontv2\\node_modules\\typescript\\lib",
+    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -120,6 +124,7 @@
       <workItem from="1745910630032" duration="2103000" />
       <workItem from="1745913296601" duration="7437000" />
       <workItem from="1746728579284" duration="3756000" />
+      <workItem from="1747587671644" duration="6724000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />
@@ -241,7 +246,8 @@
     <MESSAGE value="cambios de div" />
     <MESSAGE value="cambios de imagen" />
     <MESSAGE value="modal cambios" />
-    <option name="LAST_COMMIT_MESSAGE" value="modal cambios" />
+    <MESSAGE value="Modificar componente para poder hacer los comentarios" />
+    <option name="LAST_COMMIT_MESSAGE" value="Modificar componente para poder hacer los comentarios" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

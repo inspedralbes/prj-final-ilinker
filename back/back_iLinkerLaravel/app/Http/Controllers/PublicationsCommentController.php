@@ -17,7 +17,7 @@ class PublicationsCommentController extends Controller
     {
         try {
             $publication = Publication::findOrFail($publicationId);
-            
+
             // Verificar si los comentarios están habilitados
             if (!$publication->comments_enabled) {
                 return response()->json([
@@ -29,11 +29,11 @@ class PublicationsCommentController extends Controller
             $comments = PublicationComment::where('publication_id', $publicationId)
                 ->whereNull('parent_comment_id')                ->with(['user' => function($query) {
                     $query->select('id', 'name', 'rol')
-                        ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                        ->with(['student:user_id,photo_pic,name,uuid', 'company:user_id,logo,name,slug', 'institutions:user_id,logo,name,slug']);
                 }, 'replies' => function($query) {
                     $query->with(['user' => function($q) {
                         $q->select('id', 'name', 'rol')
-                            ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                            ->with(['student:user_id,photo_pic,name,uuid', 'company:user_id,logo,name,slug', 'institutions:user_id,logo,name,slug']);
                     }]);
                 }])
                 ->orderBy('created_at', 'asc')

@@ -328,12 +328,9 @@ class PublicationsController extends Controller
             $userId = Auth::id();
             $publications = Publication::with([
                 'media',
-                'comments.user.student:id,user_id,name,uuid,photo_pic',
-                'comments.user.company:id,user_id,name,slug,logo',
-                'comments.user.institutions:id,user_id,name,slug,logo',
-                'likes.user.student:id,user_id,name,uuid,photo_pic',
-                'likes.user.company:id,user_id,name,slug,logo',
-                'likes.user.institutions:id,user_id,name,slug,logo',
+                'comments.user',
+                'comments.replies.user',
+                'likes.user',
             ])
                 ->where('user_id', $userId)
                 ->orderBy('created_at', 'desc')
@@ -367,7 +364,8 @@ class PublicationsController extends Controller
         }
     }
 
-    public function myLikedPublications(){
+    public function myLikedPublications()
+    {
         try {
             $userId = Auth::id();
             $idsLikedPublications = PublicationLike::where('user_id', $userId)
