@@ -324,16 +324,26 @@ export default function PublicationPage() {
   };
 
   // Función para actualizar el contador de comentarios sin recargar la publicación
-  const handleCommentChange = (publicationId: number) => {
-    setPublications(publications.map((pub) => {
-      if ((pub.shared && pub.original_publication_id === publicationId) || pub.id === publicationId) {
-        return {
-          ...pub,
-          comments_count: pub.comments_count + 1
-        };
+  const handleCommentChange = async (publicationId: number) => {
+    try {
+      // Obtener la publicación actualizada del backend
+      const response = await apiRequest(`publications/${publicationId}`, 'GET');
+      
+      if (response.status === 'success') {
+        // Actualizar el contador de comentarios con el valor del backend
+        setPublications(publications.map((pub) => {
+          if ((pub.shared && pub.original_publication_id === publicationId) || pub.id === publicationId) {
+            return {
+              ...pub,
+              comments_count: response.data.comments_count || 0
+            };
+          }
+          return pub;
+        }));
       }
-      return pub;
-    }));
+    } catch (error) {
+      console.error('Error al actualizar el contador de comentarios:', error);
+    }
   };
 
   // Función para navegar al perfil del usuario
