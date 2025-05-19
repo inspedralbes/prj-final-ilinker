@@ -565,6 +565,7 @@ export default function StudentClientMe({
 
     const handleSave = async () => {
         showLoader();
+
         const formattedData = {
             ...studentEdit,
             birthday: studentEdit.birthday
@@ -1074,7 +1075,7 @@ export default function StudentClientMe({
                         alt="Cover"
                         className="w-full h-full object-cover"
                     />
-                    <label className="absolute bottom-4 right-4 cursor-pointer">
+                    <label className="absolute top-4 right-4 cursor-pointer bg-black/50 p-2 rounded-full hover:bg-black/70 transition-colors">
                         <input
                             type="file"
                             className="hidden"

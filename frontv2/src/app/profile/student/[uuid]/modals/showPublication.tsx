@@ -273,6 +273,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                     {getUserName(comment.user)}
                                                 </span>
                                                 <span className="break-words">{comment.content}</span>
+                                                <span className="ml-2 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.created_at), new Date(), { locale: es })}</span>
 
                                                 {/* Agregar botón de responder */}
                                                 <div className="mt-1">
@@ -316,47 +317,18 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                 ) : (
                                                     // Mostrar solo la primera respuesta y el botón "Ver más" cuando está colapsado
                                                     <>
-                                                        {comment.replies.length > 0 && (
-                                                            <div className="flex mb-4">
-                                                                <Avatar className="h-8 w-8 flex-shrink-0">
-                                                                    <img
-                                                                        src={getProfileImageUrl(comment.replies[0].user)}
-                                                                        alt="Replier"
-                                                                        className="h-full w-full object-cover rounded-full"
-                                                                    />
-                                                                </Avatar>
-                                                                <div className="ml-3 flex-1">
-                                                                    <span className="font-semibold mr-2">
-                                                                        {getUserName(comment.replies[0].user)}
-                                                                    </span>
-                                                                    <span className="break-words">{comment.replies[0].content}</span>
-                                                                    <span className="ml-2 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.replies[0].created_at), new Date(), { locale: es })}</span>
-
-                                                                    {/* Agregar botón de responder */}
-                                                                    <div className="mt-1">
-                                                                        <button
-                                                                            onClick={() => handleReplyClick(comment.replies[0])} // Responde al comentario principal
-                                                                            className="text-gray-500 hover:text-blue-600 text-xs flex items-center"
-                                                                        >
-                                                                            <Reply className="h-3 w-3 mr-1" />
-                                                                            Responder
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
+                                                       
 
                                                         {/* Botón Ver más respuestas */}
-                                                        {(comment.replies.length > 1 ||
-                                                            (comment.replies[0] && comment.replies[0].replies && comment.replies[0].replies.length > 0)) && (
-                                                                <button
-                                                                    onClick={() => toggleReplies(comment.id)}
-                                                                    className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
-                                                                >
-                                                                    <ChevronDown size={16} className="mr-1" />
-                                                                    Ver {comment.replies.length} respuestas más
-                                                                </button>
-                                                            )}
+                                                        {(comment.replies.length > 0) && (
+                                                            <button
+                                                                onClick={() => toggleReplies(comment.id)}
+                                                                className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
+                                                            >
+                                                                <ChevronDown size={16} className="mr-1" />
+                                                                Ver {comment.replies.length} respuestas más
+                                                            </button>
+                                                        )}
 
                                                     </>
                                                 )}

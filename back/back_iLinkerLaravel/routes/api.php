@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\FollowerController;
+use App\Http\Controllers\HelpUserController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SectorController;
@@ -25,6 +26,7 @@ use \App\Http\Controllers\StudentEducationController;
 use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PublicationsController;
 use \App\Http\Controllers\PublicationsCommentController;
+use App\Http\Controllers\SharedPublicationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -51,6 +53,7 @@ Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
+
 
 Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
@@ -79,6 +82,10 @@ Route::prefix('/institution')->group(function () {
 //RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
+
+    // Rutas para guardar y obtener publicaciones guardadas
+    Route::post('/publications/{publicationId}/save', [PublicationsController::class, 'toggleSave']);
+    Route::get('/publications/saved', [PublicationsController::class, 'getSavedPublications']);
 
     Route::prefix('/notifications')->group(function () {
         // Obtener todas las notificaciones
@@ -185,7 +192,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put('/follow/approve/{follower_id}', [FollowerController::class, 'approveFollowRequest']);
     Route::delete('/follow/reject/{follower_id}', [FollowerController::class, 'rejectFollowRequest']);
     Route::post('/block', [FollowerController::class, 'blockUser']);
-    Route::delete('/unblock/{user_id}', [FollowerController::class, 'unblockUser']);
+    Route::get('/unblock/{user_id}', [FollowerController::class, 'unblockUser']);
     Route::get('/following', [FollowerController::class, 'getFollowing']);
     Route::get('/follow/check/{user_id}', [FollowerController::class, 'followCheck']);
     Route::get('/my-followers', [FollowerController::class, 'getMyFollowers']);
@@ -202,12 +209,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/profile/new-email', [UserSettingsController::class, 'updateEmail']);
     });
 
-
     // Rutas de publicaciones
     Route::post('/publications', [PublicationsController::class, 'store']);
     Route::get('/publications/{id}', [PublicationsController::class, 'show']);
     Route::put('/publications/{id}', [PublicationsController::class, 'update']);
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
+
     // Publicaciones del usuario actual
     Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
     Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
@@ -216,5 +223,17 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Comentarios (NUEVAS RUTAS)
     Route::post('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'store']);
     Route::delete('/publications/{publicationId}/comments/{commentId}', [PublicationsCommentController::class, 'destroy']);
+
+    Route::prefix('/help')->group(function () {
+        Route::post('/send-help', [HelpUserController::class, 'sendHelp']);
+    });
+    Route::get('my-blocked-users', [HelpUserController::class, 'getMyBlockedUsers']);
+
+    Route::post('/publications/share', [SharedPublicationController::class, 'share']);
+    Route::delete('/shared-publications/{id}', [SharedPublicationController::class, 'delete']);
+
 });
 
+
+    // Rutas para publicaciones compartidas
+    Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);

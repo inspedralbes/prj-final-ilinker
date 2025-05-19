@@ -196,7 +196,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     } catch (error: any) {
       console.error('Error saving institution:', error)
       setError(error.message || 'Error en guardar datos de la institución, por favor intenta de nuevo.')
-    } finally{
+    } finally {
       hideLoader();
     }
   }
@@ -460,19 +460,28 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
   }
 
   const renderSpecialties = () => (
-    <div className="mt-6 md:mt-0">
+    <div className="mt-4 md:mt-0">
       <Card className="h-full shadow-md hover:shadow-xl transition-shadow duration-300">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-gray-800" />
-            Especialidades
+        <CardHeader className="flex flex-row items-center justify-between p-2 md:p-6">
+          <CardTitle className="flex items-center gap-1.5">
+            <Award className="h-3.5 w-3.5 md:h-6 md:w-6 text-blue-600" />
+            <span className="text-xs md:text-lg">Especialidades</span>
           </CardTitle>
+          {!isEditing && (
+            <button
+              onClick={() => handleEdit("specialties")}
+              className="flex items-center gap-1 text-[10px] md:text-sm text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              <Pencil className="h-2.5 w-2.5 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Editar</span>
+            </button>
+          )}
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-2 md:p-6 pt-0 md:pt-0">
           {isEditing === "specialties" ? (
-            <div>
+            <div className="space-y-1.5">
               {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
-                <div key={index} className="flex items-center mb-2">
+                <div key={index} className="flex items-center gap-1.5">
                   <select
                     value={specialty}
                     onChange={(e) => {
@@ -480,9 +489,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       newSpecialties[index] = e.target.value
                       updateInstitution("specialties", newSpecialties)
                     }}
-                    className="flex-1 border rounded px-2 py-1 mr-2"
+                    className="flex-1 border rounded-lg px-1.5 py-1 text-[10px] md:text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value=" ">Seleccionar una especialidad</option>
+                    <option value="">Seleccionar una especialidad</option>
                     {Array.isArray(availableSkills) && availableSkills.map((skill) => (
                       <option key={skill.id} value={skill.name}>
                         {skill.name}
@@ -494,9 +503,9 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                       const newSpecialties = (institutionData.specialties || []).filter((_, i) => i !== index)
                       updateInstitution("specialties", newSpecialties)
                     }}
-                    className="text-red-600 hover:text-red-800"
+                    className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-colors"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-2.5 w-2.5 md:h-4 md:w-4" />
                   </button>
                 </div>
               ))}
@@ -504,34 +513,31 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 onClick={() => {
                   updateInstitution("specialties", [...(institutionData.specialties || []), ""])
                 }}
-                className="mt-2 text-blue-600 hover:text-blue-800"
+                className="flex items-center gap-1 text-[10px] md:text-sm text-blue-600 hover:text-blue-800 transition-colors"
               >
-                <Plus className="h-4 w-4 inline mr-1" />
-                Añadir
+                <Plus className="h-2.5 w-2.5 md:h-4 md:w-4" />
+                Añadir especialidad
               </button>
               {renderActionButtons()}
               {renderErrorMessage()}
             </div>
           ) : (
-            <div>
-              <div className="flex flex-wrap gap-2">
-                {ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
-                  >
-                    <Award className="h-4 w-4 mr-1.5 text-gray-600" />
-                    {specialty}
-                  </span>
-                ))}
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap gap-1 md:gap-2">
+                {ensureArray(institutionData.specialties).length > 0 ? (
+                  ensureArray(institutionData.specialties).map((specialty: string, index: number) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-1.5 py-0.5 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                    >
+                      <Award className="h-2.5 w-2.5 md:h-4 md:w-4 mr-0.5 md:mr-1.5 text-blue-600" />
+                      {specialty}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-[10px] md:text-sm text-gray-500 italic">No hay especialidades añadidas</p>
+                )}
               </div>
-              <button
-                onClick={() => handleEdit("specialties")}
-                className="mt-4 text-gray-600 hover:text-gray-800"
-              >
-                <Pencil className="h-4 w-4 inline mr-1 text-gray-600" />
-                Editar especialidades
-              </button>
             </div>
           )}
         </CardContent>
@@ -543,7 +549,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-40 sm:h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-300">
         <img
-          src={config.storageUrl+institutionData.cover}
+          src={config.storageUrl + institutionData.cover}
           alt="Cover"
           className="w-full h-full object-cover"
           onError={() => handleImageError('cover')}
@@ -564,7 +570,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                   <div className="relative flex-shrink-0">
                     <img
                       className="h-24 w-24 sm:h-32 sm:w-32 md:h-40 md:w-40 rounded-lg border-4 border-white shadow-lg object-cover"
-                      src={config.storageUrl+institutionData.logo}
+                      src={config.storageUrl + institutionData.logo}
                       alt={institutionData.name}
                       onError={() => handleImageError('logo')}
                     />
@@ -622,7 +628,7 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
               </div>
 
               {/* Sección de contacto */}
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+              <div className="mt-4  border-t border-gray-200 pt-4 sm:pt-6">
                 <div className="flex flex-wrap justify-center items-center gap-4">
                   {isEditing === "contact" ? (
                     <div className="w-full">
@@ -695,33 +701,52 @@ export default function InstitutionClientMe({ institution }: InstitutionClientMe
                 </div>
               </div>
 
-              {/* Esta parte es de la sección de tabs */}
-              <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
-                <TabsList className="flex justify-center sm:justify-start space-x-1 sm:space-x-4 p-1 rounded-lg bg-gray-50">
-                  <TabsTrigger value="inicio" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                    <Home className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Inicio</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="acerca" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                    <Info className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Acerca de</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="publicaciones" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                    <Plus className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Publicaciones</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="empleos" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                    <BriefcaseIcon className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Empleos</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="instituto" className="flex items-center justify-center p-2 sm:p-3 rounded-md transition-all hover:bg-gray-50 data-[state=active]:bg-gray-100 data-[state=active]:text-gray-700">
-                    <School className="h-5 w-5 sm:h-5 sm:w-5 text-gray-500" />
-                    <span className="hidden sm:inline ml-2 text-sm sm:text-base">Vida en el instituto</span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+
+
             </div>
           </div>
+
+          {/* Esta parte es de la sección de tabs */}
+          <div className="mt-4 sm:mt-2   pt-2 sm:pt-6">
+            <TabsList className="w-full justify-start h-auto p-0 bg-transparent border-b bg-white shadow-lg">
+              <TabsTrigger
+                value="inicio"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Home className="h-4 w-4" />
+                Inicio
+              </TabsTrigger>
+              <TabsTrigger
+                value="acerca"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Info className="h-4 w-4" />
+                Acerca de
+              </TabsTrigger>
+              <TabsTrigger
+                value="publicaciones"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <Plus className="h-4 w-4" />
+                Publicaciones
+              </TabsTrigger>
+              <TabsTrigger
+                value="empleos"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <BriefcaseIcon className="h-4 w-4" />
+                Empleos
+              </TabsTrigger>
+              <TabsTrigger
+                value="instituto"
+                className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
+              >
+                <School className="h-4 w-4" />
+                Vida en el instituto
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
 
           <div className="mt-4 sm:mt-6 bg-white rounded-lg shadow-lg p-4 sm:p-6 md:p-8">
             <TabsContent value="inicio">

@@ -729,7 +729,7 @@ export default function SearchClient() {
                       <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
                         <Clock className="h-4 w-4" />
                         <span>
-                          Posted{" "}
+                          Publicado{" "}
                           {formatDistanceToNow(new Date(job.created_at), {
                             addSuffix: true,
                           })}
