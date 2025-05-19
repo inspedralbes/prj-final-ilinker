@@ -28,11 +28,11 @@ class PublicationsCommentController extends Controller
 
             $comments = PublicationComment::where('publication_id', $publicationId)
                 ->whereNull('parent_comment_id')
-                ->with(['user' => function($query) {
+                ->with(['user' => function ($query) {
                     $query->select('id', 'name', 'rol')
-                        ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
-                }, 'replies' => function($query) {
-                    $query->with(['user' => function($q) {
+                        ->with(['student:user_id,photo_pic,name', 'company:user_id,logo,name', 'institutions:user_id,logo,name']);
+                }, 'replies' => function ($query) {
+                    $query->with(['user' => function ($q) {
                         $q->select('id', 'name', 'rol')
                             ->with(['student:user_id,photo_pic,name,uuid', 'company:user_id,logo,name,slug', 'institutions:user_id,logo,name,slug']);
                     }]);
@@ -84,15 +84,17 @@ class PublicationsCommentController extends Controller
                 'parent_comment_id' => $request->input('parent_comment_id'),
             ]);
             // Actualizar contador de comentarios
-            $publication->increment('comments_count');            $comment->load([
-                'user' => function($query) {
+            $publication->increment('comments_count');
+
+            $comment->load([
+                'user' => function ($query) {
                     $query->select('id', 'name', 'rol')
-                        ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                        ->with(['student:user_id,photo_pic,name', 'company:user_id,logo,name', 'institutions:name,user_id,logo,name']);
                 },
-                'replies' => function($query) {
-                    $query->with(['user' => function($q) {
+                'replies' => function ($query) {
+                    $query->with(['user' => function ($q) {
                         $q->select('id', 'name', 'rol')
-                            ->with(['student:user_id,photo_pic', 'company:user_id,logo', 'institutions:user_id,logo']);
+                            ->with(['student:user_id,photo_pic,name', 'company:user_id,logo,name', 'institutions:user_id,logo,name']);
                     }]);
                 }
             ]);

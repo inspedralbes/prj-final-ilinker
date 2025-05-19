@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import {
     X,
     Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
@@ -20,7 +20,8 @@ import { addDays, format, formatDistanceToNow, formatDistanceStrict } from "date
 import { es } from 'date-fns/locale';
 import { apiRequest } from "@/services/requests/apiRequest";
 import ReplyThread from "@/components/comments/ReplyThread";
-
+import { AuthContext } from "@/contexts/AuthContext";
+import { LoaderContext } from "@/contexts/LoaderContext";
 
 interface PropsModal {
     publication: any;
@@ -43,6 +44,11 @@ export default function ShowPublication({ publication, student, onClose, onSave 
 
     const [newComment, setNewComment] = useState("");
     const [replyingTo, setReplyingTo] = useState<any>(null);
+
+    const { userData, allUsers, setAllUsers } = useContext(AuthContext);
+
+    const { showLoader, hideLoader } = useContext(LoaderContext);
+
 
     // Función para toggle el estado de expansión de un comentario
     const toggleReplies = (commentId: number) => {
@@ -97,7 +103,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
 
     const fetchComments = async () => {
         try {
-            //setIsLoading(true);
+            showLoader();
             const response = await apiRequest(`publications/${publicationEdit?.id}/comments`, 'GET');
             if (response.status === 'success' && Array.isArray(response.data)) {
                 console.log("COMMENTS");
@@ -110,7 +116,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         } catch (error) {
             console.error('Error fetching comments:', error);
         } finally {
-            //setIsLoading(false);
+            hideLoader();
         }
     };
 
@@ -138,7 +144,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         console.log("comment");
         console.log(comment);
         setReplyingTo(comment);
-        setNewComment(`@${getUserName(comment.user)}`);
+        setNewComment(`@${getUserName(comment.user)} `);
         // Enfocar el input de comentario
         commentInputRef.current?.focus();
         commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -150,47 +156,84 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         setNewComment("");
     };
 
+
+    const handleSavePublication = async (id: number) => {
+        try {
+            showLoader();
+            const response = await apiRequest(`/publications/${id}/save`, 'POST');
+            console.log('Respuesta del guardado:', response);
+
+            if (response.status === 'success') {
+                // Actualizar solo el estado de guardado
+                setPublicationEdit((prev: any) => {
+                    if (
+                        (prev.shared && prev.original_publication_id === id) ||
+                        prev.id === id
+                    ) {
+                        return {
+                            ...prev,
+                            saved: response.saved,
+                            saved_by: response.saved
+                                ? [...(prev.saved_by || []), { user_id: userData?.id || 0 }]
+                                : (prev.saved_by || []).filter(
+                                    (saved: any) => saved.user_id !== userData?.id
+                                ),
+                        };
+                    }
+
+                    // Si no se cumple la condición, se retorna el estado anterior sin cambios
+                    return prev;
+                });
+
+            }
+        } catch (err) {
+            console.error('Error al guardar la publicación:', err);
+        } finally {
+            hideLoader();
+        }
+    };
+
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 md:p-4"
             onClick={onClose}
         >
             <div
-                className={`bg-white w-full ${hasMedia ? 'max-w-4xl' : 'max-w-xl'} flex flex-col md:flex-row max-h-screen md:h-auto rounded-md overflow-hidden shadow-xl`}
+                className={`bg-white w-full ${hasMedia ? 'max-w-4xl' : 'max-w-xl'} flex flex-col md:flex-row max-h-[95vh] md:max-h-[90vh] rounded-md overflow-hidden shadow-xl`}
                 onClick={e => e.stopPropagation()}
             >
                 {/* Botón cerrar (X) - Posicionado absolutamente en la esquina superior derecha */}
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-1 rounded-full bg-white hover:bg-gray-100 transition-colors z-10"
+                    className="absolute top-2 right-2 p-1 rounded-full bg-white hover:bg-gray-100 transition-colors z-10"
                 >
-                    <X className="h-6 w-6 text-gray-500" />
+                    <X className="h-5 w-5 text-gray-500" />
                 </button>
 
-                {/* En móvil primero aparecerá la cabecera, luego la imagen y finalmente el resto del contenido */}
                 {/* Cabecera - Visible solo en móvil en este punto */}
-                <div className="flex md:hidden items-center p-4 border-b w-full">
-                    <Avatar className="h-8 w-8">
+                <div className="flex md:hidden items-center p-3 border-b w-full bg-white">
+                    <Avatar className="h-6 w-6">
                         <img
                             src={getProfileImageUrl(publicationEdit?.user_details)}
                             alt="Author"
                             className="h-full w-full object-cover rounded-full"
                         />
                     </Avatar>
-                    <div className="ml-3 font-semibold">{getUserName(publicationEdit?.user_details)}</div>
+                    <div className="ml-2 font-semibold text-sm">{getUserName(publicationEdit?.user_details)}</div>
                 </div>
 
                 {/* Imagen o Carousel (se muestra solo si hay media) */}
                 {hasMedia && (
                     <div
-                        className="w-full md:w-7/12 flex items-center justify-center h-auto md:h-full order-2 md:order-1">
+                        className="w-full md:w-7/12 flex items-center justify-center h-auto max-h-[40vh] md:max-h-[90vh] md:h-full order-2 md:order-1"
+                    >
                         {hasMultipleMedia ? (
                             // Mostrar carousel si hay múltiples imágenes
                             <Carousel className="w-full max-w-md relative">
                                 <CarouselContent>
                                     {publicationEdit.media.map((picture: any, index: number) => (
                                         <CarouselItem key={index}>
-                                            <div className="p-1 flex aspect-square items-center justify-center p-6">
+                                            <div className="p-1 flex aspect-square items-center justify-center">
                                                 <img
                                                     src={picture.file_path}
                                                     alt={`Imagen ${index + 1}`}
@@ -205,8 +248,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                             </Carousel>
                         ) : (
                             // Mostrar una sola imagen si solo hay una
-                            <div className="aspect-square flex items-center justify-center"
-                            >
+                            <div className="flex items-center justify-center h-full w-full">
                                 <img
                                     src={publicationEdit.media[0].file_path}
                                     alt="Contenido de la publicación"
@@ -218,18 +260,18 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                 )}
 
                 {/* Lado derecho - Comentarios */}
-                <div className={`w-full ${hasMedia ? 'md:w-5/12' : 'md:w-full'} flex flex-col order-3 md:order-2`}>
+                <div className={`w-full ${hasMedia ? 'md:w-5/12' : 'md:w-full'} flex flex-col order-3 md:order-2 max-h-[55vh] md:max-h-[90vh]`}>
                     {/* Cabecera - Visible solo en desktop */}
-                    <div className="hidden md:flex items-center p-4 border-b">
-                        <Avatar className="h-8 w-8">
+                    <div className="hidden md:flex items-center p-3 border-b">
+                        <Avatar className="h-7 w-7">
                             <img
                                 src={getProfileImageUrl(publicationEdit.user_details)}
                                 alt="Author"
                                 className="h-full w-full object-cover rounded-full"
                             />
                         </Avatar>
-                        <div className="ml-3 font-semibold">{getUserName(publicationEdit.user_details)}</div>
-                        <div className="ml-3">
+                        <div className="ml-2 font-semibold">{getUserName(publicationEdit.user_details)}</div>
+                        <div className="ml-auto">
                             <button>
                                 <Ellipsis className="h-5 w-5" />
                             </button>
@@ -237,43 +279,42 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                     </div>
 
                     {/* Área de comentarios */}
-                    <div className="flex-1 overflow-y-auto p-4">
+                    <div className="flex-1 overflow-y-auto p-3">
                         {publicationEdit.content ? (
-                            <div className="flex mb-4">
-                                <Avatar className="h-8 w-8 flex-shrink-0">
+                            <div className="flex mb-3">
+                                <Avatar className="h-6 w-6 md:h-7 md:w-7 flex-shrink-0">
                                     <img
                                         src={getProfileImageUrl(publicationEdit.user_details)}
                                         alt="Author"
                                         className="h-full w-full object-cover rounded-full"
                                     />
                                 </Avatar>
-                                <div className="ml-3">
-                                    <span className="font-semibold mr-2">{getUserName(publicationEdit.user_details)}</span>
-                                    <span>{publicationEdit.content}</span>
+                                <div className="ml-2">
+                                    <span className="font-semibold mr-1 text-sm">{getUserName(publicationEdit.user_details)}</span>
+                                    <span className="text-sm">{publicationEdit.content}</span>
                                 </div>
                             </div>
                         ) : null}
 
                         {/* Comentarios con scroll */}
-                        <div className="max-h-64 md:max-h-80 overflow-y-auto pr-2">
+                        <div className="max-h-[25vh] md:max-h-[60vh] overflow-y-auto pr-2">
                             {publicationEdit.comments && publicationEdit.comments.length > 0 ? (
                                 publicationEdit.comments.map((comment: any) => (
-                                    <div key={comment.id}>
-                                        <div className="flex mb-4">
-                                            <Avatar className="h-8 w-8 flex-shrink-0">
+                                    <div key={comment.id} className="mb-3">
+                                        <div className="flex">
+                                            <Avatar className="h-6 w-6 md:h-7 md:w-7 flex-shrink-0">
                                                 <img
                                                     src={getProfileImageUrl(comment.user)}
                                                     alt="Commenter"
                                                     className="h-full w-full object-cover rounded-full"
                                                 />
                                             </Avatar>
-                                            <div className="ml-3 flex-1">
-                                                <span
-                                                    className="font-semibold mr-2">
+                                            <div className="ml-2 flex-1">
+                                                <span className="font-semibold mr-1 text-sm">
                                                     {getUserName(comment.user)}
                                                 </span>
-                                                <span className="break-words">{comment.content}</span>
-                                                <span className="ml-2 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.created_at), new Date(), { locale: es })}</span>
+                                                <span className="break-words text-sm">{comment.content}</span>
+                                                <span className="ml-1 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.created_at), new Date(), { locale: es })}</span>
 
                                                 {/* Agregar botón de responder */}
                                                 <div className="mt-1">
@@ -290,66 +331,51 @@ export default function ShowPublication({ publication, student, onClose, onSave 
 
                                         {/* Respuestas a los comentarios */}
                                         {comment.replies && comment.replies.length > 0 && (
-                                            <div className="ml-7">
-                                                {expandedComments[comment.id] ? (
-                                                    // Mostrar todas las respuestas cuando está expandido
-                                                    <>
-                                                        {comment.replies.map((reply: any) => (
-
-                                                            <ReplyThread
-                                                                key={reply.id}
-                                                                reply={reply}
-                                                                handleReplyClick={handleReplyClick}
-                                                            />
-
-                                                        ))}
-
-                                                        <button
-                                                            onClick={() => toggleReplies(comment.id)}
-                                                            className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
-                                                        >
-                                                            <ChevronUp size={16} className="mr-1" />
+                                            <div className="ml-5 md:ml-7">
+                                                {/* Botón Ver respuestas / Ocultar respuestas */}
+                                                <button
+                                                    onClick={() => toggleReplies(comment.id)}
+                                                    className="text-blue-600 hover:text-blue-800 flex items-center text-xs md:text-sm mb-1 mt-1"
+                                                >
+                                                    {expandedComments[comment.id] ? (
+                                                        <>
+                                                            <ChevronUp size={14} className="mr-1" />
                                                             Ocultar respuestas
-                                                        </button>
-                                                    </>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <ChevronDown size={14} className="mr-1" />
+                                                            Ver {comment.replies.length} respuestas
+                                                        </>
+                                                    )}
+                                                </button>
 
-
-                                                ) : (
-                                                    // Mostrar solo la primera respuesta y el botón "Ver más" cuando está colapsado
-                                                    <>
-                                                       
-
-                                                        {/* Botón Ver más respuestas */}
-                                                        {(comment.replies.length > 0) && (
-                                                            <button
-                                                                onClick={() => toggleReplies(comment.id)}
-                                                                className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
-                                                            >
-                                                                <ChevronDown size={16} className="mr-1" />
-                                                                Ver {comment.replies.length} respuestas más
-                                                            </button>
-                                                        )}
-
-                                                    </>
-                                                )}
+                                                {/* Solo mostrar las respuestas si están expandidas */}
+                                                {expandedComments[comment.id] && comment.replies.map((reply: any) => (
+                                                    <ReplyThread
+                                                        key={reply.id}
+                                                        reply={reply}
+                                                        handleReplyClick={handleReplyClick}
+                                                    />
+                                                ))}
                                             </div>
                                         )}
                                     </div>
                                 ))
                             ) : (
-                                <div className="flex mb-4">
-                                    <div className="text-gray-500 text-sm">Todavía no hay comentarios</div>
+                                <div className="flex mb-3">
+                                    <div className="text-gray-500 text-xs md:text-sm">Todavía no hay comentarios</div>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     {/* Barra de likes */}
-                    <div className="p-4 border-t">
-                        <div className="flex justify-between mb-2">
+                    <div className="p-2 md:p-3 border-t">
+                        <div className="flex justify-between mb-1">
                             <div className="flex items-center space-x-3">
                                 <div className="flex items-center space-x-1">
-                                    <button className="mr-1"
+                                    <button
                                         onClick={() => handleLike(publicationEdit.id)}
                                     >
                                         {publicationEdit.liked ? (
@@ -358,11 +384,11 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                             <Heart className="h-5 w-5 hover:text-red-600" />
                                         )}
                                     </button>
-                                    <span>{publicationEdit.likes_count}</span>
+                                    <span className="text-sm">{publicationEdit.likes_count}</span>
                                 </div>
 
                                 <div className="flex items-center space-x-1">
-                                    <button className="mr-1"
+                                    <button
                                         onClick={() => {
                                             commentInputRef.current?.focus();
                                             commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -370,35 +396,39 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                     >
                                         <MessageCircle className="h-5 w-5" />
                                     </button>
-                                    <span>{publicationEdit.comments_count}</span>
+                                    <span className="text-sm">{publicationEdit.comments_count}</span>
                                 </div>
                             </div>
 
                             <div className="flex items-center">
-                                <button>
-                                    <Bookmark className="h-5 w-5" />
+                                <button onClick={() => handleSavePublication(publicationEdit.id)}>
+                                    {publicationEdit.saved ? (
+                                        <Bookmark className="h-5 w-5 text-yellow-500" fill='yellow' />
+                                    ) : (
+                                        <Bookmark className="h-5 w-5" />
+                                    )}
                                 </button>
                             </div>
                         </div>
                         <div className="flex items-center justify-between w-full">
-                            <div className="font-semibold">{publicationEdit.likes_count || 0} likes</div>
+                            <div className="font-semibold text-xs md:text-sm">{publicationEdit.likes_count || 0} likes</div>
                             <div className="text-xs text-gray-500">
-                                {format(publicationEdit.created_at, 'dd/MM/yyyy')}
+                                {format(new Date(publicationEdit.created_at), 'dd/MM/yyyy')}
                             </div>
                         </div>
                     </div>
 
                     {/* Input de comentario con indicador de respuesta */}
-                    <div className="p-4 border-t">
+                    <div className="p-2 md:p-3 border-t">
                         {/* Indicador de respuesta */}
                         {replyingTo && (
-                            <div className="mb-2 flex items-center justify-between text-xs text-gray-600 bg-gray-100 p-2 rounded">
-                                <div>
+                            <div className="mb-2 flex items-center justify-between text-xs text-gray-600 bg-gray-100 p-1 md:p-2 rounded">
+                                <div className="truncate">
                                     Respondiendo a <span className="font-semibold">{getUserName(replyingTo.user)}</span>
                                 </div>
                                 <button
                                     onClick={cancelReply}
-                                    className="text-gray-500 hover:text-gray-800"
+                                    className="text-gray-500 hover:text-gray-800 flex-shrink-0 ml-1"
                                 >
                                     <X className="h-4 w-4" />
                                 </button>
@@ -413,17 +443,17 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                 onChange={(e) => setNewComment(e.target.value)}
                                 type="text"
                                 placeholder={replyingTo ? "Escribe tu respuesta..." : "Agrega un comentario..."}
-                                className="w-full outline-none"
+                                className="w-full outline-none text-sm"
                                 onKeyPress={(e) => {
                                     if (e.key === 'Enter') handleSubmitComment();
                                 }}
                             />
                             <button
                                 onClick={handleSubmitComment}
-                                disabled={!newComment.trim() || !replyingTo}
-                                className="p-2 text-black hover:bg-black hover:text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+                                disabled={!newComment.trim()}
+                                className="p-1 text-black hover:bg-black hover:text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <Send className="w-5 h-5" />
+                                <Send className="w-4 h-4 md:w-5 md:h-5" />
                             </button>
                         </div>
                     </div>

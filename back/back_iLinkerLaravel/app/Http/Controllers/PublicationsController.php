@@ -6,6 +6,7 @@ use App\Models\Publication;
 use App\Models\PublicationMedia;
 use App\Models\PublicationLike;
 use App\Models\PublicationComment;
+use App\Models\PublicationSaved;
 use App\Models\SharedPublication;
 use App\Services\PublicationFileService;
 use Illuminate\Http\Request;
