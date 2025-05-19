@@ -150,7 +150,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
             }));
           }
 
-          // Automáticamente expandir las respuestas del comentario al que se está respondiendo
+          // Automáticamente expandir las respuesta del comentario al que se está respondiendo
           setExpandedReplies(prev => {
             const newSet = new Set(prev);
             newSet.add(replyingTo.id);
@@ -249,14 +249,29 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
                 onClick={() => setReplyingTo(comment)}
                 className="text-xs font-semibold text-gray-500 hover:text-gray-700"
               >
-                Responder
+                <div className="flex items-center gap-1">
+                  <Reply className="w-3 h-3" />
+                  <span>Responder</span>
+                </div>
               </button>
               {hasReplies && (
                 <button
                   onClick={() => toggleReplies(comment.id)}
                   className="text-xs font-semibold text-gray-500 hover:text-gray-700"
                 >
-                  {isExpanded ? 'Ocultar respuestas' : `Ver ${comment.replies!.length} respuestas`}
+                  <div className="flex items-center gap-1">
+                    {isExpanded ? (
+                      <>
+                        <ChevronUp className="w-3 h-3" />
+                        <span>Ocultar</span>
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="w-3 h-3" />
+                        <span>{`${comment.replies!.length} ${comment.replies!.length === 1 ? 'respuesta' : 'respuestas'}`}</span>
+                      </>
+                    )}
+                  </div>
                 </button>
               )}
             </div>
@@ -321,7 +336,10 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
                           onClick={() => setReplyingTo(reply)}
                           className="text-xs font-semibold text-gray-500 hover:text-gray-700"
                         >
-                          Responder
+                          <div className="flex items-center gap-1">
+                            <Reply className="w-3 h-3" />
+                            <span>Responder</span>
+                          </div>
                         </button>
                       </div>
                     </div>
@@ -332,17 +350,8 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
           )}
         </div>
 
-        {/* Show/Hide replies button */}
-        {hasReplies && !isExpanded && (
-          <div className="ml-11">
-            <button
-              onClick={() => toggleReplies(comment.id)}
-              className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-            >
-              Ver {comment.replies!.length} respuestas
-            </button>
-          </div>
-        )}
+       
+        
         </div>
       </div>
     );
@@ -371,7 +380,19 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
                     onClick={() => setExpandedComments(!expandedComments)}
                     className="text-sm font-semibold text-gray-500 hover:text-gray-700"
                   >
-                    {expandedComments ? 'Ocultar comentarios' : `Ver ${comments.length - 3} comentarios más`}
+                    <div className="flex items-center gap-1">
+                      {expandedComments ? (
+                        <>
+                          <ChevronUp className="w-3 h-3" />
+                          <span>Mostrar menos</span>
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="w-3 h-3" />
+                          <span>{`Ver ${comments.length - 3} más`}</span>
+                        </>
+                      )}
+                    </div>
                   </button>
                 </div>
               )}
