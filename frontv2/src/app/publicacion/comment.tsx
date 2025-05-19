@@ -131,27 +131,24 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
 
         // Update comments state immediately with the new comment
         if (replyingTo) {
-          // Function to recursively find and update the parent comment
-          const updateCommentReplies = (comments: Comment[]): Comment[] => {
-            return comments.map(comment => {
-              if (comment.id === replyingTo.id) {
-                // Add reply to this comment
+          // Get the parent comment and add reply directly to it
+          const parentComment = comments.find(c => c.id === replyingTo.id) || 
+                              comments.find(c => c.replies?.some(r => r.id === replyingTo.id));
+
+          if (parentComment) {
+            setComments(prev => prev.map(comment => {
+              if (comment.id === parentComment.id) {
                 return {
                   ...comment,
-                  replies: [...(comment.replies || []), newCommentData]
-                };
-              } else if (comment.replies && comment.replies.length > 0) {
-                // Search in nested replies
-                return {
-                  ...comment,
-                  replies: updateCommentReplies(comment.replies)
+                  replies: [...(comment.replies || []), { 
+                    ...newCommentData, 
+                    parent_comment_id: parentComment.id 
+                  }]
                 };
               }
               return comment;
-            });
-          };
-
-          setComments(prev => updateCommentReplies(prev));
+            }));
+          }
 
           // Automáticamente expandir las respuestas del comentario al que se está respondiendo
           setExpandedReplies(prev => {
@@ -195,14 +192,15 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     });
   };
 
-  const renderComment = (comment: Comment, isReply: boolean = false, depth: number = 0) => {
+  const renderComment = (comment: Comment) => {
     const canDelete = userData?.id === comment.user_id;
     const hasReplies = comment.replies && comment.replies.length > 0;
     const isExpanded = expandedReplies.has(comment.id);
-    const visibleReplies = isExpanded ? comment.replies : comment.replies?.slice(0, 2);
-
+    
     return (
-      <div key={comment.id} className={`flex space-x-3 ${!isReply ? 'mb-4' : 'ml-12 mb-2'}`}>
+      <div key={comment.id} className="space-y-2">
+        {/* Main comment */}
+        <div className="flex space-x-3">
         <div className="w-8 h-8 flex-shrink-0">
           <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
             <Image
@@ -263,19 +261,88 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
               )}
             </div>
           </div>
-          {hasReplies && (
+          {/* Replies section */}
+          {hasReplies && isExpanded && comment.replies && (
             <div className="mt-2 space-y-2">
-              {visibleReplies!.map((reply) => renderComment(reply, true, depth + 1))}
-              {!isExpanded && comment.replies!.length > 2 && (
-                <button
-                  onClick={() => toggleReplies(comment.id)}
-                  className="text-xs font-semibold text-gray-500 hover:text-gray-700 ml-12"
-                >
-                  Ver {comment.replies!.length - 2} respuestas más
-                </button>
-              )}
+              {comment.replies.map((reply) => (
+                <div key={reply.id} className="flex space-x-3 ml-12">
+                  <div className="w-8 h-8 flex-shrink-0">
+                    <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
+                      <Image
+                        src={getUserAvatar(reply.user_id)}
+                        alt={getUserName(reply.user_id)}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="bg-gray-50 rounded-2xl px-3 py-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="mb-1">
+                            <span className="font-semibold text-sm mr-2">{getUserName(reply.user_id)}</span>
+                            <span className="text-xs text-gray-500">
+                              respondiendo a {getUserName(comment.user_id)}
+                            </span>
+                          </div>
+                          <span className="text-sm text-gray-800">{reply.content}</span>
+                        </div>
+                        {userData?.id === reply.user_id && (
+                          <div className="relative">
+                            <button
+                              onClick={() => setOpenMenuId(openMenuId === reply.id ? null : reply.id)}
+                              className="p-1 hover:bg-gray-200 rounded-full"
+                            >
+                              <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                            </button>
+                            {openMenuId === reply.id && (
+                              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                <button
+                                  onClick={() => {
+                                    handleDeleteComment(reply.id);
+                                    setOpenMenuId(null);
+                                  }}
+                                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />Eliminar
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-4 mt-1">
+                        <span className="text-xs text-gray-500">
+                          {new Date(reply.created_at).toLocaleDateString()}
+                        </span>
+                        <button
+                          onClick={() => setReplyingTo(reply)}
+                          className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+                        >
+                          Responder
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
+        </div>
+
+        {/* Show/Hide replies button */}
+        {hasReplies && !isExpanded && (
+          <div className="ml-11">
+            <button
+              onClick={() => toggleReplies(comment.id)}
+              className="text-xs font-semibold text-gray-500 hover:text-gray-700"
+            >
+              Ver {comment.replies!.length} respuestas
+            </button>
+          </div>
+        )}
         </div>
       </div>
     );
