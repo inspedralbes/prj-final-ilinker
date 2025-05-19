@@ -582,9 +582,9 @@ const ProfileSidebar = ({
   const timestamp = useRef(new Date().getTime()).current;
 
   const getUserCoverPhoto = () => {
-    if (!userData) return "/default-cover.jpg";
+    if (!userData) return '';
 
-    let coverUrl = "/default-cover.jpg";
+    let coverUrl = '';
     if (userData.rol === "student" && userData.student?.cover_photo) {
       coverUrl = userData.student.cover_photo.startsWith('http') 
         ? userData.student.cover_photo 
@@ -694,17 +694,18 @@ const ProfileSidebar = ({
   return (
     <div className={`${isMobile ? 'w-full' : 'w-80'} ${isMobile ? '' : 'sticky top-6'}`}>
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="h-24 md:h-32 bg-slate-200 relative">
-          <Image
-            src={getUserCoverPhoto()}
-            alt="Portada"
-            fill
-            className="object-cover"
-            unoptimized={true}
-            onError={(e) => {
-              e.currentTarget.src = "/default-cover.jpg";
-            }}
-          />
+        <div className="h-24 md:h-32 relative">
+          {getUserCoverPhoto() ? (
+            <Image
+              src={getUserCoverPhoto()}
+              alt="Portada"
+              fill
+              className="object-cover"
+              unoptimized={true}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-blue-500/80 to-purple-600/80" />
+          )}
         </div>
         <div className="px-4 md:px-6 pb-4 md:pb-6">
           <div className="relative -mt-12 md:-mt-16 mb-3 md:mb-4">
