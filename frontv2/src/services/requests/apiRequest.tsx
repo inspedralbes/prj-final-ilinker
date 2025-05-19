@@ -44,8 +44,8 @@ export async function  apiRequest(
       options.body = JSON.stringify(body);
     }
 
-    const response = await fetch(`${routeApi}${endpoint}`, options);
-    //const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
+    //const response = await fetch(`${routeApi}${endpoint}`, options);
+    const response = await fetch(`${routeApi.replace(/\/+$/, '')}/${endpoint.replace(/^\/+/, '')}`, options);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));

@@ -1,237 +1,188 @@
 "use client";
 
+import { useContext, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Bell,
   Building2Icon,
-  GraduationCap,
   LandmarkIcon,
-  Menu,
   MessageSquareIcon,
   User,
-  FileEdit,
-  ShieldCheck,
-  X,
-  Handshake,
-  Bolt,
+  GraduationCap,
+  Menu,
+  X
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
 import { AuthContext } from "@/contexts/AuthContext";
-import { useContext, useEffect, useRef, useState } from "react";
-import config from "@/types/config";
-import socket from "@/services/websockets/sockets";
-import NotificationDropDown from "./NotificationDropDown";
 
 export default function NavBar() {
   const pathname = usePathname();
   const { loggedIn, userData, logout } = useContext(AuthContext);
   const router = useRouter();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMobileMenuOpen(false);
-    };
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, []);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   if (pathname === "/") return null;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto max-w-7xl px-4 py-4 flex items-center justify-between h-14">
-        {/* Logo */}
-        <div className="flex items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
-            <span className="font-bold">iLinker</span>
-          </Link>
-        </div>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center space-x-6">
-          <nav className="flex items-center space-x-6">
-            {loggedIn ? (
-              <>
-                <Link
-                  href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
-                >
-                  <GraduationCap className="h-5 w-5" />
-                  <span className="text-[12px]">Ofertas</span>
-                </Link>
-                <Link
-                  href="/publicacion"
-                  className={`flex flex-col items-center ${
-                    pathname === "/publicacion"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <Handshake className="h-5 w-5" />
-                  <span className="text-[12px]">Comunidad</span>
-                </Link>
-                <Link
-                  href="/messages"
-                  className={`flex flex-col items-center ${
-                    pathname === "/messages"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <MessageSquareIcon className="h-5 w-5" />
-                  <span className="text-[12px]">Mensajes</span>
-                </Link>
-
-                <NotificationDropDown />
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
-                >
-                  <GraduationCap className="h-5 w-5" />
-                  <span className="text-[12px]">Ofertas</span>
-                </Link>
-              </>
-            )}
-          </nav>
-
+    <>
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between mx-auto px-4 max-w-7xl">
+          {/* Logo */}
           <div className="flex items-center space-x-2">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
+              <span className="font-bold">iLinker</span>
+            </Link>
+          </div>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex flex-2 items-center justify-between space-x-6">
+            <div className="flex items-center space-x-6">
+              {loggedIn ? (
+                <>
+                  <NavLink href="/search" icon={<GraduationCap />} label="Ofertas" active={pathname === "/search"} />
+                  <NavLink href="/publicacion" icon={<Building2Icon />} label="Publicaciones" active={pathname === "/publicacion"} />
+                  <NavLink href="/messages" icon={<MessageSquareIcon />} label="Mensajes" active={pathname === "/messages"} />
+                  <NavLink href="/notifications" icon={<Bell />} label="Notificaciones" active={pathname === "/notifications"} />
+                </>
+              ) : (
+                <>
+                  <NavLink href="/search" icon={<Building2Icon />} label="Empresas" active={pathname === "/search"} />
+                  <NavLink href="/people" icon={<User />} label="Personas" active={pathname === "/people"} />
+                  <NavLink href="/institutions" icon={<LandmarkIcon />} label="Institutos" active={pathname === "/institutions"} />
+                </>
+              )}
+            </div>
             {loggedIn ? (
               <ProfileDropdown userData={userData} logout={logout} />
             ) : (
-              <>
+              <div className="flex items-center space-x-2">
                 <Button variant="ghost" asChild>
                   <Link href="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
                   <Link href="/auth/register">Register</Link>
                 </Button>
-              </>
+              </div>
             )}
           </div>
-        </div>
 
-        {/* Mobile toggle */}
-        <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
-      </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
-          {/* Overlay */}
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          {/* Side Menu */}
-          <div className="absolute right-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out">
-            <div className="flex justify-between items-center p-4 border-b">
-              <span className="text-lg font-semibold">Menú</span>
-              <button onClick={() => setMobileMenuOpen(false)}>
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-4 overflow-y-auto h-[calc(100%-3.5rem)] space-y-4">
-              <nav className="flex flex-col space-y-4">
-                {loggedIn ? (
-                  <>
-                    <LinkNav href="/search" label="Ofertas" Icon={GraduationCap} active={pathname === "/search"} />
-                    <LinkNav href="/messages" label="Mensajes" Icon={MessageSquareIcon} active={pathname === "/messages"} />
-                    <LinkNav href="/notifications" label="Notificaciones" Icon={Bell} active={pathname === "/notifications"} />
-                    {userData?.rol === "admin" && (
-                      <LinkNav href="/admin" label="Admin" Icon={ShieldCheck} active={pathname === "/admin"} />
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <LinkNav href="/search" label="Empresas" Icon={Building2Icon} active={pathname === "/search"} />
-                    <LinkNav href="/people" label="Personas" Icon={User} active={pathname === "/people"} />
-                    <LinkNav href="/institutions" label="Institutos" Icon={LandmarkIcon} active={pathname === "/institutions"} />
-                  </>
-                )}
-              </nav>
-
-              <div className="pt-4 border-t space-y-2">
-                {loggedIn ? (
-                  <ProfileDropdown
-                    userData={userData}
-                    logout={() => {
-                      logout();
-                      setMobileMenuOpen(false);
-                    }}
-                  />
-                ) : (
-                  <>
-                    <Button variant="ghost" className="w-full" asChild>
-                      <Link href="/auth/login">Login</Link>
-                    </Button>
-                    <Button className="w-full" asChild>
-                      <Link href="/auth/register">Register</Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center space-x-2">
+            {loggedIn && <ProfileDropdown userData={userData} logout={logout} />}
+            <button onClick={() => setDrawerOpen(true)}>
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
+      </header>
+
+      {/* Mobile drawer (right side) */}
+      <div
+        className={`fixed top-0 right-0 h-full w-64 bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${
+          drawerOpen ? "translate-x-0" : "translate-x-full"
+        } md:hidden`}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="font-bold text-lg">Menú</h2>
+          <button onClick={() => setDrawerOpen(false)}>
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="p-4 space-y-4">
+          <nav className="space-y-2">
+            {loggedIn ? (
+              <>
+                <MobileLink href="/search" label="Ofertas" onClick={() => setDrawerOpen(false)} />
+                <MobileLink href="/messages" label="Mensajes" onClick={() => setDrawerOpen(false)} />
+                <MobileLink href="/notifications" label="Notificaciones" onClick={() => setDrawerOpen(false)} />
+              </>
+            ) : (
+              <>
+                <MobileLink href="/search" label="Empresas" onClick={() => setDrawerOpen(false)} />
+                <MobileLink href="/people" label="Personas" onClick={() => setDrawerOpen(false)} />
+                <MobileLink href="/institutions" label="Instituciones" onClick={() => setDrawerOpen(false)} />
+              </>
+            )}
+          </nav>
+          {!loggedIn && (
+            <div className="space-y-2">
+              <Button className="w-full" asChild>
+                <Link href="/auth/login" onClick={() => setDrawerOpen(false)}>
+                  Iniciar sesión
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/auth/register" onClick={() => setDrawerOpen(false)}>
+                  Registrarse
+                </Link>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Overlay */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          onClick={() => setDrawerOpen(false)}
+        />
       )}
-    </header>
+    </>
   );
 }
 
-// Reusable NavLink
-interface LinkNavProps {
-  href: string;
-  label: string;
-  Icon: React.ElementType;
-  active: boolean;
-}
-
-function LinkNav({ href, label, Icon, active }: LinkNavProps) {
+// Desktop nav item
+function NavLink({ href, icon, label, active }: any) {
   return (
     <Link
       href={href}
-      className={`flex items-center space-x-2 text-sm ${
-        active ? "text-foreground font-semibold" : "text-muted-foreground"
+      className={`flex flex-col items-center ${
+        active ? "text-foreground" : "text-muted-foreground"
       }`}
     >
-      <Icon className="h-5 w-5" />
-      <span>{label}</span>
+      {icon}
+      <span className="text-[12px]">{label}</span>
     </Link>
   );
 }
 
-// Profile Dropdown
-interface ProfileDropdownProps {
-  userData: any;
-  logout: () => void;
+// Mobile drawer link
+function MobileLink({
+  href,
+  label,
+  onClick,
+}: {
+  href: string;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className="block w-full text-left text-sm font-medium text-gray-800 hover:text-black"
+    >
+      {label}
+    </Link>
+  );
 }
 
-function ProfileDropdown({ userData, logout }: ProfileDropdownProps) {
+// Reutilizamos tu ProfileDropdown
+function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (event: any) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
@@ -239,185 +190,59 @@ function ProfileDropdown({ userData, logout }: ProfileDropdownProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const imageSrc =
-    config.storageUrl +
-      (userData?.company?.logo || userData?.student?.photo_pic || "") ||
-    "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png";
-
   return (
     <div className="relative" ref={dropdownRef}>
-      <div onClick={() => setIsOpen(!isOpen)}>
+      <div onClick={toggleDropdown}>
         <Image
-          src={imageSrc}
+          src={
+            userData?.photo_pic ||
+            "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
+          }
           alt="Profile"
           width={40}
           height={40}
-          className="rounded-sm cursor-pointer h-10 w-10 object-cover"
+          className="rounded-full cursor-pointer"
         />
       </div>
       {isOpen && (
         <ul
           role="menu"
-          className="absolute right-0 z-10 mt-2 min-w-[180px] overflow-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg"
+          className="absolute right-0 z-50 mt-2 w-56 rounded-md border border-slate-200 bg-white p-1.5 shadow-lg"
         >
-          {/* Opción "My Profile" */}
-          {userData?.rol !== "company" && userData?.rol !== "institutions" && (
-            <>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => setIsOpen(false)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  className="w-5 h-5 text-slate-400"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-5.5-2.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10 12a5.99 5.99 0 0 0-4.793 2.39A6.483 6.483 0 0 0 10 16.5a6.483 6.483 0 0 0 4.793-2.11A5.99 5.99 0 0 0 10 12Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <Link
-                  href={`/profile/student/${userData?.student.uuid}`}
-                  className="ml-2"
-                >
-                  <p className="font-medium">Mi perfil</p>
-                </Link>
-              </li>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(`/profile/settings`);
-                }}
-              >
-                <Bolt className="w-5 h-5 text-slate-400" />
-                <Link href={`/profile/settings`} className="ml-2">
-                  <p className="font-medium">Configuración</p>
-                </Link>
-              </li>
-            </>
+          <DropdownItem label="Mi perfil" onClick={() => router.push(`/profile/student/${userData.slug}`)} />
+          {userData?.rol === "institutions" && (
+            <DropdownItem label="Mi institución" onClick={() => router.push(`/profile/institution/${userData.institutions.slug}`)} />
           )}
-
-          {/* Opción "My Profile" */}
-          {userData?.rol === "company" ? (
-            <>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(`/profile/company/${userData?.company.slug}`);
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-5 h-5 text-slate-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 21v-3.75C3 14.56 4.56 13 6.75 13h10.5C19.44 13 21 14.56 21 17.25V21m-18 0h18M4.5 7h15m-15 4.5h15M9 3h6v4.5H9V3z"
-                  />
-                </svg>
-                <Link
-                  href={`/profile/company/${userData?.company.slug}`}
-                  className="ml-2"
-                >
-                  <p className="font-medium">Mi compañia</p>
-                </Link>
-              </li>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(`/profile/settings`);
-                }}
-              >
-                <Bolt className="w-5 h-5 text-slate-400" />
-                <Link href={`/profile/settings`} className="ml-2">
-                  <p className="font-medium">Configuración</p>
-                </Link>
-              </li>
-            </>
-          ) : (
-            <></>
+          {userData?.rol === "company" && (
+            <DropdownItem label="Mi compañía" onClick={() => router.push(`/profile/company/${userData.company.slug}`)} />
           )}
-
-          {userData?.rol === "institutions" ? (
-            <>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(
-                    `/profile/institution/${userData?.institution.slug}`
-                  );
-                }}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="w-5 h-5 text-slate-400"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M3 21v-3.75C3 14.56 4.56 13 6.75 13h10.5C19.44 13 21 14.56 21 17.25V21m-18 0h18M4.5 7h15m-15 4.5h15M9 3h6v4.5H9V3z"
-                  />
-                </svg>
-                <Link
-                  href={`/profile/institution/${userData?.institution.slug}`}
-                  className="ml-2"
-                >
-                  <p className="font-medium">Mi institución</p>
-                </Link>
-              </li>
-              <li
-                role="menuitem"
-                className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(`/profile/settings`);
-                }}
-              >
-                <Bolt className="w-5 h-5 text-slate-400" />
-                <Link href={`/profile/settings`} className="ml-2">
-                  <p className="font-medium">Configuración</p>
-                </Link>
-              </li>
-            </>
-          ) : (
-            <></>
+          {userData?.rol === "admin" && (
+            <DropdownItem label="Panel de administrador" onClick={() => router.push(`/admin`)} />
           )}
-
-          <hr className="my-2 border-slate-200" role="separator" />
-          {/* Opción "Sign Out" */}
+          <DropdownItem label="Ayuda" onClick={() => router.push(`/help`)} />
+          <hr className="my-2 border-slate-200" />
           <li
-            className="cursor-pointer flex items-center p-3 text-sm hover:bg-slate-100"
+            className="cursor-pointer text-red-600 px-3 py-2 text-sm hover:bg-gray-100 rounded"
             onClick={() => {
               logout();
               setIsOpen(false);
             }}
           >
-            <X className="w-5 h-5 text-slate-400" />
-            <span className="ml-2">Cerrar sesión</span>
+            Cerrar sesión
           </li>
         </ul>
       )}
     </div>
+  );
+}
+
+function DropdownItem({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <li
+      className="cursor-pointer text-slate-800 px-3 py-2 text-sm hover:bg-gray-100 rounded"
+      onClick={onClick}
+    >
+      {label}
+    </li>
   );
 }
