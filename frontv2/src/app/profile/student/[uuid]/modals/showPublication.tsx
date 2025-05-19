@@ -16,7 +16,7 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"
-import { addDays, format, formatDistanceToNow } from "date-fns"
+import { addDays, format, formatDistanceToNow, formatDistanceStrict } from "date-fns"
 import { es } from 'date-fns/locale';
 import { apiRequest } from "@/services/requests/apiRequest";
 import ReplyThread from "@/components/comments/ReplyThread";
@@ -138,7 +138,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         console.log("comment");
         console.log(comment);
         setReplyingTo(comment);
-        setNewComment(`@${getUserName(comment.user)} `);
+        setNewComment(`@${getUserName(comment.user)}`);
         // Enfocar el input de comentario
         commentInputRef.current?.focus();
         commentInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -289,16 +289,18 @@ export default function ShowPublication({ publication, student, onClose, onSave 
 
                                         {/* Respuestas a los comentarios */}
                                         {comment.replies && comment.replies.length > 0 && (
-                                            <div className="ml-10">
+                                            <div className="ml-7">
                                                 {expandedComments[comment.id] ? (
                                                     // Mostrar todas las respuestas cuando está expandido
                                                     <>
                                                         {comment.replies.map((reply: any) => (
+
                                                             <ReplyThread
                                                                 key={reply.id}
                                                                 reply={reply}
                                                                 handleReplyClick={handleReplyClick}
                                                             />
+
                                                         ))}
 
                                                         <button
@@ -328,7 +330,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                                         {getUserName(comment.replies[0].user)}
                                                                     </span>
                                                                     <span className="break-words">{comment.replies[0].content}</span>
-                                                                    <span className="ml-2 text-xs text-gray-500">{format(comment.replies[0].created_at, 'dd/MM/yyyy')}</span>
+                                                                    <span className="ml-2 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.replies[0].created_at), new Date(), { locale: es })}</span>
 
                                                                     {/* Agregar botón de responder */}
                                                                     <div className="mt-1">
@@ -352,7 +354,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                                     className="text-blue-600 hover:text-blue-800 flex items-center text-sm ml-8 mb-2"
                                                                 >
                                                                     <ChevronDown size={16} className="mr-1" />
-                                                                    Ver {comment.replies.length + (comment.replies[0]?.replies?.length || 0) - 1} respuestas más
+                                                                    Ver {comment.replies.length} respuestas más
                                                                 </button>
                                                             )}
 
@@ -446,7 +448,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                             />
                             <button
                                 onClick={handleSubmitComment}
-                                disabled={!newComment.trim()}
+                                disabled={!newComment.trim() || !replyingTo}
                                 className="p-2 text-black hover:bg-black hover:text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Send className="w-5 h-5" />

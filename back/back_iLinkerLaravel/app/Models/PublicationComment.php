@@ -39,7 +39,9 @@ class PublicationComment extends Model
                     'user.student' => fn($q) => $q->select('user_id','name','photo_pic','uuid'),
                     'user.company' => fn($q) => $q->select('user_id','name', 'logo','slug'),
                     'user.institutions' => fn($q) => $q->select('user_id','name','logo','slug'),
-                    'replies']);
+                    'replies.user.student' => fn($q) => $q->select('user_id','name','photo_pic','uuid'),
+                    'replies.user.company' => fn($q) => $q->select('user_id','name','logo','slug'),
+                    'replies.user.institutions' => fn($q) => $q->select('user_id','name','logo','slug'),]);
             }])
             ->orderBy('created_at', 'asc');
     }

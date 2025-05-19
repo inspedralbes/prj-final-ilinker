@@ -51,7 +51,9 @@ class Publication extends Model
                 'user.student:id,user_id,name,photo_pic,uuid',
                 'user.company:id,user_id,name,logo,slug',
                 'user.institutions:id,user_id,name,logo,slug',
-                'replies'
+                'replies.user.student:id,user_id,name,photo_pic,uuid',
+                'replies.user.company:id,user_id,name,logo,slug',
+                'replies.user.institutions:id,user_id,name,logo,slug',
             ])
             ->orderBy('created_at', 'desc');
     }
