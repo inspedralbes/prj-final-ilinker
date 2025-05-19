@@ -181,7 +181,7 @@ export default function InstitutionsPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 w-full">
         <div>
           <h1 className="text-2xl font-bold">Gestión de Instituciones</h1>
           <p className="text-sm text-muted-foreground">
@@ -189,16 +189,23 @@ export default function InstitutionsPage() {
           </p>
         </div>
 
-        <div className="relative w-full sm:w-auto">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar instituciones..."
-            className="pl-9 w-full sm:w-64"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        <div className="flex flex-col sm:flex-row gap-2 items-end sm:items-center">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar instituciones..."
+              className="pl-9 w-full"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
+          <Button onClick={() => router.push("/admin")} className="w-full sm:w-auto">
+            Ir al panel de admin
+          </Button>
         </div>
       </div>
+
 
       <div className="rounded-md border">
         <Table>

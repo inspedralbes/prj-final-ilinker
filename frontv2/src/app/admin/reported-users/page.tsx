@@ -117,7 +117,16 @@ export default function ReportedUsersPage() {
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">Usuarios Reportados</h1>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h1 className="text-3xl font-bold">Usuarios Reportados</h1>
+          <Button
+            onClick={() => window.location.href = "/admin"}
+            className="w-full sm:w-auto"
+          >
+            Ir al panel de admin
+          </Button>
+        </div>
+
 
         {reports.length === 0 ? (
           <div className="bg-white p-8 rounded-lg shadow text-center">

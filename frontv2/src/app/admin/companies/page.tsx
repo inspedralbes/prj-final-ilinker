@@ -77,44 +77,44 @@ export default function CompaniesPage() {
   };
 
   const handleUpdate = async (id: number) => {
-  try {
-    const allowedFields = [
-      'name', 'CIF', 'email', 'phone', 'website', 'num_people',
-      'responsible_name', 'responsible_email', 'responsible_phone',
-      'address', 'city', 'postal_code', 'country',
-      'short_description', 'description', 'active'
-    ];
+    try {
+      const allowedFields = [
+        'name', 'CIF', 'email', 'phone', 'website', 'num_people',
+        'responsible_name', 'responsible_email', 'responsible_phone',
+        'address', 'city', 'postal_code', 'country',
+        'short_description', 'description', 'active'
+      ];
 
-    const dataToSend: Record<string, any> = {};
-    allowedFields.forEach(field => {
-      if (field in editData && editData[field as keyof Company] !== undefined) {
-        dataToSend[field] = editData[field as keyof Company];
+      const dataToSend: Record<string, any> = {};
+      allowedFields.forEach(field => {
+        if (field in editData && editData[field as keyof Company] !== undefined) {
+          dataToSend[field] = editData[field as keyof Company];
+        }
+      });
+
+      if (!dataToSend.name || !dataToSend.email) {
+        throw new Error('El nombre y el email son campos requeridos');
       }
-    });
 
-    if (!dataToSend.name || !dataToSend.email) {
-      throw new Error('El nombre y el email son campos requeridos');
+      const response = await apiRequest(`admin/companies/${id}`, 'PUT', dataToSend);
+
+      if (!response.success) {
+        throw new Error(response.data?.message || 'Error al actualizar empresa');
+      }
+
+      toast.success('Empresa actualizada correctamente');
+      setSelectedCompany(null);
+      fetchCompanies();
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      toast.error(error instanceof Error ? error.message : 'Error al actualizar empresa');
     }
-
-    const response = await apiRequest(`admin/companies/${id}`, 'PUT', dataToSend);
-
-    if (!response.success) {
-      throw new Error(response.data?.message || 'Error al actualizar empresa');
-    }
-
-    toast.success('Empresa actualizada correctamente');
-    setSelectedCompany(null);
-    fetchCompanies();
-  } catch (error) {
-    console.error('Error al actualizar:', error);
-    toast.error(error instanceof Error ? error.message : 'Error al actualizar empresa');
-  }
-};
+  };
 
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      const response = await apiRequest(`admin/companies/${id}`,'PUT', { active: !currentStatus },);
+      const response = await apiRequest(`admin/companies/${id}`, 'PUT', { active: !currentStatus },);
 
       if (response.success) {
         toast.success(`Empresa ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
@@ -130,32 +130,32 @@ export default function CompaniesPage() {
   };
 
   const deleteCompany = async (id: number) => {
-  if (!confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) return;
+    if (!confirm('¿Estás seguro de eliminar esta empresa? Esta acción no se puede deshacer.')) return;
 
-  setIsDeleting(true);
-  try {
-    const response = await apiRequest(`admin/companies/${id}`,'DELETE',);
+    setIsDeleting(true);
+    try {
+      const response = await apiRequest(`admin/companies/${id}`, 'DELETE',);
 
-    if (response.success) {
+      if (response.success) {
+        toast({
+          title: 'Éxito',
+          description: 'Empresa eliminada correctamente',
+        });
+        setCompanies(companies.filter(c => c.id !== id));
+      } else {
+        throw new Error(response.message || 'Error al eliminar la empresa');
+      }
+    } catch (error) {
+      console.error('Error:', error);
       toast({
-        title: 'Éxito',
-        description: 'Empresa eliminada correctamente',
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Error al eliminar la empresa',
+        variant: 'destructive',
       });
-      setCompanies(companies.filter(c => c.id !== id));
-    } else {
-      throw new Error(response.message || 'Error al eliminar la empresa');
+    } finally {
+      setIsDeleting(false);
     }
-  } catch (error) {
-    console.error('Error:', error);
-    toast({
-      title: 'Error',
-      description: error instanceof Error ? error.message : 'Error al eliminar la empresa',
-      variant: 'destructive',
-    });
-  } finally {
-    setIsDeleting(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchCompanies();
@@ -176,17 +176,21 @@ export default function CompaniesPage() {
 
   return (
     <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Gestión de Empresas ({companies.length})</h1>
-        <div className="flex items-center space-x-4">
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <Input
             placeholder="Buscar por nombre, CIF, email..."
-            className="max-w-md"
+            className="w-full sm:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <Button onClick={fetchCompanies} variant="outline">
             Refrescar
+          </Button>
+          <Button onClick={() => router.push('/admin')}>
+            Ir al panel de admin
           </Button>
         </div>
       </div>

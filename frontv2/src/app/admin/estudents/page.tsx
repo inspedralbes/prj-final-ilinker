@@ -237,21 +237,24 @@ export default function StudentsPage() {
 
   return (
     <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Gestión de Estudiantes ({students.length})</h1>
-        <div className="flex items-center space-x-4">
+
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
           <Input
             placeholder="Buscar por nombre, documento o email..."
-            className="max-w-md"
+            className="w-full sm:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
           <Button onClick={fetchStudents} variant="outline">
             Refrescar
           </Button>
+          <Button onClick={() => window.location.href = "/admin"}>
+            Ir al panel de admin
+          </Button>
         </div>
       </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
