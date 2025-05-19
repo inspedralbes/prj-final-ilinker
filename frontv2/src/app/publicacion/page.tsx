@@ -98,26 +98,51 @@ export default function PublicationPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
 
-  // Cargar publicaciones al montar el componente
+  // Properly track cache busting to avoid loops
+  const [cacheBuster, setCacheBuster] = useState(() => new Date().getTime());
+
+  // Update the effect to properly monitor AuthContext
   useEffect(() => {
-    fetchPublications();
-    fetchAllUsers();
-  }, []);
+    let isMounted = true;
+    
+    // Generate a new cache buster value on each userData change
+    setCacheBuster(new Date().getTime());
+    
+    const loadData = async () => {
+      try {
+        showLoader();
+        // Load both data sets in parallel
+        await Promise.all([
+          fetchPublications(), 
+          fetchAllUsers()
+        ]);
+      } finally {
+        if (isMounted) {
+          hideLoader();
+        }
+      }
+    };
+    
+    loadData();
+    
+    // Cleanup function to prevent state updates if component unmounts
+    return () => {
+      isMounted = false;
+    };
+  }, [userData, userData?.id]); // Explicitly track userData.id changes
+
   // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
     try {
       setIsLoading(true);
-      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('publications', 'GET');
 
       if (response.status === 'success') {
-        // Asegurar que cada publicación tenga la propiedad liked y saved correctamente establecida
-        // y que las URLs de los medios sean completas
         const publicationsWithState = response.data.data.map((pub: Publication) => ({
           ...pub,
           liked: pub.likes?.some(like => like.user_id === userData?.id) || false,
           saved: pub.saved_by?.some(saved => saved.user_id === userData?.id) || false,
-          // Procesar las URLs de los medios para asegurar que sean completas
+          // Only normalize URLs but don't add timestamps to avoid render loops
           media: pub.media?.map(m => ({
             ...m,
             file_path: normalizeUrl(m.file_path)
@@ -132,7 +157,6 @@ export default function PublicationPage() {
       setError('Error al cargar las publicaciones');
     } finally {
       setIsLoading(false);
-      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
@@ -432,18 +456,26 @@ export default function PublicationPage() {
     }
   };
 
+  // Update getUserAvatar function to use cacheBuster
   const getUserAvatar = () => {
-    if (!userData) return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+    if (!userData) return defaultAvatarSvg;
+    
+    let avatarUrl = "";
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      return config.storageUrl + userData.student.photo_pic;
+      avatarUrl = config.storageUrl + userData.student.photo_pic;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return config.storageUrl + userData.company.logo;
+      avatarUrl = config.storageUrl + userData.company.logo;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      return config.storageUrl + userData.institution.logo;
+      avatarUrl = config.storageUrl + userData.institution.logo;
+    } else {
+      return defaultAvatarSvg;
     }
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
+    
+    // Use the cacheBuster state variable to force image refresh
+    return `${avatarUrl}?t=${cacheBuster}`;
   };
 
+  // Función para compartir una publicación
   const handleShare = async (sharedPublication: any) => {
     try {
       showLoader();
@@ -482,7 +514,11 @@ export default function PublicationPage() {
 
           {/* Main Content - Centered with max width */}
           <div className="flex-1 max-w-2xl mx-auto w-full">
-            <CreatePublicationCard onOpenModal={() => setIsModalOpen(true)} userAvatar={getUserAvatar()} />
+            <CreatePublicationCard 
+              onOpenModal={() => setIsModalOpen(true)} 
+              userAvatar={getUserAvatar()}
+              cacheBuster={cacheBuster}
+            />
             <CreatePostModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
@@ -542,45 +578,51 @@ const ProfileSidebar = ({
   isMobile: boolean;
 }) => {
   const router = useRouter();
+  // Generate a timestamp once when component mounts
+  const timestamp = useRef(new Date().getTime()).current;
 
   const getUserCoverPhoto = () => {
     if (!userData) return "/default-cover.jpg";
 
+    let coverUrl = "/default-cover.jpg";
     if (userData.rol === "student" && userData.student?.cover_photo) {
-      return userData.student.cover_photo.startsWith('http') 
+      coverUrl = userData.student.cover_photo.startsWith('http') 
         ? userData.student.cover_photo 
         : `${config.storageUrl}${userData.student.cover_photo}`;
     } else if (userData.rol === "company" && userData.company?.cover_photo) {
-      return userData.company.cover_photo.startsWith('http') 
+      coverUrl = userData.company.cover_photo.startsWith('http') 
         ? userData.company.cover_photo 
         : `${config.storageUrl}${userData.company.cover_photo}`;
     } else if (userData.rol === "institutions" && userData.institution?.cover) {
-      return userData.institution.cover.startsWith('http') 
+      coverUrl = userData.institution.cover.startsWith('http') 
         ? userData.institution.cover 
         : `${config.storageUrl}${userData.institution.cover}`;
     }
 
-    return "/default-cover.jpg";
+    // Add timestamp to force refresh
+    return `${coverUrl}?t=${timestamp}`;
   };
 
   const getUserProfilePic = () => {
     if (!userData) return defaultAvatarSvg;
 
+    let profileUrl = defaultAvatarSvg;
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      return userData.student.photo_pic.startsWith('http') 
+      profileUrl = userData.student.photo_pic.startsWith('http') 
         ? userData.student.photo_pic 
         : `${config.storageUrl}${userData.student.photo_pic}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      return userData.company.logo.startsWith('http') 
+      profileUrl = userData.company.logo.startsWith('http') 
         ? userData.company.logo 
         : `${config.storageUrl}${userData.company.logo}`;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      return userData.institution.logo.startsWith('http') 
+      profileUrl = userData.institution.logo.startsWith('http') 
         ? userData.institution.logo 
         : `${config.storageUrl}${userData.institution.logo}`;
     }
 
-    return defaultAvatarSvg;
+    // Add timestamp to force refresh
+    return `${profileUrl}?t=${timestamp}`;
   };
 
   const getUserSlogan = () => {
@@ -723,7 +765,15 @@ const ProfileSidebar = ({
 };
 
 // Componente para crear una nueva publicación estilo LinkedIn
-const CreatePublicationCard = ({ onOpenModal, userAvatar = defaultAvatarSvg }: { onOpenModal: () => void; userAvatar?: string }) => (
+const CreatePublicationCard = ({ 
+  onOpenModal, 
+  userAvatar = defaultAvatarSvg,
+  cacheBuster
+}: { 
+  onOpenModal: () => void; 
+  userAvatar?: string;
+  cacheBuster?: number;
+}) => (
   <div className="bg-white rounded-lg shadow-sm p-3 md:p-4 mb-4">
     <div className="flex items-center space-x-2 md:space-x-3">
       <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gray-200 overflow-hidden relative">
@@ -732,7 +782,8 @@ const CreatePublicationCard = ({ onOpenModal, userAvatar = defaultAvatarSvg }: {
           alt="Perfil"
           className="w-full h-full object-cover"
           onError={(e) => { 
-            e.currentTarget.src = "/default-avatar.png";
+            // Use defaultAvatarSvg instead of a PNG file that might be missing
+            e.currentTarget.src = defaultAvatarSvg;
           }}
         />
       </div>
@@ -776,7 +827,8 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   if (!media || media.length === 0) return null;
 
   const getMediaUrl = (path: string) => {
-    return normalizeUrl(path);
+    // Use current timestamp directly to avoid unnecessary re-renders
+    return `${normalizeUrl(path)}?t=${new Date().getTime()}`;
   };
 
   return (
@@ -867,6 +919,8 @@ const PublicationCard = ({
   const { allUsers, userData } = useContext(AuthContext);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const router = useRouter();
+  // Add a ref to store a stable timestamp
+  const timestamp = useRef(new Date().getTime()).current;
 
   const getUserName = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
@@ -895,7 +949,11 @@ const PublicationCard = ({
       avatarPath = user.institution.logo;
     }
 
-    return avatarPath ? (avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`) : defaultAvatarSvg;
+    if (!avatarPath) return defaultAvatarSvg;
+    
+    const baseUrl = avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`;
+    // Use the ref timestamp to avoid re-renders
+    return `${baseUrl}?t=${timestamp}`;
   };
 
   const handleProfileClick = (userId: number) => {
