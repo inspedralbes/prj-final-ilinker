@@ -129,91 +129,59 @@ export default function PublicationPage() {
   // Almacenar el estado anterior de userData para comparar cambios
   const prevUserDataRef = useRef<User | null>(null);
 
-  // Update the effect to properly monitor AuthContext and check for image changes
+  // Efecto para monitorear cambios en las imágenes de perfil
   useEffect(() => {
-    let isMounted = true;
-
-    // Verificar si las imágenes del perfil han cambiado
     if (checkProfileImagesChanged(prevUserDataRef.current, userData)) {
       console.log("Imágenes de perfil actualizadas");
       setCacheBuster(new Date().getTime());
     }
-
-    // Actualizar la referencia al userData actual para la próxima comparación
     prevUserDataRef.current = userData;
-
-    const loadData = async () => {
-      try {
-        showLoader();
-        // Load both data sets in parallel
-        await Promise.all([
-          fetchPublications(),
-          fetchAllUsers()
-        ]);
-      } finally {
-        if (isMounted) {
-          hideLoader();
-        }
-      }
-    };
-
-    loadData();
-
-    // Cleanup function to prevent state updates if component unmounts
-    return () => {
-      isMounted = false;
-    };
-  }, [userData, userData?.id]); // Explicitly track userData.id changes
-
-  // Efecto: solo carga datos una vez al montar
-  useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
-      try {
-        showLoader();
-        await Promise.all([
-          fetchPublications(),
-          fetchAllUsers()
-        ]);
-      } finally {
-        if (isMounted) {
-          hideLoader();
-        }
-      }
-    };
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo al montar
-
-  // Efecto: actualiza cacheBuster si cambia la foto o cover, pero NO hace fetch
-  useEffect(() => {
-    const prev = prevUserDataRef.current;
-    const curr = userData;
-    let changed = false;
-    if (!prev && curr) changed = true;
-    else if (prev && curr && checkProfileImagesChanged(prev, curr)) changed = true;
-    if (changed) {
-      setCacheBuster(Date.now());
-    }
-    prevUserDataRef.current = curr;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
-  // Refrescar datos de usuario cada vez que el usuario entra en la página de publicaciones (navegación o focus)
+  // Efecto para la carga inicial de datos y configuración de eventos
   useEffect(() => {
+    let isMounted = true;
+
+    const loadInitialData = async () => {
+      if (!isMounted) return;
+
+      try {
+        showLoader();
+        // Fetch publications first since we'll need them immediately
+        await fetchPublications();
+        // Only fetch users if we don't have them yet
+        if (!allUsers || allUsers.length === 0) {
+          await fetchAllUsers();
+        }
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        setError('Error al cargar los datos');
+      } finally {
+        if (isMounted) {
+          hideLoader();
+        }
+      }
+    };
+
+    // Función para manejar el focus
     const handleFocus = () => {
       checkAuth();
     };
+
+    // Inicialización
+    loadInitialData();
+    
+    // Configurar event listener para focus
     window.addEventListener('focus', handleFocus);
-    // Llamar también al montar
     checkAuth();
+
+    // Cleanup
     return () => {
+      isMounted = false;
       window.removeEventListener('focus', handleFocus);
     };
-  }, []);
+  }, []); // Solo al montar
+
 
   // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
@@ -247,7 +215,6 @@ export default function PublicationPage() {
   // Función para obtener todos los usuarios
   const fetchAllUsers = async () => {
     try {
-      showLoader(); // Mostrar loader al iniciar la carga
       const response = await apiRequest('/users/all', 'POST');
 
       if (response.status === 'success' && response.users) {
@@ -304,8 +271,6 @@ export default function PublicationPage() {
       }
     } catch (err) {
       console.error('Error al obtener usuarios:', err);
-    } finally {
-      hideLoader(); // Ocultar loader al finalizar la carga
     }
   };
 
@@ -324,6 +289,7 @@ export default function PublicationPage() {
     if (!newPublication.content.trim()) return;
 
     try {
+      showLoader();
       const formData = new FormData();
       formData.append('content', newPublication.content);
       formData.append('visibility', newPublication.visibility);
@@ -354,6 +320,8 @@ export default function PublicationPage() {
     } catch (err) {
       console.error('Error al crear la publicación:', err);
       setError('Error al crear la publicación');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -365,7 +333,6 @@ export default function PublicationPage() {
       console.log('Respuesta del like:', response);
 
       if (response.status === 'success') {
-        // Actualizar solo los datos necesarios sin recargar las imágenes
         setPublications(publications.map((pub) => {
           if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
             return {
@@ -395,7 +362,6 @@ export default function PublicationPage() {
       console.log('Respuesta del guardado:', response);
 
       if (response.status === 'success') {
-        // Actualizar solo el estado de guardado
         setPublications(publications.map((pub) => {
           if ((pub.shared && pub.original_publication_id === id) || pub.id === id) {
             return {
@@ -434,6 +400,7 @@ export default function PublicationPage() {
   // Función para actualizar el contador de comentarios sin recargar la publicación
   const handleCommentChange = async (publicationId: number) => {
     try {
+      showLoader();
       // Obtener la publicación actualizada del backend
       const response = await apiRequest(`publications/${publicationId}`, 'GET');
 
@@ -451,6 +418,8 @@ export default function PublicationPage() {
       }
     } catch (error) {
       console.error('Error al actualizar el contador de comentarios:', error);
+    } finally {
+      hideLoader();
     }
   };
 
@@ -499,6 +468,7 @@ export default function PublicationPage() {
         }
       });
 
+      showLoader();
       const response = await apiRequest('/publications', 'POST', formData);
 
       if (response.status === 'success') {
@@ -538,6 +508,8 @@ export default function PublicationPage() {
     } catch (err) {
       console.error('Error al crear la publicación:', err);
       setError('Error al crear la publicación');
+    } finally {
+      hideLoader();
     }
   };
 
@@ -558,66 +530,9 @@ export default function PublicationPage() {
   };
 
   // Añade una publicación compartida al inicio de la lista
-  const handleShare = async (sharedPublication: any) => {
-    try {
-      showLoader();
-      setPublications(prevPublications => [sharedPublication, ...prevPublications]);
-    } catch (err) {
-      console.error('Error al compartir la publicación:', err);
-    } finally {
-      hideLoader();
-    }
+  const handleShare = (sharedPublication: any) => {
+    setPublications(prevPublications => [sharedPublication, ...prevPublications]);
   };
-
-  // Efecto: solo carga datos una vez al montar
-  useEffect(() => {
-    let isMounted = true;
-    const loadData = async () => {
-      try {
-        showLoader();
-        await Promise.all([
-          fetchPublications(),
-          fetchAllUsers()
-        ]);
-      } finally {
-        if (isMounted) {
-          hideLoader();
-        }
-      }
-    };
-    loadData();
-    return () => {
-      isMounted = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Solo al montar
-
-  // Efecto: actualiza cacheBuster si cambia la foto o cover, pero NO hace fetch
-  useEffect(() => {
-    const prev = prevUserDataRef.current;
-    const curr = userData;
-    let changed = false;
-    if (!prev && curr) changed = true;
-    else if (prev && curr && checkProfileImagesChanged(prev, curr)) changed = true;
-    if (changed) {
-      setCacheBuster(Date.now());
-    }
-    prevUserDataRef.current = curr;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData]);
-
-  // Refrescar datos de usuario cada vez que el usuario entra en la página de publicaciones (navegación o focus)
-  useEffect(() => {
-    const handleFocus = () => {
-      checkAuth();
-    };
-    window.addEventListener('focus', handleFocus);
-    // Llamar también al montar
-    checkAuth();
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, []);
 
   // Render principal
   return (
