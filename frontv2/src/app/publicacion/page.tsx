@@ -543,7 +543,7 @@ export default function PublicationPage() {
     }
   };
 
-  // Solo cargar datos una vez al montar el componente
+  // Solo cargar datos una vez al montar el componente (con loader solo aquí)
   useEffect(() => {
     let isMounted = true;
     const loadData = async () => {
@@ -566,7 +566,7 @@ export default function PublicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo al montar
 
-  // Efecto separado: actualizar cacheBuster si cambia la foto o cover (incluyendo de vacío a imagen)
+  // Efecto separado: actualizar cacheBuster si cambia la foto o cover (sin loader, solo update rápido)
   useEffect(() => {
     const prev = prevUserDataRef.current;
     const curr = userData;
