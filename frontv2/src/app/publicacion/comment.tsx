@@ -6,6 +6,7 @@ import { Heart, Reply, Send, MoreHorizontal, Trash2, ChevronDown, ChevronUp } fr
 import { AuthContext } from "@/contexts/AuthContext";
 import config from "@/types/config";
 import { apiRequest } from "@/services/requests/apiRequest";
+import ReplyThread from "@/components/comments/ReplyThread";
 
 interface Comment {
   id: number;
@@ -192,169 +193,22 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
     });
   };
 
-  const renderComment = (comment: Comment) => {
-    const canDelete = userData?.id === comment.user_id;
-    const hasReplies = comment.replies && comment.replies.length > 0;
-    const isExpanded = expandedReplies.has(comment.id);
-    
-    return (
-      <div key={comment.id} className="space-y-2">
-        {/* Main comment */}
-        <div className="flex space-x-3">
-        <div className="w-8 h-8 flex-shrink-0">
-          <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
-            <Image
-              src={getUserAvatar(comment.user_id)}
-              alt={getUserName(comment.user_id)}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-        </div>
-        <div className="flex-1">
-          <div className="bg-gray-50 rounded-2xl px-3 py-2">
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="font-semibold text-sm mr-2">{getUserName(comment.user_id)}</span>
-                <span className="text-sm text-gray-800">{comment.content}</span>
-              </div>
-              {canDelete && (
-                <div className="relative">
-                  <button
-                    onClick={() => setOpenMenuId(openMenuId === comment.id ? null : comment.id)}
-                    className="p-1 hover:bg-gray-200 rounded-full"
-                  >
-                    <MoreHorizontal className="w-4 h-4 text-gray-500" />
-                  </button>
-                  {openMenuId === comment.id && (
-                    <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                      <button
-                        onClick={() => {
-                          handleDeleteComment(comment.id);
-                          setOpenMenuId(null);
-                        }}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" />Eliminar
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4 mt-1">
-              <span className="text-xs text-gray-500">{new Date(comment.created_at).toLocaleDateString()}</span>
-              <button
-                onClick={() => setReplyingTo(comment)}
-                className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-              >
-                <div className="flex items-center gap-1">
-                  <Reply className="w-3 h-3" />
-                  <span>Responder</span>
-                </div>
-              </button>
-              {hasReplies && (
-                <button
-                  onClick={() => toggleReplies(comment.id)}
-                  className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-                >
-                  <div className="flex items-center gap-1">
-                    {isExpanded ? (
-                      <>
-                        <ChevronUp className="w-3 h-3" />
-                        <span>Ocultar</span>
-                      </>
-                    ) : (
-                      <>
-                        <ChevronDown className="w-3 h-3" />
-                        <span>{`${comment.replies!.length} ${comment.replies!.length === 1 ? 'respuesta' : 'respuestas'}`}</span>
-                      </>
-                    )}
-                  </div>
-                </button>
-              )}
-            </div>
-          </div>
-          {/* Replies section */}
-          {hasReplies && isExpanded && comment.replies && (
-            <div className="mt-2 space-y-2">
-              {comment.replies.map((reply) => (
-                <div key={reply.id} className="flex space-x-3 ml-12">
-                  <div className="w-8 h-8 flex-shrink-0">
-                    <div className="w-full h-full rounded-full bg-gray-200 overflow-hidden relative">
-                      <Image
-                        src={getUserAvatar(reply.user_id)}
-                        alt={getUserName(reply.user_id)}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-gray-50 rounded-2xl px-3 py-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="mb-1">
-                            <span className="font-semibold text-sm mr-2">{getUserName(reply.user_id)}</span>
-                            <span className="text-xs text-gray-500">
-                              respondiendo a {getUserName(comment.user_id)}
-                            </span>
-                          </div>
-                          <span className="text-sm text-gray-800">{reply.content}</span>
-                        </div>
-                        {userData?.id === reply.user_id && (
-                          <div className="relative">
-                            <button
-                              onClick={() => setOpenMenuId(openMenuId === reply.id ? null : reply.id)}
-                              className="p-1 hover:bg-gray-200 rounded-full"
-                            >
-                              <MoreHorizontal className="w-4 h-4 text-gray-500" />
-                            </button>
-                            {openMenuId === reply.id && (
-                              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                <button
-                                  onClick={() => {
-                                    handleDeleteComment(reply.id);
-                                    setOpenMenuId(null);
-                                  }}
-                                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />Eliminar
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 mt-1">
-                        <span className="text-xs text-gray-500">
-                          {new Date(reply.created_at).toLocaleDateString()}
-                        </span>
-                        <button
-                          onClick={() => setReplyingTo(reply)}
-                          className="text-xs font-semibold text-gray-500 hover:text-gray-700"
-                        >
-                          <div className="flex items-center gap-1">
-                            <Reply className="w-3 h-3" />
-                            <span>Responder</span>
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+  // Nueva función para manejar el click en responder usando ReplyThread
+  const handleReplyClick = (reply: Comment) => {
+    setReplyingTo(reply);
+  };
 
-       
-        
-        </div>
-      </div>
-    );
+  // Nueva función para renderizar comentarios usando ReplyThread
+  const renderCommentsWithReplyThread = () => {
+    // Si solo se muestran los primeros 3 comentarios
+    const visibleComments = expandedComments ? comments : comments.slice(0, 3);
+    return visibleComments.map(comment => (
+      <ReplyThread
+        key={comment.id}
+        reply={comment}
+        handleReplyClick={handleReplyClick}
+      />
+    ));
   };
 
   if (!isOpen) return null;
@@ -373,7 +227,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
             <div className="text-center py-4 text-gray-500">No hay comentarios aún</div>
           ) : (
             <div className="space-y-4">
-              {(expandedComments ? comments : comments.slice(0, 3)).map(comment => renderComment(comment))}
+              {renderCommentsWithReplyThread()}
               {comments.length > 3 && (
                 <div className="text-center">
                   <button
