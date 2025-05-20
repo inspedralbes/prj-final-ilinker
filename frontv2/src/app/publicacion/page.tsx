@@ -165,6 +165,43 @@ export default function PublicationPage() {
     };
   }, [userData, userData?.id]); // Explicitly track userData.id changes
 
+  // Efecto: solo carga datos una vez al montar
+  useEffect(() => {
+    let isMounted = true;
+    const loadData = async () => {
+      try {
+        showLoader();
+        await Promise.all([
+          fetchPublications(),
+          fetchAllUsers()
+        ]);
+      } finally {
+        if (isMounted) {
+          hideLoader();
+        }
+      }
+    };
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Efecto: actualiza cacheBuster si cambia la foto o cover, pero NO hace fetch
+  useEffect(() => {
+    const prev = prevUserDataRef.current;
+    const curr = userData;
+    let changed = false;
+    if (!prev && curr) changed = true;
+    else if (prev && curr && checkProfileImagesChanged(prev, curr)) changed = true;
+    if (changed) {
+      setCacheBuster(Date.now());
+    }
+    prevUserDataRef.current = curr;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
+
   // Refrescar datos de usuario cada vez que el usuario entra en la página de publicaciones (navegación o focus)
   useEffect(() => {
     const handleFocus = () => {
@@ -555,7 +592,7 @@ export default function PublicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Solo al montar
 
-  // Efecto: actualiza cacheBuster si cambia la foto o cover
+  // Efecto: actualiza cacheBuster si cambia la foto o cover, pero NO hace fetch
   useEffect(() => {
     const prev = prevUserDataRef.current;
     const curr = userData;
@@ -569,6 +606,19 @@ export default function PublicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userData]);
 
+  // Refrescar datos de usuario cada vez que el usuario entra en la página de publicaciones (navegación o focus)
+  useEffect(() => {
+    const handleFocus = () => {
+      checkAuth();
+    };
+    window.addEventListener('focus', handleFocus);
+    // Llamar también al montar
+    checkAuth();
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
+
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50">
@@ -581,6 +631,7 @@ export default function PublicationPage() {
               onViewMore={handleViewMore}
               onSavedClick={() => setIsSavedModalOpen(true)}
               isMobile={true}
+              cacheBuster={cacheBuster}
             />
           </div>
           {/* Sidebar de perfil escritorio */}
@@ -590,6 +641,7 @@ export default function PublicationPage() {
               onViewMore={handleViewMore}
               onSavedClick={() => setIsSavedModalOpen(true)}
               isMobile={false}
+              cacheBuster={cacheBuster}
             />
           </div>
           {/* Contenido principal */}
@@ -647,15 +699,19 @@ const ProfileSidebar = ({
   userData,
   onViewMore,
   onSavedClick,
-  isMobile
+  isMobile,
+  cacheBuster
 }: {
   userData: User | null;
   onViewMore: () => void;
   onSavedClick: () => void;
   isMobile: boolean;
+  cacheBuster: number;
 }) => {
   const router = useRouter();
-  const timestamp = new Date().getTime();
+  const [hasImageError, setHasImageError] = useState(false);
+
+  // Usar cacheBuster para bustear caché solo cuando cambian imágenes
   // Devuelve la URL de la portada
   const getUserCoverPhoto = () => {
     if (!userData) return '';
@@ -673,7 +729,7 @@ const ProfileSidebar = ({
         ? userData.institution.cover
         : `${config.storageUrl}${userData.institution.cover}`;
     }
-    return `${coverUrl}?t=${timestamp}`;
+    return coverUrl ? `${coverUrl}?t=${cacheBuster}` : '';
   };
   // Devuelve la URL del avatar
   const getUserProfilePic = () => {
@@ -692,7 +748,7 @@ const ProfileSidebar = ({
         ? userData.institution.logo
         : `${config.storageUrl}${userData.institution.logo}`;
     }
-    return `${profileUrl}?t=${timestamp}`;
+    return profileUrl ? `${profileUrl}?t=${cacheBuster}` : defaultAvatarSvg;
   };
   // Devuelve el slogan del usuario
   const getUserSlogan = () => {
@@ -771,15 +827,23 @@ const ProfileSidebar = ({
         <div className="px-4 md:px-6 pb-4 md:pb-6">
           <div className="relative -mt-12 md:-mt-16 mb-3 md:mb-4">
             <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
-              <Image
-                src={getUserProfilePic()}
-                alt="Perfil"
-                fill
-                sizes="128px"
-                className="object-cover"
-                unoptimized={true}
-                onError={(e) => { e.currentTarget.src = defaultAvatarSvg; }}
-              />
+              {!hasImageError ? (
+                <Image
+                  src={getUserProfilePic()}
+                  alt="Perfil"
+                  fill
+                  sizes="128px"
+                  className="object-cover"
+                  unoptimized={true}
+                  onError={() => setHasImageError(true)}
+                />
+              ) : (
+                <img
+                  src={defaultAvatarSvg}
+                  alt="Perfil"
+                  className="object-cover w-full h-full"
+                />
+              )}
             </div>
           </div>
           <h1 className="text-xl md:text-2xl font-semibold mb-1">{getUserTitle()}</h1>
@@ -866,7 +930,7 @@ const MediaCarousel = ({ media }: { media: { id: number; file_path: string; medi
   };
   if (!media || media.length === 0) return null;
   const getMediaUrl = (path: string) => {
-    return `${normalizeUrl(path)}?t=${new Date().getTime()}`;
+    return normalizeUrl(path); // Quitar timestamp dinámico
   };
   // Render carrusel
   return (
@@ -956,7 +1020,6 @@ const PublicationCard = ({
   const { allUsers, userData } = useContext(AuthContext);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const router = useRouter();
-  const timestamp = new Date().getTime();
   // Devuelve el nombre del usuario de la publicación
   const getUserName = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
@@ -984,7 +1047,7 @@ const PublicationCard = ({
     }
     if (!avatarPath) return defaultAvatarSvg;
     const baseUrl = avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`;
-    return `${baseUrl}?t=${timestamp}`;
+    return `${baseUrl}?t=${new Date().getTime()}`;
   };
   // Navega al perfil del usuario de la publicación
   const handleProfileClick = (userId: number) => {
