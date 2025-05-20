@@ -517,15 +517,22 @@ export default function PublicationPage() {
   const getUserAvatar = () => {
     if (!userData) return defaultAvatarSvg;
     let avatarUrl = "";
+
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      avatarUrl = config.storageUrl + userData.student.photo_pic;
+      avatarUrl = userData.student.photo_pic.startsWith('http')
+        ? userData.student.photo_pic
+        : `${config.storageUrl}${userData.student.photo_pic}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      avatarUrl = config.storageUrl + userData.company.logo;
+      avatarUrl = userData.company.logo.startsWith('http')
+        ? userData.company.logo
+        : `${config.storageUrl}${userData.company.logo}`;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      avatarUrl = config.storageUrl + userData.institution.logo;
-    } else {
-      return defaultAvatarSvg;
+      avatarUrl = userData.institution.logo.startsWith('http')
+        ? userData.institution.logo
+        : `${config.storageUrl}${userData.institution.logo}`;
     }
+
+    if (!avatarUrl) return defaultAvatarSvg;
     return `${avatarUrl}?t=${cacheBuster}`;
   };
 
@@ -584,6 +591,7 @@ export default function PublicationPage() {
                   onComment={handleComment}
                   onSave={handleSavePublication}
                   onShare={handleShare}
+                  cacheBuster={cacheBuster}
                 />
               ))
             )}
@@ -626,7 +634,6 @@ const ProfileSidebar = ({
   const router = useRouter();
   const [hasImageError, setHasImageError] = useState(false);
 
-  // Usar cacheBuster para bustear caché solo cuando cambian imágenes
   // Devuelve la URL de la portada
   const getUserCoverPhoto = () => {
     if (!userData) return '';
@@ -646,24 +653,28 @@ const ProfileSidebar = ({
     }
     return coverUrl ? `${coverUrl}?t=${cacheBuster}` : '';
   };
-  // Devuelve la URL del avatar
+
+  // Devuelve la URL del avatar, asegurando que nunca sea null/undefined
   const getUserProfilePic = () => {
     if (!userData) return defaultAvatarSvg;
-    let profileUrl = defaultAvatarSvg;
+    let avatarUrl = "";
+
     if (userData.rol === "student" && userData.student?.photo_pic) {
-      profileUrl = userData.student.photo_pic.startsWith('http')
+      avatarUrl = userData.student.photo_pic.startsWith('http')
         ? userData.student.photo_pic
         : `${config.storageUrl}${userData.student.photo_pic}`;
     } else if (userData.rol === "company" && userData.company?.logo) {
-      profileUrl = userData.company.logo.startsWith('http')
+      avatarUrl = userData.company.logo.startsWith('http')
         ? userData.company.logo
         : `${config.storageUrl}${userData.company.logo}`;
     } else if (userData.rol === "institutions" && userData.institution?.logo) {
-      profileUrl = userData.institution.logo.startsWith('http')
+      avatarUrl = userData.institution.logo.startsWith('http')
         ? userData.institution.logo
         : `${config.storageUrl}${userData.institution.logo}`;
     }
-    return profileUrl ? `${profileUrl}?t=${cacheBuster}` : defaultAvatarSvg;
+
+    if (!avatarUrl) return defaultAvatarSvg;
+    return `${avatarUrl}?t=${cacheBuster}`;
   };
   // Devuelve el slogan del usuario
   const getUserSlogan = () => {
@@ -728,12 +739,11 @@ const ProfileSidebar = ({
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="h-24 md:h-32 relative">
           {getUserCoverPhoto() ? (
-            <Image
+            <img
               src={getUserCoverPhoto()}
               alt="Portada"
-              fill
-              className="object-cover"
-              unoptimized={true}
+              className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.src = "" }}
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-r from-blue-500/80 to-purple-600/80" />
@@ -743,14 +753,12 @@ const ProfileSidebar = ({
           <div className="relative -mt-12 md:-mt-16 mb-3 md:mb-4">
             <div className="w-24 h-24 md:w-32 md:h-32 bg-gray-300 rounded-full border-4 border-white overflow-hidden relative">
               {!hasImageError ? (
-                <Image
+                <img
                   src={getUserProfilePic()}
                   alt="Perfil"
-                  fill
-                  sizes="128px"
-                  className="object-cover"
-                  unoptimized={true}
+                  className="object-cover w-full h-full"
                   onError={() => setHasImageError(true)}
+                  key={getUserProfilePic()} // fuerza el refresco si cambia la url
                 />
               ) : (
                 <img
@@ -803,7 +811,7 @@ const ProfileSidebar = ({
 const CreatePublicationCard = ({
   onOpenModal,
   userAvatar = defaultAvatarSvg,
-  cacheBuster
+  cacheBuster = new Date().getTime()
 }: {
   onOpenModal: () => void;
   userAvatar?: string;
@@ -923,13 +931,15 @@ const PublicationCard = ({
   onLike,
   onComment,
   onSave,
-  onShare
+  onShare,
+  cacheBuster = new Date().getTime()
 }: {
   publication: Publication;
   onLike: (id: number) => void;
   onComment: (id: number) => void;
   onSave: (id: number) => void;
   onShare?: (sharedPublication: any) => void;
+  cacheBuster?: number;
 }) => {
   const [isLikeAnimating, setIsLikeAnimating] = useState(false);
   const { allUsers, userData } = useContext(AuthContext);
@@ -952,17 +962,26 @@ const PublicationCard = ({
   const getAvatarUrl = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return defaultAvatarSvg;
-    let avatarPath = '';
+    
+    let avatarUrl = '';
     if (user.rol === "student" && user.student?.photo_pic) {
-      avatarPath = user.student.photo_pic;
+      avatarUrl = user.student.photo_pic.startsWith('http')
+        ? user.student.photo_pic
+        : `${config.storageUrl}${user.student.photo_pic}`;
     } else if (user.rol === "company" && user.company?.logo) {
-      avatarPath = user.company.logo;
+      avatarUrl = user.company.logo.startsWith('http')
+        ? user.company.logo
+        : `${config.storageUrl}${user.company.logo}`;
     } else if (user.rol === "institutions" && user.institution?.logo) {
-      avatarPath = user.institution.logo;
+      avatarUrl = user.institution.logo.startsWith('http')
+        ? user.institution.logo
+        : `${config.storageUrl}${user.institution.logo}`;
     }
-    if (!avatarPath) return defaultAvatarSvg;
-    const baseUrl = avatarPath.startsWith('http') ? avatarPath : `${config.storageUrl}${avatarPath}`;
-    return `${baseUrl}?t=${new Date().getTime()}`;
+    
+    if (!avatarUrl) return defaultAvatarSvg;
+      
+    // Usar cacheBuster del usuario autenticado para forzar recarga cuando cambie su avatar
+    return `${avatarUrl}?t=${(userData?.id === userId ? cacheBuster : new Date().getTime())}`;
   };
   // Navega al perfil del usuario de la publicación
   const handleProfileClick = (userId: number) => {
