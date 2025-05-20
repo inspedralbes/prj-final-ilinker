@@ -46,17 +46,9 @@ const Login: React.FC = () => {
 
     const { showLoader, hideLoader } = useContext(LoaderContext);
 
-    useEffect(()=>{
+    useEffect(() => {
         hideLoader();
-
-        socket.on('login_success', ({user, token, message})=>{
-            console.log(message);
-        });
-
-        return ()=>{
-            socket.off('login_success')
-        }
-    },[])
+    }, [])
     const validateEmptyFields = (fields: Record<string, string>) => {
         const empty: EmptyFields = {};
         Object.keys(fields).forEach((field) => {
@@ -74,33 +66,38 @@ const Login: React.FC = () => {
         setApiError("");
 
         const isValid = validateEmptyFields({ email, password });
-        console.log(isValid)
         if (isValid) {
             try {
                 const response = await apiRequest("auth/login", "POST", {
                     email,
                     password,
                 });
-                console.log('login response', response);
-                
 
-                console.log(response)
+                console.log('login response', response);
+
                 if (response.status === "success") {
+
                     socket.emit('login', { userData: response.user });
                     login(response.token, response.user, response.notifications);
-                    router.push("/search");
+
+                    // Redirigir según el rol
+                    if (response.user.rol === 'admin') {
+                        router.push("/admin");
+                    } else {
+                        router.push("/search");
+                    }
+
 
                 } else {
-                    setApiError("Correu electrònic o contrasenya incorrectes");
+                    setApiError("Correo electrónico o contraseña incorrectos");
                     hideLoader();
                 }
             } catch (error) {
                 setApiError("Error de conexión con el servidor");
-                hideLoader();
-
             } finally {
+                hideLoader();
             }
-        }else{
+        } else {
             hideLoader();
         }
     };
@@ -108,7 +105,7 @@ const Login: React.FC = () => {
     const handleGoogleLogin = async () => {
         try {
             console.log("Iniciando login con Google...");
-           
+
 
         } catch (error) {
             console.error("Error detallado del login con Google:", error);
@@ -301,7 +298,7 @@ const Login: React.FC = () => {
 
                             <div className="my-6">
                                 <p className="text-center text-gray-500">
-                                    ─────────────── O ────────────────
+                                    ────────────── O ───────────────
                                 </p>
                             </div>
 
@@ -542,4 +539,4 @@ const Login: React.FC = () => {
     );
 }
 
-export default Login;
+export default Login; 

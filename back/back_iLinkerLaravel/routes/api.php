@@ -27,6 +27,17 @@ use \App\Http\Controllers\CambiarContraseñaController;
 use App\Http\Controllers\PublicationsController;
 use \App\Http\Controllers\PublicationsCommentController;
 use App\Http\Controllers\SharedPublicationController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\Admin\ReportedUserController;
+use App\Http\Controllers\Admin\AdminCompanyController;
+use App\Http\Controllers\Admin\AdminStudentController;
+use App\Http\Controllers\Admin\AdminInstitutionController;
+use App\Http\Controllers\Admin\AdminOfferController;
+use App\Http\Middleware\EnsureUserIsAdmin;
+use App\Http\Controllers\ReportController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -53,7 +64,6 @@ Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
-
 
 Route::prefix('/skills')->group(function () {
     Route::get('/', [SkillsController::class, 'getSkills']);
@@ -82,6 +92,7 @@ Route::prefix('/institution')->group(function () {
 //RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
+    Route::post('/report-user', [ReportController::class, 'store']);
 
     // Rutas para guardar y obtener publicaciones guardadas
     Route::post('/publications/{publicationId}/save', [PublicationsController::class, 'toggleSave']);
@@ -98,7 +109,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::patch('/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 
     });
-
 
 
     Route::prefix('/users')->group(function () {
@@ -235,5 +245,56 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 });
 
 
-    // Rutas para publicaciones compartidas
-    Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);
+// Rutas para publicaciones compartidas
+Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);
+Route::prefix('/skills')->group(function () {
+    Route::get('/', [SkillsController::class, 'getSkills']);
+});
+
+Route::prefix('/sectors')->group(function () {
+    Route::get('/', [SectorController::class, 'getSectors']);
+});
+
+Route::prefix('/page')->group(function () {
+    Route::get('/register', [PagesController::class, 'registerPage']);
+    Route::get('/search', [PagesController::class, 'searchPractices']);
+    Route::post('/search-filtered', [PagesController::class, 'searchPracticeFiltered']);
+    Route::get('/profile/company', [PagesController::class, 'profileCompany']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/posts', [PostController::class, 'index']);
+    Route::post('/posts', [PostController::class, 'store']);
+    Route::get('/posts/{post}', [PostController::class, 'show']);
+
+    Route::post('/posts/{post}/comments', [CommentController::class, 'store']);
+
+    Route::post('/posts/{post}/like', [LikeController::class, 'toggle']);
+});
+
+// Rutas de administración (corregidas)
+Route::prefix('/admin')->middleware(['auth:sanctum', EnsureUserIsAdmin::class])->group(function () {
+    Route::get('/reported-users', [ReportedUserController::class, 'index']);
+    Route::delete('/reported-users/{id}', [ReportedUserController::class, 'destroy']);
+    Route::delete('/delete-user/{userId}', [ReportedUserController::class, 'deleteUser']);
+    Route::post('/ban-user/{userId}', [ReportedUserController::class, 'banUser']);
+    Route::get('/companies', [AdminCompanyController::class, 'index']);
+    Route::get('/companies/{id}', [AdminCompanyController::class, 'show']);
+    Route::put('/companies/{id}', [AdminCompanyController::class, 'update']);
+    Route::delete('/companies/{id}', [AdminCompanyController::class, 'destroy']);
+    Route::get('/students', [AdminStudentController::class, 'index']);
+    Route::get('/students/{id}', [AdminStudentController::class, 'show']);
+    Route::put('/students/{id}', [AdminStudentController::class, 'update']);
+    Route::delete('/students/{id}', [AdminStudentController::class, 'destroy']);
+    Route::get('/institutions', [AdminInstitutionController::class, 'index']);
+    Route::get('/institutions/{id}', [AdminInstitutionController::class, 'show']);
+    Route::put('/institutions/{id}', [AdminInstitutionController::class, 'update']);
+    Route::delete('/institutions/{id}', [AdminInstitutionController::class, 'destroy']);
+    Route::get('/offers', [AdminOfferController::class, 'index']);
+    Route::get('/offers/{id}', [AdminOfferController::class, 'show']);
+    Route::put('/offers/{id}', [AdminOfferController::class, 'update']);
+    Route::put('/offers/{id}/status', [AdminOfferController::class, 'updateStatus']);
+    Route::delete('/offers/{id}', [AdminOfferController::class, 'destroy']);
+    Route::get('/offers/{id}/applications', [AdminOfferController::class, 'getApplications']);
+});
+

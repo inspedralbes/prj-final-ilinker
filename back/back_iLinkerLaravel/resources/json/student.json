@@ -1,6 +1,6 @@
 [
     {
-        "user_id": 1,
+        "user_id": 2,
         "name": "Student1",
         "surname": "García",
         "type_document": "DNI",
@@ -30,7 +30,7 @@
         ]
     },
     {
-        "user_id": 2,
+        "user_id": 3,
         "name": "Student2",
         "surname": "García",
         "type_document": "DNI",
@@ -52,7 +52,7 @@
         ]
     },
     {
-        "user_id": 3,
+        "user_id": 4,
         "name": "Student3",
         "surname": "García",
         "type_document": "DNI",

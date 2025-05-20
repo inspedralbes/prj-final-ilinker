@@ -217,7 +217,57 @@ export default function StudentClientNotMe({ student, experience_group, publicat
     const followersModal = useModal();
     const router = useRouter();
 
+    const reportModal = useModal();
+    const [reportReason, setReportReason] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
 
+    const handleReportUser = () => {
+        if (!reportReason.trim()) {
+            toast({
+                title: "Error",
+                description: "Por favor ingresa un motivo para el reporte",
+                variant: "destructive",
+            });
+            return;
+        }
+
+        setIsReporting(true);
+        showLoader();
+
+        apiRequest("report-user", "POST", {
+            reported_user_id: studentEdit.user_id,
+            reason: reportReason,
+        })
+            .then((response) => {
+                if (response.status === "success") {
+                    toast({
+                        title: "Reporte enviado",
+                        description: "Gracias por reportar este usuario. Revisaremos tu reporte pronto.",
+                        variant: "success",
+                    });
+                    reportModal.closeModal();
+                    setReportReason("");
+                } else {
+                    toast({
+                        title: "Error",
+                        description: response.message || "Error al enviar el reporte",
+                        variant: "destructive",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                toast({
+                    title: "Error",
+                    description: "Ocurrió un error al enviar el reporte",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                setIsReporting(false);
+                hideLoader();
+            });
+    };
 
     // Asegúrate que esto está dentro de tu componente:
     let parsedLanguages: { language: string; level: string }[] = [];

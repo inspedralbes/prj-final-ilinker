@@ -12,7 +12,7 @@ class Institutions extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'slug', 
+        'slug',
         'custom_url',
         'slogan',
         'about',
@@ -56,8 +56,9 @@ class Institutions extends Model
     /**
      * Get the courses associated with the institution.
      */
+    // En App\Models\Institution
     public function courses()
     {
-        return $this->hasMany(Courses::class);
+        return $this->hasMany(Courses::class, 'institution_id'); // Ajusta 'institution_id' si tu columna tiene otro nombre
     }
 }

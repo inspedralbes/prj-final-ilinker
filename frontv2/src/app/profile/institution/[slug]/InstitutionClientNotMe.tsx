@@ -1,15 +1,23 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import {
-  MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Award, Briefcase, Languages, Home, Info, BriefcaseIcon, School,
+  MapPin, Building2, Globe, Mail, Phone, Calendar, Plus, Users, MessageCircle, Share2, Award, Briefcase, Languages, Home, Info, BriefcaseIcon, School, Flag, AlertTriangle,
 } from "lucide-react"
 import "@/styles/tiptap-content.scss"
 import { EmptyStateCard } from "./EmptyStateCard"
+import { Textarea } from "@/components/ui/textarea"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import config from "@/types/config"
+import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
+import { useModal } from "@/hooks/use-modal"
+import { apiRequest } from "@/services/requests/apiRequest" 
+import { toast } from "@/hooks/use-toast"
+import { LoaderContext } from "@/contexts/LoaderContext";
+import Modal from "@/components/ui/modal"
 
 interface Institution {
   id: string | number;
@@ -56,6 +64,10 @@ export default function InstitutionClientNotMe({ institution, publications }: In
   })
   const [logoImage, setLogoImage] = useState(institution.logo_url || '')
   const [coverImage, setCoverImage] = useState(institution.cover_url || '')
+  const reportModal = useModal();
+  const [reportReason, setReportReason] = useState("");
+  const [isReporting, setIsReporting] = useState(false);
+  const { showLoader, hideLoader } = useContext(LoaderContext);
 
   const handleImageError = (type: 'logo' | 'cover') => {
     if (type === 'logo') {
@@ -199,6 +211,54 @@ export default function InstitutionClientNotMe({ institution, publications }: In
     </div>
   )
 
+  const handleReportUser = () => {
+    if (!reportReason.trim()) {
+      toast({
+        title: "Error",
+        description: "Por favor ingresa un motivo para el reporte",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsReporting(true);
+    showLoader();
+
+    apiRequest("report-user", "POST", {
+      reported_user_id: institution.id,
+      reason: reportReason,
+    })
+      .then((response) => {
+        if (response.status === "success") {
+          toast({
+            title: "Reporte enviado",
+            description: "Gracias por reportar este usuario. Revisaremos tu reporte pronto.",
+            variant: "success",
+          });
+          reportModal.closeModal();
+          setReportReason("");
+        } else {
+          toast({
+            title: "Error",
+            description: response.message || "Error al enviar el reporte",
+            variant: "destructive",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Ocurrió un error al enviar el reporte",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setIsReporting(false);
+        hideLoader();
+      });
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <div className="relative h-40 sm:h-60 md:h-72 lg:h-80 xl:h-96 bg-gray-300">
@@ -321,6 +381,75 @@ export default function InstitutionClientNotMe({ institution, publications }: In
           </div>
         </Tabs>
       </div>
+
+      {/* Botón para reportar */}
+      <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-8 mt-4">
+        <div className="flex justify-center">
+          <button
+            onClick={reportModal.openModal}
+            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+          >
+            <Flag className="h-5 w-5 mr-2 text-gray-400" />
+            Reportar
+          </button>
+        </div>
+      </div>
+
+      {/* Modal de reporte */}
+      <Modal
+        isOpen={reportModal.isOpen}
+        onClose={reportModal.closeModal}
+        id="report-modal"
+        size="md"
+        title={`Reportar a ${institution.name}`}
+        closeOnOutsideClick={true}
+      >
+        <div className="flex flex-col space-y-4 p-5">
+          <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+            <div>
+              <p className="text-sm text-yellow-800">
+                Por favor, proporciona detalles sobre el problema que has encontrado con este usuario.
+                Revisaremos tu reporte y tomaremos las medidas necesarias.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">Motivo del reporte</label>
+            <Textarea
+              value={reportReason}
+              onChange={(e) => setReportReason(e.target.value)}
+              placeholder="Describe el motivo de tu reporte..."
+              rows={5}
+            />
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={reportModal.closeModal}
+              disabled={isReporting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={handleReportUser}
+              disabled={isReporting || !reportReason.trim()}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isReporting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Enviando...
+                </>
+              ) : (
+                "Enviar reporte"
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }

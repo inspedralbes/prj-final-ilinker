@@ -1,5 +1,9 @@
 "use client";
 
+import { useContext, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Bell,
@@ -8,16 +12,13 @@ import {
   MessageSquareIcon,
   User,
   GraduationCap,
-  FileEdit,
+  Menu,
+  X,
   Handshake,
   Bolt,
+  FileEdit
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { AuthContext } from "@/contexts/AuthContext";
-import { useContext, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import config from "@/types/config";
 import socket from "@/services/websockets/sockets";
 import NotificationDropDown from "./NotificationDropDown";
@@ -26,117 +27,263 @@ export default function NavBar() {
   const pathname = usePathname();
   const { loggedIn, userData, logout } = useContext(AuthContext);
   const router = useRouter();
-  if (pathname === "/") {
-    return null;
-  }
-  return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center mx-auto px-4 py-8 max-w-7xl">
-        <div className="mr-4 flex">
-          <Link href="/" className="flex items-center space-x-2">
-            <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
-            <span className="font-bold">iLinker</span>
-          </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <nav className="flex items-center space-x-6">
-            {loggedIn ? (
-              <>
-                <Link
-                  href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
-                >
-                  <GraduationCap className="h-5 w-5" />
-                  <span className="text-[12px]">Ofertas</span>
-                </Link>
-                <Link
-                  href="/publicacion"
-                  className={`flex flex-col items-center ${
-                    pathname === "/publicacion"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <Handshake className="h-5 w-5" />
-                  <span className="text-[12px]">Comunidad</span>
-                </Link>
-                <Link
-                  href="/messages"
-                  className={`flex flex-col items-center ${
-                    pathname === "/messages"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <MessageSquareIcon className="h-5 w-5" />
-                  <span className="text-[12px]">Mensajes</span>
-                </Link>
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-                <NotificationDropDown />
-              </>
-            ) : (
-              <>
-                <Link
-                  href="/search"
-                  className={`flex flex-col items-center ${
-                    pathname === "/search"
-                      ? "text-foreground flex flex-col items-center"
-                      : "text-muted-foreground flex flex-col items-center"
-                  }`}
-                >
-                  <GraduationCap className="h-5 w-5" />
-                  <span className="text-[12px]">Ofertas</span>
-                </Link>
-                <Link
-                  href="/publicacion"
-                  className={`flex flex-col items-center ${
-                    pathname === "/publicacion"
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  <Handshake className="h-5 w-5" />
-                  <span className="text-[12px]">Comunidad</span>
-                </Link>
-              </>
-            )}
-          </nav>
-          <div className="flex items-center space-x-2">
-            {loggedIn ? (
-              <ProfileDropdown userData={userData} logout={logout} />
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link href="/auth/login">Login</Link>
-                </Button>
-                <Button asChild>
-                  <Link href="/auth/register">Register</Link>
-                </Button>
-              </>
-            )}
-            {/*<ModeToggle/>*/}
+  // No mostrar la barra de navegación en la página de inicio
+  if (pathname === "/") return null;
+
+  return (
+    <>
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-14 items-center justify-between mx-auto px-4 max-w-7xl">
+          {/* Logo y avatar (solo móvil) */}
+          <div className="flex items-center space-x-4 ">
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src="/images/logo.svg" alt="logo" width={35} height={35} />
+              <span className="font-bold">iLinker</span>
+            </Link>
+
+          </div>
+
+          {/* Desktop nav */}
+          <div className="hidden md:flex flex-1 items-center justify-end gap-4">
+            <div className="flex items-center space-x-6">
+              {loggedIn ? (
+                <>
+                  <NavLink href="/search" icon={<GraduationCap />} label="Ofertas" active={pathname === "/search"} />
+                  <NavLink href="/publicacion" icon={<Handshake />} label="Comunidad" active={pathname === "/publicacion"} />
+                  <NavLink href="/messages" icon={<MessageSquareIcon />} label="Mensajes" active={pathname === "/messages"} />
+                </>
+              ) : (
+                <>
+                  <NavLink href="/search" icon={<GraduationCap />} label="Ofertas" active={pathname === "/search"} />
+                  <NavLink href="/publicacion" icon={<Handshake />} label="Comunidad" active={pathname === "/publicacion"} />
+                </>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-4">
+              {loggedIn ? (
+                <>
+                  <NotificationDropDown />
+                  <ProfileDropdown userData={userData} logout={logout} />
+                </>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Button variant="ghost" asChild>
+                    <Link href="/auth/login">Login</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href="/auth/register">Register</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile: Botón de notificaciones y menú */}
+          <div className="md:hidden flex items-center space-x-4">
+            {loggedIn && <NotificationDropDown />}
+            <button onClick={() => setSidebarOpen(true)} className="p-1">
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </div>
+      </header>
+
+      {/* Sidebar (en lugar de drawer) */}
+      <div
+        className={`fixed top-0 right-0 h-full w-64 bg-white z-50 shadow-lg transform transition-transform duration-300 ease-in-out ${sidebarOpen ? "translate-x-0" : "translate-x-full"
+          } md:hidden`}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className="font-bold text-lg">Menú</h2>
+          <button onClick={() => setSidebarOpen(false)} className="p-1">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+
+        <div className="p-4 space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-gray-500 uppercase">Navegación</h3>
+            <nav className="flex flex-col space-y-3">
+              {loggedIn ? (
+                <>
+                  <SidebarLink href="/search" icon={<GraduationCap className="h-5 w-5" />} label="Ofertas" onClick={() => setSidebarOpen(false)} />
+                  <SidebarLink href="/publicacion" icon={<Handshake className="h-5 w-5" />} label="Comunidad" onClick={() => setSidebarOpen(false)} />
+                  <SidebarLink href="/messages" icon={<MessageSquareIcon className="h-5 w-5" />} label="Mensajes" onClick={() => setSidebarOpen(false)} />
+                </>
+              ) : (
+                <>
+                  <SidebarLink href="/search" icon={<GraduationCap className="h-5 w-5" />} label="Ofertas" onClick={() => setSidebarOpen(false)} />
+                  <SidebarLink href="/publicacion" icon={<Handshake className="h-5 w-5" />} label="Comunidad" onClick={() => setSidebarOpen(false)} />
+                </>
+              )}
+            </nav>
+          </div>
+
+          {loggedIn && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium text-gray-500 uppercase">Mi cuenta</h3>
+              <nav className="flex flex-col space-y-3">
+                {userData?.rol !== "company" && userData?.rol !== "institutions" && (
+                  <SidebarLink
+                    href={`/profile/student/${userData?.student?.uuid}`}
+                    icon={<User className="h-5 w-5" />}
+                    label="Mi perfil"
+                    onClick={() => setSidebarOpen(false)}
+                  />
+                )}
+
+                {userData?.rol === "company" && (
+                  <SidebarLink
+                    href={`/profile/company/${userData?.company?.slug}`}
+                    icon={<Building2Icon className="h-5 w-5" />}
+                    label="Mi compañía"
+                    onClick={() => setSidebarOpen(false)}
+                  />
+                )}
+
+                {userData?.rol === "institutions" && (
+                  <SidebarLink
+                    href={`/profile/institution/${userData?.institution?.slug}`}
+                    icon={<LandmarkIcon className="h-5 w-5" />}
+                    label="Mi institución"
+                    onClick={() => setSidebarOpen(false)}
+                  />
+                )}
+
+                {userData?.rol === "admin" && (
+                  <SidebarLink
+                    href="/admin"
+                    icon={<FileEdit className="h-5 w-5" />}
+                    label="Panel de administrador"
+                    onClick={() => setSidebarOpen(false)}
+                  />
+                )}
+
+                <SidebarLink
+                  href="/profile/settings"
+                  icon={<Bolt className="h-5 w-5" />}
+                  label="Configuración"
+                  onClick={() => setSidebarOpen(false)}
+                />
+              </nav>
+            </div>
+          )}
+
+          {!loggedIn ? (
+            <div className="space-y-2 pt-4">
+              <Button className="w-full" asChild>
+                <Link href="/auth/login" onClick={() => setSidebarOpen(false)}>
+                  Iniciar sesión
+                </Link>
+              </Button>
+              <Button variant="outline" className="w-full" asChild>
+                <Link href="/auth/register" onClick={() => setSidebarOpen(false)}>
+                  Registrarse
+                </Link>
+              </Button>
+            </div>
+          ) : (
+            <button
+              className="w-full mt-8 flex items-center justify-center space-x-2 text-red-600 rounded-md p-2 hover:bg-red-50"
+              onClick={() => {
+                logout();
+                setSidebarOpen(false);
+                socket.emit("logout");
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                className="w-5 h-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M3 4.25A2.25 2.25 0 0 1 5.25 2h5.5A2.25 2.25 0 0 1 13 4.25v2a.75.75 0 0 1-1.5 0v-2a.75.75 0 0 0-.75-.75h-5.5a.75.75 0 0 0-.75.75v11.5c0 .414.336.75.75.75h5.5a.75.75 0 0 0 .75-.75v-2a.75.75 0 0 1 1.5 0v2A2.25 2.25 0 0 1 10.75 18h-5.5A2.25 2.25 0 0 1 3 15.75V4.25Z"
+                  clipRule="evenodd"
+                />
+                <path
+                  fillRule="evenodd"
+                  d="M19 10a.75.75 0 0 0-.75-.75H8.704l1.048-.943a.75.75 0 1 0-1.004-1.114l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943h9.546A.75.75 0 0 0 19 10Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Cerrar sesión</span>
+            </button>
+          )}
+        </div>
       </div>
-    </header>
+
+      {/* Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 md:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+    </>
   );
 }
 
-// Componente para el menú desplegable del perfil
+// Desktop nav item
+function NavLink({ href, icon, label, active }: any) {
+  return (
+    <Link
+      href={href}
+      className={`flex flex-col items-center ${active ? "text-foreground" : "text-muted-foreground"
+        }`}
+    >
+      {icon}
+      <span className="text-[12px]">{label}</span>
+    </Link>
+  );
+}
+
+// Sidebar link with icon
+function SidebarLink({
+  href,
+  icon,
+  label,
+  onClick,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  const pathname = usePathname();
+  const isActive = pathname === href;
+
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={`flex items-center space-x-3 p-2 rounded-md transition-colors
+        ${isActive
+          ? 'bg-gray-100 text-gray-900 font-medium'
+          : 'text-gray-700 hover:bg-gray-50'
+        }`}
+    >
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+// ProfileDropdown para el avatar y sus opciones
 function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  // Alterna el menú al hacer clic en la imagen
+
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
 
-  // Cierra el menú si se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event: any) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -154,8 +301,8 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
         <Image
           src={
             config.storageUrl +
-              ((userData?.company && userData?.company?.logo) ||
-                userData?.student?.photo_pic || (userData?.institution && userData?.institution?.logo)) || 
+            ((userData?.company && userData?.company?.logo) ||
+              userData?.student?.photo_pic || (userData?.institution && userData?.institution?.logo)) ||
             "https://static-00.iconduck.com/assets.00/avatar-default-icon-2048x2048-h6w375ur.png"
           }
           alt="Profile"
@@ -170,7 +317,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
           className="absolute right-0 z-10 mt-2 min-w-[180px] overflow-auto rounded-lg border border-slate-200 bg-white p-1.5 shadow-lg"
         >
           {/* Opción "My Profile" */}
-          {userData?.rol !== "company" && userData?.rol !== "institutions" && (
+          {userData?.rol == "student" && (
             <>
               <li
                 role="menuitem"
@@ -212,7 +359,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             </>
           )}
 
-          {/* Opción "My Profile" */}
+          {/* Opción "My Company" */}
           {userData?.rol === "company" ? (
             <>
               <li
@@ -262,6 +409,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             <></>
           )}
 
+          {/* Opción "My Institution" */}
           {userData?.rol === "institutions" ? (
             <>
               <li
@@ -313,6 +461,23 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
             <></>
           )}
 
+          {/* Opción "Admin Panel" */}
+          {userData?.rol === "admin" && (
+            <li
+              role="menuitem"
+              className="cursor-pointer text-slate-800 flex w-full text-sm items-center rounded-md p-3 transition-all hover:bg-slate-100"
+              onClick={() => {
+                setIsOpen(false);
+                router.push(`/admin`);
+              }}
+            >
+              <FileEdit className="w-5 h-5 text-slate-400" />
+              <Link href={`/admin`} className="ml-2">
+                <p className="font-medium">Panel de administrador</p>
+              </Link>
+            </li>
+          )}
+
           <hr className="my-2 border-slate-200" role="separator" />
           {/* Opción "Sign Out" */}
           <li
@@ -341,7 +506,7 @@ function ProfileDropdown({ userData, logout }: { userData: any; logout: any }) {
                 clipRule="evenodd"
               />
             </svg>
-            <p className="font-medium ml-2">Sign Out</p>
+            <p className="font-medium ml-2">Cerrar sesión</p>
           </li>
         </ul>
       )}

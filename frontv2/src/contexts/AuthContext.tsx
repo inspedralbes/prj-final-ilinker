@@ -12,14 +12,14 @@ import socket from '@/services/websockets/sockets'
 const defaultAuthContext: AuthContextType = {
   loggedIn: false,
   userData: null,
-  login: () => {},
+  login: () => { },
   token: '',
-  logout: () => {},
-  checkAuth: () => {},
+  logout: () => { },
+  checkAuth: () => { },
   notifications: [],
   isLoading: false, // Añadido isLoading
   allUsers: [],
-  setAllUsers: () => {},
+  setAllUsers: () => { },
 }
 
 // Crear contexto
@@ -31,7 +31,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-const router = useRouter();
+  const router = useRouter();
 
   const [loggedIn, setLoggedIn] = useState<boolean>(false)
   const [userData, setUserData] = useState<User | null>(null)
@@ -53,10 +53,10 @@ const router = useRouter();
       if (response.status === 'success') {
         login(auxToken, response.user, response.notifications);
         setToken(auxToken);
-      }else{
+      } else {
         logout();
       }
-    } catch(e) {
+    } catch (e) {
       console.error("Error checking auth:", e);
       logout();
     } finally {
@@ -67,7 +67,7 @@ const router = useRouter();
   useEffect(() => {
     checkAuth();
 
-    socket.on('new_notifications', (data)=>{
+    socket.on('new_notifications', (data) => {
       console.log(data)
     });
 
@@ -77,6 +77,9 @@ const router = useRouter();
   }, [])
 
   const login = (token: string, userDataObj: User, notifications: any[]) => {
+    console.log("login")
+    console.log(userDataObj)
+    
     Cookies.set('authToken', token)
     Cookies.set('userData', JSON.stringify(userDataObj))
     setLoggedIn(true)

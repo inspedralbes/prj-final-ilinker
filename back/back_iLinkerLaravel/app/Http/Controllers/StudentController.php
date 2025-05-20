@@ -84,7 +84,6 @@ class StudentController extends Controller
             'experience_grouped' => $groupedExperience,
             'offerUser' => $offer
         ]);
-
     }
 
     public function getEducationById(Request $request)
@@ -110,7 +109,7 @@ class StudentController extends Controller
                 ->first();
 
             return response()->json(['status' => 'success', 'student' => $student]);
-        } catch (\Exception $e) {
+        }catch (\Exception $e){
             return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
