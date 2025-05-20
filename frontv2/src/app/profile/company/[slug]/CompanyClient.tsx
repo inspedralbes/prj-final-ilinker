@@ -17,6 +17,7 @@ export default function CompanyClient({ slug, company }: { slug: string; company
   const [skills, setSkills] = useState<any[] | null>(null);
   const [newCompany, setNewCompany] = useState<any>(company);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [publications, setPublications] = useState<any[] | null>(null);
 
   useEffect(() => {
     // Mostrar loader global
@@ -28,12 +29,15 @@ export default function CompanyClient({ slug, company }: { slug: string; company
     async function fetchData() {
       try {
         // Esperamos ambas promesas
-        const [respCheck, respPage] = await Promise.all([
+        const [respCheck, respPage, respPubli] = await Promise.all([
           apiRequest("company/checkCompanyUser", "POST", {
             id_user_loged: userData?.id,
             id_company: company.id,
           }),
           apiRequest("page/profile/company"),
+          apiRequest("my-publications", "POST", {
+            id: company.user_id,
+          })
         ]);
 
         // Procesamos respuesta de checkCompanyUser
@@ -47,6 +51,10 @@ export default function CompanyClient({ slug, company }: { slug: string; company
         if (respPage?.status === "success") {
           setSectors(respPage.sectors);
           setSkills(respPage.skills);
+        }
+
+        if (respPubli?.status === "success") {
+          setPublications(respPubli.data);
         }
       } catch (error) {
         console.error("Error fetching company data:", error);
@@ -75,12 +83,14 @@ export default function CompanyClient({ slug, company }: { slug: string; company
           company={newCompany}
           sectors={sectors}
           skills={skills}
+          publications={publications}
         />
       ) : (
         <CompanyClientNotMe
           company={newCompany}
           sectors={sectors}
           skills={skills}
+          publications={publications}
         />
       )}
     </div>

@@ -10,28 +10,35 @@ import {
     Pencil,
     Phone,
     Share2, Trash,
-    UserIcon, UserMinus, UserPlus
+    UserIcon, UserMinus, UserPlus, Folders,
+    Eye,
+    Heart,
+    ChevronLeft,
+    ChevronRight
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Card, CardContent} from "@/components/ui/card";
-import {Badge} from "@/components/ui/badge";
-import {Button} from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import Autoplay from "embla-carousel-autoplay";
-import {Avatar} from "@/components/ui/avatar";
-import React, {useState, useRef, useContext} from "react";
+import { Avatar } from "@/components/ui/avatar";
+import React, { useState, useRef, useContext } from "react";
 import Image from "next/image";
 import Link from "next/link"
 import config from "@/types/config";
-import {format} from "date-fns";
-import {Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious} from "@/components/ui/carousel";
-import {apiRequest} from "@/services/requests/apiRequest";
-import {LoaderContext} from "@/contexts/LoaderContext";
-import {toast} from "@/hooks/use-toast";
-import {AuthContext} from "@/contexts/AuthContext";
-import {Input} from "@/components/ui/input";
+import { format, formatDistanceToNow } from "date-fns";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { LoaderContext } from "@/contexts/LoaderContext";
+import { toast } from "@/hooks/use-toast";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Input } from "@/components/ui/input";
 import Modal from "@/components/ui/modal";
-import {useModal} from "@/hooks/use-modal";
+import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "next/navigation";
+import { es } from "date-fns/locale";
+import ShowPublication from "./modals/showPublication";
+
 
 
 
@@ -181,7 +188,7 @@ interface StudentClientMeProps {
     publications: any;
 }
 
-export default function StudentClientNotMe({student, experience_group, publications}: StudentClientMeProps) {
+export default function StudentClientNotMe({ student, experience_group, publications }: StudentClientMeProps) {
 
 
     const [studentEdit, setStudentEdit] = useState(student);
@@ -202,8 +209,10 @@ export default function StudentClientNotMe({student, experience_group, publicati
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowingLoading, setIsFollowingLoading] = useState(false);
 
-    const {showLoader, hideLoader} = useContext(LoaderContext);
-    const {userData, login, token} = useContext(AuthContext);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
+    const { userData, login, token } = useContext(AuthContext);
+
+    const [modalPubli, setModalPubli] = useState(false);
 
     const followersModal = useModal();
     const router = useRouter();
@@ -227,7 +236,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
     // Crear una instancia del plugin Autoplay para cada proyecto
     projectsEdit.forEach((pro) => {
         if (!pluginsRef.current[pro.id]) {
-            pluginsRef.current[pro.id] = Autoplay({delay: 3000, stopOnMouseEnter: true});
+            pluginsRef.current[pro.id] = Autoplay({ delay: 3000, stopOnMouseEnter: true });
         }
     });
 
@@ -263,23 +272,23 @@ export default function StudentClientNotMe({student, experience_group, publicati
             case 'remoto':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Remoto
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Remoto
+                    </span>
                 );
             case 'presencial':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <Building className="h-3 w-3 mr-1"/>
-            Presencial
-          </span>
+                        <Building className="h-3 w-3 mr-1" />
+                        Presencial
+                    </span>
                 );
             case 'hibrido':
                 return (
                     <span className="flex items-center text-sm text-gray-500">
-            <MapPin className="h-3 w-3 mr-1"/>
-            Híbrido
-          </span>
+                        <MapPin className="h-3 w-3 mr-1" />
+                        Híbrido
+                    </span>
                 );
             default:
                 return null;
@@ -485,7 +494,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                         setStudentFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: false}
+                                    ? { ...follower, isFollowed: false }
                                     : follower
                             )
                         );
@@ -542,7 +551,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                         setStudentFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: true}
+                                    ? { ...follower, isFollowed: true }
                                     : follower
                             )
                         );
@@ -591,7 +600,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
     const handleBlock = (user_id: number) => {
         showLoader();
         try {
-            apiRequest("block", "POST", {user_id})
+            apiRequest("block", "POST", { user_id })
                 .then((response) => {
                     if (response.status === "success") {
                         toast({
@@ -641,6 +650,94 @@ export default function StudentClientNotMe({student, experience_group, publicati
         }
     };
 
+    // Estados para controlar la paginación y la vista
+    const [currentPage, setCurrentPage] = useState(1);
+    const [viewMode, setViewMode] = useState("list"); // "list" o "gallery"
+    const [selectedPost, setSelectedPost] = useState(null);
+    const postsPerPage = 5;
+
+    // Calcular índices para la paginación
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+    // Publicaciones para la página actual                         //Num PRINCIPIO   //Num Final
+    const currentPosts = publicationsEdit ? publicationsEdit.slice(indexOfFirstPost, indexOfLastPost) : [];
+
+    // Calcular número total de páginas
+    const totalPages = publicationsEdit ? Math.ceil(publicationsEdit.length / postsPerPage) : 0;
+
+
+    // Extraer todas las imágenes para la vista de galería
+    const galleryImages = publicationsEdit ? publicationsEdit.flatMap((post: any) =>
+        post.media?.map((media: any) => ({
+            id: `${post.id}-${media.id || Math.random()}`,
+            postId: post.id,
+            media: media,
+            post: post
+        })) || []
+    ) : [];
+
+    // Cambiar de página
+    const goToPage = (pageNumber: any) => {
+        setCurrentPage(pageNumber);
+    };
+
+    // Obtener números de página para la paginación
+    const getPageNumbers = () => {
+        const pageNumbers = [];
+        const maxVisiblePages = 5;
+
+        if (totalPages <= maxVisiblePages) {
+            // Mostrar todos los números si hay pocas páginas
+            for (let i = 1; i <= totalPages; i++) {
+                pageNumbers.push(i);
+            }
+        } else {
+            // Lógica para mostrar un subconjunto de números con elipsis
+            if (currentPage <= 3) {
+                for (let i = 1; i <= 5; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push("...");
+                pageNumbers.push(totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pageNumbers.push(1);
+                pageNumbers.push("...");
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    pageNumbers.push(i);
+                }
+            } else {
+                pageNumbers.push(1);
+                pageNumbers.push("...");
+                for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                    pageNumbers.push(i);
+                }
+                pageNumbers.push("...");
+                pageNumbers.push(totalPages);
+            }
+        }
+
+        return pageNumbers;
+    };
+
+    const selectPost = (post: any) => {
+        setSelectedPost(post);
+        setModalPubli(true);
+    }
+
+    const UpdatePublication = async () => {
+        showLoader();
+        const response = await apiRequest('my-publications', 'POST', { id: student?.user_id });
+        if (response.status === 'success') {
+            setPublicationsEdit(response.data)
+            hideLoader();
+        } else {
+            hideLoader();
+        }
+
+    }
+
+
 
     return (
         <>
@@ -675,7 +772,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                 {studentEdit?.name}
                                             </p>
                                             <p className="text-gray-500 flex items-center mt-2">
-                                                <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                                                 {studentEdit?.address}
                                             </p>
                                         </div>
@@ -686,7 +783,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     <div className="flex space-x-2">
                                         <button
                                             className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400"/>
+                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                                             Contactar
                                         </button>
 
@@ -698,38 +795,37 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                     : handleFollowCompany(studentEdit?.user_id)
                                             }
                                             disabled={isFollowingLoading}
-                                            className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${
-                                                isFollowingLoading || isFollowing
-                                                    ? "bg-gray-400 border-gray-400"
-                                                    : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
-                                            }`}
+                                            className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${isFollowingLoading || isFollowing
+                                                ? "bg-gray-400 border-gray-400"
+                                                : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
+                                                }`}
                                         >
                                             {isFollowingLoading ? (
                                                 <>
-                                                    <Loader2 className="h-5 w-5 animate-spin mr-2"/>
+                                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
                                                     Cargando...
                                                 </>
                                             ) : isFollowing ? (
                                                 // Cuando ya sigues, cambiamos texto e icono al hacer hover
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span className="block group-hover:hidden">
-                              Siguiendo
-                            </span>
-                            <span className="hidden group-hover:block">
-                              Dejar de seguir
-                            </span>
-                            <UserPlus className="h-5 w-5 group-hover:hidden ml-2"/>
-                            <UserMinus className="h-5 w-5 hidden group-hover:block ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span className="block group-hover:hidden">
+                                                            Siguiendo
+                                                        </span>
+                                                        <span className="hidden group-hover:block">
+                                                            Dejar de seguir
+                                                        </span>
+                                                        <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
+                                                        <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
+                                                    </span>
                                                 </>
                                             ) : (
                                                 // Cuando no sigues
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span>Seguir</span>
-                            <UserPlus className="h-5 w-5 ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span>Seguir</span>
+                                                        <UserPlus className="h-5 w-5 ml-2" />
+                                                    </span>
                                                 </>
                                             )}
                                         </button>
@@ -758,7 +854,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="flex items-center">
-                                        <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Globe className="h-5 w-5 text-gray-400 mr-2" />
                                         <a
                                             href={studentEdit?.country || ""}
                                             className="text-blue-600 hover:underline"
@@ -767,11 +863,11 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                         </a>
                                     </div>
                                     <div className="flex items-center">
-                                        <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                         <span className="text-gray-600">{studentEdit?.phone}</span>
                                     </div>
                                     <div className="flex items-center">
-                                        <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Mail className="h-5 w-5 text-gray-400 mr-2" />
                                         <span
                                             className="text-gray-600">{studentEdit.user.email || "Sin dirección de correo"}</span>
                                     </div>
@@ -788,7 +884,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                 <div
                                     className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content"
                                 >
-                                    <p style={{whiteSpace: 'pre-wrap'}}>{studentEdit.short_description || ""}</p>
+                                    <p style={{ whiteSpace: 'pre-wrap' }}>{studentEdit.short_description || ""}</p>
 
                                 </div>
                             </div>
@@ -802,7 +898,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="acerca"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <UserIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Acerca de</span>
                                 </TabsTrigger>
 
@@ -810,7 +906,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="studies"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Estudios</span>
                                 </TabsTrigger>
 
@@ -818,7 +914,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="experience"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Experiencia</span>
                                 </TabsTrigger>
 
@@ -826,8 +922,16 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     value="projects"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
-                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4"/>
+                                    <FolderCode className="h-3 w-3 md:h-4 md:w-4" />
                                     <span className="md:block">Proyectos</span>
+                                </TabsTrigger>
+
+                                <TabsTrigger
+                                    value="publications"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
+                                >
+                                    <Folders className="h-3 w-3 md:h-4 md:w-4" />
+                                    <span className="md:block">Publicaciones</span>
                                 </TabsTrigger>
 
                             </TabsList>
@@ -842,7 +946,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                     <>
                                         <div
                                             className="prose prose-sm sm:prose lg:prose-lg mx-auto tiptap-content mt-o p-0"
-                                            dangerouslySetInnerHTML={{__html: studentEdit.description || ''}}
+                                            dangerouslySetInnerHTML={{ __html: studentEdit.description || '' }}
                                         />
 
                                     </>
@@ -871,7 +975,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                 {skillsEdit && skillsEdit.length > 0 ? (
                                                     skillsEdit.map((skill) => (
                                                         <Badge key={skill.id}
-                                                               className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
+                                                            className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                             {skill.name} {/* Renderiza solo el nombre de la habilidad */}
                                                         </Badge>
                                                     ))
@@ -890,7 +994,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                     <div className="flex flex-col gap-2 mb-4">
                                                         {parsedLanguages.map((lan, idx) => (
                                                             <div key={idx}
-                                                                 className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
+                                                                className="flex items-center gap-2 p-2 bg-gray-100 rounded-lg">
                                                                 <Badge
                                                                     className="px-2 py-1 bg-gray-200 text-gray-800 rounded-md">
                                                                     {lan.language}
@@ -983,10 +1087,10 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                                 <Link
                                                                                     href={`/profile/institution/${studies.institution?.slug}`}
                                                                                     passHref>
-                                                                                        <span
-                                                                                            className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
-                                                                                            {studies.institute}
-                                                                                        </span>
+                                                                                    <span
+                                                                                        className="font-semibold text-lg text-blue-600 hover:underline cursor-pointer">
+                                                                                        {studies.institute}
+                                                                                    </span>
                                                                                 </Link>
                                                                             ) : (
                                                                                 <h3 className="font-semibold text-lg text-gray-900">{studies.institute}</h3>
@@ -997,8 +1101,8 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                                 {/* Fechas */}
                                                                                 <span
                                                                                     className="text-sm text-gray-500">
-                                                                                        {studies.start_date} - {studies.end_date || "Cursando"}
-                                                                                    </span>
+                                                                                    {studies.start_date} - {studies.end_date || "Cursando"}
+                                                                                </span>
                                                                             </div>
                                                                         </div>
                                                                         <div
@@ -1037,10 +1141,10 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                         {/* Información General */}
                                         <div className="">
                                             {experienceEdit &&
-                                            Object.keys(experienceEdit).length > 0 &&
-                                            Object.keys(experienceEdit).some(key =>
-                                                Array.isArray(experienceEdit[key]) &&
-                                                experienceEdit[key].length > 0) ?
+                                                Object.keys(experienceEdit).length > 0 &&
+                                                Object.keys(experienceEdit).some(key =>
+                                                    Array.isArray(experienceEdit[key]) &&
+                                                    experienceEdit[key].length > 0) ?
                                                 (
                                                     <div className="space-y-8">
                                                         {Object.keys(experienceEdit).map((expId) => {
@@ -1056,7 +1160,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                             return (
                                                                 <div key={expId}
-                                                                     className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                                                                    className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
                                                                     <div
                                                                         className="flex items-center justify-between w-full mb-4">
                                                                         <div
@@ -1064,59 +1168,59 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                                     </div>
                                                                     {moreExperience ? (
-                                                                            // Línea de tiempo para múltiples experiencias
-                                                                            <div className="relative pl-6">
-                                                                                {/* Línea vertical */}
-                                                                                <div
-                                                                                    className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+                                                                        // Línea de tiempo para múltiples experiencias
+                                                                        <div className="relative pl-6">
+                                                                            {/* Línea vertical */}
+                                                                            <div
+                                                                                className="absolute left-4 top-0 bottom-0 w-0.5 bg-blue-300"></div>
 
-                                                                                {/* Experiencias */}
-                                                                                <div className="space-y-6">
-                                                                                    {experiences.map((exp) => (
-                                                                                        <div key={exp.id}
-                                                                                             className="relative">
-                                                                                            {/* Punto en la línea de tiempo */}
+                                                                            {/* Experiencias */}
+                                                                            <div className="space-y-6">
+                                                                                {experiences.map((exp) => (
+                                                                                    <div key={exp.id}
+                                                                                        className="relative">
+                                                                                        {/* Punto en la línea de tiempo */}
+                                                                                        <div
+                                                                                            className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+
+                                                                                        {/* Contenido de la experiencia */}
+                                                                                        <div
+                                                                                            className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
                                                                                             <div
-                                                                                                className="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-blue-500 border-2 border-white transform -translate-x-2"></div>
+                                                                                                className="flex justify-between items-start">
+                                                                                                <div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-blue-800">{exp.department}
+                                                                                                    </div>
 
-                                                                                            {/* Contenido de la experiencia */}
-                                                                                            <div
-                                                                                                className="bg-blue-50 rounded-lg p-4 ml-4 border border-blue-100">
-                                                                                                <div
-                                                                                                    className="flex justify-between items-start">
-                                                                                                    <div>
-                                                                                                        <div
-                                                                                                            className="font-medium text-blue-800">{exp.department}
-                                                                                                        </div>
+                                                                                                    <div
+                                                                                                        className="font-medium text-gray-600">
+                                                                                                        {exp.start_date} - {exp.end_date}
+                                                                                                    </div>
 
-                                                                                                        <div
-                                                                                                            className="font-medium text-gray-600">
-                                                                                                            {exp.start_date} - {exp.end_date}
-                                                                                                        </div>
-
-                                                                                                        <div
-                                                                                                            className="text-sm text-gray-700">{exp.employee_type}
-                                                                                                        </div>
+                                                                                                    <div
+                                                                                                        className="text-sm text-gray-700">{exp.employee_type}
                                                                                                     </div>
                                                                                                 </div>
+                                                                                            </div>
 
-                                                                                                <div
-                                                                                                    className="mt-2 flex items-center space-x-3">
-                                                                                                    {renderLocationType(exp.location_type)}
-                                                                                                    {exp.company_address && (
-                                                                                                        <span
-                                                                                                            className="text-sm text-gray-600">
+                                                                                            <div
+                                                                                                className="mt-2 flex items-center space-x-3">
+                                                                                                {renderLocationType(exp.location_type)}
+                                                                                                {exp.company_address && (
+                                                                                                    <span
+                                                                                                        className="text-sm text-gray-600">
                                                                                                         {exp.company_address}
                                                                                                     </span>
-                                                                                                    )}
-                                                                                                </div>
+                                                                                                )}
                                                                                             </div>
                                                                                         </div>
-                                                                                    ))}
-                                                                                </div>
+                                                                                    </div>
+                                                                                ))}
                                                                             </div>
+                                                                        </div>
 
-                                                                        ) :
+                                                                    ) :
                                                                         (
                                                                             // Tarjeta única para una sola experiencia
                                                                             <div className="bg-gray-50 rounded-lg p-4">
@@ -1134,18 +1238,18 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                                                                                         <div
                                                                                             className="mt-2 flex flex-wrap gap-3">
-                                                                                        <span
-                                                                                            className="flex items-center text-sm text-gray-500">
-                                                                                            <Clock
-                                                                                                className="h-3 w-3 mr-1"/>
-                                                                                            {exp.employee_type}
-                                                                                        </span>
+                                                                                            <span
+                                                                                                className="flex items-center text-sm text-gray-500">
+                                                                                                <Clock
+                                                                                                    className="h-3 w-3 mr-1" />
+                                                                                                {exp.employee_type}
+                                                                                            </span>
                                                                                             {renderLocationType(exp.location_type)}
                                                                                             {exp.company_address && (
                                                                                                 <span
                                                                                                     className="text-sm text-gray-600">
-                                                                                                {exp.company_address}
-                                                                                            </span>
+                                                                                                    {exp.company_address}
+                                                                                                </span>
                                                                                             )}
                                                                                         </div>
                                                                                     </div>
@@ -1232,12 +1336,12 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                         <div
                                                                             className="absolute inset-y-0 left-0 flex items-center">
                                                                             <CarouselPrevious
-                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 ml-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                         <div
                                                                             className="absolute inset-y-0 right-0 flex items-center">
                                                                             <CarouselNext
-                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm"/>
+                                                                                className="h-7 w-7 mr-1 bg-white/80 hover:bg-white shadow-sm" />
                                                                         </div>
                                                                     </Carousel>
                                                                 ) : (
@@ -1260,14 +1364,14 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                         className="flex items-center">
 
                                                                         {pro.link ? (
-                                                                                <a
-                                                                                    href={pro.link}
-                                                                                    target={"_blank"}
-                                                                                >
-                                                                                    <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
-                                                                                </a>
+                                                                            <a
+                                                                                href={pro.link}
+                                                                                target={"_blank"}
+                                                                            >
+                                                                                <h3 className="font-semibold text-blue-500 text-base">{pro.name}</h3>
+                                                                            </a>
 
-                                                                            ) :
+                                                                        ) :
                                                                             (
                                                                                 <h3 className="font-semibold text-base">{pro.name}</h3>
                                                                             )
@@ -1279,7 +1383,7 @@ export default function StudentClientNotMe({student, experience_group, publicati
                                                                     </p>
                                                                     <div
                                                                         className="flex items-center mt-2 text-xs text-gray-500">
-                                                                        <Clock className="h-3 w-3 mr-1 text-red-500"/>
+                                                                        <Clock className="h-3 w-3 mr-1 text-red-500" />
                                                                         <span>Finalizado: {pro.end_project ? pro.end_project : "En progreso"}</span>
                                                                     </div>
                                                                 </div>
@@ -1301,10 +1405,172 @@ export default function StudentClientNotMe({student, experience_group, publicati
 
                             </TabsContent>
 
+                            <TabsContent value="publications" className="mt-6 space-y-4">
+                                {/* Selector de vista */}
+                                <div className="flex justify-end mb-4">
+                                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
+                                            onClick={() => setViewMode("list")}
+                                        >
+                                            Lista
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
+                                            onClick={() => setViewMode("gallery")}
+                                        >
+                                            Galería
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <Card className="p-6 mt-2 mb-6 relative">
+                                    {publicationsEdit && publicationsEdit.length > 0 ? (
+                                        <>
+                                            {/* Vista de lista */}
+                                            {viewMode === "list" && (
+                                                <div className="space-y-4">
+                                                    {currentPosts.map((post: any) => (
+                                                        <Card key={post.id} className="p-6">
+                                                            <div className="flex gap-4">
+                                                                <Avatar className="h-12 w-12">
+                                                                    <img
+                                                                        src={studentEdit?.photo_pic ? `${config.storageUrl}${studentEdit.photo_pic}` : logoImage}
+                                                                        alt="Author"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-start">
+                                                                        <div>
+                                                                            <h3 className="font-semibold">{post.user_details?.name}</h3>
+                                                                        </div>
+                                                                        <div
+                                                                            className="flex items-center gap-5 text-sm text-gray-500">
+                                                                            <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
+                                                                            <button
+                                                                                onClick={() => selectPost(post)}
+                                                                            >
+                                                                                <Eye className="h-5 w-5 text-black" />
+                                                                            </button>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <p className="mt-2 text-gray-600">{post.content}</p>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Vista de galería */}
+                                            {viewMode === "gallery" && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                                                    {galleryImages.map((item: any) => (
+                                                        <Card
+                                                            key={item.id}
+                                                            className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
+                                                            onClick={() => selectPost(item.post)}
+                                                        >
+                                                            <Image
+                                                                src={item.media.file_path}
+                                                                alt="Contenido de la publicación"
+                                                                width={300}
+                                                                height={300}
+                                                                layout="responsive"
+                                                                objectFit="cover"
+                                                                objectPosition="center"
+                                                            />
+
+                                                            {/* Overlay al hacer hover con likes y comentarios */}
+                                                            <div
+                                                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                                                <div className="flex gap-6">
+                                                                    <div className="flex items-center">
+                                                                        <Heart className="h-5 w-5" />
+                                                                        <span
+                                                                            className="ml-2">{item.post.likes_count || 0}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center">
+                                                                        <MessageCircle className="h-5 w-5" />
+                                                                        <span
+                                                                            className="ml-2">{item.post.comments_count || 0}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Paginación */}
+                                            {totalPages > 1 && viewMode === "list" && (
+                                                <div className="mt-6 flex justify-center items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                                                        disabled={currentPage === 1}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </Button>
+
+                                                    {getPageNumbers().map((pageNumber, index) => (
+                                                        <React.Fragment key={index}>
+                                                            {pageNumber === "..." ? (
+                                                                <span className="px-2">...</span>
+                                                            ) : (
+                                                                <Button
+                                                                    variant={currentPage === pageNumber ? "default" : "outline"}
+                                                                    onClick={() => goToPage(pageNumber)}
+                                                                    size="sm"
+                                                                >
+                                                                    {pageNumber}
+                                                                </Button>
+                                                            )}
+                                                        </React.Fragment>
+                                                    ))}
+
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                                                        disabled={currentPage === totalPages}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-12 text-gray-500">
+                                            No hay publicaciones disponibles
+                                        </div>
+                                    )}
+                                </Card>
+
+                            </TabsContent>
+
                         </Tabs>
                     </div>
                 </div>
             </div>
+
+            {
+                modalPubli && (
+                    <ShowPublication
+                        publication={selectedPost}
+                        onClose={() => setModalPubli(false)}
+                        onSave={() => { UpdatePublication() }}
+                    />
+                )
+            }
 
             <Modal
                 isOpen={followersModal.isOpen}

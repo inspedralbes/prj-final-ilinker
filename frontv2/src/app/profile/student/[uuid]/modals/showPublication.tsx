@@ -4,7 +4,9 @@ import {
     Calendar, MapPin, Briefcase, Clock, Users, CreditCard, CheckCircle, XCircle, Loader2,
     Heart, MessageCircle, Bookmark,
     ChevronDown, ChevronUp, Ellipsis,
-    Send, Reply
+    Send, Reply,
+    MoreHorizontal,
+    Trash2
 } from 'lucide-react';
 import { Avatar } from "@/components/ui/avatar";
 import config from "@/types/config";
@@ -22,15 +24,15 @@ import { apiRequest } from "@/services/requests/apiRequest";
 import ReplyThread from "@/components/comments/ReplyThread";
 import { AuthContext } from "@/contexts/AuthContext";
 import { LoaderContext } from "@/contexts/LoaderContext";
+import { useRouter } from "next/navigation";
 
 interface PropsModal {
     publication: any;
-    student: any;
     onClose: () => void;
     onSave: (data: any) => void;
 }
 
-export default function ShowPublication({ publication, student, onClose, onSave }: PropsModal) {
+export default function ShowPublication({ publication, onClose, onSave }: PropsModal) {
     const [publicationEdit, setPublicationEdit] = useState(publication);
     const [error, setError] = useState<string | null>(null);
     const commentInputRef = useRef<HTMLInputElement>(null);
@@ -48,6 +50,11 @@ export default function ShowPublication({ publication, student, onClose, onSave 
     const { userData, allUsers, setAllUsers } = useContext(AuthContext);
 
     const { showLoader, hideLoader } = useContext(LoaderContext);
+
+    const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+
+    const router = useRouter();
+
 
 
     // Función para toggle el estado de expansión de un comentario
@@ -80,6 +87,20 @@ export default function ShowPublication({ publication, student, onClose, onSave 
         }
     };
 
+    const goToUserProfile = (user: any) => {
+        if (user?.rol === 'student') {
+            showLoader();
+            router.push(`/profile/student/${user.student?.uuid}`);
+        } else if (user?.rol === 'company') {
+            showLoader();
+            router.push(`/profile/company/${user.company?.slug}`);
+        } else {
+            showLoader();
+            router.push(`/profile/institution/${user.institutions?.slug}`);
+        }
+    };
+
+
     const handleLike = async (id: number) => {
         try {
             const response = await apiRequest(`/publications/${id}/like`, 'POST');
@@ -92,7 +113,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                     likes_count: response.likes_count,
                     liked: response.liked
                 });
-
+                setIsLiked(!isLiked);
                 onSave(publicationEdit.id);
             }
         } catch (err) {
@@ -108,10 +129,13 @@ export default function ShowPublication({ publication, student, onClose, onSave 
             if (response.status === 'success' && Array.isArray(response.data)) {
                 console.log("COMMENTS");
                 console.log(response.data);
+                console.log(response.num_comment);
                 setPublicationEdit({
                     ...publicationEdit,
+                    comments_count: response.num_comment,
                     comments: response.data
                 });
+                onSave(publicationEdit.id);
             }
         } catch (error) {
             console.error('Error fetching comments:', error);
@@ -119,6 +143,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
             hideLoader();
         }
     };
+
 
     const handleSubmitComment = async () => {
         if (!newComment.trim()) return;
@@ -184,7 +209,8 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                     // Si no se cumple la condición, se retorna el estado anterior sin cambios
                     return prev;
                 });
-
+                onSave(publicationEdit.id);
+                setIsSaved(!isSaved);
             }
         } catch (err) {
             console.error('Error al guardar la publicación:', err);
@@ -192,6 +218,43 @@ export default function ShowPublication({ publication, student, onClose, onSave 
             hideLoader();
         }
     };
+
+    const handleDeleteComment = async (commentId: number) => {
+        try {
+            const response = await apiRequest(`publications/${publicationEdit.id}/comments/${commentId}`, 'DELETE');
+            if (response.status === 'success') {
+                fetchComments();
+                onSave(publicationEdit.id);
+            }
+        } catch (error) {
+            console.error('Error deleting comment:', error);
+        }
+    };
+
+    const handleDeletePublication = async () => {
+        showLoader();
+        try {
+            const response = await apiRequest(`publications/${publicationEdit.id}`, 'DELETE');
+            if (response.status === 'success') {
+                onClose();
+                onSave(publicationEdit.id);
+            }
+        } catch (error) {
+            console.error('Error deleting publication:', error);
+        } finally {
+            hideLoader();
+        }
+    };
+
+    const [isSaved, setIsSaved] = useState(
+        publicationEdit.saved_publications.some((saved: any) => saved.user_id === userData?.id)
+    );
+
+    const [isLiked, setIsLiked] = useState(
+        publicationEdit.likes.some((like: any) => like.user_id === userData?.id)
+    );
+
+
 
     return (
         <div
@@ -220,6 +283,31 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                         />
                     </Avatar>
                     <div className="ml-2 font-semibold text-sm">{getUserName(publicationEdit?.user_details)}</div>
+                    {userData?.id === publicationEdit.user_id && (
+                        <div className="ml-auto relative">
+                            <button
+                                onClick={() => setOpenMenuId(openMenuId === publicationEdit.id ? null : publicationEdit.id)}
+                                className="p-1 hover:bg-gray-200 rounded-full"
+                            >
+                                <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                            </button>
+
+                            {openMenuId === publicationEdit.id && (
+                                <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                    <button
+                                        onClick={() => {
+                                            handleDeletePublication();
+                                            setOpenMenuId(null);
+                                        }}
+                                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        Eliminar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Imagen o Carousel (se muestra solo si hay media) */}
@@ -248,12 +336,14 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                             </Carousel>
                         ) : (
                             // Mostrar una sola imagen si solo hay una
-                            <div className="flex items-center justify-center h-full w-full">
-                                <img
-                                    src={publicationEdit.media[0].file_path}
-                                    alt="Contenido de la publicación"
-                                    className="max-w-full max-h-full object-contain"
-                                />
+                            <div className="w-full ">
+                                <div className="xl:aspect-square flex items-center justify-center h-full w-full">
+                                    <img
+                                        src={publicationEdit.media[0].file_path}
+                                        alt="Contenido de la publicación"
+                                        className="max-w-[25vh] max-h-[25vh] sm:max-w-full sm:max-h-full object-contain"
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -271,11 +361,31 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                             />
                         </Avatar>
                         <div className="ml-2 font-semibold">{getUserName(publicationEdit.user_details)}</div>
-                        <div className="ml-auto">
-                            <button>
-                                <Ellipsis className="h-5 w-5" />
-                            </button>
-                        </div>
+                        {userData?.id === publicationEdit.user_id && (
+                            <div className="ml-auto relative">
+                                <button
+                                    onClick={() => setOpenMenuId(openMenuId === publicationEdit.id ? null : publicationEdit.id)}
+                                    className="p-1 hover:bg-gray-200 rounded-full"
+                                >
+                                    <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                </button>
+
+                                {openMenuId === publicationEdit.id && (
+                                    <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                        <button
+                                            onClick={() => {
+                                                handleDeletePublication();
+                                                setOpenMenuId(null);
+                                            }}
+                                            className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Área de comentarios */}
@@ -297,24 +407,60 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                         ) : null}
 
                         {/* Comentarios con scroll */}
-                        <div className="max-h-[25vh] md:max-h-[60vh] overflow-y-auto pr-2">
+                        <div className="max-h-[25vh] md:max-h-[25vh] overflow-y-auto pr-2">
                             {publicationEdit.comments && publicationEdit.comments.length > 0 ? (
                                 publicationEdit.comments.map((comment: any) => (
                                     <div key={comment.id} className="mb-3">
                                         <div className="flex">
-                                            <Avatar className="h-6 w-6 md:h-7 md:w-7 flex-shrink-0">
+                                            <Avatar className="h-6 w-6 md:h-7 md:w-7 flex-shrink-0 cursor-pointer"
+                                                onClick={() => goToUserProfile(comment.user)}>
                                                 <img
                                                     src={getProfileImageUrl(comment.user)}
                                                     alt="Commenter"
                                                     className="h-full w-full object-cover rounded-full"
                                                 />
                                             </Avatar>
+
                                             <div className="ml-2 flex-1">
-                                                <span className="font-semibold mr-1 text-sm">
+                                                <span className="font-semibold mr-1 text-sm cursor-pointer"
+                                                    onClick={() => goToUserProfile(comment.user)}>
                                                     {getUserName(comment.user)}
                                                 </span>
-                                                <span className="break-words text-sm">{comment.content}</span>
+
+                                                <div className="flex justify-between items-start w-full">
+                                                    <span className="break-words text-sm max-w-[85%]">{comment.content}</span>
+
+                                                    {userData?.id === comment.user_id && (
+                                                        <div className="relative ml-2">
+                                                            <button
+                                                                onClick={() => setOpenMenuId(openMenuId === comment.id ? null : comment.id)}
+                                                                className="p-1 hover:bg-gray-200 rounded-full"
+                                                            >
+                                                                <MoreHorizontal className="w-4 h-4 text-gray-500" />
+                                                            </button>
+
+                                                            {openMenuId === comment.id && (
+                                                                <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            handleDeleteComment(comment.id);
+                                                                            setOpenMenuId(null);
+                                                                        }}
+                                                                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                                    >
+                                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                                        Eliminar
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+
                                                 <span className="ml-1 text-xs text-gray-500">{formatDistanceStrict(new Date(comment.created_at), new Date(), { locale: es })}</span>
+
+
 
                                                 {/* Agregar botón de responder */}
                                                 <div className="mt-1">
@@ -356,6 +502,7 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                                         key={reply.id}
                                                         reply={reply}
                                                         handleReplyClick={handleReplyClick}
+                                                        fetchComments={fetchComments}
                                                     />
                                                 ))}
                                             </div>
@@ -378,11 +525,12 @@ export default function ShowPublication({ publication, student, onClose, onSave 
                                     <button
                                         onClick={() => handleLike(publicationEdit.id)}
                                     >
-                                        {publicationEdit.liked ? (
+                                        {isLiked ? (
                                             <Heart className="h-5 w-5 text-red-500 hover:text-red-600" fill='red' />
                                         ) : (
-                                            <Heart className="h-5 w-5 hover:text-red-600" />
+                                            <Heart className="h-5 w-5" />
                                         )}
+
                                     </button>
                                     <span className="text-sm">{publicationEdit.likes_count}</span>
                                 </div>
@@ -402,11 +550,13 @@ export default function ShowPublication({ publication, student, onClose, onSave 
 
                             <div className="flex items-center">
                                 <button onClick={() => handleSavePublication(publicationEdit.id)}>
-                                    {publicationEdit.saved ? (
-                                        <Bookmark className="h-5 w-5 text-yellow-500" fill='yellow' />
-                                    ) : (
-                                        <Bookmark className="h-5 w-5" />
-                                    )}
+                                    {isSaved ?
+                                        (
+                                            <Bookmark className="h-5 w-5 text-yellow-500" fill='yellow' />
+                                        ) : (
+                                            <Bookmark className="h-5 w-5" />
+                                        )}
+
                                 </button>
                             </div>
                         </div>

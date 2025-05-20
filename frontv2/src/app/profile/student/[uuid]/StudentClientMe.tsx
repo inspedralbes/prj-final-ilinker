@@ -57,6 +57,7 @@ import { useModal } from "@/hooks/use-modal";
 import Modal from "@/components/ui/modal";
 import { useRouter } from "next/navigation";
 import ShowPublication from "@/app/profile/student/[uuid]/modals/showPublication";
+import AddressAutocomplete from "@/components/address/AddressAutocomplete";
 
 export interface User {
     id: number;
@@ -162,6 +163,7 @@ export interface Student {
     name: string;
     followers: number;
     surname: string;
+    website: string;
     type_document: string;
     id_document: string;
     nationality: string;
@@ -353,7 +355,7 @@ export default function StudentClientMe({
 
     const UpdatePublication = async () => {
         showLoader();
-        const response = await apiRequest('my-publications');
+        const response = await apiRequest('my-publications', 'POST', { id: student?.user_id });
         if (response.status === 'success') {
             setPublicationsEdit(response.data)
             hideLoader();
@@ -948,17 +950,6 @@ export default function StudentClientMe({
         handleSave();
     }, [imageChangeCount]);
 
-
-    const updateDesStudent = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setStudentEdit((prev: any) => ({
-            ...prev,
-            [name]: value,
-        }));
-    };
-
     // Estados para controlar la paginación y la vista
     const [currentPage, setCurrentPage] = useState(1);
     const [viewMode, setViewMode] = useState("list"); // "list" o "gallery"
@@ -1029,39 +1020,10 @@ export default function StudentClientMe({
         return pageNumbers;
     };
 
-    // Formatear fecha relativa (2h, 5m, etc.)
-    const getRelativeTime = (timestamp: string | Date) => {
-        // Implementar lógica real aquí
-        const now = new Date();
-        const past = new Date(timestamp);
-
-        const diffInSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
-
-        const units = [
-            { name: 'year', seconds: 31536000 },
-            { name: 'month', seconds: 2592000 },
-            { name: 'week', seconds: 604800 },
-            { name: 'day', seconds: 86400 },
-            { name: 'hour', seconds: 3600 },
-            { name: 'minute', seconds: 60 },
-            { name: 'second', seconds: 1 },
-        ];
-
-        for (const unit of units) {
-            const value = Math.floor(diffInSeconds / unit.seconds);
-            if (value >= 1) {
-                const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
-                return rtf.format(-value, unit.name as Intl.RelativeTimeFormatUnit);
-            }
-        }
-
-        return 'justo ahora';
-    };
 
     const selectPost = (post: any) => {
         setSelectedPost(post);
         setModalPubli(true);
-        console.log("getRelativeTime", getRelativeTime(new Date().toISOString())); // debería decir "justo ahora"
     }
 
 
@@ -1131,15 +1093,22 @@ export default function StudentClientMe({
                                                     className="text-lg text-gray-600 border rounded px-2 py-1 w-full"
                                                 />
                                                 <div className="flex items-center space-x-2">
-                                                    <MapPin className="h-5 w-5 text-gray-400" />
-                                                    <Input
-                                                        type="text"
+                                                    <AddressAutocomplete
                                                         value={studentEdit.address}
-                                                        onChange={(e) => setStudentEdit({
-                                                            ...studentEdit,
-                                                            address: e.target.value
-                                                        })}
-                                                        className="text-gray-600 border rounded px-2 py-1 flex-1"
+                                                        onChange={(val: any) =>
+                                                            setStudentEdit((prev: any) => ({
+                                                                ...prev,
+                                                                address: val,
+                                                            }))
+                                                        }
+                                                        onSelect={(val: any) => {
+                                                            setStudentEdit((prev: any) => ({
+                                                                ...prev,
+                                                                address: val.place_name,
+                                                                lat: val.lat,
+                                                                lng: val.lng,
+                                                            }));
+                                                        }}
                                                     />
                                                 </div>
 
@@ -1212,12 +1181,12 @@ export default function StudentClientMe({
                                                 <Input
                                                     type="text"
                                                     name="website"
-                                                    placeholder="Website de la compañia"
-                                                    value={studentEdit.country}
+                                                    placeholder="redes de estudiante"
+                                                    value={studentEdit.website || ""}
                                                     onChange={(e) =>
                                                         setStudentEdit({
                                                             ...studentEdit,
-                                                            country: e.target.value
+                                                            website: e.target.value
                                                         })
                                                     }
                                                 />
@@ -1261,15 +1230,20 @@ export default function StudentClientMe({
                                     </>
                                 ) : (
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="flex items-center">
-                                            <Globe className="h-5 w-5 text-gray-400 mr-2" />
+                                        <div className="flex items-center max-w-full">
+                                            <Globe className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
                                             <a
-                                                href={studentEdit?.country || ""}
-                                                className="text-blue-600 hover:underline"
+                                                href={studentEdit?.website || ""}
+                                                className="text-blue-600 hover:underline text-sm truncate"
+                                                style={{ maxWidth: '100%' }}
+                                                title={studentEdit?.website || "No hay red vinculada"}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
                                             >
-                                                {studentEdit?.country || "No hay website vinculada"}
+                                                {studentEdit?.website || "No hay red vinculada"}
                                             </a>
                                         </div>
+
                                         <div className="flex items-center">
                                             <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                             <span className="text-gray-600">{studentEdit?.phone}</span>
@@ -1341,7 +1315,7 @@ export default function StudentClientMe({
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <BriefcaseIcon className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="md:block">Mis Estudios</span>
+                                    <span className="md:block">Estudios</span>
                                 </TabsTrigger>
 
                                 <TabsTrigger
@@ -1349,7 +1323,7 @@ export default function StudentClientMe({
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <BriefcaseBusiness className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="md:block">Mi Experiencia</span>
+                                    <span className="md:block">Experiencia</span>
                                 </TabsTrigger>
 
                                 <TabsTrigger
@@ -1357,7 +1331,7 @@ export default function StudentClientMe({
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <FolderCode className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="md:block">Mis Proyectos</span>
+                                    <span className="md:block">Proyectos</span>
                                 </TabsTrigger>
 
                                 <TabsTrigger
@@ -1365,14 +1339,14 @@ export default function StudentClientMe({
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <FolderTree className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="md:block">Mis Ofertas</span>
+                                    <span className="md:block">Ofertas</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="publications"
                                     className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
                                 >
                                     <Folders className="h-3 w-3 md:h-4 md:w-4" />
-                                    <span className="md:block">Mis Publicaciones</span>
+                                    <span className="md:block">Publicaciones</span>
                                 </TabsTrigger>
                             </TabsList>
 
@@ -2638,7 +2612,6 @@ export default function StudentClientMe({
                 modalPubli && (
                     <ShowPublication
                         publication={selectedPost}
-                        student={studentEdit}
                         onClose={() => setModalPubli(false)}
                         onSave={UpdatePublication}
                     />

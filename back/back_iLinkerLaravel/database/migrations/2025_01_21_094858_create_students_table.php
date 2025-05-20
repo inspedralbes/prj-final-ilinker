@@ -20,6 +20,7 @@ return new class extends Migration
             //Formacion básica
             $table->string('name')->nullable();
             $table->string('surname')->nullable();
+            $table->string('website')->nullable();
             $table->enum('type_document', ['DNI', 'NIE', 'PASAPORTE']);
             $table->string('id_document');
             $table->string('nationality')->nullable();
@@ -35,6 +36,8 @@ return new class extends Migration
 
             //Datos de vivienda
             $table->string('address')->nullable();
+            $table->double('lat', 15, 8)->nullable();
+            $table->double('lng', 15, 8)->nullable();
             $table->string('city')->nullable();
             $table->string('country')->nullable();
             $table->string('postal_code')->nullable();

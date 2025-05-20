@@ -8,7 +8,20 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/StudentService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/database/migrations/2025_01_21_094858_create_students_table.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/company/[slug]/CompanyClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitueClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitueClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitutionClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitutionClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitutionClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/institution/[slug]/InstitutionClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/modals/showPublication.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/components/comments/ReplyThread.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/components/comments/ReplyThread.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +41,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="dev2-purvish" />
+        <entry key="$PROJECT_DIR$" value="company-profile" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -57,21 +70,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "student-profile",
-    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
-    "node.js.detected.package.eslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.keymap",
-    "ts.external.directory.path": "F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;student-profile&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;F:\\DAW\\prj-final-ilinker\\frontv2\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Proyectos programacion\daw2\prj-final-ilinker\back\back_iLinkerLaravel" />
@@ -122,6 +135,7 @@
       <workItem from="1746728579284" duration="3756000" />
       <workItem from="1747587671644" duration="6743000" />
       <workItem from="1747661944037" duration="3446000" />
+      <workItem from="1747749466382" duration="11450000" />
     </task>
     <task id="LOCAL-00001" summary="Rama actualizada con dev-kevin">
       <option name="closed" value="true" />

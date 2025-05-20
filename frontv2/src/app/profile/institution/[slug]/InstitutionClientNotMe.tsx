@@ -35,9 +35,10 @@ interface Institution {
 
 interface InstitutionClientNotMeProps {
   institution: Institution;
+  publications: any;
 }
 
-export default function InstitutionClientNotMe({ institution }: InstitutionClientNotMeProps) {
+export default function InstitutionClientNotMe({ institution, publications }: InstitutionClientNotMeProps) {
   const [institutionData] = useState<Institution>({
     ...institution,
     specialties: Array.isArray(institution.specialties) ? institution.specialties : [],

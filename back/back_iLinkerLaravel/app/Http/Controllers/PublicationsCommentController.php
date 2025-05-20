@@ -42,7 +42,8 @@ class PublicationsCommentController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $comments
+                'data' => $comments,
+                'num_comment' => $publication->comments_count,
             ]);
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -127,13 +128,18 @@ class PublicationsCommentController extends Controller
             }
 
             // Eliminar recursivamente las respuestas
-            $this->deleteReplies($comment);
+            $repliesDeleted = $this->deleteReplies($comment);
             $comment->delete();
+            $totalDeleted = $repliesDeleted + 1; // el comentario original + sus respuestas
+
 
             // Actualizar contador de comentarios
             $publication = Publication::find($publicationId);
-            if ($publication && $publication->comments_count > 0) {
-                $publication->decrement('comments_count');
+            //Log::info("Publication deleted successfully", ["pubid" => $publicationId]);
+
+            if ($publication && $publication->comments_count >= $totalDeleted) {
+                $publication->decrement('comments_count', $totalDeleted);
+                //Log::info("count", ["deleted" => $totalDeleted]);
             }
 
             return response()->json([
@@ -151,9 +157,13 @@ class PublicationsCommentController extends Controller
     // Función recursiva para eliminar respuestas anidadas
     private function deleteReplies(PublicationComment $comment)
     {
+        $deletedCount = 0;
+
         foreach ($comment->replies as $reply) {
-            $this->deleteReplies($reply);
+            $deletedCount += $this->deleteReplies($reply);
             $reply->delete();
+            $deletedCount++;
         }
+        return $deletedCount;
     }
 }

@@ -39,9 +39,9 @@ class PublicationsController extends Controller
                 'savedPublications',
                 'sharedPublications.user:id,name'
             ])
-            ->where('status', 'published')
-            ->orderBy('created_at', 'desc')
-            ->get();
+                ->where('status', 'published')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             // Obtener publicaciones compartidas
             $sharedPublications = SharedPublication::with([
@@ -52,43 +52,43 @@ class PublicationsController extends Controller
                 'originalPublication.comments.user:id,name',
                 'originalPublication.savedPublications'
             ])
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($sharedPub) use ($userId) {
-                // Transformar las URLs de los medios
-                $media = $sharedPub->originalPublication->media->map(function ($media) {
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($sharedPub) use ($userId) {
+                    // Transformar las URLs de los medios
+                    $media = $sharedPub->originalPublication->media->map(function ($media) {
+                        return [
+                            'id' => $media->id,
+                            'file_path' => $this->fileService->getFileUrl($media->file_path),
+                            'media_type' => $media->media_type,
+                            'display_order' => $media->display_order
+                        ];
+                    });
+
                     return [
-                        'id' => $media->id,
-                        'file_path' => $this->fileService->getFileUrl($media->file_path),
-                        'media_type' => $media->media_type,
-                        'display_order' => $media->display_order
+                        'id' => $sharedPub->id,
+                        'content' => $sharedPub->content,
+                        'created_at' => $sharedPub->created_at,
+                        'shared_by' => [
+                            'id' => $sharedPub->user->id,
+                            'name' => $sharedPub->user->name,
+                        ],
+                        'user' => [
+                            'id' => $sharedPub->originalPublication->user->id,
+                            'name' => $sharedPub->originalPublication->user->name,
+                        ],
+                        'content' => $sharedPub->originalPublication->content,
+                        'media' => $media,
+                        'has_media' => $sharedPub->originalPublication->has_media,
+                        'location' => $sharedPub->originalPublication->location,
+                        'likes_count' => $sharedPub->originalPublication->likes_count,
+                        'comments_count' => $sharedPub->originalPublication->comments_count,
+                        'liked' => $sharedPub->originalPublication->likes->contains('user_id', $userId),
+                        'saved' => $sharedPub->originalPublication->savedPublications->contains('user_id', $userId),
+                        'shared' => true,
+                        'original_publication_id' => $sharedPub->original_publication_id
                     ];
                 });
-
-                return [
-                    'id' => $sharedPub->id,
-                    'content' => $sharedPub->content,
-                    'created_at' => $sharedPub->created_at,
-                    'shared_by' => [
-                        'id' => $sharedPub->user->id,
-                        'name' => $sharedPub->user->name,
-                    ],
-                    'user' => [
-                        'id' => $sharedPub->originalPublication->user->id,
-                        'name' => $sharedPub->originalPublication->user->name,
-                    ],
-                    'content' => $sharedPub->originalPublication->content,
-                    'media' => $media,
-                    'has_media' => $sharedPub->originalPublication->has_media,
-                    'location' => $sharedPub->originalPublication->location,
-                    'likes_count' => $sharedPub->originalPublication->likes_count,
-                    'comments_count' => $sharedPub->originalPublication->comments_count,
-                    'liked' => $sharedPub->originalPublication->likes->contains('user_id', $userId),
-                    'saved' => $sharedPub->originalPublication->savedPublications->contains('user_id', $userId),
-                    'shared' => true,
-                    'original_publication_id' => $sharedPub->original_publication_id
-                ];
-            });
 
             // Combinar y ordenar todas las publicaciones por fecha
             $allPublications = $publications->map(function ($publication) use ($userId) {
@@ -103,8 +103,8 @@ class PublicationsController extends Controller
 
                 return $publication;
             })->concat($sharedPublications)
-              ->sortByDesc('created_at')
-              ->values();
+                ->sortByDesc('created_at')
+                ->values();
 
             return response()->json([
                 'status' => 'success',
@@ -182,26 +182,43 @@ class PublicationsController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Request $request)
     {
         try {
-            $publication = Publication::with([
-                'user:id,name',
+            $userId = $request->id;
+            $publications = Publication::with([
                 'media',
-                'comments.user:id,name',
-                'likes'
-            ])->findOrFail($id);
+                'comments.user',
+                'comments.replies.user',
+                'likes.user',
+                'comments.user:id,name,rol',
+                'likes',
+                'savedPublications'
+            ])
+                ->where('id', $request->id_publication)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
-            // Transform media to include full URLs
-            if ($publication->media && count($publication->media) > 0) {
-                foreach ($publication->media as $media) {
-                    $media->file_path = $this->fileService->getFileUrl($media->file_path);
+            // Add liked status and transform media URLs for each publication
+            // Ahora puedes transformar la colección
+            $publications->transform(function ($publication) use ($userId) {
+                $publication->liked = $publication->likes->contains('user_id', $userId);
+                $publication->saved = $publication->savedPublications->contains('user_id', $userId);
+
+                // Transform media to include full URLs
+                if ($publication->media && count($publication->media) > 0) {
+                    foreach ($publication->media as $media) {
+                        $media->file_path = $this->fileService->getFileUrl($media->file_path);
+                    }
                 }
-            }
+
+                return $publication;
+            });
+
 
             return response()->json([
                 'status' => 'success',
-                'data' => $publication
+                'data' => $publications
             ]);
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -390,10 +407,10 @@ class PublicationsController extends Controller
         }
     }
 
-    public function myPublications()
+    public function myPublications(Request $request)
     {
         try {
-            $userId = Auth::id();
+            $userId = $request->id;
             $publications = Publication::with([
                 'media',
                 'comments.user',
@@ -404,7 +421,7 @@ class PublicationsController extends Controller
                 'savedPublications'
             ])
                 ->where('user_id', $userId)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at', 'asc')
                 ->get();
 
             // Add liked status and transform media URLs for each publication
@@ -436,7 +453,8 @@ class PublicationsController extends Controller
         }
     }
 
-    public function myLikedPublications(){
+    public function myLikedPublications()
+    {
         try {
             $userId = Auth::id();
             $idsLikedPublications = PublicationLike::where('user_id', $userId)
@@ -453,7 +471,7 @@ class PublicationsController extends Controller
                 'likes.user.institutions:id,user_id,name,slug,logo',
             ])
                 ->whereIn('id', $idsLikedPublications)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('created_at', 'asc')
                 ->get();
 
             // Add liked status and transform media URLs for each publication
@@ -587,11 +605,11 @@ class PublicationsController extends Controller
                 'comments.user:id,name',
                 'likes'
             ])
-            ->whereHas('savedPublications', function($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+                ->whereHas('savedPublications', function ($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
 
             // Add liked status and transform media URLs for each publication
             $savedPublications->transform(function ($publication) use ($userId) {

@@ -25,6 +25,11 @@ import {
   UserMinus,
   UserX,
   Loader2,
+  Folders,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Eye
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -51,6 +56,9 @@ import { AuthContext } from "@/contexts/AuthContext";
 import AddressAutocomplete from "@/components/address/AddressAutocomplete";
 import { SimpleEditor } from "@/components/templates/simple/SimpleEditor";
 import "@/styles/tiptap-content.scss";
+import Image from "next/image";
+import { es } from "date-fns/locale";
+import ShowPublication from "../../student/[uuid]/modals/showPublication";
 
 interface Follower {
   id: number;
@@ -66,10 +74,12 @@ export default function CompanyClientMe({
   company,
   sectors,
   skills,
+  publications,
 }: {
   company: any;
   sectors: any;
   skills: any;
+  publications: any;
 }) {
   const scheduleLabels: Record<string, string> = {
     full: "Full-Time",
@@ -99,6 +109,7 @@ export default function CompanyClientMe({
   const { userData } = useContext(AuthContext);
   const { hideLoader, showLoader } = useContext(LoaderContext);
   const { toast } = useToast();
+  const [publicationsEdit, setPublicationsEdit] = useState(publications);
 
   const handleEdit = (section: string) => {
     setIsEditing(section);
@@ -442,6 +453,95 @@ export default function CompanyClientMe({
     }
   };
 
+  // Estados para controlar la paginación y la vista
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState("list"); // "list" o "gallery"
+  const [selectedPost, setSelectedPost] = useState(null);
+  const postsPerPage = 5;
+
+  // Calcular índices para la paginación
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+  // Publicaciones para la página actual                         //Num PRINCIPIO   //Num Final
+  const currentPosts = publicationsEdit ? publicationsEdit.slice(indexOfFirstPost, indexOfLastPost) : [];
+
+  // Calcular número total de páginas
+  const totalPages = publicationsEdit ? Math.ceil(publicationsEdit.length / postsPerPage) : 0;
+  const [modalPubli, setModalPubli] = useState(false);
+
+
+
+  // Extraer todas las imágenes para la vista de galería
+  const galleryImages = publicationsEdit ? publicationsEdit.flatMap((post: any) =>
+    post.media?.map((media: any) => ({
+      id: `${post.id}-${media.id || Math.random()}`,
+      postId: post.id,
+      media: media,
+      post: post
+    })) || []
+  ) : [];
+
+  // Cambiar de página
+  const goToPage = (pageNumber: any) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Obtener números de página para la paginación
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Mostrar todos los números si hay pocas páginas
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Lógica para mostrar un subconjunto de números con elipsis
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const selectPost = (post: any) => {
+    setSelectedPost(post);
+    setModalPubli(true);
+  }
+
+  const UpdatePublication = async () => {
+    showLoader();
+    const response = await apiRequest('my-publications', 'POST', { id: companyEdited?.user_id });
+    if (response.status === 'success') {
+      setPublicationsEdit(response.data)
+      hideLoader();
+    } else {
+      hideLoader();
+    }
+
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -721,6 +821,14 @@ export default function CompanyClientMe({
                 >
                   <BriefcaseIcon className="h-4 w-4" />
                   Ofertas
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="publications"
+                  className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
+                >
+                  <Folders className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="md:block">Publicaciones</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -1026,6 +1134,161 @@ export default function CompanyClientMe({
                     </div>
                   )}
               </TabsContent>
+
+              <TabsContent value="publications" className="mt-6 space-y-4">
+                {/* Selector de vista */}
+                <div className="flex justify-end mb-4">
+                  <div className="inline-flex rounded-md shadow-sm" role="group">
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        }`}
+                      onClick={() => setViewMode("list")}
+                    >
+                      Lista
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        }`}
+                      onClick={() => setViewMode("gallery")}
+                    >
+                      Galería
+                    </button>
+                  </div>
+                </div>
+
+                <Card className="p-6 mt-2 mb-6 relative">
+                  {publicationsEdit && publicationsEdit.length > 0 ? (
+                    <>
+                      {/* Vista de lista */}
+                      {viewMode === "list" && (
+                        <div className="space-y-4">
+                          {currentPosts.map((post: any) => (
+                            <Card key={post.id} className="p-6">
+                              <div className="flex gap-4">
+                                <Avatar className="h-12 w-12">
+                                  <img
+                                    src={companyEdited?.logo ? `${config.storageUrl}${companyEdited.logo}` : logoImage}
+                                    alt="Author"
+                                    className="h-full w-full object-cover rounded-full"
+                                  />
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <h3 className="font-semibold">{post.user_details?.name}</h3>
+                                    </div>
+                                    <div
+                                      className="flex items-center gap-5 text-sm text-gray-500">
+                                      <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
+                                      <button
+                                        onClick={() => selectPost(post)}
+                                      >
+                                        <Eye className="h-5 w-5 text-black" />
+                                      </button>
+                                    </div>
+
+                                  </div>
+
+                                  <p className="mt-2 text-gray-600">{post.content}</p>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Vista de galería */}
+                      {viewMode === "gallery" && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                          {galleryImages.map((item: any) => (
+                            <Card
+                              key={item.id}
+                              className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
+                              onClick={() => selectPost(item.post)}
+                            >
+                              <Image
+                                src={item.media.file_path}
+                                alt="Contenido de la publicación"
+                                width={300}
+                                height={300}
+                                layout="responsive"
+                                objectFit="cover"
+                                objectPosition="center"
+                              />
+
+                              {/* Overlay al hacer hover con likes y comentarios */}
+                              <div
+                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                <div className="flex gap-6">
+                                  <div className="flex items-center">
+                                    <Heart className="h-5 w-5" />
+                                    <span
+                                      className="ml-2">{item.post.likes_count || 0}</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <MessageCircle className="h-5 w-5" />
+                                    <span
+                                      className="ml-2">{item.post.comments_count || 0}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Paginación */}
+                      {totalPages > 1 && viewMode === "list" && (
+                        <div className="mt-6 flex justify-center items-center gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            size="sm"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+
+                          {getPageNumbers().map((pageNumber, index) => (
+                            <React.Fragment key={index}>
+                              {pageNumber === "..." ? (
+                                <span className="px-2">...</span>
+                              ) : (
+                                <Button
+                                  variant={currentPage === pageNumber ? "default" : "outline"}
+                                  onClick={() => goToPage(pageNumber)}
+                                  size="sm"
+                                >
+                                  {pageNumber}
+                                </Button>
+                              )}
+                            </React.Fragment>
+                          ))}
+
+                          <Button
+                            variant="outline"
+                            onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            size="sm"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      No hay publicaciones disponibles
+                    </div>
+                  )}
+                </Card>
+
+              </TabsContent>
+
+
+
             </Tabs>
           </div>
         </div>
@@ -1037,6 +1300,16 @@ export default function CompanyClientMe({
           selectedInfoJob={jobData}
         />
       )}
+
+      {
+        modalPubli && (
+          <ShowPublication
+            publication={selectedPost}
+            onClose={() => setModalPubli(false)}
+            onSave={() => { UpdatePublication() }}
+          />
+        )
+      }
 
       <Modal
         isOpen={followersModal.isOpen}

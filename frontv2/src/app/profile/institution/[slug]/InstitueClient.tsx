@@ -16,6 +16,7 @@ export default function InstitutionClient({ institution, slug }: InstitutionClie
   const { loggedIn, userData } = useContext(AuthContext)
   const [isOwner, setIsOwner] = useState(false)
   const { showLoader, hideLoader } = useContext(LoaderContext)
+  const [publications, setPublications] = useState<any[] | null>(null);
 
   useEffect(() => {
     if (loggedIn && userData) {
@@ -27,6 +28,12 @@ export default function InstitutionClient({ institution, slug }: InstitutionClie
             institution_id: institution.id
           })
           setIsOwner(response.isOwner)
+
+          const response2 = await apiRequest("my-publications", "POST", {
+            id: institution.user_id
+          })
+          setPublications(response2.data)
+
         } catch (error) {
           console.error("Error checking institution ownership:", error)
           setIsOwner(false)
@@ -35,12 +42,17 @@ export default function InstitutionClient({ institution, slug }: InstitutionClie
         }
       }
       checkInstitutionOwner()
+
     }
   }, [loggedIn, userData, institution.id])
 
-  if (loggedIn && isOwner) {
-    return <InstitutionClientMe institution={institution} />
+  if (!publications) {
+    return null
   }
 
-  return <InstitutionClientNotMe institution={institution} />
+  if (loggedIn && isOwner) {
+    return <InstitutionClientMe institution={institution} publications={publications} />
+  }
+
+  return <InstitutionClientNotMe institution={institution} publications={publications} />
 }

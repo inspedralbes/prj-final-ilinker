@@ -2,10 +2,10 @@
 
 import StundentClientMe from './StudentClientMe';
 import StundentClientNotMe from './StudentClientNotMe';
-import {useContext, useEffect, useState} from 'react';
-import {AuthContext} from "@/contexts/AuthContext";
-import {apiRequest} from "@/services/requests/apiRequest";
-import {LoaderContext} from "@/contexts/LoaderContext";
+import { useContext, useEffect, useState } from 'react';
+import { AuthContext } from "@/contexts/AuthContext";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { LoaderContext } from "@/contexts/LoaderContext";
 
 interface StudentClientProps {
     uuid: string;
@@ -14,12 +14,12 @@ interface StudentClientProps {
     offerUser: any
 }
 
-export default function StudentClient({uuid, student, experience_group, offerUser}: StudentClientProps) {
+export default function StudentClient({ uuid, student, experience_group, offerUser }: StudentClientProps) {
     const [myStudent, setMyStudent] = useState<boolean>(false);
-    const {userData} = useContext(AuthContext);
+    const { userData } = useContext(AuthContext);
     const [allSkills, setAllSkills] = useState(null);
-    const [publications, setPublications] = useState(null);
-    const {showLoader, hideLoader} = useContext(LoaderContext);
+    const [publications, setPublications] = useState<any[] | null>(null);
+    const { showLoader, hideLoader } = useContext(LoaderContext);
 
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export default function StudentClient({uuid, student, experience_group, offerUse
                     setAllSkills(response.data);
                 }
 
-                const response2 = await apiRequest('my-publications');
+                const response2 = await apiRequest('my-publications', 'POST', { id: student?.user_id });
                 console.log("DATOS PUBLI");
                 console.table(response2)
                 if (response2.status === 'success') {
@@ -62,7 +62,7 @@ export default function StudentClient({uuid, student, experience_group, offerUse
         return null;
     }
 
-    if (!publications){
+    if (!publications) {
         return null
     }
 
@@ -70,9 +70,9 @@ export default function StudentClient({uuid, student, experience_group, offerUse
         <div>
             {myStudent ? (
                 <StundentClientMe uuid={uuid} student={student} experience_group={experience_group} skills={allSkills}
-                                  offerUser={offerUser} publications={publications}/>
+                    offerUser={offerUser} publications={publications} />
             ) : (
-                <StundentClientNotMe student={student} experience_group={experience_group} publications={publications}/>
+                <StundentClientNotMe student={student} experience_group={experience_group} publications={publications} />
             )}
         </div>
     );

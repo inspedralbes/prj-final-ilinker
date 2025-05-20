@@ -211,12 +211,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     // Rutas de publicaciones
     Route::post('/publications', [PublicationsController::class, 'store']);
-    Route::get('/publications/{id}', [PublicationsController::class, 'show']);
+    Route::post('/publications/{id}', [PublicationsController::class, 'show']);
     Route::put('/publications/{id}', [PublicationsController::class, 'update']);
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
 
     // Publicaciones del usuario actual
-    Route::get('/my-publications', [PublicationsController::class, 'myPublications']);
+    Route::post('/my-publications', [PublicationsController::class, 'myPublications']);
     Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
     // Likes
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);

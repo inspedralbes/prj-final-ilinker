@@ -33,6 +33,11 @@ import {
   Home,
   CalendarDays,
   Banknote,
+  Folders,
+  Heart,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar } from "@/components/ui/avatar";
@@ -57,6 +62,9 @@ import { useModal } from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { AuthContext } from "@/contexts/AuthContext";
 import "@/styles/tiptap-content.scss";
+import Image from "next/image";
+import { es } from "date-fns/locale";
+import ShowPublication from "../../student/[uuid]/modals/showPublication";
 
 interface Follower {
   id: number;
@@ -72,10 +80,12 @@ export default function CompanyClientNotMe({
   company,
   sectors,
   skills,
+  publications,
 }: {
   company: any;
   sectors: any;
   skills: any;
+  publications: any;
 }) {
   const scheduleLabels: Record<string, string> = {
     full: "Full-Time",
@@ -151,7 +161,7 @@ export default function CompanyClientNotMe({
         .catch((error) => {
           console.error(error);
         })
-        .finally(() => {});
+        .finally(() => { });
     } catch (error) {
       toast({
         title: "Error",
@@ -645,6 +655,97 @@ export default function CompanyClientNotMe({
     }
   }, [infoOfferDataModal?.skills]);
 
+
+  // Estados para controlar la paginación y la vista
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState("list"); // "list" o "gallery"
+  const [selectedPost, setSelectedPost] = useState(null);
+  const postsPerPage = 5;
+  const [publicationsEdit, setPublicationsEdit] = useState(publications);
+
+  // Calcular índices para la paginación
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
+  // Publicaciones para la página actual                         //Num PRINCIPIO   //Num Final
+  const currentPosts = publicationsEdit ? publicationsEdit.slice(indexOfFirstPost, indexOfLastPost) : [];
+
+  // Calcular número total de páginas
+  const totalPages = publicationsEdit ? Math.ceil(publicationsEdit.length / postsPerPage) : 0;
+  const [modalPubli, setModalPubli] = useState(false);
+
+
+
+  // Extraer todas las imágenes para la vista de galería
+  const galleryImages = publicationsEdit ? publicationsEdit.flatMap((post: any) =>
+    post.media?.map((media: any) => ({
+      id: `${post.id}-${media.id || Math.random()}`,
+      postId: post.id,
+      media: media,
+      post: post
+    })) || []
+  ) : [];
+
+  // Cambiar de página
+  const goToPage = (pageNumber: any) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Obtener números de página para la paginación
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+
+    if (totalPages <= maxVisiblePages) {
+      // Mostrar todos los números si hay pocas páginas
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Lógica para mostrar un subconjunto de números con elipsis
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 5; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = totalPages - 4; i <= totalPages; i++) {
+          pageNumbers.push(i);
+        }
+      } else {
+        pageNumbers.push(1);
+        pageNumbers.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pageNumbers.push(i);
+        }
+        pageNumbers.push("...");
+        pageNumbers.push(totalPages);
+      }
+    }
+
+    return pageNumbers;
+  };
+
+  const selectPost = (post: any) => {
+    setSelectedPost(post);
+    setModalPubli(true);
+  }
+
+  const UpdatePublication = async () => {
+    showLoader();
+    const response = await apiRequest('my-publications', 'POST', { id: companyEdited?.user_id });
+    if (response.status === 'success') {
+      setPublicationsEdit(response.data)
+      hideLoader();
+    } else {
+      hideLoader();
+    }
+
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -708,11 +809,10 @@ export default function CompanyClientNotMe({
                           : handleFollowCompany(companyEdited?.user_id)
                       }
                       disabled={isFollowingLoading}
-                      className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${
-                        isFollowingLoading || isFollowing
-                          ? "bg-gray-400 border-gray-400"
-                          : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
-                      }`}
+                      className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${isFollowingLoading || isFollowing
+                        ? "bg-gray-400 border-gray-400"
+                        : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
+                        }`}
                     >
                       {isFollowingLoading ? (
                         <>
@@ -823,6 +923,14 @@ export default function CompanyClientNotMe({
                   <BriefcaseIcon className="h-4 w-4" />
                   Ofertas
                 </TabsTrigger>
+
+                <TabsTrigger
+                  value="publications"
+                  className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
+                >
+                  <Folders className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="md:block">Publicaciones</span>
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="acerca" className="mt-6">
                 <Card className="p-6">
@@ -855,7 +963,7 @@ export default function CompanyClientNotMe({
                         <li>
                           <strong>Industria:</strong>{" "}
                           {companyEdited.sectors &&
-                          companyEdited.sectors.length > 0 ? (
+                            companyEdited.sectors.length > 0 ? (
                             companyEdited.sectors.map((sector: any) => (
                               <Badge key={sector.id} className="mr-2">
                                 {sector.name} {/* Renderiza solo el nombre */}
@@ -882,7 +990,7 @@ export default function CompanyClientNotMe({
                       <>
                         <div className="flex flex-wrap gap-2 text-gray-600">
                           {companyEdited.skills &&
-                          companyEdited.skills.length > 0 ? (
+                            companyEdited.skills.length > 0 ? (
                             companyEdited.skills.map((skill: any) => (
                               <Badge
                                 key={skill.id}
@@ -904,39 +1012,156 @@ export default function CompanyClientNotMe({
                 </Card>
               </TabsContent>
 
-              <TabsContent value="publicaciones" className="mt-6 space-y-4">
-                {[1, 2, 3].map((post) => (
-                  <Card key={post} className="p-6">
-                    <div className="flex gap-4">
-                      <Avatar className="h-12 w-12">
-                        <img
-                          src={`https://images.unsplash.com/photo-${
-                            1500000000000 + post
-                          }?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
-                          alt="Author"
-                          className="aspect-square h-full w-full"
-                        />
-                      </Avatar>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold">María García</h3>
-                            <p className="text-sm text-gray-500">
-                              Directora de Innovación
-                            </p>
-                          </div>
-                          <span className="text-sm text-gray-500">2h</span>
+              <TabsContent value="publications" className="mt-6 space-y-4">
+                {/* Selector de vista */}
+                <div className="flex justify-end mb-4">
+                  <div className="inline-flex rounded-md shadow-sm" role="group">
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        }`}
+                      onClick={() => setViewMode("list")}
+                    >
+                      Lista
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                        }`}
+                      onClick={() => setViewMode("gallery")}
+                    >
+                      Galería
+                    </button>
+                  </div>
+                </div>
+
+                <Card className="p-6 mt-2 mb-6 relative">
+                  {publicationsEdit && publicationsEdit.length > 0 ? (
+                    <>
+                      {/* Vista de lista */}
+                      {viewMode === "list" && (
+                        <div className="space-y-4">
+                          {currentPosts.map((post: any) => (
+                            <Card key={post.id} className="p-6">
+                              <div className="flex gap-4">
+                                <Avatar className="h-12 w-12">
+                                  <img
+                                    src={companyEdited?.logo ? `${config.storageUrl}${companyEdited.logo}` : logoImage}
+                                    alt="Author"
+                                    className="h-full w-full object-cover rounded-full"
+                                  />
+                                </Avatar>
+                                <div className="flex-1">
+                                  <div className="flex justify-between items-start">
+                                    <div>
+                                      <h3 className="font-semibold">{post.user_details?.name}</h3>
+                                    </div>
+                                    <div
+                                      className="flex items-center gap-5 text-sm text-gray-500">
+                                      <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
+                                      <button
+                                        onClick={() => selectPost(post)}
+                                      >
+                                        <Eye className="h-5 w-5 text-black" />
+                                      </button>
+                                    </div>
+
+                                  </div>
+
+                                  <p className="mt-2 text-gray-600">{post.content}</p>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
                         </div>
-                        <p className="mt-2 text-gray-600">
-                          Emocionados de anunciar nuestro nuevo proyecto de
-                          innovación en IA. ¡Grandes cosas están por venir!
-                          #Innovación #TechCompany
-                        </p>
-                        <div className="mt-4 bg-gray-100 rounded-lg aspect-video"></div>
-                      </div>
+                      )}
+
+                      {/* Vista de galería */}
+                      {viewMode === "gallery" && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                          {galleryImages.map((item: any) => (
+                            <Card
+                              key={item.id}
+                              className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
+                              onClick={() => selectPost(item.post)}
+                            >
+                              <Image
+                                src={item.media.file_path}
+                                alt="Contenido de la publicación"
+                                width={300}
+                                height={300}
+                                layout="responsive"
+                                objectFit="cover"
+                                objectPosition="center"
+                              />
+
+                              {/* Overlay al hacer hover con likes y comentarios */}
+                              <div
+                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                <div className="flex gap-6">
+                                  <div className="flex items-center">
+                                    <Heart className="h-5 w-5" />
+                                    <span
+                                      className="ml-2">{item.post.likes_count || 0}</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <MessageCircle className="h-5 w-5" />
+                                    <span
+                                      className="ml-2">{item.post.comments_count || 0}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Paginación */}
+                      {totalPages > 1 && viewMode === "list" && (
+                        <div className="mt-6 flex justify-center items-center gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            size="sm"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </Button>
+
+                          {getPageNumbers().map((pageNumber, index) => (
+                            <React.Fragment key={index}>
+                              {pageNumber === "..." ? (
+                                <span className="px-2">...</span>
+                              ) : (
+                                <Button
+                                  variant={currentPage === pageNumber ? "default" : "outline"}
+                                  onClick={() => goToPage(pageNumber)}
+                                  size="sm"
+                                >
+                                  {pageNumber}
+                                </Button>
+                              )}
+                            </React.Fragment>
+                          ))}
+
+                          <Button
+                            variant="outline"
+                            onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            size="sm"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      No hay publicaciones disponibles
                     </div>
-                  </Card>
-                ))}
+                  )}
+                </Card>
+
               </TabsContent>
 
               <TabsContent value="ofertas" className="mt-6 space-y-4">
@@ -1002,18 +1227,29 @@ export default function CompanyClientNotMe({
 
                 {(!companyEdited?.offers ||
                   companyEdited.offers.length === 0) && (
-                  <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                    <p className="text-lg font-semibold text-gray-600 mb-2">
-                      No hay ofertas disponibles
-                    </p>
-                  </div>
-                )}
+                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                      <p className="text-lg font-semibold text-gray-600 mb-2">
+                        No hay ofertas disponibles
+                      </p>
+                    </div>
+                  )}
               </TabsContent>
             </Tabs>
           </div>
         </div>
       </div>
+
+
+      {
+        modalPubli && (
+          <ShowPublication
+            publication={selectedPost}
+            onClose={() => setModalPubli(false)}
+            onSave={() => { UpdatePublication() }}
+          />
+        )
+      }
 
       <Modal
         isOpen={infoOfferModal.isOpen}
@@ -1106,8 +1342,8 @@ export default function CompanyClientNotMe({
                 {infoOfferDataModal?.schedule_type === "full"
                   ? "Jornada completa"
                   : infoOfferDataModal?.schedule_type === "part"
-                  ? "Jornada parcial"
-                  : "Negociable"}
+                    ? "Jornada parcial"
+                    : "Negociable"}
               </span>
             </div>
 
@@ -1459,8 +1695,8 @@ export default function CompanyClientNotMe({
                         href={
                           studentData.cover_letter_attachment
                             ? URL.createObjectURL(
-                                studentData.cover_letter_attachment
-                              )
+                              studentData.cover_letter_attachment
+                            )
                             : "#"
                         }
                         download={studentData.cover_letter_attachment?.name}
@@ -1517,6 +1753,7 @@ export default function CompanyClientNotMe({
         </div>
       </Modal>
 
+
       <Modal
         isOpen={followersModal.isOpen}
         onClose={followersModal.closeModal}
@@ -1546,15 +1783,15 @@ export default function CompanyClientNotMe({
                       follower.student
                         ? follower.student.profile_pic
                         : follower.company
-                        ? follower.company.logo
-                        : follower.institutions?.logo
+                          ? follower.company.logo
+                          : follower.institutions?.logo
                     }
                     alt={
                       follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name
+                          ? follower.company.name
+                          : follower.institutions?.name
                     }
                   />
                   <div>
@@ -1562,15 +1799,15 @@ export default function CompanyClientNotMe({
                       {follower.student
                         ? follower.student.name
                         : follower.company
-                        ? follower.company.name
-                        : follower.institutions?.name}
+                          ? follower.company.name
+                          : follower.institutions?.name}
                     </p>
                     <p className="text-sm text-gray-600">
                       {follower.student
                         ? follower.email
                         : follower.company
-                        ? follower.company.email
-                        : follower.institutions?.email}
+                          ? follower.company.email
+                          : follower.institutions?.email}
                     </p>
                   </div>
                 </div>

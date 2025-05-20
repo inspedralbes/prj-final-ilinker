@@ -57,7 +57,7 @@ class StudentService
         $students->gender = $data['gender'];
         $students->phone = $data['phone'];
         $students->cover_photo = $data['cover_photo'];
-
+        $students->website = $data['website'];
         $students->nationality = $data['nationality'];
         $students->name = $data['name'];
         $students->surname = $data['surname'];
@@ -72,6 +72,8 @@ class StudentService
             }
         }
         $students->address = $data['address'];
+        $students->lat = $data['lat'] ?? null;
+        $students->lng = $data['lng'] ?? null;
         $students->city = $data['city'];
         $students->country = $data['country'];
         $students->short_description = $data['short_description'] ?? null;
