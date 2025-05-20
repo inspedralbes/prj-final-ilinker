@@ -84,13 +84,46 @@ interface ActiveComment {
 
 const defaultAvatarSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23CCCCCC'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E";
 
+// Función para verificar cambios en las imágenes del perfil
+const checkProfileImagesChanged = (prevUserData: User | null, currentUserData: User | null): boolean => {
+  if (!prevUserData || !currentUserData) return false;
+
+  // Verificar cambios según el rol del usuario
+  if (currentUserData.rol === "student") {
+    const prevPhoto = prevUserData.student?.photo_pic;
+    const currentPhoto = currentUserData.student?.photo_pic;
+    const prevCover = prevUserData.student?.cover_photo;
+    const currentCover = currentUserData.student?.cover_photo;
+    
+    return prevPhoto !== currentPhoto || prevCover !== currentCover;
+  } 
+  else if (currentUserData.rol === "company") {
+    const prevLogo = prevUserData.company?.logo;
+    const currentLogo = currentUserData.company?.logo;
+    const prevCover = prevUserData.company?.cover_photo;
+    const currentCover = currentUserData.company?.cover_photo;
+    
+    return prevLogo !== currentLogo || prevCover !== currentCover;
+  } 
+  else if (currentUserData.rol === "institutions") {
+    const prevLogo = prevUserData.institution?.logo;
+    const currentLogo = currentUserData.institution?.logo;
+    const prevCover = prevUserData.institution?.cover;
+    const currentCover = currentUserData.institution?.cover;
+    
+    return prevLogo !== currentLogo || prevCover !== currentCover;
+  }
+  
+  return false;
+};
+
 // Componente principal de la página de publicaciones
 export default function PublicationPage() {
   const [activeComment, setActiveComment] = useState<ActiveComment>({
     isOpen: false,
     publicationId: null
   });
-  const { userData, allUsers, setAllUsers } = useContext(AuthContext);
+  const { userData, allUsers, setAllUsers, checkAuth } = useContext(AuthContext);
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
   const [publications, setPublications] = useState<Publication[]>([]);
@@ -100,13 +133,22 @@ export default function PublicationPage() {
 
   // Properly track cache busting to avoid loops
   const [cacheBuster, setCacheBuster] = useState(() => new Date().getTime());
+  
+  // Almacenar el estado anterior de userData para comparar cambios
+  const prevUserDataRef = useRef<User | null>(null);
 
-  // Update the effect to properly monitor AuthContext
+  // Update the effect to properly monitor AuthContext and check for image changes
   useEffect(() => {
     let isMounted = true;
     
-    // Generate a new cache buster value on each userData change
-    setCacheBuster(new Date().getTime());
+    // Verificar si las imágenes del perfil han cambiado
+    if (checkProfileImagesChanged(prevUserDataRef.current, userData)) {
+      console.log("Imágenes de perfil actualizadas");
+      setCacheBuster(new Date().getTime());
+    }
+    
+    // Actualizar la referencia al userData actual para la próxima comparación
+    prevUserDataRef.current = userData;
     
     const loadData = async () => {
       try {
@@ -130,6 +172,19 @@ export default function PublicationPage() {
       isMounted = false;
     };
   }, [userData, userData?.id]); // Explicitly track userData.id changes
+
+  // Refrescar datos de usuario cada vez que el usuario entra en la página de publicaciones (navegación o focus)
+  useEffect(() => {
+    const handleFocus = () => {
+      checkAuth();
+    };
+    window.addEventListener('focus', handleFocus);
+    // Llamar también al montar
+    checkAuth();
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, []);
 
   // Función para obtener las publicaciones del servidor
   const fetchPublications = async () => {
@@ -488,6 +543,43 @@ export default function PublicationPage() {
     }
   };
 
+  // Solo cargar datos una vez al montar el componente
+  useEffect(() => {
+    let isMounted = true;
+    const loadData = async () => {
+      try {
+        showLoader();
+        await Promise.all([
+          fetchPublications(),
+          fetchAllUsers()
+        ]);
+      } finally {
+        if (isMounted) {
+          hideLoader();
+        }
+      }
+    };
+    loadData();
+    return () => {
+      isMounted = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo al montar
+
+  // Efecto separado: actualizar cacheBuster si cambia la foto o cover (incluyendo de vacío a imagen)
+  useEffect(() => {
+    const prev = prevUserDataRef.current;
+    const curr = userData;
+    let changed = false;
+    if (!prev && curr) changed = true;
+    else if (prev && curr && checkProfileImagesChanged(prev, curr)) changed = true;
+    if (changed) {
+      setCacheBuster(Date.now());
+    }
+    prevUserDataRef.current = curr;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto py-4 md:py-6 px-2 md:px-4">
@@ -543,7 +635,7 @@ export default function PublicationPage() {
             )}
           </div>
 
-          {/* Right Sidebar - Only visible on desktop */}
+          
           <div className="hidden lg:block w-80 flex-shrink-0">
             {/* Puedes agregar contenido adicional aquí si lo necesitas */}
           </div>
@@ -578,8 +670,8 @@ const ProfileSidebar = ({
   isMobile: boolean;
 }) => {
   const router = useRouter();
-  // Generate a timestamp once when component mounts
-  const timestamp = useRef(new Date().getTime()).current;
+  // Use the current timestamp each time to ensure fresh images
+  const timestamp = new Date().getTime();
 
   const getUserCoverPhoto = () => {
     if (!userData) return '';
@@ -920,8 +1012,8 @@ const PublicationCard = ({
   const { allUsers, userData } = useContext(AuthContext);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const router = useRouter();
-  // Add a ref to store a stable timestamp
-  const timestamp = useRef(new Date().getTime()).current;
+  // Generate a new timestamp each time to ensure fresh images
+  const timestamp = new Date().getTime();
 
   const getUserName = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
