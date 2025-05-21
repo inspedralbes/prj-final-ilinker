@@ -41,8 +41,6 @@ export default function StudentClient({ uuid, student, experience_group, offerUs
                 }
 
                 const response2 = await apiRequest('my-publications', 'POST', { id: student?.user_id });
-                console.log("DATOS PUBLI");
-                console.table(response2)
                 if (response2.status === 'success') {
                     setPublications(response2.data);
                 }
@@ -57,13 +55,9 @@ export default function StudentClient({ uuid, student, experience_group, offerUs
 
     }, [userData]);
 
-    if (!allSkills) {
+    if (!allSkills || !publications) {
         // no renderices nada hasta que skills esté listo (el loader ya está activo)
         return null;
-    }
-
-    if (!publications) {
-        return null
     }
 
     return (

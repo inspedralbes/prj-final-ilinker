@@ -351,7 +351,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
         try {
             apiRequest(`unfollow/${user_id}`, "DELETE")
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -374,7 +373,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al dejar de seguir a la empresa.",
@@ -387,7 +385,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     setIsFollowingLoading(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al dejar de seguir a la empresa.",
@@ -414,7 +411,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
             me_id: userData?.id,
         })
             .then((response) => {
-                console.log(response);
                 if (response.status === "success") {
                     setStudentFollowersAll(response.followers);
                     setStudentFollowers(response.followers);
@@ -428,7 +424,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                 }
             })
             .catch((error) => {
-                console.log(error);
                 toast({
                     title: "Error",
                     description: "Error al obtener los seguidores.",
@@ -449,7 +444,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
     };
 
     const handleFollowCompany = (user_id: number) => {
-        console.log("follow company");
         showLoader();
         setIsFollowingLoading(true);
         try {
@@ -457,7 +451,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                 user_id,
             })
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -486,7 +479,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al seguir a la empresa.",
@@ -499,7 +491,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     setIsFollowingLoading(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al seguir a la empresa.",
@@ -533,7 +524,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
         try {
             apiRequest(`unfollow/${user_id}`, "DELETE")
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -558,7 +548,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al dejar de seguir a la empresa.",
@@ -571,7 +560,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     setIsLoadingToggleFollwer(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al dejar de seguir a la empresa.",
@@ -591,7 +579,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                 user_id: user_id,
             })
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -622,7 +609,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al seguir a la empresa.",
@@ -635,7 +621,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     setIsLoadingToggleFollwer(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al seguir a la empresa.",
@@ -676,7 +661,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al bloquear a la empresa.",
@@ -688,7 +672,6 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                     hideLoader();
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al bloquear a la empresa.",

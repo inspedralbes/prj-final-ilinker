@@ -395,11 +395,11 @@ export default function RegisterClient({countries, sectors}: {countries: any, se
                         }} 
                         onChange={(selectedOption) => { 
                             console.log("País seleccionado:", selectedOption); 
-                            const option = selectedOption.name.common; 
+                            const option = selectedOption.name.common;
                             methods.setValue('student.country', option);  
  
                             async function fetchCountries() { 
-                                const response = await fetch('https://countriesnow.space/api/v0.1/count ries/cities', {
+                                const response = await fetch('https://countriesnow.space/api/v0.1/countries/cities', {
                                     method: "POST", 
                                     headers: { 
                                         "Content-Type": "application/json" 

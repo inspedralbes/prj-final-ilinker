@@ -309,13 +309,11 @@ export default function StudentClientMe({
     }
 
     const openModalExperience = (experience: Experience | null) => {
-        console.log(experience);
         setModalExperience(!modalExperience);
         setModalModeEdit(false);
         setIsEditingModal(false);
     }
     const openModalProjects = (project: Project | null) => {
-        console.log(project);
         setModalProjects(!modalProjects);
         setModalModeEdit(false);
         setIsEditingModal(false);
@@ -445,7 +443,6 @@ export default function StudentClientMe({
 
         } catch (e) {
             hideLoader();
-            console.log(e)
             setOpenDialog(false);
             setIsExperience(false);
             educationSelect ? setEducationSelect(null) : projectsSelect ? setProjectSelect(null) : setExperienceSelect(null);
@@ -554,7 +551,6 @@ export default function StudentClientMe({
             return;
         }
 
-        console.log("Actualizando:", type, file);
 
         setStudentEdit((prev: any) => ({
             ...prev,
@@ -590,24 +586,20 @@ export default function StudentClientMe({
             formData.append("cover_photo", studentEdit.cover_photo);
         }
 
-        console.log("JSON A ENVIAR");
-        console.table(Array.from(formData.entries()))
 
         try {
 
             const response = await apiRequest("student/update", "POST", formData);
 
             if (await response.status === 'success') {
-                console.log(response);
 
                 setIsEditing(null)
                 await UpdateChange();
             } else {
-                console.log("MAL")
+                console.log("")
             }
             hideLoader();
         } catch (e) {
-            console.log(e)
             hideLoader();
         }
 
@@ -725,7 +717,6 @@ export default function StudentClientMe({
             me_id: userData?.id
         })
             .then((response) => {
-                console.log(response);
                 if (response.status === "success") {
                     setStudentFollowersAll(response.followers);
                     setStudentFollowers(response.followers);
@@ -739,7 +730,6 @@ export default function StudentClientMe({
                 }
             })
             .catch((error) => {
-                console.log(error);
                 toast({
                     title: "Error",
                     description: "Error al obtener los seguidores.",
@@ -780,7 +770,6 @@ export default function StudentClientMe({
         try {
             apiRequest(`unfollow/${user_id}`, "DELETE")
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -805,7 +794,6 @@ export default function StudentClientMe({
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al dejar de seguir a la empresa.",
@@ -818,7 +806,6 @@ export default function StudentClientMe({
                     setIsLoadingToggleFollwer(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al dejar de seguir a la empresa.",
@@ -838,7 +825,6 @@ export default function StudentClientMe({
                 user_id: user_id,
             })
                 .then((response) => {
-                    console.log(response);
                     if (response.status === "success") {
                         toast({
                             title: "Exito",
@@ -869,7 +855,6 @@ export default function StudentClientMe({
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al seguir a la empresa.",
@@ -882,7 +867,6 @@ export default function StudentClientMe({
                     setIsLoadingToggleFollwer(false);
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al seguir a la empresa.",
@@ -922,7 +906,6 @@ export default function StudentClientMe({
                         });
                     }
                 }).catch((error) => {
-                    console.log(error);
                     toast({
                         title: "Error",
                         description: "Error al bloquear a la empresa.",
@@ -933,7 +916,6 @@ export default function StudentClientMe({
                     hideLoader();
                 });
         } catch (error) {
-            console.log(error);
             toast({
                 title: "Error",
                 description: "Error al bloquear a la empresa.",
@@ -1528,7 +1510,6 @@ export default function StudentClientMe({
                                                         getOptionLabel={(option) => option.name}
                                                         getOptionValue={(option) => option.id.toString()}
                                                         onChange={(selectedOption) => {
-                                                            console.log(selectedOption);
                                                             setSkillsEdit([...selectedOption]);
                                                         }}
                                                     />

@@ -512,7 +512,12 @@ const Login: React.FC = () => {
                                 ¿Nuevo en Ilinker?{" "}
                                 <Button
                                     variant="link"
-                                    onClick={() => router.push("/register")}
+                                    onClick={() => {
+                                        showLoader();
+                                        setTimeout(() => {
+                                            hideLoader();
+                                        }, 1000);
+                                        router.push("/auth/register")}}
                                     className="text-black-400 hover:text-gray-800"
                                 >
                                     Registrarse
