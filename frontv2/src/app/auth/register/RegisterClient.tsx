@@ -62,7 +62,6 @@ export default function RegisterClient({countries, sectors}: {countries: any, se
                     type_document: yup.string().required("El tipo de documento es necesario."), 
                     id_document: yup.string().required('El ID del documento es necesario.'),  
                     country:  yup.string().required('El campo de pais es necesario.'),  
-                    city: yup.string().required('La ciudad es un campo necesario.'), 
                     address: yup.string().required('La dirección es un campo necesario.'), 
                     phone: yup.number().required('El numero de telefono es un campo necesario.')    
                 }) 
