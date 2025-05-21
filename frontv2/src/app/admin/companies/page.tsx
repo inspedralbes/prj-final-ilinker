@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from "@/hooks/use-toast";
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { apiRequest } from '@/services/requests/apiRequest';
+import { ArrowLeft } from 'lucide-react';
+import { Card, CardHeader } from '@/components/ui/card';
 
 
 interface Company {
@@ -191,6 +193,11 @@ export default function CompaniesPage() {
   return (
     <div className="p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <Button onClick={() => router.push('/admin')}>
+          <ArrowLeft className="w-4 h-4" />
+          <span className="hidden sm:inline">Volver</span>
+        </Button>
+
         <h1 className="text-2xl font-bold">Gestión de Empresas ({companies.length})</h1>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
@@ -207,6 +214,68 @@ export default function CompaniesPage() {
             Ir al panel de admin
           </Button>
         </div>
+
+
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredCompanies.length > 0 ? (
+              filteredCompanies.map((company) => (
+                <Card key={company.id}>
+                  <CardHeader>
+                    <div>{company.id}</div>
+                    <div>{company.CIF || '-'}</div>
+                    <div>
+                      <div className="font-medium">{company.name}</div>
+                      <div className="text-sm text-gray-500">{company.website}</div>
+                    </div>
+                    <div>
+                      <div>{company.email}</div>
+                      <div className="text-sm text-gray-500">{company.phone}</div>
+                      <div className="text-sm text-gray-500">Usuario: {company.user?.email}</div>
+                    </div>
+                    <div>{company.offers_count || 0}</div>
+                    <div>
+                      <Badge variant={company.active ? 'default' : 'destructive'}>
+                        {company.active ? 'Activa' : 'Inactiva'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <TableCell className="flex justify-end space-x-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setSelectedCompany(company);
+                        setEditData({ ...company });
+                      }}
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={company.active ? 'destructive' : 'default'}
+                      onClick={() => toggleStatus(company.id, company.active)}
+                    >
+                      {company.active ? 'Desactivar' : 'Activar'}
+                    </Button>
+                  </TableCell>
+                </Card>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-8">
+                  {search ? 'No se encontraron empresas con ese criterio' : 'No hay empresas registradas'}
+                </TableCell>
+              </TableRow>
+            )}
+          </div>
+        )}
+
+
       </div>
 
       <div className="rounded-md border">
