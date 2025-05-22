@@ -232,11 +232,6 @@ export default function StudentsPage() {
   return (
     <div className="p-4 md:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <Button onClick={() => router.push('/admin')}>
-          <ArrowLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Volver</span>
-        </Button>
-
         <h1 className="text-2xl font-bold">Gestión de Estudiantes ({students.length})</h1>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
@@ -264,9 +259,9 @@ export default function StudentsPage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredStudents.map((student) => (
-            <Card key={student.id} className="relative overflow-hidden">
+            <Card key={student.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
               <CardHeader className="pb-2">
-                <div className="absolute top-2 right-2 flex gap-1">
+                <div className="absolute top-2 right-2 flex gap-1 pt-2 pr-2">
                   <button
                     onClick={() => setViewingStudent(student)}
                     className="p-1 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"

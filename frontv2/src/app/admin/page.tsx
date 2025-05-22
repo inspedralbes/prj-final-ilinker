@@ -1,14 +1,12 @@
 "use client";
 
-import { useContext } from "react";
-import { AuthContext } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 export default function AdminPage() {
   const router = useRouter();
-  const { isAdmin, loading } = useAdminAuth();
+  const { isAdmin, isLoading } = useAdminAuth();
 
   const handleRedirectToReports = () => {
     router.push("/admin/reported-users"); // Asegúrate de incluir el "/" inicial
@@ -27,7 +25,7 @@ export default function AdminPage() {
   };
 
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
       </div>

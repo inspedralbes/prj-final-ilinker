@@ -2,18 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Eye, MapPin, Building, DollarSign, Users, Edit, ToggleLeft, ToggleRight, Ungroup } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import config from '@/types/config';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { apiRequest } from '@/services/requests/apiRequest';
-
-
 
 interface Offer {
     id: number;
@@ -27,7 +26,7 @@ interface Offer {
     city: string;
     active: boolean;
     vacancies: number;
-    skills: string[];
+    skills: any;
     created_at: string;
 }
 
@@ -37,6 +36,8 @@ export default function OffersPage() {
     const [search, setSearch] = useState('');
     const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
     const [editData, setEditData] = useState<Partial<Offer>>({});
+    const [viewOffer, setViewOffer] = useState<Offer | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
     const router = useRouter();
 
     const fetchOffers = async () => {
@@ -62,13 +63,14 @@ export default function OffersPage() {
                 skills: Array.isArray(editData.skills) ? editData.skills : [],
             };
 
-            await apiRequest(`admin/offers/${id}`, 'PUT', dataToSend,);
+            await apiRequest(`admin/offers/${id}`, 'PUT', dataToSend);
 
             toast({
                 title: 'Éxito',
                 description: 'Oferta actualizada correctamente',
             });
             setSelectedOffer(null);
+            setIsEditing(false);
             fetchOffers();
         } catch (error: any) {
             toast({
@@ -89,6 +91,8 @@ export default function OffersPage() {
                 description: 'Oferta eliminada correctamente',
             });
             setOffers(offers.filter(o => o.id !== id));
+            setViewOffer(null);
+            setSelectedOffer(null);
         } catch (error) {
             toast({
                 title: 'Error',
@@ -100,7 +104,7 @@ export default function OffersPage() {
 
     const toggleStatus = async (id: number, currentStatus: boolean) => {
         try {
-            const response = await apiRequest(`admin/offers/${id}/status`, 'PUT', { active: !currentStatus },);
+            await apiRequest(`admin/offers/${id}/status`, 'PUT', { active: !currentStatus });
 
             toast({
                 title: 'Éxito',
@@ -116,6 +120,13 @@ export default function OffersPage() {
                 variant: 'destructive',
             });
         }
+    };
+
+    const openEditModal = (offer: Offer) => {
+        setSelectedOffer(offer);
+        setEditData({ ...offer });
+        setIsEditing(true);
+        setViewOffer(null);
     };
 
     useEffect(() => {
@@ -157,66 +168,184 @@ export default function OffersPage() {
                 </div>
             </div>
 
+            {/* Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredOffers.map((offer) => (
+                    <Card key={offer.id} className="relative hover:shadow-lg transition-shadow">
+                        {/* Eye icon for view details */}
+                        <div className="absolute top-2 right-2 flex gap-1 pt-2 pr-2">
+                            <button
+                                onClick={() => setViewOffer(offer)}
+                                className="p-1 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                                title="Ver detalles"
+                            >
+                                <Eye className="w-4 h-4 text-blue-600" />
+                            </button>
+                        </div>
+                        <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between pr-8">
+                                <div>
+                                    <CardTitle className="text-lg mb-1">{offer.title}</CardTitle>
+                                    <div className="flex items-center text-sm text-gray-600 mb-2">
+                                        <Building className="h-4 w-4 mr-1" />
+                                        {offer.company.name}
+                                    </div>
+                                </div>
+                            </div>
+                            <Badge variant={offer.active ? 'default' : 'destructive'} className="w-fit">
+                                {offer.active ? 'Activa' : 'Inactiva'}
+                            </Badge>
+                        </CardHeader>
 
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Título</TableHead>
-                            <TableHead>Empresa</TableHead>
-                            <TableHead>Salario</TableHead>
-                            <TableHead>Ubicación</TableHead>
-                            <TableHead>Vacantes</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredOffers.map((offer) => (
-                            <TableRow key={offer.id}>
-                                <TableCell>{offer.id}</TableCell>
-                                <TableCell className="font-medium">{offer.title}</TableCell>
-                                <TableCell>{offer.company.name}</TableCell>
-                                <TableCell>{offer.salary}</TableCell>
-                                <TableCell>
-                                    <div>{offer.city}</div>
-                                    <div className="text-sm text-gray-500 capitalize">{offer.location_type}</div>
-                                </TableCell>
-                                <TableCell>{offer.vacancies}</TableCell>
-                                <TableCell>
-                                    <Badge variant={offer.active ? 'default' : 'destructive'}>
-                                        {offer.active ? 'Activa' : 'Inactiva'}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="flex justify-end space-x-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        onClick={() => {
-                                            setSelectedOffer(offer);
-                                            setEditData({ ...offer });
-                                        }}
-                                    >
-                                        Editar
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant={offer.active ? 'destructive' : 'default'}
-                                        onClick={() => toggleStatus(offer.id, offer.active)}
-                                    >
-                                        {offer.active ? 'Desactivar' : 'Activar'}
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        <CardContent className="pt-0">
+                            <div className="space-y-2 mb-4">
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <DollarSign className="h-4 w-4 mr-2" />
+                                    {offer.salary}
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <MapPin className="h-4 w-4 mr-2" />
+                                    {offer.city} - {offer.location_type}
+                                </div>
+                                <div className="flex items-center text-sm text-gray-600">
+                                    <Users className="h-4 w-4 mr-2" />
+                                    {offer.vacancies} vacante{offer.vacancies !== 1 ? 's' : ''}
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex-1"
+                                    onClick={() => openEditModal(offer)}
+                                >
+                                    <Edit className="h-4 w-4 mr-1" />
+                                    Editar
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    variant={offer.active ? 'destructive' : 'default'}
+                                    onClick={() => toggleStatus(offer.id, offer.active)}
+                                >
+                                    {offer.active ? <ToggleLeft className="h-4 w-4" /> : <ToggleRight className="h-4 w-4" />}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
 
+            {/* Modal de Vista Detallada */}
+            {viewOffer && (
+                <Dialog open={!!viewOffer} onOpenChange={() => setViewOffer(null)}>
+                    <DialogContent className="sm:max-w-[700px] max-w-[90vw] max-h-[90vh] overflow-y-auto rounded-lg">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center justify-between">
+                                {viewOffer.title}
+                                <Badge className="mr-5" variant={viewOffer.active ? 'default' : 'destructive'}>
+                                    {viewOffer.active ? 'Activa' : 'Inactiva'}
+                                </Badge>
+                            </DialogTitle>
+                            <DialogDescription>
+                                ID: {viewOffer.id} | Creada: {new Date(viewOffer.created_at).toLocaleDateString()}
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-6">
+                            {/* Información básica */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h4 className="font-semibold mb-2 flex items-center">
+                                        <Building className="h-4 w-4 mr-2" />
+                                        Empresa
+                                    </h4>
+                                    <p className="text-gray-700">{viewOffer.company.name}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-2 flex items-center">
+                                        <DollarSign className="h-4 w-4 mr-2" />
+                                        Salario
+                                    </h4>
+                                    <p className="text-gray-700">{viewOffer.salary}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-2 flex items-center">
+                                        <MapPin className="h-4 w-4 mr-2" />
+                                        Ubicación
+                                    </h4>
+                                    <p className="text-gray-700">{viewOffer.city} - {viewOffer.location_type}</p>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-2 flex items-center">
+                                        <Users className="h-4 w-4 mr-2" />
+                                        Vacantes
+                                    </h4>
+                                    <p className="text-gray-700">{viewOffer.vacancies}</p>
+                                </div>
+                            </div>
+
+                            {/* Descripción */}
+                            <div>
+                                <div className="flex items-center mb-2">
+                                    <Building className="h-4 w-4 mr-2" />
+                                    <h4 className="font-semibold">Descripción</h4>
+                                </div>
+                                <p className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-md">
+                                    {viewOffer.description}
+                                </p>
+                            </div>
+
+                            {/* Skills */}
+                            {viewOffer.skills && (() => {
+                                let parsedSkills;
+                                try {
+                                    parsedSkills = JSON.parse(viewOffer.skills);
+                                } catch (error) {
+                                    parsedSkills = [];
+                                }
+
+                                return parsedSkills.length > 0 && (
+                                    <div>
+                                        <div className="flex items-center mb-2">
+                                            <Ungroup className="h-4 w-4 mr-2" />
+                                            <h4 className="font-semibold">Habilidades Requeridas</h4>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2">
+                                            {parsedSkills.map((skill: any, index: any) => (
+                                                <Badge key={index} variant="default">
+                                                    {skill}
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+
+                            {/* Acciones */}
+                            <div className="flex justify-end space-x-2 pt-4 border-t">
+                                <Button
+                                    variant="destructive"
+                                    onClick={() => deleteOffer(viewOffer.id)}
+                                >
+                                    Eliminar Oferta
+                                </Button>
+                                <Button variant="outline" onClick={() => setViewOffer(null)}>
+                                    Cerrar
+                                </Button>
+                            </div>
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            )}
+
             {/* Modal de Edición */}
-            {selectedOffer && (
-                <Dialog open={!!selectedOffer} onOpenChange={() => setSelectedOffer(null)}>
+            {selectedOffer && isEditing && (
+                <Dialog open={isEditing} onOpenChange={() => {
+                    setSelectedOffer(null);
+                    setIsEditing(false);
+                }}>
                     <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
                         <DialogHeader>
                             <DialogTitle>Editar {selectedOffer.title}</DialogTitle>
@@ -301,7 +430,10 @@ export default function OffersPage() {
                                 >
                                     Eliminar Oferta
                                 </Button>
-                                <Button variant="outline" onClick={() => setSelectedOffer(null)}>
+                                <Button variant="outline" onClick={() => {
+                                    setSelectedOffer(null);
+                                    setIsEditing(false);
+                                }}>
                                     Cancelar
                                 </Button>
                                 <Button onClick={() => handleUpdate(selectedOffer.id)}>
