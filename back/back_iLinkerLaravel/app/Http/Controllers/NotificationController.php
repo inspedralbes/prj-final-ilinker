@@ -7,10 +7,42 @@ use Illuminate\Http\Request;
 
 class NotificationController extends Controller
 {
+
     /**
-     * Obtener todas las notificaciones del usuario autenticado
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Get(
+     *     path="/api/notifications",
+     *     summary="Obtener todas las notificaciones del usuario autenticado",
+     *     description="Devuelve un listado de notificaciones junto con la cantidad de notificaciones no leídas.",
+     *     operationId="getUserNotifications",
+     *     tags={"Notificaciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de notificaciones y conteo de no leídas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="notifications",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="string", example="1"),
+     *                         @OA\Property(property="type", type="string", example="App\\Notifications\\SomeNotification"),
+     *                         @OA\Property(property="data", type="object"),
+     *                         @OA\Property(property="read_at", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="created_at", type="string", format="date-time", example="2025-05-22T10:00:00Z")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="unread_count", type="integer", example=3)
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -25,10 +57,42 @@ class NotificationController extends Controller
         ]);
     }
 
+
     /**
-     * Obtener solo las notificaciones no leídas del usuario autenticado
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Get(
+     *     path="/api/notifications/unread",
+     *     summary="Obtener notificaciones no leídas del usuario autenticado",
+     *     description="Devuelve un listado de notificaciones que aún no han sido leídas junto con la cantidad total de estas.",
+     *     operationId="getUnreadNotifications",
+     *     tags={"Notificaciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de notificaciones no leídas y su conteo",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="notifications",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="string", example="5"),
+     *                         @OA\Property(property="type", type="string", example="App\\Notifications\\SomeNotification"),
+     *                         @OA\Property(property="data", type="object"),
+     *                         @OA\Property(property="read_at", type="string", nullable=true, example=null),
+     *                         @OA\Property(property="created_at", type="string", format="date-time", example="2025-05-22T12:00:00Z")
+     *                     )
+     *                 ),
+     *                 @OA\Property(property="unread_count", type="integer", example=5)
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function unread()
     {
@@ -44,10 +108,42 @@ class NotificationController extends Controller
     }
 
     /**
-     * Marcar una notificación específica como leída
+     * @OA\Post(
+     *     path="/api/notifications/{notification}/read",
+     *     summary="Marcar una notificación como leída",
+     *     description="Marca como leída una notificación específica siempre que pertenezca al usuario autenticado.",
+     *     operationId="markNotificationAsRead",
+     *     tags={"Notificaciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Parameter(
+     *         name="notification",
+     *         in="path",
+     *         required=true,
+     *         description="El ID de la notificación a marcar como leída",
+     *         @OA\Schema(type="string", example="5")
+     *     ),
      *
-     * @param  \App\Models\Notification  $notification
-     * @return \Illuminate\Http\JsonResponse
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificación marcada como leída",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Notificación marcada como leída")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="No autorizado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="No autorizado")
+     *         )
+     *     )
+     * )
      */
     public function markAsRead(Notification $notification)
     {
@@ -67,10 +163,26 @@ class NotificationController extends Controller
         ]);
     }
 
+
     /**
-     * Marcar todas las notificaciones del usuario como leídas
-     *
-     * @return \Illuminate\Http\JsonResponse
+     * @OA\Post(
+     *     path="/api/notifications/mark-all-as-read",
+     *     summary="Marcar todas las notificaciones como leídas",
+     *     description="Marca como leídas todas las notificaciones pendientes del usuario autenticado.",
+     *     operationId="markAllNotificationsAsRead",
+     *     tags={"Notificaciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Notificaciones marcadas como leídas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="5 notificaciones marcadas como leídas")
+     *         )
+     *     )
+     * )
      */
     public function markAllAsRead()
     {

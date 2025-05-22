@@ -134,7 +134,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Protected routes that require authentication
         Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.destroy');
         Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
     });
     Route::prefix('/institution')->group(function () {
@@ -142,9 +142,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
         Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
         Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
-        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show.id');
         Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.destroy.id');
     });
 
     Route::prefix('/education')->group(function () {

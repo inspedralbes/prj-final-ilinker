@@ -1,0 +1,432 @@
+name: ADMIN
+description: ''
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/admin/companies
+    metadata:
+      groupName: ADMIN
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener listado de empresas'
+      description: 'Retorna un listado paginado de empresas, incluyendo su usuario asociado, sectores y número de ofertas publicadas.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        name: page
+        description: 'Número de página para la paginación.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanQueryParameters:
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "current_page": 1,
+              "data": [
+                {
+                  "id": 1,
+                  "name": "Tech Corp",
+                  "user": {
+                    "id": 10,
+                    "name": "Carlos Sánchez",
+                    "email": "carlos@techcorp.com"
+                  },
+                  "sectors": [
+                    {
+                      "id": 2,
+                      "name": "Tecnología"
+                    }
+                  ],
+                  "offers_count": 5,
+                  "created_at": "2024-06-01T12:00:00Z"
+                }
+              ],
+              "last_page": 3,
+              "per_page": 10,
+              "total": 25
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error interno del servidor: Error message"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - GET
+    uri: 'api/admin/companies/{id}'
+    metadata:
+      groupName: ADMIN
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Mostrar detalles de una empresa'
+      description: 'Obtiene los detalles de una empresa específica por su ID. Incluye relaciones con el usuario asociado, sectores y ofertas.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'ID de la empresa.'
+        required: true
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 5
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 5,
+              "name": "Empresa Ejemplo",
+              "user": {
+                "id": 10,
+                "name": "María García",
+                "email": "maria@empresa.com"
+              },
+              "sectors": [
+                {
+                  "id": 1,
+                  "name": "Educación"
+                }
+              ],
+              "offers": [
+                {
+                  "id": 21,
+                  "title": "Oferta de trabajo",
+                  "description": "Descripción de la oferta...",
+                  "created_at": "2024-10-10T10:00:00Z"
+                }
+              ],
+              "offers_count": 1,
+              "created_at": "2024-01-15T08:00:00Z"
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Empresa no encontrada"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - PUT
+    uri: 'api/admin/companies/{id}'
+    metadata:
+      groupName: ADMIN
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualizar una empresa (solo admin)'
+      description: |-
+        Este endpoint permite a un usuario con rol de administrador actualizar los datos de una empresa existente. Los campos son opcionales y solo se actualizarán si se incluyen en la solicitud.
+
+        Requiere autenticación como administrador.
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'ID de la empresa.'
+        required: true
+        example: 12
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 12
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        name: name
+        description: 'Nombre de la empresa.'
+        required: false
+        example: 'Tech Solutions'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      CIF:
+        name: CIF
+        description: 'Código de Identificación Fiscal único (9 caracteres).'
+        required: false
+        example: B12345678
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      email:
+        name: email
+        description: 'Email único de la empresa.'
+        required: false
+        example: info@techsolutions.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      phone:
+        name: phone
+        description: 'Teléfono de contacto.'
+        required: false
+        example: '123456789'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      website:
+        name: website
+        description: 'Sitio web.'
+        required: false
+        example: 'https://www.techsolutions.com'
+        type: url
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      active:
+        name: active
+        description: 'Si la empresa está activa.'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      responsible_name:
+        name: responsible_name
+        description: 'Nombre del responsable.'
+        required: false
+        example: 'Laura Pérez'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      responsible_email:
+        name: responsible_email
+        description: 'Email del responsable.'
+        required: false
+        example: laura@techsolutions.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      responsible_phone:
+        name: responsible_phone
+        description: 'Teléfono del responsable.'
+        required: false
+        example: '987654321'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      address:
+        name: address
+        description: 'Dirección de la empresa.'
+        required: false
+        example: 'Calle Falsa 123'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      city:
+        name: city
+        description: Ciudad.
+        required: false
+        example: Madrid
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      postal_code:
+        name: postal_code
+        description: 'Código postal.'
+        required: false
+        example: '28080'
+        type: numeric
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      country:
+        name: country
+        description: País.
+        required: false
+        example: España
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      short_description:
+        name: short_description
+        description: 'Descripción corta.'
+        required: false
+        example: 'Empresa líder en soluciones tecnológicas.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      description:
+        name: description
+        description: 'Descripción larga.'
+        required: false
+        example: 'Ofrecemos servicios en el sector IT desde 2001.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      num_people:
+        name: num_people
+        description: 'Número de empleados.'
+        required: false
+        example: 45
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      name: 'Tech Solutions'
+      CIF: B12345678
+      email: info@techsolutions.com
+      phone: '123456789'
+      website: 'https://www.techsolutions.com'
+      active: true
+      responsible_name: 'Laura Pérez'
+      responsible_email: laura@techsolutions.com
+      responsible_phone: '987654321'
+      address: 'Calle Falsa 123'
+      city: Madrid
+      postal_code: '28080'
+      country: España
+      short_description: 'Empresa líder en soluciones tecnológicas.'
+      description: 'Ofrecemos servicios en el sector IT desde 2001.'
+      num_people: 45
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 12,
+              "name": "Tech Solutions",
+              "CIF": "B12345678",
+              "email": "info@techsolutions.com",
+              ...
+              "sectors": [...]
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "CIF": ["The CIF has already been taken."]
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al actualizar la empresa: error_message"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

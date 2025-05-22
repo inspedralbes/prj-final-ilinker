@@ -11,6 +11,58 @@ use Carbon\Carbon;
 
 class GoogleController extends Controller
 {
+
+    /**
+     * @OA\Post(
+     *     path="/api/auth/google-login",
+     *     summary="Iniciar sesión con Google",
+     *     description="Gestiona el login de usuarios mediante Google OAuth. Crea el usuario si no existe y devuelve un token de autenticación.",
+     *     operationId="loginWithGoogle",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "name"},
+     *             @OA\Property(property="email", type="string", format="email", example="user@example.com"),
+     *             @OA\Property(property="name", type="string", example="Nombre Apellido")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Autenticación exitosa",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJh..."),
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Nombre"),
+     *                 @OA\Property(property="surname", type="string", example="Apellido"),
+     *                 @OA\Property(property="email", type="string", example="user@example.com"),
+     *                 @OA\Property(property="rol", type="string", example="student")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Email obligatorio",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Email is required")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error de autenticación",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Authentication failed"),
+     *             @OA\Property(property="debug", type="string", example="Mensaje de error detallado (solo si APP_DEBUG está activo)")
+     *         )
+     *     )
+     * )
+     */
     public function loginWithGoogle(Request $request)
     {
         try {
