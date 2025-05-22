@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\DB;
+use OpenApi\Annotations as OA;
+
 
 use Google_Client;
 use App\Models\User;
@@ -33,6 +35,51 @@ class AuthController extends Controller
         $this->institutionService = $institutionService;
         $this->studentService = $studentService;
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/login",
+     *     summary="Iniciar sessió d’un usuari",
+     *     description="Endpoint per autenticar un usuari mitjançant email i contrasenya. Retorna un token d’autenticació, les dades de l’usuari, el seu rol associat i notificacions.",
+     *     operationId="loginUser",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email", "password"},
+     *             @OA\Property(property="email", type="string", format="email", example="joan@example.com", description="Correu electrònic registrat."),
+     *             @OA\Property(property="password", type="string", example="secret123", description="Contrasenya de l’usuari.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuari autenticat correctament",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Credentials validated"),
+     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJh..."),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Joan"),
+     *                 @OA\Property(property="email", type="string", example="joan@example.com"),
+     *                 @OA\Property(property="rol", type="string", example="student"),
+     *                 @OA\Property(property="student", type="object", description="Dades del perfil de l'estudiant (si aplica)")
+     *             ),
+     *             @OA\Property(property="notifications", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Credencials incorrectes",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Invalid credentials")
+     *         )
+     *     )
+     * )
+     */
+
 
     public function login(Request $request)
     {
@@ -70,6 +117,97 @@ class AuthController extends Controller
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
     }
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/register",
+     *     summary="Registrar un nou usuari (student, company o institution)",
+     *     description="Endpoint per registrar un usuari nou i crear les entitats relacionades segons el rol especificat. Retorna informació de l'usuari, token d'autenticació i les dades associades (empresa, institució o estudiant).",
+     *     operationId="registerUser",
+     *     tags={"Auth"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "surname", "birthday", "email", "password", "rol"},
+     *             @OA\Property(property="name", type="string", example="Joan", description="Nom de l'usuari."),
+     *             @OA\Property(property="surname", type="string", example="Garcia", description="Cognom de l'usuari."),
+     *             @OA\Property(property="birthday", type="string", format="date", example="2000-05-22", description="Data de naixement (format YYYY-MM-DD)."),
+     *             @OA\Property(property="email", type="string", format="email", example="joan@example.com", description="Correu electrònic de l'usuari."),
+     *             @OA\Property(property="password", type="string", example="secret123", description="Contrasenya de l'usuari."),
+     *             @OA\Property(property="rol", type="string", example="student", enum={"student", "company", "institutions"}, description="Rol de l'usuari."),
+     *             @OA\Property(
+     *                 property="student",
+     *                 type="object",
+     *                 description="Informació addicional si el rol és student.",
+     *                 @OA\Property(property="phone", type="string", example="600123123"),
+     *                 @OA\Property(property="address", type="string", example="Carrer Major 1")
+     *             ),
+     *             @OA\Property(
+     *                 property="company",
+     *                 type="object",
+     *                 description="Informació addicional si el rol és company.",
+     *                 @OA\Property(property="name", type="string", example="Empresa S.L."),
+     *                 @OA\Property(property="sector", type="string", example="Tecnologia")
+     *             ),
+     *             @OA\Property(
+     *                 property="institution",
+     *                 type="object",
+     *                 description="Informació addicional si el rol és institutions.",
+     *                 @OA\Property(property="name", type="string", example="Institut X"),
+     *                 @OA\Property(property="location", type="string", example="Barcelona")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuari registrat correctament",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Joan"),
+     *                 @OA\Property(property="surname", type="string", example="Garcia"),
+     *                 @OA\Property(property="email", type="string", example="joan@example.com"),
+     *                 @OA\Property(property="rol", type="string", example="student")
+     *             ),
+     *             @OA\Property(property="token", type="string", example="eyJ0eXAiOiJKV1QiLCJh..."),
+     *             @OA\Property(property="student", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="user_id", type="integer", example=1)
+     *             ),
+     *             @OA\Property(property="notifications", type="array", @OA\Items(type="object"))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validació",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="El campo name es obligatorio."),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="El campo name es obligatorio."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="L'usuari ja existeix",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="warning"),
+     *             @OA\Property(property="message", type="string", example="El usuario ya existe en la base de datos.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error intern al crear l'entitat",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Error al crear la empresa.")
+     *         )
+     *     )
+     * )
+     */
+
 
     public function register(Request $request)
     {
@@ -151,6 +289,27 @@ class AuthController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/logout",
+     *     summary="Tancar sessió",
+     *     description="Endpoint per finalitzar la sessió de l’usuari autenticat. Actualitza l’estat de l’usuari a 'offline' i invalida la sessió actual.",
+     *     operationId="logoutUser",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Sessió tancada correctament",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Logged out")
+     *         )
+     *     )
+     * )
+     */
+
+
     public function logout()
     {
         $user = Auth::user();
@@ -161,6 +320,53 @@ class AuthController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/user",
+     *     summary="Verifica si el usuario está autenticado y devuelve sus datos junto con notificaciones",
+     *     description="Este endpoint requiere autenticación. Retorna la información del usuario autenticado y una lista de notificaciones relacionadas.",
+     *     operationId="getAuthenticatedUser",
+     *     tags={"Auth"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuario autenticado correctamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="user",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Nombre de Usuario"),
+     *                 @OA\Property(property="rol", type="string", example="company"),
+     *                 @OA\Property(
+     *                     property="company",
+     *                     type="object",
+     *                     description="Datos de la empresa asociada si el rol es 'company'"
+     *                 ),
+     *                 @OA\Property(property="student", type="string", nullable=true, example=null),
+     *                 @OA\Property(property="institution", type="string", nullable=true, example=null)
+     *             ),
+     *             @OA\Property(
+     *                 property="notifications",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Usuario no autenticado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Usuario no autenticado.")
+     *         )
+     *     )
+     * )
+     */
     public function check()
     {
         if (Auth::check()) {

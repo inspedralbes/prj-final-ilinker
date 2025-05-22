@@ -1,0 +1,205 @@
+name: Usuarios
+description: ''
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/my-blocked-users
+    metadata:
+      groupName: Usuarios
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener mis usuarios bloqueados'
+      description: 'Este endpoint devuelve una lista de los usuarios que el usuario autenticado ha bloqueado.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "status": "success",
+            "message": "Se han encontrado los usuarios bloqueados.",
+            "blockedUser": [
+              {
+                "id": 1,
+                "user_id": 5,
+                "blocked_user_id": 7,
+                "user": {
+                  "id": 5,
+                  "name": "Juan Pérez",
+                  "student": {
+                    "user_id": 5,
+                    "name": "Juan",
+                    "photo_pic": "url"
+                  },
+                  "company": null,
+                  "institutions": null
+                },
+                "blocked_user": {
+                  "id": 7,
+                  "name": "Pedro Gómez",
+                  "student": null,
+                  "company": {
+                    "user_id": 7,
+                    "name": "Empresa XYZ",
+                    "logo": "url"
+                  },
+                  "institutions": null
+                }
+              }
+            ]
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 401
+        content: |-
+          {
+            "message": "Unauthenticated."
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - DELETE
+    uri: 'api/admin/delete-user/{userId}'
+    metadata:
+      groupName: Usuarios
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Eliminar permanentemente un usuario'
+      description: ''
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      userId:
+        name: userId
+        description: 'El ID del usuario que se desea eliminar.'
+        required: true
+        example: 10
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      userId: 10
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "message": "Usuario eliminado permanentemente"
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "message": "No se encontró el usuario"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - POST
+    uri: 'api/admin/ban-user/{userId}'
+    metadata:
+      groupName: Usuarios
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Banear un usuario (desactivarlo)'
+      description: 'Este endpoint permite desactivar un usuario (banearlo) estableciendo su estado como inactivo.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      userId:
+        name: userId
+        description: 'El ID del usuario que se desea banear.'
+        required: true
+        example: 15
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      userId: 15
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "message": "Usuario baneado correctamente",
+            "user": {
+              "id": 15,
+              "name": "Juan Pérez",
+              "email": "juan@example.com",
+              "active": 0
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "message": "No se encontró el usuario"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

@@ -542,6 +542,10 @@ export default function CompanyClientMe({
 
   }
 
+  const handleCancelEdit = () => {
+    setIsEditing(null)
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gray-100">
@@ -631,12 +635,11 @@ export default function CompanyClientMe({
                             }}
                           />
                         </div>
-                        <button
-                          onClick={handleSave}
-                          className="mt-2 px-4 py-2 bg-black text-white rounded hover:bg-black/80"
-                        >
-                          Guardar
-                        </button>
+                        <div className="flex justify-content-start gap-4 mt-4">
+                          <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                            onClick={handleCancelEdit}>Cancelar</Button>
+                          <Button onClick={handleSave}>Guardar</Button>
+                        </div>
                       </div>
                     ) : (
                       <div>
@@ -729,12 +732,11 @@ export default function CompanyClientMe({
                         />
                       </div>
                     </div>
-                    <button
-                      onClick={handleSave}
-                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      Guardar
-                    </button>
+                    <div className="flex justify-content-start gap-4 mt-4">
+                      <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                        onClick={handleCancelEdit}>Cancelar</Button>
+                      <Button onClick={handleSave}>Guardar</Button>
+                    </div>
                   </>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -789,12 +791,11 @@ export default function CompanyClientMe({
                       }
                       className="w-full h-32 p-2 border rounded"
                     />
-                    <button
-                      onClick={handleSave}
-                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    >
-                      Guardar
-                    </button>
+                    <div className="flex justify-content-start gap-4 mt-4">
+                      <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                        onClick={handleCancelEdit}>Cancelar</Button>
+                      <Button onClick={handleSave}>Guardar</Button>
+                    </div>
                   </div>
                 ) : (
                   <div
@@ -1007,8 +1008,10 @@ export default function CompanyClientMe({
                   </div>
                   {/* Botón Guardar */}
                   {isEditing && (
-                    <div className="flex justify-end mt-4">
-                      <Button onClick={() => handleSave()}>Guardar</Button>
+                    <div className="flex justify-content-start gap-4 mt-4">
+                      <Button className="bg-gray-200 text-black hover:bg-gray-300"
+                        onClick={handleCancelEdit}>Cancelar</Button>
+                      <Button onClick={handleSave}>Guardar</Button>
                     </div>
                   )}
                 </Card>

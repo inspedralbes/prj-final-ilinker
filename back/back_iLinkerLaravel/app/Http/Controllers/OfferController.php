@@ -15,6 +15,79 @@ use mysql_xdevapi\Exception;
 
 class OfferController extends Controller
 {
+
+    /**
+     * @OA\Get(
+     *     path="/api/offers/{id}",
+     *     summary="Mostra una oferta amb la seva informació relacionada",
+     *     description="Recupera una oferta específica per ID, incloent la seva empresa i usuaris interessats amb les seves dades.",
+     *     operationId="showOffer",
+     *     tags={"Offers"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de l'oferta",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Oferta trobada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="offer",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="title", type="string", example="Desenvolupador PHP"),
+     *                 @OA\Property(property="description", type="string", example="Oferta de treball..."),
+     *                 @OA\Property(
+     *                     property="company",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=5),
+     *                     @OA\Property(property="name", type="string", example="Empresa XYZ")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="usersInterested",
+     *                     type="array",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=10),
+     *                         @OA\Property(
+     *                             property="student",
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer", example=20),
+     *                             @OA\Property(property="name", type="string", example="Joan"),
+     *                             @OA\Property(property="skills", type="array", @OA\Items(type="object")),
+     *                             @OA\Property(property="education", type="array", @OA\Items(type="object"))
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Oferta no trobada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="message",
+     *                 type="string",
+     *                 example="No query results for model [App\\Models\\Offer] 999"
+     *             )
+     *         )
+     *     )
+     * )
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Si no es troba l'oferta.
+     */
     public function show($id)
     {
         $offer = Offer::with('usersInterested', 'company', 'usersInterested.student', 'usersInterested.student.skills', 'usersInterested.student.education')->findOrFail($id);
@@ -25,6 +98,95 @@ class OfferController extends Controller
             ]);
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/offers",
+     *     summary="Crea una nova oferta laboral",
+     *     description="Valida els camps obligatoris i crea una oferta laboral associada a la companyia de l'usuari autenticat.",
+     *     operationId="createOffer",
+     *     tags={"Offers"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"title", "skills", "description", "location_type", "address", "lat", "lng", "city", "postal_code", "schedule_type", "days_per_week", "salary", "vacancies"},
+     *             @OA\Property(property="title", type="string", example="Desenvolupador PHP"),
+     *             @OA\Property(property="skills", type="array", @OA\Items(type="string"), example={"PHP", "Laravel", "MySQL"}),
+     *             @OA\Property(property="description", type="string", example="Descripció de l'oferta..."),
+     *             @OA\Property(property="location_type", type="string", example="remote"),
+     *             @OA\Property(property="address", type="string", example="Carrer Falsa 123"),
+     *             @OA\Property(property="lat", type="number", format="float", example=41.3879),
+     *             @OA\Property(property="lng", type="number", format="float", example=2.16992),
+     *             @OA\Property(property="city", type="string", example="Barcelona"),
+     *             @OA\Property(property="postal_code", type="string", example="08001"),
+     *             @OA\Property(property="schedule_type", type="string", example="full-time"),
+     *             @OA\Property(property="days_per_week", type="integer", example=5),
+     *             @OA\Property(property="salary", type="string", example="2000€"),
+     *             @OA\Property(property="vacancies", type="integer", example=2)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Oferta creada correctament",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Oferta registrada correctamente"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="uuid", type="string", example="a1b2c3d4..."),
+     *                 @OA\Property(property="company_id", type="integer", example=10),
+     *                 @OA\Property(property="title", type="string", example="Desenvolupador PHP"),
+     *                 @OA\Property(property="skills", type="array", @OA\Items(type="string"), example={"PHP", "Laravel"}),
+     *                 @OA\Property(property="description", type="string", example="..."),
+     *                 @OA\Property(property="location_type", type="string", example="remote"),
+     *                 @OA\Property(property="address", type="string", example="Carrer Falsa 123"),
+     *                 @OA\Property(property="lat", type="number", format="float", example=41.3879),
+     *                 @OA\Property(property="lng", type="number", format="float", example=2.16992),
+     *                 @OA\Property(property="city", type="string", example="Barcelona"),
+     *                 @OA\Property(property="postal_code", type="string", example="08001"),
+     *                 @OA\Property(property="schedule_type", type="string", example="full-time"),
+     *                 @OA\Property(property="days_per_week", type="integer", example=5),
+     *                 @OA\Property(property="salary", type="string", example="2000€"),
+     *                 @OA\Property(property="vacancies", type="integer", example=2),
+     *                 @OA\Property(property="created_at", type="string", example="2025-05-22T10:00:00Z"),
+     *                 @OA\Property(property="updated_at", type="string", example="2025-05-22T10:00:00Z")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validació",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Faltan campos obligatorios o tienen errores"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="title", type="array", @OA\Items(type="string", example="El campo titulo es obligatorio"))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error intern del servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Mensaje de error del servidor")
+     *         )
+     *     )
+     * )
+     */
     public function create(Request $request)
     {
         $rules = [
@@ -105,7 +267,71 @@ class OfferController extends Controller
         }
     }
 
-    public function apply(Request $request){
+
+    /**
+     * @OA\Post(
+     *     path="/api/apply-offer",
+     *     summary="Aplicar-se a una oferta de treball",
+     *     description="Permet a un usuari aplicar-se a una oferta laboral, amb possibilitat d’adjuntar CV i carta de presentació.",
+     *     operationId="applyToOffer",
+     *     tags={"Offers"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"offer_id", "user_id"},
+     *                 @OA\Property(property="offer_id", type="integer", example=5),
+     *                 @OA\Property(property="user_id", type="integer", example=23),
+     *                 @OA\Property(property="availability", type="string", example="Immediatament disponible"),
+     *                 @OA\Property(property="cv_attachment", type="string", format="binary"),
+     *                 @OA\Property(property="cover_letter_attachment", type="string", format="binary")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Aplicació registrada correctament",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Oferta registrada correctamente")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validació",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Faltan campos obligatorios o tienen errores"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="offer_id", type="array", @OA\Items(type="string", example="El campo oferta es obligatorio")),
+     *                 @OA\Property(property="user_id", type="array", @OA\Items(type="string", example="El campo usuario es obligatorio"))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error intern del servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Mensaje de error del servidor")
+     *         )
+     *     )
+     * )
+     */
+    public function apply(Request $request)
+    {
         $rules = [
             'offer_id' => 'required',
             'user_id' => 'required'
@@ -125,7 +351,7 @@ class OfferController extends Controller
             ]);
         }
 
-        try{
+        try {
             Log::info($request);
             $user = Auth::user();
             $student = Student::where('user_id', $request->input('user_id'))->first();
@@ -138,24 +364,24 @@ class OfferController extends Controller
 
 
             $folder = "offers/{$offer->uuid}";
-            $disk   = Storage::disk('public');
+            $disk = Storage::disk('public');
 
             // Solo crea la carpeta si no existe
-            if (! $disk->exists($folder)) {
+            if (!$disk->exists($folder)) {
                 $disk->makeDirectory($folder, 0755, true);
             }
 
             if ($request->hasFile('cv_attachment')) {
-                $file     = $request->file('cv_attachment');
-                $ext      = $file->getClientOriginalExtension();
+                $file = $request->file('cv_attachment');
+                $ext = $file->getClientOriginalExtension();
                 $fileName = "cv_{$student->uuid}.{$ext}";
                 $filePath = $file->storeAs($folder, $fileName, 'public');
                 $offerApplyUser->cv_attachment = $filePath;
             }
 
             if ($request->hasFile('cover_letter_attachment')) {
-                $file     = $request->file('cover_letter_attachment');
-                $ext      = $file->getClientOriginalExtension();
+                $file = $request->file('cover_letter_attachment');
+                $ext = $file->getClientOriginalExtension();
                 $fileName = "cover_letter_{$student->uuid}.{$ext}";
                 $filePath = $file->storeAs($folder, $fileName, 'public');
                 $offerApplyUser->cover_letter_attachment = $filePath;
@@ -169,7 +395,7 @@ class OfferController extends Controller
                 'status' => 'success',
                 'message' => 'Oferta registrada correctamente',
             ]);
-        }catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => $th->getMessage(),
@@ -177,6 +403,66 @@ class OfferController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Put(
+     *     path="/api/offers/update-candidature-status",
+     *     summary="Actualitza l'estat de la candidatura d'un usuari",
+     *     description="Actualitza l'estat de la candidatura d'un usuari a una oferta. Si l'estat és 'accept', es verifica si s'ha arribat al nombre màxim de vacants i s'actualitzen les candidatures pendents i l'estat de l'oferta.",
+     *     operationId="updateCandidatureStatus",
+     *     tags={"Offers"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"offer_id", "user_id", "status"},
+     *             @OA\Property(property="offer_id", type="integer", example=10),
+     *             @OA\Property(property="user_id", type="integer", example=25),
+     *             @OA\Property(property="status", type="string", example="accept")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Estat de la candidatura actualitzat correctament",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Oferta actualizada correctamente"),
+     *             @OA\Property(property="offer", type="object", description="Dades detallades de l'oferta actualitzada amb relacions carregades")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validació",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Faltan campos obligatorios o tienen errores"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="offer_id", type="array", @OA\Items(type="string", example="El campo oferta es obligatorio")),
+     *                 @OA\Property(property="user_id", type="array", @OA\Items(type="string", example="El campo usuario es obligatorio")),
+     *                 @OA\Property(property="status", type="array", @OA\Items(type="string", example="El campo status es obligatorio"))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error intern del servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Mensaje de error del servidor")
+     *         )
+     *     )
+     * )
+     */
     public function applyUpdateStatus(Request $request)
     {
         $rules = [
@@ -200,7 +486,7 @@ class OfferController extends Controller
             ]);
         }
 
-        try{
+        try {
             Log::info($request);
             $userUpdatedStatus = OfferUser::where('offer_id', $request->offer_id)
                 ->where('user_id', $request->user_id)
@@ -221,12 +507,12 @@ class OfferController extends Controller
                     'usersInterested.student.education',
                 ]);
 
-            if($request->status === 'accept'){
+            if ($request->status === 'accept') {
                 Log::info("han aceptado al aplicante");
                 $accepted = $offer->usersAccepted;
                 Log::info($accepted);
                 Log::info("Accepted count:", ['count' => $accepted->count()]);
-                if($offer->vacancies <= $accepted->count()){
+                if ($offer->vacancies <= $accepted->count()) {
                     Log::info("HA LLEGADO AL LIMITE DE ACEPTADOS PARA LA OFERTA");
                     $offerData = Offer::where('id', $offer->id)->first();
                     //si la oferta esta en -1 de active significa que llego al maximo de aceptados.
@@ -262,7 +548,7 @@ class OfferController extends Controller
                 'message' => 'Oferta actualizada correctamente',
                 'offer' => $offer,
             ]);
-        }catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => $th->getMessage(),
@@ -270,7 +556,59 @@ class OfferController extends Controller
         }
     }
 
-    public function applyCheck($offer_id){
+
+    /**
+     * @OA\Get(
+     *     path="/api/offers/{offer_id}/has-applied",
+     *     summary="Comprova si l'usuari autenticat ja ha aplicat a una oferta",
+     *     description="Retorna si l'usuari autenticat ja ha aplicat a una oferta específica identificada per offer_id.",
+     *     operationId="checkUserHasAppliedToOffer",
+     *     tags={"Offers"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *
+     *     @OA\Parameter(
+     *         name="offer_id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de l'oferta a comprovar",
+     *         @OA\Schema(type="integer", example=5)
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Resposta d'èxit amb el resultat del checkeo",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Se ha procesado el checkeo correctamente"),
+     *             @OA\Property(property="userHasApplied", type="boolean", example=true)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Oferta no trobada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="No query results for model [App\\Models\\Offer] 999")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error intern del servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Mensaje de error del servidor")
+     *         )
+     *     )
+     * )
+     */
+    public function applyCheck($offer_id)
+    {
         try {
             $me = Auth::user();
 
@@ -283,7 +621,7 @@ class OfferController extends Controller
                 'message' => 'Se ha procesado el checkeo correctamente',
                 'userHasApplied' => $userHasApplied,
             ]);
-        }catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
                 'message' => $th->getMessage(),
