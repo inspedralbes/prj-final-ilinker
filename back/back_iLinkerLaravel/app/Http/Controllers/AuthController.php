@@ -8,11 +8,13 @@ use App\Models\Notification;
 use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
+use App\Services\MailService;
 use App\Services\StudentService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 use function Laravel\Prompts\error;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Annotations as OA;
@@ -26,14 +28,15 @@ class AuthController extends Controller
 {
 
 
-    protected $userService, $companyService, $institutionService, $studentService;
+    protected $userService, $companyService, $institutionService, $studentService, $mailService;
 
-    public function __construct(UserService $userService, CompanyService $companyService, InstitutionService $institutionService, StudentService $studentService)
+    public function __construct(UserService $userService, CompanyService $companyService, InstitutionService $institutionService, StudentService $studentService, MailService $mailService)
     {
         $this->userService = $userService;
         $this->companyService = $companyService;
         $this->institutionService = $institutionService;
         $this->studentService = $studentService;
+        $this->mailService = $mailService;
     }
 
 
@@ -239,6 +242,10 @@ class AuthController extends Controller
 
             $token = $user['token'];
 
+
+            $body = View::make('welcomes.register', ['user' => $user['user']])->render();
+            $this->mailService->enviarMail($user['user']->name, $user['user']->email, $body);
+
             if ($user['user']->rol === 'company') {
                 $company = $this->companyService->createCompany($user['user'], $request->company);
                 if (!$company) {
@@ -282,6 +289,7 @@ class AuthController extends Controller
                 DB::rollBack();
                 throw new \Exception('El rol no está especificado.');
             }
+
         } catch (\Exception $e) {
             // Si ocurre un error, deshacer los cambios en la BD
             DB::rollBack();

@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Cambios de diseño de la parte de admin para que se vea bien">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="para enviar emails">
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/public/assets/logo/logo_nombre.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/views/welcomes/register.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/app.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +63,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "dev-kevin",
-    "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
+    "last_opened_file_path": "F:/DAW/prj-final-ilinker/back/back_iLinkerLaravel/public/assets/logo",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
@@ -74,6 +75,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="F:\DAW\prj-final-ilinker\back\back_iLinkerLaravel\public\assets\logo" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\components" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\search\components" />
       <recent name="C:\Users\premi\OneDrive\Documentos\GitHub\prj-final-ilinker\ilinker\src\app\search" />
@@ -229,7 +231,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747604447744</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="para enviar emails">
+      <option name="closed" value="true" />
+      <created>1747952942485</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1747952942485</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -257,7 +267,8 @@
     <MESSAGE value="Merge con dev2-purvish para poder seguir haciendo las publicaciones" />
     <MESSAGE value="modificaciones para que el register funcione con todos los roles" />
     <MESSAGE value="Cambios de diseño de la parte de admin para que se vea bien" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cambios de diseño de la parte de admin para que se vea bien" />
+    <MESSAGE value="para enviar emails" />
+    <option name="LAST_COMMIT_MESSAGE" value="para enviar emails" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
