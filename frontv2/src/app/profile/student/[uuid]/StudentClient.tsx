@@ -55,6 +55,7 @@ export default function StudentClient({ uuid, student, experience_group, offerUs
 
     }, [userData]);
 
+
     if (!allSkills || !publications) {
         // no renderices nada hasta que skills esté listo (el loader ya está activo)
         return null;

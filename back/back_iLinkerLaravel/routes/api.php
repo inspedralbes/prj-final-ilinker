@@ -64,10 +64,7 @@ Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
-
-Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getSkills']);
-});
+Route::get('/skills', [SkillsController::class, 'getSkills'])->name('skills.getSkills');
 
 Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);
@@ -137,7 +134,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Protected routes that require authentication
         Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.destroy');
         Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
     });
     Route::prefix('/institution')->group(function () {
@@ -145,9 +142,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
         Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
         Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
-        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show.id');
         Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.destroy.id');
     });
 
     Route::prefix('/education')->group(function () {
@@ -226,7 +223,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
 
     // Publicaciones del usuario actual
-    Route::post('/my-publications', [PublicationsController::class, 'myPublications']);
     Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
     // Likes
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
@@ -244,12 +240,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 
-
+Route::post('/my-publications', [PublicationsController::class, 'myPublications']);
 // Rutas para publicaciones compartidas
 Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);
-Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getSkills']);
-});
+
 
 Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);

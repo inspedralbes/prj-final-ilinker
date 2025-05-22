@@ -5,7 +5,7 @@ import { LoaderProvider } from "@/contexts/LoaderContext";
 import { Inter } from "next/font/google";
 import NavBar from "@/components/navBar/navBar";
 import "./globals.css";
-import { Toaster } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "iLinker",

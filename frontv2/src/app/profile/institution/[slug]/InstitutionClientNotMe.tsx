@@ -20,6 +20,7 @@ import { LoaderContext } from "@/contexts/LoaderContext";
 import Modal from "@/components/ui/modal"
 
 interface Institution {
+
   id: string | number;
   name: string;
   slogan?: string;

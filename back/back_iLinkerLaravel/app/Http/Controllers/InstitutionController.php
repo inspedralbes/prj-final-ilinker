@@ -12,30 +12,161 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 
+
+/**
+ * @OA\Schema(
+ *     schema="Institution",
+ *     type="object",
+ *     required={"id", "name"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="Instituto XYZ"),
+ *     @OA\Property(property="address", type="string", example="Calle Falsa 123"),
+ *     @OA\Property(property="email", type="string", format="email", example="contacto@instituto.xyz")
+ * )
+ */
 class InstitutionController extends Controller
 {
 
     protected InstitutionService $institutionService;
-    public function __construct(InstitutionService $institutionService){
+
+    public function __construct(InstitutionService $institutionService)
+    {
         $this->institutionService = $institutionService;
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/institution",
+     *     summary="Obtiene todas las instituciones con su usuario relacionado",
+     *     description="Devuelve un array JSON con cada institución y la información del usuario asociado.",
+     *     operationId="getInstitutionsWithUser",
+     *     tags={"Institutions"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Listado de instituciones",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Institución Ejemplo"),
+     *                 @OA\Property(property="logo", type="string", example="logo.png"),
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=10),
+     *                     @OA\Property(property="name", type="string", example="Usuario Asociado")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
         $institutions = Institutions::with('user')->get();
         return response()->json($institutions);
     }
 
-    public function getInstitutions(){
+    /**
+     * @OA\Get(
+     *     path="/api/institutions",
+     *     summary="Obtener todas las instituciones",
+     *     operationId="getAllInstitutions",
+     *     tags={"Institutions"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de instituciones",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/Institution")
+     *         )
+     *     )
+     * )
+     */
+    public function getInstitutions()
+    {
         try {
             $institutions = $this->institutionService->getInstitutions();
-
             return response()->json(['success' => 'success', 'institutions' => $institutions]);
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             return response()->json(['status' => 'error', 'message' => $exception->getMessage()]);
         }
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/institution/create",
+     *     summary="Crea una nueva institución",
+     *     description="Valida y crea una nueva institución. Si el usuario está autenticado, se asocia la institución a dicho usuario. Genera un slug automáticamente si no se proporciona.",
+     *     operationId="createInstitution",
+     *     tags={"Instituciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name"},
+     *             @OA\Property(property="name", type="string", maxLength=255, example="Nombre Institución"),
+     *             @OA\Property(property="slug", type="string", maxLength=255, example="nombre-institucion"),
+     *             @OA\Property(property="custom_url", type="string", maxLength=255, example="institucion-personalizada"),
+     *             @OA\Property(property="slogan", type="string", maxLength=255, example="Educando para el futuro"),
+     *             @OA\Property(property="about", type="string", example="Descripción completa de la institución"),
+     *             @OA\Property(property="type", type="string", maxLength=255, example="Universidad"),
+     *             @OA\Property(property="location", type="string", maxLength=255, example="Madrid, España"),
+     *             @OA\Property(property="size", type="string", maxLength=255, example="Grande"),
+     *             @OA\Property(property="sector", type="string", maxLength=255, example="Educación"),
+     *             @OA\Property(property="founded_year", type="string", maxLength=255, example="1985"),
+     *             @OA\Property(property="languages", type="array", @OA\Items(type="string", example="Español")),
+     *             @OA\Property(property="specialties", type="array", @OA\Items(type="string", example="Ingeniería")),
+     *             @OA\Property(property="website", type="string", maxLength=255, example="https://www.ejemplo.edu"),
+     *             @OA\Property(property="phone", type="string", maxLength=255, example="+34 123 456 789"),
+     *             @OA\Property(property="email", type="string", format="email", maxLength=255, example="info@ejemplo.edu"),
+     *             @OA\Property(property="user_id", type="integer", example=1)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Institución creada exitosamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Institution created successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Nombre Institución"),
+     *                 @OA\Property(property="slug", type="string", example="nombre-institucion")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Fallo de validación",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="The name field is required."))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error del servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Error creating institution")
+     *         )
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -100,6 +231,104 @@ class InstitutionController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/institution/update",
+     *     summary="Actualiza una institución existente",
+     *     description="Permite al usuario autenticado actualizar una institución de su propiedad. Se pueden modificar datos básicos y archivos (logo y cover). Si se cambia el nombre, se genera un nuevo slug.",
+     *     operationId="updateInstitution",
+     *     tags={"Instituciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"id"},
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Nueva Institución"),
+     *                 @OA\Property(property="slogan", type="string", example="Innovando la educación"),
+     *                 @OA\Property(property="about", type="string", example="Somos una institución dedicada a la excelencia académica."),
+     *                 @OA\Property(property="type", type="string", example="Universidad"),
+     *                 @OA\Property(property="location", type="string", example="Barcelona, España"),
+     *                 @OA\Property(property="size", type="string", example="Grande"),
+     *                 @OA\Property(property="founded_year", type="string", example="1990"),
+     *                 @OA\Property(property="languages[]", type="array", @OA\Items(type="string"), example={"Español", "Inglés"}),
+     *                 @OA\Property(property="specialties[]", type="array", @OA\Items(type="string"), example={"Ciencias", "Ingeniería"}),
+     *                 @OA\Property(property="website", type="string", example="https://www.nueva.edu"),
+     *                 @OA\Property(property="phone", type="string", example="+34 600 123 456"),
+     *                 @OA\Property(property="email", type="string", format="email", example="contacto@nueva.edu"),
+     *                 @OA\Property(property="logo", type="file", description="Archivo para logo"),
+     *                 @OA\Property(property="cover", type="file", description="Archivo para foto de portada")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Institución actualizada correctamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="message", type="string", example="Institution updated successfully"),
+     *             @OA\Property(property="data", type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Nueva Institución"),
+     *                 @OA\Property(property="slug", type="string", example="nueva-institucion"),
+     *                 @OA\Property(property="logo", type="string", example="institutions/logo_1.png"),
+     *                 @OA\Property(property="cover", type="string", example="institutions/cover_1.png"),
+     *                 @OA\Property(property="logo_url", type="string", example="https://tuapp.com/storage/institutions/logo_1.png"),
+     *                 @OA\Property(property="cover_url", type="string", example="https://tuapp.com/storage/institutions/cover_1.png")
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="No autenticado",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=403,
+     *         description="No autorizado para modificar la institución",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Unauthorized to update this institution")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Fallo de validación",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="The name has already been taken."))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error en el servidor",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Error updating institution: [mensaje del error]")
+     *         )
+     *     )
+     * )
+     */
     public function update(Request $request)
     {
         try {
@@ -223,6 +452,58 @@ class InstitutionController extends Controller
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/institutions/{id}",
+     *     summary="Obtiene los datos de una institución por su ID",
+     *     description="Devuelve la información detallada de una institución identificada por su ID, incluyendo los datos del usuario asociado, logo y portada.",
+     *     operationId="getInstitutionById",
+     *     tags={"Institutions"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID de la institución",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Institución encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Institución Ejemplo"),
+     *                 @OA\Property(property="slug", type="string", example="institucion-ejemplo"),
+     *                 @OA\Property(property="logo", type="string", example="logos/logo.png"),
+     *                 @OA\Property(property="cover", type="string", example="covers/cover.png"),
+     *                 @OA\Property(property="logo_url", type="string", example="https://tuapp.com/storage/logos/logo.png"),
+     *                 @OA\Property(property="cover_url", type="string", example="https://tuapp.com/storage/covers/cover.png"),
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=10),
+     *                     @OA\Property(property="name", type="string", example="Usuario Asociado")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Institución no encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Institution not found")
+     *         )
+     *     )
+     * )
+     */
     public function show(string $id)
     {
         try {
@@ -245,6 +526,57 @@ class InstitutionController extends Controller
         }
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/institutions/{slug}",
+     *     summary="Obtiene los datos de una institución por su slug",
+     *     description="Retorna la información detallada de una institución incluyendo su usuario asociado, logo y cover.",
+     *     operationId="getInstitutionBySlug",
+     *     tags={"Institutions"},
+     *     @OA\Parameter(
+     *         name="slug",
+     *         in="path",
+     *         required=true,
+     *         description="El slug único de la institución",
+     *         @OA\Schema(type="string", example="institucion-ejemplo")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Institución encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Institución Ejemplo"),
+     *                 @OA\Property(property="slug", type="string", example="institucion-ejemplo"),
+     *                 @OA\Property(property="logo", type="string", example="logos/logo.png"),
+     *                 @OA\Property(property="cover", type="string", example="covers/cover.png"),
+     *                 @OA\Property(property="logo_url", type="string", example="https://tuapp.com/storage/logos/logo.png"),
+     *                 @OA\Property(property="cover_url", type="string", example="https://tuapp.com/storage/covers/cover.png"),
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=10),
+     *                     @OA\Property(property="name", type="string", example="Usuario Asociado")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Institución no encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Institution not found")
+     *         )
+     *     )
+     * )
+     */
     public function getInstitution($slug)
     {
         $institution = Institutions::where('slug', $slug)->with('user')->first();
@@ -266,6 +598,59 @@ class InstitutionController extends Controller
             'data' => $responseData
         ]);
     }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/institutions/url/{customUrl}",
+     *     summary="Obtiene los datos de una institución por su slug o URL personalizada",
+     *     description="Devuelve la información detallada de una institución identificada por su slug o custom_url, incluyendo datos del usuario asociado, logo y cover.",
+     *     operationId="getInstitutionBySlugOrCustomUrl",
+     *     tags={"Institutions"},
+     *     @OA\Parameter(
+     *         name="customUrl",
+     *         in="path",
+     *         required=true,
+     *         description="Slug o URL personalizada de la institución",
+     *         @OA\Schema(type="string", example="institucion-custom")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Institución encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", example=1),
+     *                 @OA\Property(property="name", type="string", example="Institución Ejemplo"),
+     *                 @OA\Property(property="slug", type="string", example="institucion-ejemplo"),
+     *                 @OA\Property(property="custom_url", type="string", example="institucion-custom"),
+     *                 @OA\Property(property="logo", type="string", example="logos/logo.png"),
+     *                 @OA\Property(property="cover", type="string", example="covers/cover.png"),
+     *                 @OA\Property(property="logo_url", type="string", example="https://tuapp.com/storage/logos/logo.png"),
+     *                 @OA\Property(property="cover_url", type="string", example="https://tuapp.com/storage/covers/cover.png"),
+     *                 @OA\Property(
+     *                     property="user",
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=10),
+     *                     @OA\Property(property="name", type="string", example="Usuario Asociado")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Institución no encontrada",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Institution not found")
+     *         )
+     *     )
+     * )
+     */
 
     public function getByCustomUrl($customUrl)
     {
@@ -289,6 +674,60 @@ class InstitutionController extends Controller
         ]);
     }
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/institution/check-owner",
+     *     summary="Verifica si un usuario es propietario de una institución",
+     *     description="Valida que los IDs del usuario e institución existan en la base de datos y determina si el usuario es el dueño de la institución.",
+     *     operationId="checkInstitutionOwner",
+     *     tags={"Instituciones"},
+     *     security={{"bearerAuth":{}}},
+     *     summary="Ruta protegida",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"user_id", "institution_id"},
+     *             @OA\Property(property="user_id", type="integer", example=3),
+     *             @OA\Property(property="institution_id", type="integer", example=12)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Indica si el usuario es propietario de la institución",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="success"),
+     *             @OA\Property(property="isOwner", type="boolean", example=true)
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=422,
+     *         description="Fallo de validación",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Validation failed"),
+     *             @OA\Property(property="errors", type="object",
+     *                 @OA\Property(property="user_id", type="array", @OA\Items(type="string", example="The selected user id is invalid.")),
+     *                 @OA\Property(property="institution_id", type="array", @OA\Items(type="string", example="The selected institution id is invalid."))
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error interno al verificar propiedad",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="string", example="error"),
+     *             @OA\Property(property="message", type="string", example="Error checking institution ownership")
+     *         )
+     *     )
+     * )
+     */
     public function checkOwner(Request $request)
     {
         try {

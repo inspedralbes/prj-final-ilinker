@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { LoaderComponent } from "@/components/ui/loader-layout";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -27,8 +28,7 @@ export default function AdminPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-      </div>
+      <LoaderComponent />
     );
   }
 
