@@ -114,7 +114,7 @@ const Likes: React.FC = () => {
       {modalPubli && (
         <ShowPublication
           publication={selectedPost}
-          student={userData}
+          onSave={() => setModalPubli(false)}
           onClose={() => setModalPubli(false)}
         />
       )}
