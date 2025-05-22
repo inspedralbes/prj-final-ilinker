@@ -38,7 +38,7 @@ use App\Http\Controllers\Admin\AdminOfferController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Controllers\ReportController;
 
-
+Route::get('/users/suggested/logout', [UserController::class, 'suggestedLogout']);
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -88,6 +88,8 @@ Route::prefix('/institution')->group(function () {
 
 //RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/users/suggested/login', [UserController::class, 'suggestedLogin']);
+
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
     Route::post('/report-user', [ReportController::class, 'store']);
 
@@ -290,5 +292,7 @@ Route::prefix('/admin')->middleware(['auth:sanctum', EnsureUserIsAdmin::class])-
     Route::put('/offers/{id}/status', [AdminOfferController::class, 'updateStatus']);
     Route::delete('/offers/{id}', [AdminOfferController::class, 'destroy']);
     Route::get('/offers/{id}/applications', [AdminOfferController::class, 'getApplications']);
+    Route::get('/questions', [ReportedUserController::class, 'getAdminQuestions']);
+    Route::post('/response-question', [ReportedUserController::class, 'responseQuestion']);
 });
 

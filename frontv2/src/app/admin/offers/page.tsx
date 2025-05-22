@@ -13,6 +13,8 @@ import config from '@/types/config';
 import { useRouter } from 'next/navigation';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { apiRequest } from '@/services/requests/apiRequest';
+import { useContext } from 'react';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 interface Offer {
     id: number;
@@ -39,9 +41,11 @@ export default function OffersPage() {
     const [viewOffer, setViewOffer] = useState<Offer | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const router = useRouter();
+    const { showLoader, hideLoader } = useContext(LoaderContext);
 
     const fetchOffers = async () => {
         setLoading(true);
+        showLoader();
         try {
             const data = await apiRequest('admin/offers', 'GET');
             setOffers(data?.data || []);
@@ -52,6 +56,7 @@ export default function OffersPage() {
                 variant: 'destructive',
             });
         } finally {
+            hideLoader();
             setLoading(false);
         }
     };

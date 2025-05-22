@@ -92,5 +92,94 @@ class UserController extends Controller
             'users' => $users]);
     }
 
+    public function suggestedLogout()
+    {
+        $users = User::with(['institutions', 'company', 'student'])
+            ->withCount([
+                'publications',
+                'followers as followers_count' => function ($query) {
+                    $query->where('followers.status', 'approved');
+                }
+            ])
+            ->where('rol', '!=', 'admin')
+            ->orderByDesc('followers_count')
+            ->orderByDesc('publications_count')
+            ->take(5)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Usuarios obtenidos correctamente',
+            'users' => $users
+        ]);
+    }
+
+    public function suggestedLogin()
+    {
+        $authUser = auth()->user();
+
+        // IDs de seguidores del usuario
+        $followerIds = $authUser->followers()->pluck('users.id');
+
+        // IDs de usuarios a los que sigue el usuario
+        $followingIds = $authUser->following()->pluck('users.id');
+
+        // IDs combinados (seguidores y seguidos)
+        $knownCircleIds = $followerIds->merge($followingIds)->unique();
+
+        // Usuarios que son seguidores de mis seguidores/seguidos
+        $suggestedIds = User::whereHas('followers', function ($query) use ($knownCircleIds) {
+            $query->whereIn('followers.follower_id', $knownCircleIds)
+                ->where('followers.status', 'approved');
+        })
+            ->where('id', '!=', $authUser->id)
+            ->whereNotIn('id', $followingIds)
+            ->pluck('id')
+            ->unique();
+
+        // Obtener los usuarios sugeridos con relaciones y conteos
+        $users = User::with(['institutions', 'company', 'student'])
+            ->withCount([
+                'publications',
+                'followers as followers_count' => function ($query) {
+                    $query->where('followers.status', 'approved');
+                }
+            ])
+            ->whereIn('id', $suggestedIds)
+            ->where('rol', '!=', 'admin')
+            ->orderByDesc('followers_count')
+            ->orderByDesc('publications_count')
+            ->take(5)
+            ->get();
+
+        // Si hay menos de 5 usuarios sugeridos, completar con los más populares
+        if ($users->count() < 5) {
+            $alreadyIncludedIds = $users->pluck('id')->merge([$authUser->id])->merge($followingIds);
+
+            $complementaryUsers = User::with(['institutions', 'company', 'student'])
+                ->withCount([
+                    'publications',
+                    'followers as followers_count' => function ($query) {
+                        $query->where('followers.status', 'approved');
+                    }
+                ])
+                ->whereNotIn('id', $alreadyIncludedIds)
+                ->where('rol', '!=', 'admin')
+                ->orderByDesc('followers_count')
+                ->orderByDesc('publications_count')
+                ->take(5 - $users->count())
+                ->get();
+
+            $users = $users->concat($complementaryUsers);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Usuarios sugeridos correctamente',
+            'users' => $users,
+        ]);
+    }
+
+
 
 }

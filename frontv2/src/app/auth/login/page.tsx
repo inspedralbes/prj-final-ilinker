@@ -296,13 +296,12 @@ const Login: React.FC = () => {
                                 )}
                             </Button>
 
-                            <div className="my-6">
+                            {/* <div className="my-6">
                                 <p className="text-center text-gray-500">
                                     ────────────── O ───────────────
                                 </p>
                             </div>
 
-                            {/* Login with Google */}
                             <div className="flex items-center justify-center">
                                 <Button
                                     type="button"
@@ -330,7 +329,7 @@ const Login: React.FC = () => {
                                     </svg>
                                     <span>Iniciar sesión con Google</span>
                                 </Button>
-                            </div>
+                            </div> */}
                         </form>
                     )}
 

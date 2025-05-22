@@ -12,6 +12,8 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { apiRequest } from '@/services/requests/apiRequest';
 import { ArrowLeft, Eye, Edit, Power, Building2, User, MapPin, FileText } from 'lucide-react';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { useContext } from 'react';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 interface Company {
   id: number;
@@ -48,8 +50,10 @@ export default function CompaniesPage() {
   const [editData, setEditData] = useState<Partial<Company>>({});
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
+  const { showLoader, hideLoader } = useContext(LoaderContext);
 
   const fetchCompanies = async () => {
+    showLoader();
     setLoading(true);
     try {
       const response = await apiRequest('admin/companies');
@@ -71,6 +75,7 @@ export default function CompaniesPage() {
       });
     } finally {
       setLoading(false);
+      hideLoader();
     }
   };
 

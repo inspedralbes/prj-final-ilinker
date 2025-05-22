@@ -21,25 +21,13 @@ interface Applicant {
   competencies: string[];
 }
 
-const mockOffer = {
-  id: 1,
-  title: "Desarrollador Backend PHP",
-  company: "Tech Solutions S.L.",
-  address: "Calle Innovación 10",
-  locationType: "hybrid",
-  salary: "30.000 - 40.000 EUR",
-  description:
-    "<p>Buscamos un desarrollador backend con experiencia en PHP y Laravel...</p>",
-  skills: ["PHP", "Laravel", "MySQL", "API REST"],
-  created_at: "2024-04-16T12:55:43Z",
-};
 
 export default function OfferDetail() {
   const { id } = useParams<{ slug: string; id: string }>();
   const router = useRouter();
   const { showLoader, hideLoader } = useContext(LoaderContext);
   const { userData } = useContext(AuthContext);
-  const [offer, setOffer] = useState<any>(mockOffer);
+  const [offer, setOffer] = useState<any>(null);
   const [applicants, setApplicants] = useState<Applicant[] | null>(null);
 
   const handleStatusUpdate = (id: number, status: "accept" | "rejected") => {
@@ -90,6 +78,10 @@ export default function OfferDetail() {
         hideLoader();
       });
   }, [userData]);
+
+  if (!offer) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="bg-white rounded-lg overflow-hidden">
@@ -158,9 +150,9 @@ export default function OfferDetail() {
               Candidatos
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {applicants?.map((applicant: any) => (
+              {applicants?.map((applicant: any, index: number) => (
                 <ApplicantCard
-                  key={applicant.id}
+                  key={index}
                   applicant={applicant}
                   onStatusUpdate={handleStatusUpdate}
                 />

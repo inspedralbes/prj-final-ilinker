@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Institutions;
+use App\Models\User;
 use App\Services\InstitutionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -248,6 +249,11 @@ class InstitutionController extends Controller
     public function getInstitution($slug)
     {
         $institution = Institutions::where('slug', $slug)->with('user')->first();
+
+        $institutionFollowers = User::findOrFail($institution->user_id)
+            ->followers->count();
+
+        $institution->followers = $institutionFollowers;
 
         if (!$institution) {
             return response()->json([

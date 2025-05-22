@@ -1,6 +1,6 @@
 "use client";
 
-import React, {use, useContext, useEffect, useState} from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import {
     BriefcaseIcon,
     Camera,
@@ -41,31 +41,31 @@ import {
     Flag,
     AlertTriangle,
 } from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {Avatar} from "@/components/ui/avatar";
-import {Card} from "@/components/ui/card";
-import {Textarea} from "@/components/ui/textarea";
-import {Button} from "@/components/ui/button";
-import {Input} from "@/components/ui/input";
-import {Separator} from "@/components/ui/separator";
-import {Badge} from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import {formatDistanceToNow} from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import Cookies from "js-cookie";
 import ModalOffer from "@/app/profile/company/[slug]/ModalOffer";
-import {LoaderContext} from "@/contexts/LoaderContext";
+import { LoaderContext } from "@/contexts/LoaderContext";
 import Link from "next/link";
-import {apiRequest} from "@/services/requests/apiRequest";
-import {useRouter} from "next/navigation";
+import { apiRequest } from "@/services/requests/apiRequest";
+import { useRouter } from "next/navigation";
 import config from "@/types/config";
 import Modal from "@/components/ui/modal";
-import {useModal} from "@/hooks/use-modal";
-import {useToast} from "@/hooks/use-toast";
-import {AuthContext} from "@/contexts/AuthContext";
+import { useModal } from "@/hooks/use-modal";
+import { useToast } from "@/hooks/use-toast";
+import { AuthContext } from "@/contexts/AuthContext";
 import "@/styles/tiptap-content.scss";
 import Image from "next/image";
-import {es} from "date-fns/locale";
+import { es } from "date-fns/locale";
 import ShowPublication from "../../student/[uuid]/modals/showPublication";
 
 interface Follower {
@@ -80,11 +80,11 @@ interface Follower {
 }
 
 export default function CompanyClientNotMe({
-                                               company,
-                                               sectors,
-                                               skills,
-                                               publications,
-                                           }: {
+    company,
+    sectors,
+    skills,
+    publications,
+}: {
     company: any;
     sectors: any;
     skills: any;
@@ -112,14 +112,14 @@ export default function CompanyClientNotMe({
 
     const [companyEdited, setCompanyEdited] = useState(company);
 
-    const {hideLoader, showLoader} = useContext(LoaderContext);
-    const {loggedIn, userData} = useContext(AuthContext);
+    const { hideLoader, showLoader } = useContext(LoaderContext);
+    const { loggedIn, userData } = useContext(AuthContext);
     const [infoOfferDataModal, setInfoOfferDataModal] = useState<any | null>(
         null
     );
     const infoOfferModal = useModal();
 
-    const {toast} = useToast();
+    const { toast } = useToast();
     const [isFollowing, setIsFollowing] = useState(false);
     const [isFollowingLoading, setIsFollowingLoading] = useState(false);
 
@@ -495,7 +495,7 @@ export default function CompanyClientNotMe({
                         setCompanyFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: false}
+                                    ? { ...follower, isFollowed: false }
                                     : follower
                             )
                         );
@@ -552,7 +552,7 @@ export default function CompanyClientNotMe({
                         setCompanyFollowers((prev) =>
                             prev.map((follower) =>
                                 follower.pivot.follower_id === user_id
-                                    ? {...follower, isFollowed: true}
+                                    ? { ...follower, isFollowed: true }
                                     : follower
                             )
                         );
@@ -601,7 +601,7 @@ export default function CompanyClientNotMe({
     const handleBlock = (user_id: number) => {
         showLoader();
         try {
-            apiRequest("block", "POST", {user_id})
+            apiRequest("block", "POST", { user_id })
                 .then((response) => {
                     if (response.status === "success") {
                         toast({
@@ -791,7 +791,7 @@ export default function CompanyClientNotMe({
 
     const UpdatePublication = async () => {
         showLoader();
-        const response = await apiRequest('my-publications', 'POST', {id: companyEdited?.user_id});
+        const response = await apiRequest('my-publications', 'POST', { id: companyEdited?.user_id });
         if (response.status === 'success') {
             setPublicationsEdit(response.data)
             hideLoader();
@@ -801,6 +801,66 @@ export default function CompanyClientNotMe({
 
     }
 
+    // Contact
+    const infoContactModal = useModal();
+    const [contactReason, setContactReason] = useState("");
+    const [isContacting, setIsContacting] = useState(false);
+
+    const handleOpenModalContact = () => {
+        showLoader();
+        infoContactModal.openModal();
+        hideLoader();
+    }
+
+    const handleContactUser = () => {
+        showLoader();
+        setIsContacting(true);
+
+        if (!userData) {
+            toast({
+                title: "Error",
+                description: "Lo siento, parece que no estas logueado.",
+                variant: "destructive",
+            });
+            router.push('/auth/login');
+            infoContactModal.closeModal();
+            hideLoader();
+            return;
+        }
+        apiRequest('chats/send-direct-chat', 'POST', {
+            'content': contactReason,
+            'user_ids': [companyEdited?.user_id]
+        })
+            .then((response) => {
+                if (response.status === 'success') {
+                    toast({
+                        title: "Mensaje enviado",
+                        description: "Tu mensaje ha sido enviado correctamente.",
+                        variant: "success",
+                    });
+                    infoContactModal.closeModal();
+                    setContactReason("");
+                } else {
+                    toast({
+                        title: "Error",
+                        description: response.message || "Error al enviar el mensaje",
+                        variant: "destructive",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                toast({
+                    title: "Error",
+                    description: "Ocurrió un error al enviar el mensaje",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                setIsContacting(false);
+                hideLoader();
+            });
+    }
     return (
         <>
             <div className="min-h-screen bg-gray-100">
@@ -843,7 +903,7 @@ export default function CompanyClientNotMe({
                                                 {companyEdited?.slogan}
                                             </p>
                                             <p className="text-gray-500 flex items-center mt-2">
-                                                <MapPin className="h-5 w-5 text-gray-400 mr-2"/>
+                                                <MapPin className="h-5 w-5 text-gray-400 mr-2" />
                                                 {companyEdited?.address}
                                             </p>
                                         </div>
@@ -852,8 +912,9 @@ export default function CompanyClientNotMe({
                                 <div className="mt-5 flex justify-center sm:mt-0">
                                     <div className="flex space-x-2">
                                         <button
-                                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400"/>
+                                            className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                            onClick={() => handleOpenModalContact()}>
+                                            <MessageCircle className="h-5 w-5 mr-2 text-gray-400" />
                                             Contactar
                                         </button>
 
@@ -868,34 +929,34 @@ export default function CompanyClientNotMe({
                                             className={`group inline-flex items-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium text-white ${isFollowingLoading || isFollowing
                                                 ? "bg-gray-400 border-gray-400"
                                                 : "bg-black border-black hover:bg-gray-800 transition-colors duration-300"
-                                            }`}
+                                                }`}
                                         >
                                             {isFollowingLoading ? (
                                                 <>
-                                                    <Loader2 className="h-5 w-5 animate-spin mr-2"/>
+                                                    <Loader2 className="h-5 w-5 animate-spin mr-2" />
                                                     Cargando...
                                                 </>
                                             ) : isFollowing ? (
                                                 // Cuando ya sigues, cambiamos texto e icono al hacer hover
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span className="block group-hover:hidden">
-                              Siguiendo
-                            </span>
-                            <span className="hidden group-hover:block">
-                              Dejar de seguir
-                            </span>
-                            <UserPlus className="h-5 w-5 group-hover:hidden ml-2"/>
-                            <UserMinus className="h-5 w-5 hidden group-hover:block ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span className="block group-hover:hidden">
+                                                            Siguiendo
+                                                        </span>
+                                                        <span className="hidden group-hover:block">
+                                                            Dejar de seguir
+                                                        </span>
+                                                        <UserPlus className="h-5 w-5 group-hover:hidden ml-2" />
+                                                        <UserMinus className="h-5 w-5 hidden group-hover:block ml-2" />
+                                                    </span>
                                                 </>
                                             ) : (
                                                 // Cuando no sigues
                                                 <>
-                          <span className="flex items-center space-x-2">
-                            <span>Seguir</span>
-                            <UserPlus className="h-5 w-5 ml-2"/>
-                          </span>
+                                                    <span className="flex items-center space-x-2">
+                                                        <span>Seguir</span>
+                                                        <UserPlus className="h-5 w-5 ml-2" />
+                                                    </span>
                                                 </>
                                             )}
                                         </button>
@@ -910,6 +971,12 @@ export default function CompanyClientNotMe({
                                                 ? "seguidor"
                                                 : "seguidores"}
                                         </div>
+                                        <button
+                                            onClick={reportModal.openModal}
+                                            className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                        >
+                                            <Flag className="h-5 w-5  text-gray-400" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -924,7 +991,7 @@ export default function CompanyClientNotMe({
 
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div className="flex items-center">
-                                        <Globe className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Globe className="h-5 w-5 text-gray-400 mr-2" />
                                         <a
                                             href={companyEdited?.website || ""}
                                             className="text-blue-600 hover:underline"
@@ -933,17 +1000,17 @@ export default function CompanyClientNotMe({
                                         </a>
                                     </div>
                                     <div className="flex items-center">
-                                        <Phone className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Phone className="h-5 w-5 text-gray-400 mr-2" />
                                         <span className="text-gray-600">
-                      {companyEdited?.phone}
-                    </span>
+                                            {companyEdited?.phone}
+                                        </span>
                                     </div>
                                     <div className="flex items-center">
-                                        <Mail className="h-5 w-5 text-gray-400 mr-2"/>
+                                        <Mail className="h-5 w-5 text-gray-400 mr-2" />
                                         <span className="text-gray-600">
-                      {companyEdited?.company_email ||
-                          "Sin dirección de correo"}
-                    </span>
+                                            {companyEdited?.company_email ||
+                                                "Sin dirección de correo"}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -970,24 +1037,24 @@ export default function CompanyClientNotMe({
                                     value="acerca"
                                     className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
                                 >
-                                    <UserIcon className="h-4 w-4"/>
+                                    <UserIcon className="h-4 w-4" />
                                     Acerca de
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="ofertas"
                                     className="flex items-center gap-2 px-4 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent"
                                 >
-                                    <BriefcaseIcon className="h-4 w-4"/>
+                                    <BriefcaseIcon className="h-4 w-4" />
                                     Ofertas
                                 </TabsTrigger>
 
-                <TabsTrigger
-                  value="publications"
-                  className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
-                >
-                  <Folders className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="md:block">Publicaciones</span>
-                </TabsTrigger>
+                                <TabsTrigger
+                                    value="publications"
+                                    className="flex items-center gap-1 px-3 py-2 data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none bg-transparent whitespace-nowrap text-sm"
+                                >
+                                    <Folders className="h-3 w-3 md:h-4 md:w-4" />
+                                    <span className="md:block">Publicaciones</span>
+                                </TabsTrigger>
                             </TabsList>
                             <TabsContent value="acerca" className="mt-6">
                                 <Card className="p-6">
@@ -1020,7 +1087,7 @@ export default function CompanyClientNotMe({
                                                 <li>
                                                     <strong>Industria:</strong>{" "}
                                                     {companyEdited.sectors &&
-                            companyEdited.sectors.length > 0 ? (
+                                                        companyEdited.sectors.length > 0 ? (
                                                         companyEdited.sectors.map((sector: any) => (
                                                             <Badge key={sector.id} className="mr-2">
                                                                 {sector.name} {/* Renderiza solo el nombre */}
@@ -1028,8 +1095,8 @@ export default function CompanyClientNotMe({
                                                         ))
                                                     ) : (
                                                         <span className="text-gray-500">
-                              No especificado
-                            </span>
+                                                            No especificado
+                                                        </span>
                                                     )}
                                                 </li>
                                                 <li>
@@ -1047,7 +1114,7 @@ export default function CompanyClientNotMe({
                                             <>
                                                 <div className="flex flex-wrap gap-2 text-gray-600">
                                                     {companyEdited.skills &&
-                            companyEdited.skills.length > 0 ? (
+                                                        companyEdited.skills.length > 0 ? (
                                                         companyEdited.skills.map((skill: any) => (
                                                             <Badge
                                                                 key={skill.id}
@@ -1059,8 +1126,8 @@ export default function CompanyClientNotMe({
                                                         ))
                                                     ) : (
                                                         <span className="text-gray-500">
-                              No especificado
-                            </span>
+                                                            No especificado
+                                                        </span>
                                                     )}
                                                 </div>
                                             </>
@@ -1069,155 +1136,155 @@ export default function CompanyClientNotMe({
                                 </Card>
                             </TabsContent>
 
-              <TabsContent value="publications" className="mt-6 space-y-4">
-                {/* Selector de vista */}
-                <div className="flex justify-end mb-4">
-                  <div className="inline-flex rounded-md shadow-sm" role="group">
-                    <button
-                      type="button"
-                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
-                        }`}
-                      onClick={() => setViewMode("list")}
-                    >
-                      Lista
-                    </button>
-                    <button
-                      type="button"
-                      className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
-                        }`}
-                      onClick={() => setViewMode("gallery")}
-                    >
-                      Galería
-                    </button>
-                  </div>
-                </div>
-
-                <Card className="p-6 mt-2 mb-6 relative">
-                  {publicationsEdit && publicationsEdit.length > 0 ? (
-                    <>
-                      {/* Vista de lista */}
-                      {viewMode === "list" && (
-                        <div className="space-y-4">
-                          {currentPosts.map((post: any) => (
-                            <Card key={post.id} className="p-6">
-                              <div className="flex gap-4">
-                                <Avatar className="h-12 w-12">
-                                  <img
-                                    src={companyEdited?.logo ? `${config.storageUrl}${companyEdited.logo}` : logoImage}
-                                    alt="Author"
-                                    className="h-full w-full object-cover rounded-full"
-                                  />
-                                </Avatar>
-                                <div className="flex-1">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <h3 className="font-semibold">{post.user_details?.name}</h3>
+                            <TabsContent value="publications" className="mt-6 space-y-4">
+                                {/* Selector de vista */}
+                                <div className="flex justify-end mb-4">
+                                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg ${viewMode === "list" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
+                                            onClick={() => setViewMode("list")}
+                                        >
+                                            Lista
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg ${viewMode === "gallery" ? "bg-gray-100 text-gray-900" : "bg-white text-gray-500"
+                                                }`}
+                                            onClick={() => setViewMode("gallery")}
+                                        >
+                                            Galería
+                                        </button>
                                     </div>
-                                    <div
-                                      className="flex items-center gap-5 text-sm text-gray-500">
-                                      <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
-                                      <button
-                                        onClick={() => selectPost(post)}
-                                      >
-                                        <Eye className="h-5 w-5 text-black" />
-                                      </button>
-                                    </div>
-
-                                  </div>
-
-                                  <p className="mt-2 text-gray-600">{post.content}</p>
                                 </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
 
-                      {/* Vista de galería */}
-                      {viewMode === "gallery" && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
-                          {galleryImages.map((item: any) => (
-                            <Card
-                              key={item.id}
-                              className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
-                              onClick={() => selectPost(item.post)}
-                            >
-                              <Image
-                                src={item.media.file_path}
-                                alt="Contenido de la publicación"
-                                width={300}
-                                height={300}
-                                layout="responsive"
-                                objectFit="cover"
-                                objectPosition="center"
-                              />
+                                <Card className="p-6 mt-2 mb-6 relative">
+                                    {publicationsEdit && publicationsEdit.length > 0 ? (
+                                        <>
+                                            {/* Vista de lista */}
+                                            {viewMode === "list" && (
+                                                <div className="space-y-4">
+                                                    {currentPosts.map((post: any) => (
+                                                        <Card key={post.id} className="p-6">
+                                                            <div className="flex gap-4">
+                                                                <Avatar className="h-12 w-12">
+                                                                    <img
+                                                                        src={companyEdited?.logo ? `${config.storageUrl}${companyEdited.logo}` : logoImage}
+                                                                        alt="Author"
+                                                                        className="h-full w-full object-cover rounded-full"
+                                                                    />
+                                                                </Avatar>
+                                                                <div className="flex-1">
+                                                                    <div className="flex justify-between items-start">
+                                                                        <div>
+                                                                            <h3 className="font-semibold">{post.user_details?.name}</h3>
+                                                                        </div>
+                                                                        <div
+                                                                            className="flex items-center gap-5 text-sm text-gray-500">
+                                                                            <span> {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: es })}</span>
+                                                                            <button
+                                                                                onClick={() => selectPost(post)}
+                                                                            >
+                                                                                <Eye className="h-5 w-5 text-black" />
+                                                                            </button>
+                                                                        </div>
 
-                              {/* Overlay al hacer hover con likes y comentarios */}
-                              <div
-                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
-                                <div className="flex gap-6">
-                                  <div className="flex items-center">
-                                    <Heart className="h-5 w-5" />
-                                    <span
-                                      className="ml-2">{item.post.likes_count || 0}</span>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <MessageCircle className="h-5 w-5" />
-                                    <span
-                                      className="ml-2">{item.post.comments_count || 0}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </Card>
-                          ))}
-                        </div>
-                      )}
+                                                                    </div>
 
-                      {/* Paginación */}
-                      {totalPages > 1 && viewMode === "list" && (
-                        <div className="mt-6 flex justify-center items-center gap-2">
-                          <Button
-                            variant="outline"
-                            onClick={() => goToPage(Math.max(1, currentPage - 1))}
-                            disabled={currentPage === 1}
-                            size="sm"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </Button>
+                                                                    <p className="mt-2 text-gray-600">{post.content}</p>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
 
-                          {getPageNumbers().map((pageNumber, index) => (
-                            <React.Fragment key={index}>
-                              {pageNumber === "..." ? (
-                                <span className="px-2">...</span>
-                              ) : (
-                                <Button
-                                  variant={currentPage === pageNumber ? "default" : "outline"}
-                                  onClick={() => goToPage(pageNumber)}
-                                  size="sm"
-                                >
-                                  {pageNumber}
-                                </Button>
-                              )}
-                            </React.Fragment>
-                          ))}
+                                            {/* Vista de galería */}
+                                            {viewMode === "gallery" && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2">
+                                                    {galleryImages.map((item: any) => (
+                                                        <Card
+                                                            key={item.id}
+                                                            className="relative aspect-square overflow-hidden cursor-pointer flex items-center justify-center"
+                                                            onClick={() => selectPost(item.post)}
+                                                        >
+                                                            <Image
+                                                                src={item.media.file_path}
+                                                                alt="Contenido de la publicación"
+                                                                width={300}
+                                                                height={300}
+                                                                layout="responsive"
+                                                                objectFit="cover"
+                                                                objectPosition="center"
+                                                            />
 
-                          <Button
-                            variant="outline"
-                            onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
-                            disabled={currentPage === totalPages}
-                            size="sm"
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-12 text-gray-500">
-                      No hay publicaciones disponibles
-                    </div>
-                  )}
-                </Card>
+                                                            {/* Overlay al hacer hover con likes y comentarios */}
+                                                            <div
+                                                                className="absolute inset-0 bg-black bg-opacity-40 opacity-0 hover:opacity-100 transition-opacity duration-200 flex items-center justify-center text-white">
+                                                                <div className="flex gap-6">
+                                                                    <div className="flex items-center">
+                                                                        <Heart className="h-5 w-5" />
+                                                                        <span
+                                                                            className="ml-2">{item.post.likes_count || 0}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center">
+                                                                        <MessageCircle className="h-5 w-5" />
+                                                                        <span
+                                                                            className="ml-2">{item.post.comments_count || 0}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Card>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Paginación */}
+                                            {totalPages > 1 && viewMode === "list" && (
+                                                <div className="mt-6 flex justify-center items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.max(1, currentPage - 1))}
+                                                        disabled={currentPage === 1}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </Button>
+
+                                                    {getPageNumbers().map((pageNumber, index) => (
+                                                        <React.Fragment key={index}>
+                                                            {pageNumber === "..." ? (
+                                                                <span className="px-2">...</span>
+                                                            ) : (
+                                                                <Button
+                                                                    variant={currentPage === pageNumber ? "default" : "outline"}
+                                                                    onClick={() => goToPage(pageNumber)}
+                                                                    size="sm"
+                                                                >
+                                                                    {pageNumber}
+                                                                </Button>
+                                                            )}
+                                                        </React.Fragment>
+                                                    ))}
+
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
+                                                        disabled={currentPage === totalPages}
+                                                        size="sm"
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center py-12 text-gray-500">
+                                            No hay publicaciones disponibles
+                                        </div>
+                                    )}
+                                </Card>
 
                             </TabsContent>
 
@@ -1240,9 +1307,9 @@ export default function CompanyClientNotMe({
                                                         {job.title}
                                                     </h3>
                                                     <div className="flex items-center gap-2 text-muted-foreground">
-                                                        <Building2 className="h-4 w-4"/>
+                                                        <Building2 className="h-4 w-4" />
                                                         <span>{company.name}</span>
-                                                        <MapPin className="h-4 w-4 ml-2"/>
+                                                        <MapPin className="h-4 w-4 ml-2" />
                                                         <span>{job.address}</span>
                                                     </div>
                                                 </div>
@@ -1260,37 +1327,37 @@ export default function CompanyClientNotMe({
                                                 </div>
                                             </div>
                                             <Button variant="ghost" size="icon">
-                                                <BookmarkPlus className="h-5 w-5"/>
+                                                <BookmarkPlus className="h-5 w-5" />
                                             </Button>
                                         </div>
                                         <div className="flex items-center gap-2 mt-4 text-sm text-muted-foreground">
-                                            <Clock className="h-4 w-4"/>
+                                            <Clock className="h-4 w-4" />
                                             <span>
-                        Posted{" "}
+                                                Posted{" "}
                                                 {formatDistanceToNow(new Date(job.created_at), {
                                                     addSuffix: true,
                                                 })}
-                      </span>
-                                            <Separator orientation="vertical" className="h-4"/>
+                                            </span>
+                                            <Separator orientation="vertical" className="h-4" />
                                             <span>
-                        {job.users_interested?.length
-                            ? job.users_interested.length
-                            : 0}{" "}
+                                                {job.users_interested?.length
+                                                    ? job.users_interested.length
+                                                    : 0}{" "}
                                                 applicants
-                      </span>
+                                            </span>
                                         </div>
                                     </Card>
                                 ))}
 
                                 {(!companyEdited?.offers ||
                                     companyEdited.offers.length === 0) && (
-                    <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
-                      <Inbox className="w-12 h-12 text-gray-400 mb-4" />
-                      <p className="text-lg font-semibold text-gray-600 mb-2">
-                        No hay ofertas disponibles
-                      </p>
-                    </div>
-                  )}
+                                        <div className="flex flex-col items-center justify-center mt-8 p-6 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                                            <Inbox className="w-12 h-12 text-gray-400 mb-4" />
+                                            <p className="text-lg font-semibold text-gray-600 mb-2">
+                                                No hay ofertas disponibles
+                                            </p>
+                                        </div>
+                                    )}
                             </TabsContent>
                         </Tabs>
                     </div>
@@ -1298,15 +1365,15 @@ export default function CompanyClientNotMe({
             </div>
 
 
-      {
-        modalPubli && (
-          <ShowPublication
-            publication={selectedPost}
-            onClose={() => setModalPubli(false)}
-            onSave={() => { UpdatePublication() }}
-          />
-        )
-      }
+            {
+                modalPubli && (
+                    <ShowPublication
+                        publication={selectedPost}
+                        onClose={() => setModalPubli(false)}
+                        onSave={() => { UpdatePublication() }}
+                    />
+                )
+            }
 
             <Modal
                 isOpen={infoOfferModal.isOpen}
@@ -1324,20 +1391,20 @@ export default function CompanyClientNotMe({
                             </h2>
                             <span
                                 className="inline-block bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded">
-                {infoOfferDataModal?.vacancies}{" "}
+                                {infoOfferDataModal?.vacancies}{" "}
                                 {infoOfferDataModal?.vacancies === 1 ? "vacante" : "vacantes"}
-              </span>
+                            </span>
                         </div>
 
                         <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                            <Building2 className="h-4 w-4"/>
+                            <Building2 className="h-4 w-4" />
                             <Link
                                 href={`/profile/company/${infoOfferDataModal?.company?.slug}`}
                                 className="ml-2"
                             >
                                 <span>{infoOfferDataModal?.company?.name}</span>
                             </Link>
-                            <MapPin className="h-4 w-4 ml-2"/>
+                            <MapPin className="h-4 w-4 ml-2" />
                             <span>{infoOfferDataModal?.address}</span>
                         </div>
                         <div className="flex gap-4">
@@ -1348,7 +1415,7 @@ export default function CompanyClientNotMe({
                                     disabled
                                     className="w-full flex items-center justify-center gap-2 opacity-60 cursor-not-allowed"
                                 >
-                                    <BookmarkCheck className="h-5 w-5 text-gray-400"/>
+                                    <BookmarkCheck className="h-5 w-5 text-gray-400" />
                                     <span className="text-gray-600">Ya estás inscrito</span>
                                 </Button>
                             ) : (
@@ -1356,73 +1423,73 @@ export default function CompanyClientNotMe({
                                     className="w-full flex-1"
                                     onClick={loggedIn ? handleApplyOffer : handleRedirectLogin}
                                 >
-                                    <BookmarkPlus className="h-5 w-5 mr-2"/>
+                                    <BookmarkPlus className="h-5 w-5 mr-2" />
                                     <span>Apply Now</span>
                                 </Button>
                             )}
                             <Button variant="outline" size="icon">
-                                <BookmarkPlus className="h-5 w-5"/>
+                                <BookmarkPlus className="h-5 w-5" />
                             </Button>
                         </div>
                     </div>
 
-                    <Separator/>
+                    <Separator />
 
                     <div className="grid grid-cols-2 gap-4">
                         {/* Location Type */}
                         <div className="flex items-center gap-2 text-sm">
                             {infoOfferDataModal?.location_type === "remoto" && (
-                                <Globe className="h-5 w-5 text-muted-foreground"/>
+                                <Globe className="h-5 w-5 text-muted-foreground" />
                             )}
                             {infoOfferDataModal?.location_type === "presencial" && (
-                                <Building2 className="h-5 w-5 text-muted-foreground"/>
+                                <Building2 className="h-5 w-5 text-muted-foreground" />
                             )}
                             {infoOfferDataModal?.location_type === "hibrido" && (
-                                <Home className="h-5 w-5 text-muted-foreground"/>
+                                <Home className="h-5 w-5 text-muted-foreground" />
                             )}
                             <span className="capitalize">
-                {infoOfferDataModal?.location_type}
-              </span>
+                                {infoOfferDataModal?.location_type}
+                            </span>
                         </div>
 
                         {/* Schedule Type */}
                         <div className="flex items-center gap-2 text-sm">
                             {infoOfferDataModal?.schedule_type === "full" && (
-                                <Clock className="h-5 w-5 text-muted-foreground"/>
+                                <Clock className="h-5 w-5 text-muted-foreground" />
                             )}
                             {infoOfferDataModal?.schedule_type === "part" && (
-                                <CalendarDays className="h-5 w-5 text-muted-foreground"/>
+                                <CalendarDays className="h-5 w-5 text-muted-foreground" />
                             )}
                             {infoOfferDataModal?.schedule_type === "negociable" && (
-                                <Calendar className="h-5 w-5 text-muted-foreground"/>
+                                <Calendar className="h-5 w-5 text-muted-foreground" />
                             )}
                             <span className="capitalize">
-                {infoOfferDataModal?.schedule_type === "full"
-                    ? "Jornada completa"
-                    : infoOfferDataModal?.schedule_type === "part"
-                    ? "Jornada parcial"
-                    : "Negociable"}
-              </span>
+                                {infoOfferDataModal?.schedule_type === "full"
+                                    ? "Jornada completa"
+                                    : infoOfferDataModal?.schedule_type === "part"
+                                        ? "Jornada parcial"
+                                        : "Negociable"}
+                            </span>
                         </div>
 
                         {/* Salary */}
                         <div className="flex items-center gap-2 text-sm">
-                            <Banknote className="h-5 w-5 text-muted-foreground"/>
+                            <Banknote className="h-5 w-5 text-muted-foreground" />
                             <span>{infoOfferDataModal?.salary}</span>
                         </div>
 
                         {/* Days per Week */}
                         <div className="flex items-center gap-2 text-sm">
-                            <CalendarDays className="h-5 w-5 text-muted-foreground"/>
+                            <CalendarDays className="h-5 w-5 text-muted-foreground" />
                             <span>
-                {infoOfferDataModal?.days_per_week}{" "}
+                                {infoOfferDataModal?.days_per_week}{" "}
                                 {infoOfferDataModal?.days_per_week === 1 ? "día" : "días"} por
-                semana
-              </span>
+                                semana
+                            </span>
                         </div>
                     </div>
 
-                    <Separator/>
+                    <Separator />
 
                     <div className="space-y-4">
                         <div
@@ -1433,7 +1500,7 @@ export default function CompanyClientNotMe({
                         />
                     </div>
 
-                    <Separator/>
+                    <Separator />
 
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold mb-2">Skills necesarias</h3>
@@ -1443,12 +1510,12 @@ export default function CompanyClientNotMe({
                                     key={skill}
                                     className="inline-block bg-black text-white text-xs font-medium px-2 py-1 rounded-full"
                                 >
-                  {skill}
-                </span>
+                                    {skill}
+                                </span>
                             ))}
                         </div>
                     </div>
-                    <Separator/>
+                    <Separator />
 
                     <div className="space-y-4">
                         <h3 className="text-lg font-semibold">
@@ -1503,7 +1570,7 @@ export default function CompanyClientNotMe({
                                 <div className="relative">
                                     <p className="text-sm mb-0 text-gray-600">Email*</p>
                                     <div className="flex items-center">
-                                        <Mail className="h-4 w-4 absolute left-3 text-gray-500"/>
+                                        <Mail className="h-4 w-4 absolute left-3 text-gray-500" />
                                         <Input
                                             type="email"
                                             value={studentData?.email}
@@ -1524,7 +1591,7 @@ export default function CompanyClientNotMe({
                                         Numero de telefono*
                                     </p>
                                     <div className="flex items-center">
-                                        <Phone className="h-4 w-4 absolute left-3 text-gray-500"/>
+                                        <Phone className="h-4 w-4 absolute left-3 text-gray-500" />
                                         <Input
                                             type="number"
                                             value={studentData?.phone}
@@ -1564,16 +1631,16 @@ export default function CompanyClientNotMe({
                                 </p>
                                 <label
                                     className="relative flex items-center space-x-3 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 hover:bg-gray-100 cursor-pointer">
-                                    <FileText className="h-6 w-6 text-gray-500"/>
+                                    <FileText className="h-6 w-6 text-gray-500" />
                                     <div className="flex-1">
                                         {studentData?.cv_attachment ? (
                                             <span className="text-gray-700 truncate">
-                        {studentData.cv_attachment.name}
-                      </span>
+                                                {studentData.cv_attachment.name}
+                                            </span>
                                         ) : (
                                             <span className="text-gray-400">
-                        Arrastra tu CV aquí o haz clic para subir
-                      </span>
+                                                Arrastra tu CV aquí o haz clic para subir
+                                            </span>
                                         )}
                                     </div>
                                     <input
@@ -1600,17 +1667,17 @@ export default function CompanyClientNotMe({
                                 </p>
                                 <label
                                     className="relative flex items-center space-x-3 rounded-2xl border-2 border-dashed border-gray-300 bg-gray-50 p-4 hover:bg-gray-100 cursor-pointer">
-                                    <FileSignature className="h-6 w-6 text-gray-500"/>
+                                    <FileSignature className="h-6 w-6 text-gray-500" />
                                     <div className="flex-1">
                                         {studentData?.cover_letter_attachment ? (
                                             <span className="text-gray-700 truncate">
-                        {studentData.cover_letter_attachment.name}
-                      </span>
+                                                {studentData.cover_letter_attachment.name}
+                                            </span>
                                         ) : (
                                             <span className="text-gray-400">
-                        Arrastra tu carta de presentación aquí o haz clic para
-                        subir
-                      </span>
+                                                Arrastra tu carta de presentación aquí o haz clic para
+                                                subir
+                                            </span>
                                         )}
                                     </div>
                                     <input
@@ -1700,7 +1767,7 @@ export default function CompanyClientNotMe({
                                     </h2>
                                     <div className="relative">
                                         <div className="flex items-center">
-                                            <Mail className="h-4 w-4 absolute left-0 text-gray-500"/>
+                                            <Mail className="h-4 w-4 absolute left-0 text-gray-500" />
                                             <div className="pl-6 pr-4 py-2 rounded-sm text-sm">
                                                 {studentData?.email || "Sin email"}
                                             </div>
@@ -1709,7 +1776,7 @@ export default function CompanyClientNotMe({
 
                                     <div className="relative">
                                         <div className="flex items-center">
-                                            <Phone className="h-4 w-4 absolute left-0 text-gray-500"/>
+                                            <Phone className="h-4 w-4 absolute left-0 text-gray-500" />
                                             <div className="pl-6 pr-4 py-2 rounded-sm text-sm">
                                                 {studentData?.phone || "Sin telefono"}
                                             </div>
@@ -1718,7 +1785,7 @@ export default function CompanyClientNotMe({
 
                                     <div className="relative">
                                         <div className="flex items-center">
-                                            <Calendar className="h-4 w-4 absolute left-0 text-gray-500"/>
+                                            <Calendar className="h-4 w-4 absolute left-0 text-gray-500" />
                                             <div className="pl-6 pr-4 py-2 rounded-sm text-sm">
                                                 {studentData?.availability || "Sin disponibilidad"}
                                             </div>
@@ -1743,12 +1810,12 @@ export default function CompanyClientNotMe({
                                                 className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
                                             >
                                                 <div className="bg-gray-100 p-3 rounded-full mb-2">
-                                                    <FileText className="h-6 w-6 text-gray-500"/>
+                                                    <FileText className="h-6 w-6 text-gray-500" />
                                                 </div>
                                                 <span
                                                     className="block w-full text-gray-700 text-sm truncate text-center">
-                          {studentData.cv_attachment?.name || "CV no subido"}
-                        </span>
+                                                    {studentData.cv_attachment?.name || "CV no subido"}
+                                                </span>
                                             </a>
 
                                             {/* Carta de presentación Card */}
@@ -1756,21 +1823,21 @@ export default function CompanyClientNotMe({
                                                 href={
                                                     studentData.cover_letter_attachment
                                                         ? URL.createObjectURL(
-                              studentData.cover_letter_attachment
-                            )
+                                                            studentData.cover_letter_attachment
+                                                        )
                                                         : "#"
                                                 }
                                                 download={studentData.cover_letter_attachment?.name}
                                                 className="w-32 flex flex-col items-center bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow"
                                             >
                                                 <div className="bg-gray-100 p-3 rounded-full mb-2">
-                                                    <FileSignature className="h-6 w-6 text-gray-500"/>
+                                                    <FileSignature className="h-6 w-6 text-gray-500" />
                                                 </div>
                                                 <span
                                                     className="block w-full text-gray-700 text-sm truncate text-center">
-                          {studentData.cover_letter_attachment?.name ||
-                              "Carta no subida"}
-                        </span>
+                                                    {studentData.cover_letter_attachment?.name ||
+                                                        "Carta no subida"}
+                                                </span>
                                             </a>
                                         </div>
                                     </div>
@@ -1794,7 +1861,7 @@ export default function CompanyClientNotMe({
                     {step === 4 && (
                         <>
                             <div className="text-center mx-20 space-y-4">
-                                <CheckCircle className="mx-auto h-16 w-16 text-green-500"/>
+                                <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     ¡Solicitud enviada con éxito!
                                 </h2>
@@ -1845,15 +1912,15 @@ export default function CompanyClientNotMe({
                                             follower.student
                                                 ? follower.student.profile_pic
                                                 : follower.company
-                          ? follower.company.logo
-                          : follower.institutions?.logo
+                                                    ? follower.company.logo
+                                                    : follower.institutions?.logo
                                         }
                                         alt={
                                             follower.student
                                                 ? follower.student.name
                                                 : follower.company
-                          ? follower.company.name
-                          : follower.institutions?.name
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name
                                         }
                                     />
                                     <div>
@@ -1861,15 +1928,15 @@ export default function CompanyClientNotMe({
                                             {follower.student
                                                 ? follower.student.name
                                                 : follower.company
-                          ? follower.company.name
-                          : follower.institutions?.name}
+                                                    ? follower.company.name
+                                                    : follower.institutions?.name}
                                         </p>
                                         <p className="text-sm text-gray-600">
                                             {follower.student
                                                 ? follower.email
                                                 : follower.company
-                          ? follower.company.email
-                          : follower.institutions?.email}
+                                                    ? follower.company.email
+                                                    : follower.institutions?.email}
                                         </p>
                                     </div>
                                 </div>
@@ -1889,7 +1956,7 @@ export default function CompanyClientNotMe({
                                         >
                                             {isLoadingToggleFollwer ? (
                                                 <>
-                                                    <Loader2 className="animate-spin"/>
+                                                    <Loader2 className="animate-spin" />
                                                     <span>Cargando...</span>
                                                 </>
                                             ) : follower.isFollowed ? (
@@ -1933,63 +2000,101 @@ export default function CompanyClientNotMe({
                 </div>
             </Modal>
 
-      <Modal
-        isOpen={reportModal.isOpen}
-        onClose={reportModal.closeModal}
-        id="report-modal"
-        size="md"
-        title={`Reportar a ${companyEdited.name}`}
-        closeOnOutsideClick={true}
-      >
-        <div className="flex flex-col space-y-4 p-5">
-          <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
-            <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
-            <div>
-              <p className="text-sm text-yellow-800">
-                Por favor, proporciona detalles sobre el problema que has
-                encontrado con este usuario. Revisaremos tu reporte y tomaremos
-                las medidas necesarias.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">
-              Motivo del reporte
-            </label>
-            <Textarea
-              value={reportReason}
-              onChange={(e) => setReportReason(e.target.value)}
-              placeholder="Describe el motivo de tu reporte..."
-              rows={5}
-            />
-          </div>
-
-          <div className="flex justify-end space-x-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={reportModal.closeModal}
-              disabled={isReporting}
+            <Modal
+                isOpen={reportModal.isOpen}
+                onClose={reportModal.closeModal}
+                id="report-modal"
+                size="md"
+                title={`Reportar a ${companyEdited.name}`}
+                closeOnOutsideClick={true}
             >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleReportUser}
-              disabled={isReporting || !reportReason.trim()}
-              className="bg-red-600 hover:bg-red-700"
+                <div className="flex flex-col space-y-4 p-5">
+                    <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <div>
+                            <p className="text-sm text-yellow-800">
+                                Por favor, proporciona detalles sobre el problema que has
+                                encontrado con este usuario. Revisaremos tu reporte y tomaremos
+                                las medidas necesarias.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                            Motivo del reporte
+                        </label>
+                        <Textarea
+                            value={reportReason}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            placeholder="Describe el motivo de tu reporte..."
+                            rows={5}
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                        <Button
+                            variant="outline"
+                            onClick={reportModal.closeModal}
+                            disabled={isReporting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleReportUser}
+                            disabled={isReporting || !reportReason.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isReporting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                "Enviar reporte"
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={infoContactModal.isOpen}
+                onClose={infoContactModal.closeModal}
+                id="info-contact-modal"
+                size="lg"
+                title={`Información de contacto`}
+                closeOnOutsideClick={true}
             >
-              {isReporting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                "Enviar reporte"
-              )}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+                <div className="flex flex-col space-y-4 p-5">
+                    <div className="p-3 rounded-lg">
+                        <p className="text-sm font-bold text-gray-700 mb-2">*Describe el motivo de tu contacto</p>
+                        <div className="w-full">
+                            <Textarea
+                                value={contactReason}
+                                onChange={(e) => setContactReason(e.target.value)}
+                                placeholder="Di algo..."
+                                className="w-full"
+                                rows={5}
+                            />
+                        </div>
+                        <Button
+                            onClick={handleContactUser}
+                            disabled={!contactReason.trim()}
+                            className="bg-black hover:bg-black/80 mt-4"
+                        >
+                            {isContacting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                "Enviar Mensaje"
+                            )}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 }
