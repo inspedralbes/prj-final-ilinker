@@ -43,7 +43,7 @@ const toastVariants = cva(
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
-    VariantProps<typeof toastVariants>
+  VariantProps<typeof toastVariants>
 >(({ className, variant, ...props }, ref) => {
   return (
     <ToastPrimitives.Root
@@ -137,21 +137,21 @@ type ActionType = typeof actionTypes;
 
 type Action =
   | {
-      type: ActionType['ADD_TOAST'];
-      toast: ToasterToast;
-    }
+    type: ActionType['ADD_TOAST'];
+    toast: ToasterToast;
+  }
   | {
-      type: ActionType['UPDATE_TOAST'];
-      toast: Partial<ToasterToast>;
-    }
+    type: ActionType['UPDATE_TOAST'];
+    toast: Partial<ToasterToast>;
+  }
   | {
-      type: ActionType['DISMISS_TOAST'];
-      toastId?: ToasterToast['id'];
-    }
+    type: ActionType['DISMISS_TOAST'];
+    toastId?: ToasterToast['id'];
+  }
   | {
-      type: ActionType['REMOVE_TOAST'];
-      toastId?: ToasterToast['id'];
-    };
+    type: ActionType['REMOVE_TOAST'];
+    toastId?: ToasterToast['id'];
+  };
 
 interface State {
   toasts: ToasterToast[];
@@ -179,8 +179,12 @@ function toastReducer(state: State, action: Action): State {
       const { toastId } = action;
 
       if (toastId) {
-        toastTimeouts.get(toastId)?.();
-        toastTimeouts.delete(toastId);
+        // Cancelar el timeout si existe
+        const timeoutId = toastTimeouts.get(toastId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          toastTimeouts.delete(toastId);
+        }
       }
 
       return {
@@ -188,14 +192,22 @@ function toastReducer(state: State, action: Action): State {
         toasts: state.toasts.map((t) =>
           t.id === toastId || toastId === undefined
             ? {
-                ...t,
-                open: false,
-              }
+              ...t,
+              open: false,
+            }
             : t
         ),
       };
     }
     case 'REMOVE_TOAST':
+      if (action.toastId) {
+        // Limpiar timeout al remover toast
+        const timeoutId = toastTimeouts.get(action.toastId);
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          toastTimeouts.delete(action.toastId);
+        }
+      }
       return {
         ...state,
         toasts: state.toasts.filter((t) => t.id !== action.toastId),
@@ -237,6 +249,7 @@ function toast({ ...props }: Omit<ToasterToast, 'id'>) {
     },
   });
 
+  // Crear el timeout para auto-dismiss
   const timer = setTimeout(() => {
     dismiss();
   }, TOAST_REMOVE_DELAY);
