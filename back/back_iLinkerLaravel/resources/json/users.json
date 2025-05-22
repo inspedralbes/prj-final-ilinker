@@ -1,12 +1,42 @@
 [
     {
+        "name": "Admin",
+        "surname": "admin",
+        "birthday": "1995-03-10",
+        "email": "admin@gmail.com",
+        "active": false,
+        "email_verified_at": null,
+        "password": "abc.123",
+        "rol": "admin"
+    },
+    {
         "name": "Carlos",
         "surname": "García",
         "birthday": "1990-05-15",
-        "email": "a23purpatmah@inspedralbes.cat",
+        "email": "student1@gmail.com",
         "active": true,
         "email_verified_at": "2024-02-01 12:00:00",
-        "password": "$2y$10$examplehashedpassword1",
+        "password": "1234",
+        "rol": "student"
+    },
+    {
+        "name": "Juan",
+        "surname": "García",
+        "birthday": "1990-05-15",
+        "email": "student2@gmail.com",
+        "active": true,
+        "email_verified_at": "2024-02-01 12:00:00",
+        "password": "1234",
+        "rol": "student"
+    },
+    {
+        "name": "Manuel",
+        "surname": "Carrasco",
+        "birthday": "1990-05-15",
+        "email": "student3@gmail.com",
+        "active": true,
+        "email_verified_at": "2024-02-01 12:00:00",
+        "password": "1234",
         "rol": "student"
     },
     {
@@ -16,17 +46,28 @@
         "email": "laura.martinez@example.com",
         "active": true,
         "email_verified_at": "2024-02-02 14:30:00",
-        "password": "$2y$10$examplehashedpassword2",
+        "password": "1234",
         "rol": "company"
     },
     {
-        "name": "Miguel",
-        "surname": "Fernández",
+        "name": "Clara",
+        "surname": "Martínez",
+        "birthday": "1985-09-22",
+        "email": "clara.martinez@example.com",
+        "active": true,
+        "email_verified_at": "2024-02-02 14:30:00",
+        "password": "1234",
+        "rol": "company"
+    },
+    {
+        "name": "Purvish",
+        "surname": "Patel",
         "birthday": "1995-03-10",
-        "email": "miguel.fernandez@example.com",
-        "active": false,
-        "email_verified_at": null,
-        "password": "$2y$10$examplehashedpassword3",
+        "email": "purvish@gmail.com",
+        "active": true,
+        "email_verified_at": "2025-02-02 14:30:00",
+        "password": "1234",
         "rol": "institutions"
+
     }
 ]

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->boolean('active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('rol', ['student', 'company', 'institutions']);
+            $table->enum('rol', ['student', 'company', 'institutions', 'admin']);
             $table->string('provider_id')->nullable();
             $table->string('provider')->nullable();
             $table->rememberToken();

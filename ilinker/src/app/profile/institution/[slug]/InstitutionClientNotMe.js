@@ -1,102 +1,68 @@
-"use client";
+"use client"
 
-import { useState } from 'react';
-import { Search, MapPin, Users, Calendar, BookmarkIcon, MessageCircle, Share2, ThumbsUp, GraduationCap, Building2, Clock, BookOpen, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import {
+  MapPin,
+  Building2,
+  Globe,
+  Mail,
+  Phone,
+  Calendar,
+  Users,
+  MessageCircle,
+  Share2,
+  Award,
+  Briefcase,
+  Languages,
+  ChevronRight,
+} from "lucide-react"
 
-// Mock data
-const institutData = {
-  institute: {
-    name: "Institut Pedralbes",
-    description: "Centro público de educación secundaria y formación profesional situado en Barcelona, especializado en tecnología e informática.",
-    logo: "/images/logo.svg",
-    type: "Centro Público",
-    address: "Av. d'Esplugues, 36-42, 08034 Barcelona",
-    contact: {
-      email: "institutpedralbes@xtec.cat",
-      phone: "932 033 332",
-      website: "https://www.institutpedralbes.cat"
-    },
-    levels: ["ESO", "Bachillerato", "Formación Profesional"],
-    socialMedia: {
-      twitter: "@InsPedralbes",
-      instagram: "@inspedralbes"
-    }
-  },
-  educationalOffering: [
-    {
-      id: "fp-daw",
-      title: "Desarrollo de Aplicaciones Web",
-      department: "Informática",
-      type: "Grado Superior",
-      duration: "2 años (2000 horas)",
-      schedule: "Mañana / Tarde",
-      logo: "/images/daw-logo.svg",
-      tags: ["Programación", "Web", "JavaScript", "PHP", "Java"],
-      description: "Forma profesionales capaces de desarrollar, implementar y mantener aplicaciones web, con independencia del modelo empleado y utilizando tecnologías específicas.",
-      modules: [
-        "Programación",
-        "Bases de Datos",
-        "Lenguajes de Marcas",
-        "Desarrollo Web Cliente",
-        "Desarrollo Web Servidor"
-      ],
-      jobOpportunities: [
-        "Desarrollador Web",
-        "Programador Frontend",
-        "Programador Backend",
-        "Desarrollador Full Stack"
-      ]
-    },
-    {
-      id: "fp-asix",
-      title: "Administración de Sistemas Informáticos en Red",
-      department: "Informática",
-      type: "Grado Superior",
-      duration: "2 años (2000 horas)",
-      schedule: "Mañana / Tarde",
-      logo: "/images/asix-logo.svg",
-      tags: ["Redes", "Sistemas", "Linux", "Windows Server", "Virtualización"],
-      description: "Forma profesionales capaces de configurar, administrar y mantener sistemas informáticos en red, garantizando la funcionalidad, integridad y servicios del sistema.",
-      modules: [
-        "Sistemas Operativos",
-        "Redes",
-        "Servicios de Red",
-        "Seguridad",
-        "Administración de Sistemas"
-      ],
-      jobOpportunities: [
-        "Administrador de Sistemas",
-        "Técnico de Redes",
-        "Administrador de Servidores",
-        "Responsable de Seguridad"
-      ]
-    }
-  ]
-};
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
 
-const students = [
-  {
-    id: 1,
-    name: "Juan Pérez",
-    avatar: "/images/user1.jpg",
-    course: "Desarrollo de Aplicaciones Web",
-  },
-  {
-    id: 2,
-    name: "Ana Gómez",
-    avatar: "/images/user2.jpg",
-    course: "Administración de Sistemas Informáticos en Red",
-  },
-  {
-    id: 3,
-    name: "Carlos López",
-    avatar: "/images/user3.jpg",
-    course: "Desarrollo de Aplicaciones Web",
+export default function InstitutionClientNotMe({ institution }) {
+  const [visiblePublications, setVisiblePublications] = useState(3)
+  const [isFollowing, setIsFollowing] = useState(false)
+
+  if (!institution) {
+    return null;
   }
-];
+
+  const institute = {
+    basic: {
+      name: institution.name || "",
+      slogan: institution.slogan || "",
+      about: institution.about || "",
+      location: institution.location || "",
+      size: institution.size || "",
+      type: institution.type || "",
+      sector: institution.sector || "",
+      foundedYear: institution.founded_year || "",
+      website: institution.website || "",
+      phone: institution.phone || "",
+      email: institution.email || "",
+      languages: institution.languages || [],
+      logo: institution.logo_url || "https://images.unsplash.com/photo-1494537176433-7a3c4ef2046f",
+      cover: institution.cover_url || "https://images.unsplash.com/photo-1523050854058-8df90110c9f1"
+    },
+    specialties: institution.specialties || [],
+    certifications: institution.certifications || [],
+    collaborations: [
+      {
+        id: 1,
+        company: "Barcelona Activa",
+        type: "Prácticas Profesionales",
+        description: "Programa de prácticas para estudiantes de último año",
+      },
+      {
+        id: 2,
+        company: "Barcelona Tech City",
+        type: "Colaboración Educativa",
+        description: "Participación en eventos tecnológicos y mentorías",
+      },
+    ],
+  }
 
 const publications = [
   {
@@ -187,76 +153,67 @@ export default function InstitutPedralbes() {
         <div className="lg:col-span-1">
           <Card className="p-6">
             <div className="space-y-4">
-              <div className="flex flex-col items-center space-y-4">
-                <img src={institute.logo} alt={`Logo ${institute.name}`} className="rounded-lg w-32 h-32 object-cover" />
-                <div className="text-center">
-                  <h2 className="font-semibold text-xl">{institute.name}</h2>
-                  <p className="text-muted-foreground">{institute.type}</p>
+              <div className="flex items-center">
+                <Building2 className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Tipo de institución</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.type}</p>
                 </div>
               </div>
-              <hr className="my-4" />
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.address}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.type}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span>{institute.levels.join(", ")}</span>
+              <div className="flex items-center">
+                <Users className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Tamaño</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.size}</p>
                 </div>
               </div>
-              <hr className="my-4" />
-              <nav className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start">
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  Oferta Formativa
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <GraduationCap className="mr-2 h-4 w-4" />
-                  Formación Profesional
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <Calendar className="mr-2 h-4 w-4" />
-                  Calendario Escolar
-                </Button>
-                <Button variant="ghost" className="w-full justify-start">
-                  <MessageCircle className="mr-2 h-4 w-4" />
-                  Contacto
-                </Button>
-              </nav>
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Año de fundación</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.foundedYear}</p>
+                </div>
+              </div>
+              <div className="flex items-center">
+                <Languages className="h-5 w-5 text-gray-400 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm text-gray-500">Idiomas</p>
+                  <p className="text-gray-900 text-sm sm:text-base">{institute.basic.languages.join(", ")}</p>
+                </div>
+              </div>
             </div>
-          </Card>
+          </div>
+          <div>
+            <h3 className="text-lg font-medium text-gray-900 mb-4 mt-6 lg:mt-0">Especialidades</h3>
+            <div className="flex flex-wrap gap-2">
+              {institute.specialties.map((specialty, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-200 text-gray-800"
+                >
+                  {specialty}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
 
-          {/* Students Section */}
-          <Card className="mt-6">
-            <div className="p-6">
-              <h3 className="text-xl font-semibold mb-4">Estudiantes del Instituto</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-                {students.map((student) => (
-                  <div
-                    key={student.id}
-                    className="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
-                  >
-                    <div className="relative flex-shrink-0">
-                      <img
-                        src={student.avatar}
-                        alt={student.name}
-                        className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
-                      />
-                    </div>
-                    <div className="flex-grow min-w-0">
-                      <h4 className="font-semibold text-sm truncate">{student.name}</h4>
-                      <p className="text-sm text-muted-foreground truncate">{student.course}</p>
-                    </div>
-                  </div>
-                ))}
+      {/* Certificaciones */}
+      <div className="mt-4 sm:mt-6 border-t border-gray-200 pt-4 sm:pt-6">
+        <h2 className="text-lg font-medium text-gray-900 mb-4">Certificaciones y Acreditaciones</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {institute.certifications.map((cert) => (
+            <div key={cert.id} className="flex items-start space-x-3">
+              <Award className="h-6 w-6 text-gray-400 flex-shrink-0" />
+              <div>
+                <h3 className="font-medium text-gray-900 text-sm sm:text-base">{cert.name}</h3>
+                <p className="text-sm text-gray-500">
+                  Otorgado por {cert.issuedBy} • {cert.year}
+                </p>
               </div>
             </div>
-          </Card>
+          ))}
         </div>
 
         {/* Main content */}
@@ -295,6 +252,28 @@ export default function InstitutPedralbes() {
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+
+  const renderPublicaciones = (
+    <div className="mt-4 sm:mt-6">
+      <h2 className="text-lg font-medium text-gray-900 mb-4">Publicaciones</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {publications.map((pub) => (
+          <Card key={pub.id} className="overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-base sm:text-lg">{pub.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <img
+                src={pub.image}
+                alt={pub.title}
+                className="w-full h-32 sm:h-40 object-cover rounded"
+              />
             </CardContent>
           </Card>
 
@@ -462,5 +441,5 @@ export default function InstitutPedralbes() {
         </div>
       </div>
     </div>
-  );
+  )
 }

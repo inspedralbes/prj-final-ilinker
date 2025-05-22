@@ -11,17 +11,17 @@ class SkillsController extends Controller
     public function getSkills()
     {
         try {
-            $skills = Skill::all();
+            $skills = Skill::all("id", "name");
 
             return response()->json([
                 'status' => 'success',
                 'data' => $skills
             ], 200);
         } catch (\Exception $e) {
-            return response()->json([
+            return response()->json( [
                 'status' => 'error',
                 'message' => 'Error retrieving skills.',
-                'error' => $e->getMessage()
+                'error' => $e-> getMessage()
             ], 500);
         }
     }

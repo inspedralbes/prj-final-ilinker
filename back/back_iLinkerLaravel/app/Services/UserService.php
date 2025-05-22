@@ -95,11 +95,57 @@ class UserService
         }
 
     }
-
+/*
     public function getUsers()
     {
-        return User::all();
+        return User::with(['student', 'company', 'institutions'])->get()->map(function ($user) {
+            // The relationships are already loaded by the "with" method, no need to assign them again
+
+            // If you want consistent naming (making 'institutions' available as 'institution'):
+            if ($user->rol === 'institutions') {
+                $user->institution = $user->institutions;
+            }
+
+            // Esto asegura que cargamos solo los datos adicionales si es un estudiante
+            if ($user->rol === 'student' && $user->student) {
+                $user->load([
+                    'education',
+                    'experience',
+                    'skills' => function ($query) {
+                        $query->select('skills.id', 'skills.name');
+                    }
+                ]);
+            }
+
+            return $user;
+        });
     }
+*/
+
+public function getUsers()
+{
+    return User::with(['student', 'company', 'institutions'])->get()->map(function ($user) {
+        // The relationships are already loaded by the "with" method, no need to assign them again
+
+        // If you want consistent naming (making 'institutions' available as 'institution'):
+        if ($user->rol === 'institutions') {
+            $user->institution = $user->institutions;
+        }
+
+        // Esto asegura que cargamos solo los datos adicionales si es un estudiante
+        if ($user->rol === 'student' && $user->student) {
+            $user->load([
+                'education',
+                'experience',
+                'skills' => function ($query) {
+                    $query->select('skills.id', 'skills.name');
+                }
+            ]);
+        }
+
+        return $user;
+    });
+}
 
     public function getUserByIdWithInfo($id)
     {
@@ -110,7 +156,9 @@ class UserService
             $userInfo = match ($user->rol) {
                 'company' => User::with('company')->where('id', $id)->first(),
                 'institutions' => User::with('institutions')->where('id', $id)->first(),
-                'student' => User::with('student')->where('id', $id)->first(),
+                'student' => User::with(['student','education', 'experience', 'projects', 'skills' => function ($query) {
+                    $query->select('skills.id', 'skills.name');
+                }])->where('id', $id)->first(),
                 default => null,
             };
 

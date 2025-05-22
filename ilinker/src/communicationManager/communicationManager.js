@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 
 const routeApi = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api/").replace(/\/+$/, "") + "/";
 
-export async function apiRequest(endpoint, method = "GET", body = null) {
+export async function apiRequest(endpoint, method = "GET", body = null, isFormData = false) {
     try {
         let token = null;
 
@@ -14,7 +14,6 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
         const options = {
             method,
             headers: {
-                "Content-Type": "application/json",
                 "Accept": "application/json",
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
@@ -22,7 +21,13 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
         };
 
         if (body) {
-            options.body = JSON.stringify(body);
+            if (isFormData) {
+                // For FormData (file uploads), don't set Content-Type (browser will set it with boundary)
+                options.body = body;
+            } else {
+                options.headers["Content-Type"] = "application/json";
+                options.body = JSON.stringify(body);
+            }
         }
 
         const cleanEndpoint = endpoint.replace(/^\/+|\/+$/g, ""); // Eliminamos la barra inicial si la hay
@@ -34,18 +39,24 @@ export async function apiRequest(endpoint, method = "GET", body = null) {
         // if (!response.ok) {
         //     throw new Error(`Error en la respuesta: ${response.status} - ${response.statusText}`);
         // }
+        const data = await response.json();
+        
         if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `Error en la respuesta: ${response.status}`);
+            const error = new Error(data.message || `Error en la respuesta: ${response.status}`);
+            error.response = {
+                status: response.status,
+                data: data
+            };
+            throw error;
         }
 
-        return await response.json();
+        return data;
     } catch (error) {
-        console.error(`Error en la petición a ${endpoint}:`, error.message);
-        throw error;
-        // return { error: "No se pudo conectar con el servidor. Inténtalo más tarde." };
+      console.error(`Error en la petición a ${endpoint}:`, error.message);
+      throw error;
     }
-}
+  }
+  
 
 export async function login() {
     try {

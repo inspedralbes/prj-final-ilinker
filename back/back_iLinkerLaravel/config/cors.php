@@ -3,7 +3,7 @@
 return [
     'paths' => ['api/*', 'sanctum/csrf-cookie'], // Rutas permitidas
     'allowed_methods' => ['*'], // Métodos permitidos (GET, POST, PUT, DELETE, etc.)
-    // 'allowed_origins' => ['http://localhost:3000'],
+    //'allowed_origins' => ['http://localhost:3000'],
     'allowed_origins' => ['*'], // Orígenes permitidos (cambiar '*' si quieres restringir)
     'allowed_origins_patterns' => [], // Patrones de origen permitidos
     'allowed_headers' => ['*'], // Encabezados permitidos

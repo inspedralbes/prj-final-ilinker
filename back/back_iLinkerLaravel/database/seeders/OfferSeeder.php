@@ -18,6 +18,7 @@ class OfferSeeder extends Seeder
             $offers = json_decode(file_get_contents($ruta_json), true);
             foreach ($offers as $offer) {
                 Offer::create([
+                    'uuid' => $offer['uuid'],
                     'company_id' => $offer['company_id'],
                     'title' => $offer['title'],
                     'skills' => json_encode($offer['skills']),
@@ -27,7 +28,7 @@ class OfferSeeder extends Seeder
                     'postal_code' => $offer['postal_code'],
                     'salary' => $offer['salary'],
                     'active' => $offer['active'],
-                    'inscribed'=> $offer['inscribed'],
+                    'vacancies'=> $offer['vacancies'],
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);

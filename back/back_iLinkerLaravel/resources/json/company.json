@@ -1,11 +1,11 @@
 [
     {
-        "user_id": 2,
+        "user_id": 4,
         "name": "Tech Solutions S.L.",
         "slug": "tech-solutions-s-l",
         "CIF": "B12345678",
         "num_people": 50,
-        "logo": "tech_solutions_logo.png",
+        "logo": "default.jpg",
         "short_description": "Empresa especializada en soluciones tecnológicas.",
         "description": "Tech Solutions es una empresa líder en desarrollo de software y consultoría tecnológica.",
         "email": "contacto@techsolutions.com",
@@ -17,6 +17,27 @@
         "company_position": "Directora de RRHH",
         "address": "Calle Innovación 10",
         "city": "Madrid",
+        "postal_code": 28001,
+        "country": "España"
+    },
+    {
+        "user_id": 5,
+        "name": "Innovatech Global S.A.",
+        "slug": "innovatech-global-s-a",
+        "CIF": "B87654321",
+        "num_people": 120,
+        "logo": "default.jpg",
+        "short_description": "Empresa dedicada a la innovación tecnológica y transformación digital.",
+        "description": "Innovatech Global ofrece soluciones integrales en inteligencia artificial, big data y automatización de procesos.",
+        "email": "info@innovatechglobal.com",
+        "phone": 911223344,
+        "website": "https://www.innovatechglobal.com",
+        "responsible_name": "Carlos Gómez",
+        "responsible_phone": 699887766,
+        "responsible_email": "carlos.gomez@innovatechglobal.com",
+        "company_position": "Director de Tecnología",
+        "address": "Avenida de la Ciencia 25",
+        "city": "Barcelona",
         "postal_code": 28001,
         "country": "España"
     }

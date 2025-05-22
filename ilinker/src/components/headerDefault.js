@@ -1,16 +1,33 @@
-"use client"
+"use client";
 
-import {Button} from "@/components/ui/button"
-import {Bell, Building2Icon, LandmarkIcon, MessageSquareIcon, User} from "lucide-react"
-import Link from "next/link"
-import {usePathname} from "next/navigation"
-import Image from "next/image"
-import {AuthContext} from "@/contexts/AuthContext";
-import {useContext, useEffect, useRef, useState} from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Bell,
+  Building2Icon,
+  LandmarkIcon,
+  MessageSquareIcon,
+  Menu,
+  User,
+  ShieldCheck,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import { AuthContext } from "@/contexts/AuthContext";
+import { useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function HeaderDefault() {
     const pathname = usePathname();
     const {loggedIn, userData, logout} = useContext(AuthContext);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+      // Cierra el menú móvil cuando cambia la ruta
+      useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [pathname]);
+
+
 
     return (
         <header
@@ -51,6 +68,13 @@ export default function HeaderDefault() {
                                     <Bell className="h-5 w-5"/>
                                     <span className="text-[12px]">Notificaciones</span>
                                 </Link>
+                                {userData?.rol === "admin" && (
+                                    <Link href="/admin"
+                                        className={`flex flex-col items-center ${pathname === "/admin" ? "text-foreground" : "text-muted-foreground"}`}>
+                                        <ShieldCheck className="h-5 w-5" />
+                                        <span className="text-[12px]">Admin</span>
+                                    </Link>
+                                )}
                             </>
                         ) : (
                             <>

@@ -24,7 +24,7 @@ class CompanyService
         $company->slug = generateSlug($dataCompany['name']);
         $company->CIF = $dataCompany['CIF']  ?? null;
         $company->num_people= $dataCompany['num_people'] ?? null;
-        $company->logo = $dataCompany['logo']  ?? null;
+        $company->logo = $dataCompany['logo']  ?? "default.jpg";
         $company->short_description = $dataCompany['short_description'];
         $company->description = $dataCompany['description'] ?? null;
         $company->email = $dataCompany['email'] ?? null;
@@ -117,6 +117,13 @@ class CompanyService
     {
         $company = Company::findOrFail($id);
         return $company;
+    }
+
+    public function allCompanys()
+    {
+        $companies = Company::all();
+
+        return $companies;
     }
 
     public function checkIFCompanyExists($companyData)

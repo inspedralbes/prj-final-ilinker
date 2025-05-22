@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name')->unique()->nullable();
             $table->string('CIF')->unique()->nullable();
             $table->integer('num_people')->nullable();
-            $table->string('logo')->nullable();
+            $table->string('logo')->nullable()->default('default.jpg');
             $table->text('short_description')->nullable();
             $table->text('description')->nullable();
 

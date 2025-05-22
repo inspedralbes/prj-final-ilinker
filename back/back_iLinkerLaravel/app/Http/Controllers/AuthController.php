@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Institutions;
+use App\Models\Notification;
+use App\Models\Student;
 use App\Services\CompanyService;
 use App\Services\InstitutionService;
 use App\Services\StudentService;
@@ -40,13 +43,29 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $user->status = "online";
+            $user->save();
 
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            $company = Company::where('user_id', $user->id)->first();
+            if ($user->rol === "company") {
+                $company = Company::where('user_id', $user->id)->first();
+                $user->company = $company;
+            }
 
-            $user->company = $company;
-            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user]);
+            if ($user->rol === 'student') {
+                $student = Student::where('user_id', $user->id)->first();
+                $user->student = $student;
+            }
+
+            if ($user->rol === 'institutions') {
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
+            }
+
+            $notifications = Notification::getAllForUser($user->id);
+
+            return response()->json(['status' => 'success', 'message' => 'Credentials validated', 'token' => $token, 'user' => $user, 'notifications' => $notifications]);
         }
 
         return response()->json(['status' => 'error', 'message' => 'Invalid credentials']);
@@ -63,7 +82,7 @@ class AuthController extends Controller
             'password' => 'required',
             'rol' => 'required',
         ]);
-        Log::info($validated);
+        Log::info("VALIDADO", ["VALI" => $validated]);
 
         // Verificar si el usuario ya existe
         $check = $this->userService->checkIfUserExists($validated);
@@ -77,32 +96,52 @@ class AuthController extends Controller
         try {
             // Crear el usuario
             $user = $this->userService->createUser($validated);
+            Log::info("CREADO", ["User" => $user]);
+            Log::info("ID ", ['Usuario ' => $user['user']->id]);
+
             $token = $user['token'];
 
             if ($user['user']->rol === 'company') {
                 $company = $this->companyService->createCompany($user['user'], $request->company);
                 if (!$company) {
+                    DB::rollBack();
                     throw new \Exception('Error al crear la empresa.');
                 }
                 DB::commit();
 
                 $user['user']['company'] = $company;
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company]);
+                $notifications = Notification::getAllForUser($user['user']->id);
+
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'company' => $company, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'institutions') {
-                $institution = $this->institutionService->createInstitution($user['user'], $request->institutions);
+                Log::info("Instituto", ['insti' => $request->institution]);
+                $institution = $this->institutionService->createInstitution($user['user'], $request->institution);
+
                 if (!$institution) {
+                    DB::rollBack();
                     throw new \Exception('Error al crear la institución.');
                 }
                 DB::commit();
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution]);
+
+                $user['user']['institution'] = $institution;
+                $notifications = Notification::getAllForUser($user['user']->id);
+
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'institution' => $institution, 'notifications' => $notifications]);
             } elseif ($user['user']->rol === 'student') {
                 $student = $this->studentService->createStudent($user['user'], $request->student);
+
                 if (!$student) {
+                    DB::rollBack();
                     throw new \Exception('Error al crear el estudiante.');
                 }
                 DB::commit();
-                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student]);
+
+                $user['user']['student'] = $student;
+                $notifications = Notification::getAllForUser($user['user']->id);
+
+                return response()->json(['status' => 'success', 'user' => $user['user'], 'token' => $token, 'student' => $student, 'notifications' => $notifications]);
             } else {
+                DB::rollBack();
                 throw new \Exception('El rol no está especificado.');
             }
         } catch (\Exception $e) {
@@ -114,7 +153,46 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = Auth::user();
+        $user->status = "offline";
+        $user->save();
+
         Auth::logout();
         return response()->json(['status' => 'success', 'message' => 'Logged out']);
+    }
+
+    public function check()
+    {
+        if (Auth::check()) {
+            $user = Auth::user();
+            if ($user->rol === "company") {
+                $company = Company::where('user_id', $user->id)->first();
+                $user->company = $company;
+            }
+
+            if ($user->rol === 'student') {
+                $student = Student::where('user_id', $user->id)->first();
+                $user->student = $student;
+            }
+
+            if ($user->rol === 'institutions') {
+                $institution = Institutions::where('user_id', $user->id)->first();
+                $user->institution = $institution;
+            }
+
+            $notifications = Notification::getAllForUser($user->id);
+
+
+            return response()->json([
+                'status' => 'success',
+                'user' => $user,
+                'notifications' => $notifications
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Usuario no autenticado.'
+            ]);
+        }
     }
 }

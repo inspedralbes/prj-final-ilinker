@@ -1,15 +1,15 @@
 [
     {
-        "user_id": 1,
-        "name": "Andrés",
-        "surname": "Pérez",
+        "user_id": 2,
+        "name": "Student1",
+        "surname": "García",
         "type_document": "DNI",
         "id_document": "12345678A",
         "nationality": "Española",
-        "photo_pic": "andres_perez.png",
-        "birthday": "2000-04-15",
+        "photo_pic": "default.jpg",
+        "birthday": "1990-05-15",
         "gender": "Masculino",
-        "phone": 612345678,
+        "phone": 612345656,
         "address": "Calle Mayor 10",
         "city": "Madrid",
         "country": "España",
@@ -23,6 +23,50 @@
                 "language": "Inglés",
                 "level": "Avanzado"
             },
+            {
+                "language": "Francés",
+                "level": "Intermedio"
+            }
+        ]
+    },
+    {
+        "user_id": 3,
+        "name": "Student2",
+        "surname": "García",
+        "type_document": "DNI",
+        "id_document": "12345678B",
+        "nationality": "Española",
+        "photo_pic": "default.jpg",
+        "birthday": "1990-05-15",
+        "gender": "Masculino",
+        "phone": 612345678,
+        "address": "Calle Mayor 10",
+        "city": "Madrid",
+        "country": "España",
+        "postal_code": "28001",
+        "languages": [
+            {
+                "language": "Español",
+                "level": "Nativo"
+            }
+        ]
+    },
+    {
+        "user_id": 4,
+        "name": "Student3",
+        "surname": "García",
+        "type_document": "DNI",
+        "id_document": "12345678C",
+        "nationality": "Española",
+        "photo_pic": "default.jpg",
+        "birthday": "1990-05-15",
+        "gender": "Masculino",
+        "phone": 612345634,
+        "address": "Calle Mayor 10",
+        "city": "Madrid",
+        "country": "España",
+        "postal_code": "28001",
+        "languages": [
             {
                 "language": "Francés",
                 "level": "Intermedio"
