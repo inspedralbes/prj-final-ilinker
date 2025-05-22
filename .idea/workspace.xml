@@ -5,48 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Cambios de diseño de la parte de admin para que se vea bien">
-      <change afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Swagger/Apiinfo.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploymentBack.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploymentBack.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploymentFront.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploymentFront.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.github/workflows/deploymentWebsockets.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.github/workflows/deploymentWebsockets.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminCompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminCompanyController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminInstitutionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminInstitutionController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminOfferController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminOfferController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminStudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/AdminStudentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/ReportedUserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Admin/ReportedUserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/Auth/GoogleController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CambiarContraseñaController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ChatController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ChatController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CommentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CommentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CompanyController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CoursesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/CoursesController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ExperienceController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/FollowerController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/FollowerController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/HelpUserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/HelpUserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/InstitutionController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/LikeController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/LikeController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/NotificationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/NotificationController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/OfferController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/OfferController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PagesController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PagesController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PostController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PostController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ProjectController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ProjectController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsCommentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/PublicationsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ReportController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/ReportController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SectorController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SectorController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SharedPublicationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SharedPublicationController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/SkillsController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/StudentEducationController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserSettingsController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/UserSettingsController.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/app.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/config/app.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/routes/api.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/composer.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +28,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="company-profile" />
+        <entry key="$PROJECT_DIR$" value="student-profile" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -99,7 +61,7 @@
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "student-profile",
+    "git-widget-placeholder": "dev-kevin",
     "last_opened_file_path": "D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",

@@ -3,16 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use App\Models\CambiarContraseña;
 use App\Mail\SendPasswordResetCode;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\View;
 use OpenApi\Annotations as OA;
 
 class CambiarContraseñaController extends Controller
 {
+
+    protected MailService $mailService;
+
+    public function __construct(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
 
     /**
      * @OA\Post(
@@ -72,7 +81,9 @@ class CambiarContraseñaController extends Controller
         );
 
         // Enviar email
-        Mail::to($request->email)->send(new SendPasswordResetCode($code));
+        $body = View::make('emails.password-reset-code', ['code' => $code])->render();
+        $this->mailService->enviarMail("CLIENTE", $request->email, $body);
+        //Mail::to($request->email)->send(new SendPasswordResetCode($code));
 
         return response()->json(['status' => 'success', 'message' => 'Codi enviat correctament']);
     }
