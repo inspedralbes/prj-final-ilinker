@@ -203,14 +203,16 @@ export default function ReportedUsersPage() {
           {filteredReports.map((report) => (
             <Card key={report.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
               {/* Eye button in top right corner */}
-              <Button
-                size="sm"
-                variant="ghost"
-                className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-gray-100"
-                onClick={() => setViewReport(report)}
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
+              <div className="absolute top-2 right-2 flex gap-1 pt-2 pr-2">
+                <button
+                  onClick={() => setViewReport(report)}
+                  className="p-1 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                  title="Ver detalles"
+                >
+                  <Eye className="w-4 h-4 text-blue-600" />
+                </button>
+              </div>
+
 
               <CardHeader className="pb-2">
                 <div className="space-y-2">
