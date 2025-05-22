@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HelpUser;
 use App\Models\Report;
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -13,6 +14,12 @@ use Illuminate\Support\Facades\Validator;
 
 class ReportedUserController extends Controller
 {
+
+    protected $mailService;
+    public function __construct(MailService $mailService)
+    {
+        $this->mailService = $mailService;
+    }
 
     /**
      * @OA\Get(
@@ -229,10 +236,11 @@ class ReportedUserController extends Controller
 
         try{
             // Enviar respuesta
-            $helpUser = HelpUser::where('id', $request->get('question_id'))->first();
+            $helpUser = HelpUser::with('user', 'user.company', 'user.student', 'user.institutions')->where('id', $request->get('question_id'))->first();
             $helpUser->status = 'answered';
             $helpUser->save();
 
+//            $this->mailService->enviarMail($helpUser->user);
 
             return response()->json([
                 'status' => 'success',
