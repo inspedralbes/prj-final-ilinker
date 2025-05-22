@@ -207,6 +207,7 @@ export default function CommentModal({ publicationId, isOpen, onClose, onComment
         key={comment.id}
         reply={comment}
         handleReplyClick={handleReplyClick}
+        fetchComments={fetchComments}
       />
     ));
   };
