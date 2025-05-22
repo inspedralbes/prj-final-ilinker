@@ -58,6 +58,7 @@
     "embla-carousel-react": "^8.6.0",
     "emoji-picker-react": "^4.12.2",
     "frontv2": "file:",
+    "input-otp": "^1.4.2",
     "js-cookie": "^3.0.5",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.503.0",
