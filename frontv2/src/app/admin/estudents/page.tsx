@@ -2,17 +2,17 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import config from '@/types/config';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { apiRequest } from '@/services/requests/apiRequest';
-import { log } from 'console';
-
+import { Eye, Pencil, Power, Trash2, RefreshCw, LayoutDashboard, FileUser, IdCard, Languages, Contact, MapPin, FileText, ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { useRouter } from 'next/navigation';
 
 interface Student {
   id: number;
@@ -44,8 +44,10 @@ export default function StudentsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [editData, setEditData] = useState<Partial<Student>>({});
   const [currentLanguage, setCurrentLanguage] = useState('');
+  const router = useRouter();
 
   const normalizeLanguages = (languages: any): string[] => {
     if (!languages) return [];
@@ -74,15 +76,9 @@ export default function StudentsPage() {
     setLoading(true);
     try {
       const response = await apiRequest(`admin/students`);
-      console.log('Response:', response);
       const data = await response.data;
 
-      console.log('Data:', data);
-
-
       if (response.success) {
-        console.log("Estmoas dentro de la respuesta:", data.data);
-
         setStudents(data.data || []);
       } else {
         throw new Error(data.message || 'Error al cargar estudiantes');
@@ -93,8 +89,6 @@ export default function StudentsPage() {
       setLoading(false);
     }
   };
-
-  // ...todo igual hasta `const handleUpdate`
 
   const handleUpdate = async (id: number) => {
     try {
@@ -138,7 +132,7 @@ export default function StudentsPage() {
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      const response = await apiRequest(`admin/students/${id}`, 'PUT', { active: !currentStatus },);
+      const response = await apiRequest(`admin/students/${id}`, 'PUT', { active: !currentStatus });
 
       if (response.success) {
         toast.success(`Estudiante ${!currentStatus ? 'activado' : 'desactivado'} correctamente`);
@@ -163,7 +157,7 @@ export default function StudentsPage() {
     if (!confirm('¿Eliminar este estudiante y todos sus datos asociados?')) return;
 
     try {
-      const response = await apiRequest(`admin/students/${id}`, 'DELETE',);
+      const response = await apiRequest(`admin/students/${id}`, 'DELETE');
 
       if (response.success) {
         toast.success('Estudiante eliminado correctamente');
@@ -232,11 +226,11 @@ export default function StudentsPage() {
   }
 
   if (!isAdmin) {
-    return null; // O un mensaje de error si quieres mostrar algo
+    return null;
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Gestión de Estudiantes ({students.length})</h1>
 
@@ -247,70 +241,77 @@ export default function StudentsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <Button onClick={fetchStudents} variant="outline">
-            Refrescar
+          <Button onClick={fetchStudents} variant="outline" className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">Refrescar</span>
           </Button>
-          <Button onClick={() => window.location.href = "/admin"}>
-            Ir al panel de admin
+          <Button onClick={() => window.location.href = "/admin"} className="flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4" />
+            <span className="hidden sm:inline">Panel de admin</span>
           </Button>
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Estudiante</TableHead>
-              <TableHead>Documento</TableHead>
-              <TableHead>Contacto</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredStudents.map((student) => (
-              <TableRow key={student.id}>
-                <TableCell>{student.id}</TableCell>
-                <TableCell>
-                  <div className="font-medium">{student.name} {student.surname}</div>
-                  <div className="text-sm text-gray-500">{student.nationality}</div>
-                </TableCell>
-                <TableCell>
-                  <div>{student.type_document}: {student.id_document}</div>
-                  <div className="text-sm text-gray-500">
-                    {student.birthday && new Date(student.birthday).toLocaleDateString()}
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredStudents.map((student) => (
+            <Card key={student.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-2">
+                <div className="absolute top-2 right-2 flex gap-1 pt-2 pr-2">
+                  <button
+                    onClick={() => setViewingStudent(student)}
+                    className="p-1 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                    title="Ver detalles"
+                  >
+                    <Eye className="w-4 h-4 text-blue-600" />
+                  </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">{student.name} {student.surname}</h3>
+                    <p className="text-sm text-gray-500">ID: {student.id}</p>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <div>{student.user?.email}</div>
-                  <div className="text-sm text-gray-500">{student.phone}</div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={student.user?.active ? 'default' : 'destructive'}>
+                  <Badge variant={student.user?.active ? 'default' : 'destructive'} className="ml-auto">
                     {student.user?.active ? 'Activo' : 'Inactivo'}
                   </Badge>
-                </TableCell>
-                <TableCell className="flex justify-end space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setSelectedStudent(student)}
-                  >
-                    Editar
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant={student.user?.active ? 'destructive' : 'default'}
-                    onClick={() => toggleStatus(student.id, student.user?.active)}
-                  >
-                    {student.user?.active ? 'Desactivar' : 'Activar'}
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                </div>
+              </CardHeader>
+              <CardContent className="py-2">
+                <div className="space-y-1">
+                  <div className="text-sm"><span className="font-medium">Email:</span> {student.user?.email}</div>
+                  <div className="text-sm"><span className="font-medium">Documento:</span> {student.type_document}: {student.id_document}</div>
+                  <div className="text-sm"><span className="font-medium">Teléfono:</span> {student.phone || 'No especificado'}</div>
+                  <div className="text-sm"><span className="font-medium">Nacionalidad:</span> {student.nationality || 'No especificada'}</div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-2 pb-4 flex justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex items-center gap-1"
+                  onClick={() => setSelectedStudent(student)}
+                >
+                  <Pencil className="w-3 h-3" />
+                  <span>Editar</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant={student.user?.active ? 'destructive' : 'default'}
+                  className="flex items-center gap-1"
+                  onClick={() => toggleStatus(student.id, student.user?.active)}
+                >
+                  <Power className="w-3 h-3" />
+                  <span>{student.user?.active ? 'Desactivar' : 'Activar'}</span>
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {selectedStudent && (
         <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
@@ -494,14 +495,132 @@ export default function StudentsPage() {
                 <Button
                   variant="destructive"
                   onClick={() => deleteStudent(selectedStudent.id)}
+                  className="flex items-center gap-1"
                 >
-                  Eliminar Estudiante
+                  <Trash2 className="w-4 h-4" />
+                  Eliminar
                 </Button>
                 <Button variant="outline" onClick={() => setSelectedStudent(null)}>
                   Cancelar
                 </Button>
                 <Button onClick={() => handleUpdate(selectedStudent.id)}>
                   Guardar Cambios
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal para ver detalles del estudiante */}
+      {viewingStudent && (
+        <Dialog open={!!viewingStudent} onOpenChange={() => setViewingStudent(null)}>
+          <DialogContent className="sm:max-w-[800px] max-w-[90%] max-h-[60vh] sm:max-h-[90vh] overflow-y-auto rounded-lg">
+            <DialogHeader>
+              <DialogTitle>Detalles de {viewingStudent.name} {viewingStudent.surname}</DialogTitle>
+              <DialogDescription>
+                ID: {viewingStudent.id} | Email: {viewingStudent.user?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <FileUser className="w-5 h-5 text-gray-500" />
+                      <h3 className="text-sm font-medium text-gray-500">Información Personal</h3>
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      <div><span className="font-medium">Nombre completo:</span> {viewingStudent.name} {viewingStudent.surname}</div>
+                      <div><span className="font-medium">Fecha de nacimiento:</span> {viewingStudent.birthday ? new Date(viewingStudent.birthday).toLocaleDateString() : 'No especificada'}</div>
+                      <div><span className="font-medium">Género:</span> {viewingStudent.gender || 'No especificado'}</div>
+                      <div><span className="font-medium">Nacionalidad:</span> {viewingStudent.nationality || 'No especificada'}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <IdCard className="w-5 h-5 text-gray-500" />
+                      <h3 className="text-sm font-medium text-gray-500">Documento de Identidad</h3>
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      <div><span className="font-medium">Tipo:</span> {viewingStudent.type_document || 'No especificado'}</div>
+                      <div><span className="font-medium">Número:</span> {viewingStudent.id_document || 'No especificado'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+
+                    <div className="flex items-center gap-2">
+                      <Contact className="w-5 h-5 text-gray-500" />
+                      <h3 className="text-sm font-medium text-gray-500">Contacto</h3>
+                    </div>
+
+                    <div className="mt-2 space-y-2">
+                      <div><span className="font-medium">Email:</span> {viewingStudent.user?.email || 'No especificado'}</div>
+                      <div><span className="font-medium">Teléfono:</span> {viewingStudent.phone || 'No especificado'}</div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className='flex items-center gap-2'>
+                      <MapPin className="w-5 h-5 text-gray-500" />
+                      <h3 className="text-sm font-medium text-gray-500">Dirección</h3>
+                    </div>
+                    <div className="mt-2 space-y-2">
+                      <div><span className="font-medium">Dirección:</span> {viewingStudent.address || 'No especificada'}</div>
+                      <div><span className="font-medium">Ciudad:</span> {viewingStudent.city || 'No especificada'}</div>
+                      <div><span className="font-medium">País:</span> {viewingStudent.country || 'No especificado'}</div>
+                      <div><span className="font-medium">Código Postal:</span> {viewingStudent.postal_code || 'No especificado'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+
+                <div className="flex items-center gap-2">
+                  <Languages className="w-5 h-5 text-gray-500" />
+                  <h3 className="text-sm font-medium text-gray-500">Idiomas</h3>
+                </div>
+
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {normalizeLanguages(viewingStudent.languages).length > 0 ? normalizeLanguages(viewingStudent.languages).map((lang, index) => (
+                    <Badge key={index}>{lang}</Badge>
+                  )) : <span className="text-gray-400">No hay idiomas especificados</span>}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <Power className="w-5 h-5 text-gray-500" />
+                  <h3 className="text-sm font-medium text-gray-500">Estado</h3>
+                </div>
+                <div className="mt-2">
+                  <Badge variant={viewingStudent.user?.active ? 'default' : 'destructive'}>
+                    {viewingStudent.user?.active ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-gray-500" />
+                  <h3 className="text-sm font-medium text-gray-500">Información adicional</h3>
+                </div>
+
+                <div className="mt-2 space-y-2">
+                  <div><span className="font-medium">Fecha de registro:</span> {viewingStudent.created_at ? new Date(viewingStudent.created_at).toLocaleString() : 'No disponible'}</div>
+                  <div><span className="font-medium">Última actualización:</span> {viewingStudent.updated_at ? new Date(viewingStudent.updated_at).toLocaleString() : 'No disponible'}</div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-2 mt-6">
+
+                <Button onClick={() => setViewingStudent(null)}>
+                  Cerrar
                 </Button>
               </div>
             </div>

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -10,9 +9,9 @@ import { toast } from 'sonner';
 import config from '@/types/config';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useRouter } from 'next/navigation';
-import { Loader2, Search, Trash2, Edit, Ban, CheckCircle2 } from 'lucide-react';
+import { Loader2, Search, Trash2, Edit, Ban, CheckCircle2, Eye, Power, Calendar, MapPin, Globe, Phone, Mail, RefreshCw, LayoutDashboard } from 'lucide-react';
 import { apiRequest } from '@/services/requests/apiRequest';
-
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
 
 interface Institution {
   id: number;
@@ -48,6 +47,7 @@ export default function InstitutionsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedInstitution, setSelectedInstitution] = useState<Institution | null>(null);
+  const [viewInstitution, setViewInstitution] = useState<Institution | null>(null);
   const [editData, setEditData] = useState<Partial<Institution>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -69,7 +69,6 @@ export default function InstitutionsPage() {
     }
   };
 
-
   const handleUpdate = async (id: number) => {
     setIsSaving(true);
     try {
@@ -86,7 +85,7 @@ export default function InstitutionsPage() {
         }
       });
 
-      const data = await apiRequest(`admin/institutions/${id}`, 'PUT', dataToSend,);
+      const data = await apiRequest(`admin/institutions/${id}`, 'PUT', dataToSend);
 
       if (!data.success) {
         throw new Error(data.message || 'Error al actualizar institución');
@@ -102,10 +101,9 @@ export default function InstitutionsPage() {
     }
   };
 
-
   const toggleStatus = async (id: number, currentStatus: boolean) => {
     try {
-      const data = await apiRequest(`admin/institutions/${id}/status`, 'PUT', { active: !currentStatus },);
+      const data = await apiRequest(`admin/institutions/${id}/status`, 'PUT', { active: !currentStatus });
 
       if (data.success) {
         toast.success(`Institución ${!currentStatus ? 'activada' : 'desactivada'} correctamente`);
@@ -118,13 +116,12 @@ export default function InstitutionsPage() {
     }
   };
 
-
   const deleteInstitution = async (id: number) => {
     if (!confirm('¿Eliminar esta institución y todos sus datos asociados?')) return;
 
     setIsDeleting(true);
     try {
-      const data = await apiRequest(`admin/institutions/${id}`, 'DELETE',);
+      const data = await apiRequest(`admin/institutions/${id}`, 'DELETE');
 
       if (data.success) {
         toast.success('Institución eliminada correctamente');
@@ -139,10 +136,9 @@ export default function InstitutionsPage() {
     }
   };
 
-
   useEffect(() => {
     fetchInstitutions();
-  });
+  }, []);
 
   useEffect(() => {
     if (selectedInstitution) {
@@ -189,89 +185,380 @@ export default function InstitutionsPage() {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2 items-end sm:items-center">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar instituciones..."
-              className="pl-9 w-full"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          <Button onClick={() => router.push("/admin")} className="w-full sm:w-auto">
-            Ir al panel de admin
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+          <Input
+            placeholder="Buscar por nombre, documento o email..."
+            className="w-full sm:w-64"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Button onClick={fetchInstitutions} variant="outline" className="flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" />
+            <span className="hidden sm:inline">Refrescar</span>
+          </Button>
+          <Button onClick={() => window.location.href = "/admin"} className="flex items-center gap-2">
+            <LayoutDashboard className="w-4 h-4" />
+            <span className="hidden sm:inline">Panel de admin</span>
           </Button>
         </div>
       </div>
 
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredInstitutions.length > 0 ? (
+          filteredInstitutions.map((institution) => (
+            <Card key={institution.id} className="relative overflow-hidden hover:shadow-lg transition-shadow">
+              {/* Eye button in top right corner */}
+              <div className="absolute top-2 right-2 flex gap-1">
+                <button
+                  onClick={() => setViewInstitution(institution)}
+                  className="p-1 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors"
+                  title="Ver detalles"
+                >
+                  <Eye className="w-4 h-4 text-blue-600" />
+                </button>
+              </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>ID</TableHead>
-              <TableHead>Institución</TableHead>
-              <TableHead>NIF</TableHead>
-              <TableHead>Contacto</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead className="text-right">Acciones</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredInstitutions.length > 0 ? (
-              filteredInstitutions.map((institution) => (
-                <TableRow key={institution.id}>
-                  <TableCell>{institution.id}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{institution.name}</div>
-                    <div className="text-sm text-muted-foreground">{institution.type}</div>
-                  </TableCell>
-                  <TableCell>{institution.NIF}</TableCell>
-                  <TableCell>
-                    <div>{institution.user?.email}</div>
-                    <div className="text-sm text-muted-foreground">{institution.phone}</div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={institution.user?.active ? 'default' : 'destructive'}>
+              <CardHeader className="pb-2">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-gray-500">ID: {institution.id}</span>
+                    <Badge className="mr-5" variant={institution.user?.active ? 'default' : 'destructive'}>
                       {institution.user?.active ? 'Activa' : 'Inactiva'}
                     </Badge>
-                  </TableCell>
-                  <TableCell className="flex justify-end gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => setSelectedInstitution(institution)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={institution.user?.active ? 'destructive' : 'default'}
-                      onClick={() => toggleStatus(institution.id, institution.user?.active)}
-                    >
-                      {institution.user?.active ? <Ban className="h-4 w-4" /> : <CheckCircle2 className="h-4 w-4" />}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-2">
-                    <Search className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      {search ? 'No se encontraron instituciones con ese criterio' : 'No hay instituciones registradas'}
-                    </p>
                   </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+
+                  <div>
+                    <h3 className="font-semibold text-lg leading-tight">{institution.name}</h3>
+                    <p className="text-sm text-gray-600">{institution.type}</p>
+                    {institution.NIF && (
+                      <p className="text-sm text-gray-500">NIF: {institution.NIF}</p>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-2">
+                <div className="text-sm space-y-1">
+                  <div className="flex items-center gap-1">
+                    <Mail className="h-3 w-3 text-gray-400" />
+                    <span className="text-xs text-gray-600 truncate">{institution.user?.email}</span>
+                  </div>
+
+                  {institution.phone ? (
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">{institution.phone}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">No disponible</span>
+                    </div>
+                  )}
+
+                  {institution.website ? (
+                    <div className="flex items-center gap-1">
+                      <Globe className="h-3 w-3 text-gray-400" />
+                      <a href={institution.website} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 truncate">{institution.website}</a>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Globe className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-blue-600 truncate">No disponible</span>
+                    </div>
+                  )}
+
+                  {(institution.city || institution.country) ? (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">
+                        {[institution.city, institution.country].filter(Boolean).join(', ')}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">No disponible</span>
+                    </div>
+                  )}
+
+                  {institution.founded_year ? (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">Fundada en {institution.founded_year}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3 text-gray-400" />
+                      <span className="text-xs text-gray-600">No disponible</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="text-xs text-gray-500">
+                  <p>Cursos: {institution.courses_count || 0}</p>
+                  {institution.languages && institution.languages.length > 0 ? (
+                    <p>Idiomas: {institution.languages.join(', ')}</p>
+                  ) : (
+                    <p>Idiomas: No disponible</p>
+                  )}
+                </div>
+              </CardContent>
+
+              <CardFooter className="pt-2 flex justify-end space-x-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setSelectedInstitution(institution);
+                    setEditData({ ...institution });
+                  }}
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  Editar
+                </Button>
+                <Button
+                  size="sm"
+                  variant={institution.user?.active ? 'destructive' : 'default'}
+                  onClick={() => toggleStatus(institution.id, institution.user?.active)}
+                >
+                  <Power className="h-3 w-3 mr-1" />
+                  {institution.user?.active ? 'Desactivar' : 'Activar'}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))
+        ) : (
+          <div className="col-span-full text-center py-12">
+            <div className="flex flex-col items-center gap-2">
+              <Search className="h-8 w-8 text-muted-foreground" />
+              <p className="text-muted-foreground">
+                {search ? 'No se encontraron instituciones con ese criterio' : 'No hay instituciones registradas'}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Modal de Visualización */}
+      {viewInstitution && (
+        <Dialog open={!!viewInstitution} onOpenChange={() => setViewInstitution(null)}>
+          <DialogContent className="sm:max-w-[800px] max-w-[400px] max-h-[70vh] sm:max-h-[90vh] overflow-y-auto rounded-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                <span>{viewInstitution.name}</span>
+                <Badge className="mr-5" variant={viewInstitution.user?.active ? 'default' : 'destructive'}>
+                  {viewInstitution.user?.active ? 'Activa' : 'Inactiva'}
+                </Badge>
+              </DialogTitle>
+              <DialogDescription>
+                ID: {viewInstitution.id} | Tipo: {viewInstitution.type} | Email: {viewInstitution.user?.email}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="grid gap-6 py-4">
+              {/* Información básica */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Información Básica</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Nombre</Label>
+                    <p className="mt-1">{viewInstitution.name}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">NIF</Label>
+                    <p className="mt-1">{viewInstitution.NIF || '-'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Tipo</Label>
+                    <p className="mt-1">{viewInstitution.type || '-'}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Año de fundación</Label>
+                    {viewInstitution.founded_year ? (
+                      <p className="mt-1">{viewInstitution.founded_year}</p>
+                    ) : (
+                      <p className="mt-1 text-gray-500 text-sm">No especificado</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Email</Label>
+                    {viewInstitution.email ? (
+                      <a
+                        href={`mailto:${viewInstitution.email}`}
+                        className="text-blue-600 hover:underline text-sm truncate block"
+                        style={{ maxWidth: '100%' }}
+                        title={viewInstitution.email}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {viewInstitution.email}
+                      </a>
+                    ) : (
+                      <p className="mt-1 text-gray-500 text-sm">No hay email</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Teléfono</Label>
+                    {viewInstitution.phone ? (
+                      <p className="mt-1">{viewInstitution.phone}</p>
+                    ) : (
+                      <p className="mt-1 text-gray-500 text-sm">No hay teléfono</p>
+                    )}
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-sm font-medium text-gray-500">Website</Label>
+                    {viewInstitution.website ? (
+                      <a
+                        href={viewInstitution.website}
+                        className="text-blue-600 hover:underline text-sm truncate block"
+                        style={{ maxWidth: '100%' }}
+                        title={viewInstitution.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {viewInstitution.website}
+                      </a>
+                    ) : (
+                      <p className="text-sm text-gray-500">No hay red vinculada</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Cursos</Label>
+                    <p className="mt-1">{viewInstitution.courses_count || 0}</p>
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Slug</Label>
+                    <p className="mt-1">{viewInstitution.slug || '-'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Información del responsable */}
+              {(viewInstitution.responsible_name || viewInstitution.responsible_email || viewInstitution.responsible_phone) && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Información del Responsable</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Nombre</Label>
+                      {viewInstitution.responsible_name ? (
+                        <p className="mt-1">{viewInstitution.responsible_name}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay nombre del responsable</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Email</Label>
+                      {viewInstitution.responsible_email ? (
+                        <a
+                          href={`mailto:${viewInstitution.responsible_email}`}
+                          className="text-blue-600 hover:underline text-sm truncate block"
+                          style={{ maxWidth: '100%' }}
+                          title={viewInstitution.responsible_email}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {viewInstitution.responsible_email}
+                        </a>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay email del responsable</p>
+                      )}
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-sm font-medium text-gray-500">Teléfono</Label>
+                      {viewInstitution.responsible_phone ? (
+                        <p className="mt-1">{viewInstitution.responsible_phone}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay teléfono del responsable</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Dirección */}
+              {(viewInstitution.address || viewInstitution.city || viewInstitution.postal_code || viewInstitution.country) && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Dirección</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <Label className="text-sm font-medium text-gray-500">Dirección</Label>
+                      {viewInstitution.address ? (
+                        <p className="mt-1">{viewInstitution.address}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay dirección</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Ciudad</Label>
+                      {viewInstitution.city ? (
+                        <p className="mt-1">{viewInstitution.city}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay ciudad</p>
+                      )}
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-500">Código Postal</Label>
+                      {viewInstitution.postal_code ? (
+                        <p className="mt-1">{viewInstitution.postal_code}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay código postal</p>
+                      )}
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-sm font-medium text-gray-500">País</Label>
+                      {viewInstitution.country ? (
+                        <p className="mt-1">{viewInstitution.country}</p>
+                      ) : (
+                        <p className="mt-1 text-gray-500 text-sm">No hay país</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Idiomas y especialidades */}
+              {((viewInstitution.languages && viewInstitution.languages.length > 0) ||
+                (viewInstitution.specialties && viewInstitution.specialties.length > 0)) && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-3">Idiomas y Especialidades</h3>
+                    <div className="grid grid-cols-1 gap-4">
+                      {viewInstitution.languages && viewInstitution.languages.length > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Idiomas</Label>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {viewInstitution.languages.map((lang, index) => (
+                              <Badge key={index} variant="default">{lang}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {viewInstitution.specialties && viewInstitution.specialties.length > 0 && (
+                        <div>
+                          <Label className="text-sm font-medium text-gray-500">Especialidades</Label>
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {viewInstitution.specialties.map((specialty, index) => (
+                              <Badge key={index} variant="outline">{specialty}</Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+            </div>
+
+            <div className="flex justify-end space-x-2 mt-6">
+              <Button variant="default" onClick={() => setViewInstitution(null)}>
+                Cerrar
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Modal de Edición */}
       {selectedInstitution && (
         <Dialog open={!!selectedInstitution} onOpenChange={() => setSelectedInstitution(null)}>
           <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">

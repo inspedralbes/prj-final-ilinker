@@ -4,15 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="modificaciones para que el register funcione con todos los roles">
+    <list default="true" id="197ea99b-0290-42fa-9f6e-a7cbc547475c" name="Changes" comment="Cambios de diseño de la parte de admin para que se vea bien">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Http/Controllers/AuthController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/InstitutionService.php" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/app/Services/InstitutionService.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/auth/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/auth/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/auth/register/RegisterClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/auth/register/RegisterClient.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClient.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientMe.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/profile/student/[uuid]/StudentClientNotMe.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/institutions.json" beforeDir="false" afterPath="$PROJECT_DIR$/back/back_iLinkerLaravel/resources/json/institutions.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/companies/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/companies/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/estudents/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/estudents/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/offers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/offers/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/reported-users/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/reported-users/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontv2/src/app/admin/school/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontv2/src/app/admin/school/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +65,7 @@
   &quot;keyToString&quot;: {
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;student-profile&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;dev2-purvish&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/Proyectos programacion/daw2/prj-final-ilinker/back/back_iLinkerLaravel&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -260,7 +260,8 @@
     <MESSAGE value="Modificar componente para poder hacer los comentarios" />
     <MESSAGE value="Merge con dev2-purvish para poder seguir haciendo las publicaciones" />
     <MESSAGE value="modificaciones para que el register funcione con todos los roles" />
-    <option name="LAST_COMMIT_MESSAGE" value="modificaciones para que el register funcione con todos los roles" />
+    <MESSAGE value="Cambios de diseño de la parte de admin para que se vea bien" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambios de diseño de la parte de admin para que se vea bien" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
