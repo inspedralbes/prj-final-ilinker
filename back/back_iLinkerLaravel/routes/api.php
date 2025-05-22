@@ -64,10 +64,7 @@ Route::post('/followers', [FollowerController::class, 'getFollowersUser']);
 Route::post('users/all', [UserController::class, 'getAllUsers'])->name('user.all');
 Route::get('/publications', [PublicationsController::class, 'index']);
 Route::get('/publications/{publicationId}/comments', [PublicationsCommentController::class, 'index']);
-
-Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getSkills']);
-});
+Route::get('/skills', [SkillsController::class, 'getSkills'])->name('skills.getSkills');
 
 Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);
@@ -226,7 +223,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::delete('/publications/{id}', [PublicationsController::class, 'destroy']);
 
     // Publicaciones del usuario actual
-    Route::post('/my-publications', [PublicationsController::class, 'myPublications']);
     Route::get('/my-liked-publications', [PublicationsController::class, 'myLikedPublications']);
     // Likes
     Route::post('/publications/{publicationId}/like', [PublicationsController::class, 'toggleLike']);
@@ -244,12 +240,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
 });
 
-
+Route::post('/my-publications', [PublicationsController::class, 'myPublications']);
 // Rutas para publicaciones compartidas
 Route::get('/users/{userId}/shared-publications', [SharedPublicationController::class, 'getUserSharedPublications']);
-Route::prefix('/skills')->group(function () {
-    Route::get('/', [SkillsController::class, 'getSkills']);
-});
+
 
 Route::prefix('/sectors')->group(function () {
     Route::get('/', [SectorController::class, 'getSectors']);
