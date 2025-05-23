@@ -1,0 +1,150 @@
+.tiptap-content {
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    margin-bottom: 0.5em;
+    color: #1a1a1a;
+  }
+
+  h1 { 
+    font-size: 2.5em;
+    font-weight: 700;
+  }
+  h2 { 
+    font-size: 2em;
+    font-weight: 700;
+  }
+  h3 { 
+    font-size: 1.75em;
+    font-weight: 600;
+  }
+  h4 { 
+    font-size: 1.5em;
+    font-weight: 600;
+  }
+  h5 { 
+    font-size: 1.25em;
+    font-weight: 600;
+  }
+  h6 { 
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+
+  p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    line-height: 1.7;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+
+  em {
+    font-style: italic;
+  }
+
+  ul, ol {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    padding-left: 2em;
+  }
+
+  li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    position: relative;
+  }
+
+  /* Estilos específicos para listas con viñetas */
+  ul.bullet-list {
+    list-style-type: disc;
+  }
+
+  /* Estilos específicos para listas numeradas */
+  ol.ordered-list {
+    list-style-type: decimal;
+  }
+
+  /* Estilos para el color del texto */
+  span[style*="color"] {
+    display: inline;
+  }
+
+  /* Estilos para texto alineado */
+  [style*="text-align"] {
+    display: block;
+  }
+
+  blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1em;
+    margin-left: 0;
+    margin-right: 0;
+    font-style: italic;
+  }
+
+  code {
+    background-color: #f3f4f6;
+    padding: 0.2em 0.4em;
+    border-radius: 0.25em;
+    font-family: monospace;
+    font-size: 0.9em;
+  }
+
+  pre {
+    background-color: #f3f4f6;
+    padding: 1em;
+    border-radius: 0.5em;
+    overflow-x: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  a {
+    color: #2563eb;
+    text-decoration: underline;
+  }
+
+  a:hover {
+    color: #1d4ed8;
+  }
+
+  /* Estilos para el editor */
+  .ProseMirror {
+    min-height: 200px;
+    padding: 1rem;
+    outline: none;
+
+    > * + * {
+      margin-top: 0.75em;
+    }
+
+    ul, ol {
+      padding: 0 1rem;
+    }
+
+    li {
+      position: relative;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.7;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.5em;
+      margin-bottom: 0.5em;
+      line-height: 1.25;
+    }
+  }
+} 

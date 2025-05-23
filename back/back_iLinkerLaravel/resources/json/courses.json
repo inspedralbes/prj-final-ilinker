@@ -1,0 +1,470 @@
+[
+    {
+        "id_parent": null,
+        "name": "ACTIVIDADES FÍSICAS Y DEPORTIVAS"
+    },
+    {
+        "id_parent": 1,
+        "name": "Técnico Superior en Acondicionamiento Físico"
+    },
+    {
+        "id_parent": 1,
+        "name": "Técnico Superior en Enseñanzas y Animación Sociodeportiva"
+    },
+    {
+        "id_parent": null,
+        "name": "ADMINISTRACIÓN Y GESTIÓN"
+    },
+    {
+        "id_parent": 2,
+        "name": "Técnico Superior en Administración y Finanzas"
+    },
+    {
+        "id_parent": 2,
+        "name": "Técnico Superior en Asistencia a la Dirección"
+    },
+    {
+        "id_parent": null,
+        "name": "AGRARIA"
+    },
+    {
+        "id_parent": 3,
+        "name": "Técnico Superior en Ganadería y Asistencia en Sanidad Animal"
+    },
+    {
+        "id_parent": 3,
+        "name": "Técnico Superior en Gestión Forestal y del Medio Natural"
+    },
+    {
+        "id_parent": 3,
+        "name": "Técnico Superior en Paisajismo y Medio Rural"
+    },
+    {
+        "id_parent": null,
+        "name": "ARTES GRÁFICAS"
+    },
+    {
+        "id_parent": 4,
+        "name": "Técnico Superior en Diseño y Edición de Publicaciones Impresas y Multimedia"
+    },
+    {
+        "id_parent": 4,
+        "name": "Técnico Superior en Diseño y Gestión de la Producción Gráfica"
+    },
+    {
+        "id_parent": null,
+        "name": "ARTES Y ARTESANÍAS"
+    },
+    {
+        "id_parent": 5,
+        "name": "Técnico Superior Artista Fallero y Construcción de Escenografías"
+    },
+    {
+        "id_parent": null,
+        "name": "COMERCIO Y MARKETING"
+    },
+    {
+        "id_parent": 6,
+        "name": "Técnico Superior en Comercio Internacional"
+    },
+    {
+        "id_parent": 6,
+        "name": "Técnico Superior en Gestión de Ventas y Espacios Comerciales"
+    },
+    {
+        "id_parent": 6,
+        "name": "Técnico Superior en Marketing y Publicidad"
+    },
+    {
+        "id_parent": 6,
+        "name": "Técnico Superior en Transporte y Logística"
+    },
+    {
+        "id_parent": null,
+        "name": "EDIFICACIÓN Y OBRA CIVIL"
+    },
+    {
+        "id_parent": 7,
+        "name": "Técnico Superior en Organización y Control de Obras de Construcción"
+    },
+    {
+        "id_parent": 7,
+        "name": "Técnico Superior en Proyectos de Edificación"
+    },
+    {
+        "id_parent": 7,
+        "name": "Técnico Superior en Proyectos de Obra Civil"
+    },
+    {
+        "id_parent": null,
+        "name": "ELECTRICIDAD Y ELECTRÓNICA"
+    },
+    {
+        "id_parent": 8,
+        "name": "Técnico Superior en Automatización y Robótica Industrial"
+    },
+    {
+        "id_parent": 8,
+        "name": "Técnico Superior en Electromedicina Clínica"
+    },
+    {
+        "id_parent": 8,
+        "name": "Técnico Superior en Mantenimiento Electrónico"
+    },
+    {
+        "id_parent": 8,
+        "name": "Técnico Superior en Sistemas Electrotécnicos y Automatizados"
+    },
+    {
+        "id_parent": 8,
+        "name": "Técnico Superior en Sistemas de Telecomunicaciones e Informáticos"
+    },
+    {
+        "id_parent": null,
+        "name": "ENERGÍA Y AGUA"
+    },
+    {
+        "id_parent": 9,
+        "name": "Técnico Superior en Centrales Eléctricas"
+    },
+    {
+        "id_parent": 9,
+        "name": "Técnico Superior en Eficiencia Energética y Energía Solar Térmica"
+    },
+    {
+        "id_parent": 9,
+        "name": "Técnico Superior en Energías Renovables"
+    },
+    {
+        "id_parent": 9,
+        "name": "Técnico Superior en Gestión del Agua"
+    },
+    {
+        "id_parent": null,
+        "name": "FABRICACIÓN MECÁNICA"
+    },
+    {
+        "id_parent": 10,
+        "name": "Técnico Superior en Construcciones Metálicas"
+    },
+    {
+        "id_parent": 10,
+        "name": "Técnico Superior en Diseño en Fabricación Mecánica"
+    },
+    {
+        "id_parent": 10,
+        "name": "Técnico Superior en Programación de la Producción en Fabricación Mecánica"
+    },
+    {
+        "id_parent": 10,
+        "name": "Técnico Superior en Programación de la Producción en Moldeo de Metales y Polímeros"
+    },
+    {
+        "id_parent": 10,
+        "name": "Técnico Superior en Óptica de Anteojería"
+    },
+    {
+        "id_parent": null,
+        "name": "HOSTELERÍA Y TURISMO"
+    },
+    {
+        "id_parent": 11,
+        "name": "Técnico Superior en Agencias de Viajes y Gestión de Eventos"
+    },
+    {
+        "id_parent": 11,
+        "name": "Técnico Superior en Dirección de Cocina"
+    },
+    {
+        "id_parent": 11,
+        "name": "Técnico Superior en Dirección de Servicios de Restauración"
+    },
+    {
+        "id_parent": 11,
+        "name": "Técnico Superior en Gestión de Alojamientos Turísticos"
+    },
+    {
+        "id_parent": 11,
+        "name": "Técnico Superior en Guía, Información y Asistencias Turísticas"
+    },
+    {
+        "id_parent": null,
+        "name": "IMAGEN PERSONAL"
+    },
+    {
+        "id_parent": 12,
+        "name": "Técnico Superior en Asesoría de Imagen Personal y Corporativa"
+    },
+    {
+        "id_parent": 12,
+        "name": "Técnico Superior en Caracterización y Maquillaje Profesional"
+    },
+    {
+        "id_parent": 12,
+        "name": "Técnico Superior en Estilismo y Dirección de Peluquería"
+    },
+    {
+        "id_parent": 12,
+        "name": "Técnico Superior en Estética Integral y Bienestar"
+    },
+    {
+        "id_parent": 12,
+        "name": "Técnico Superior en Termalismo y Bienestar"
+    },
+    {
+        "id_parent": null,
+        "name": "IMAGEN Y SONIDO"
+    },
+    {
+        "id_parent": 13,
+        "name": "Técnico Superior en Animaciones 3D, Juegos y Entornos Interactivos"
+    },
+    {
+        "id_parent": 13,
+        "name": "Técnico Superior en Iluminación, Captación y Tratamiento de Imagen"
+    },
+    {
+        "id_parent": 13,
+        "name": "Técnico Superior en Producción de Audiovisuales y Espectáculos"
+    },
+    {
+        "id_parent": 13,
+        "name": "Técnico Superior en Realización de Proyectos Audiovisuales y Espectáculos"
+    },
+    {
+        "id_parent": 13,
+        "name": "Técnico Superior en Sonido para Audiovisuales y Espectáculos"
+    },
+    {
+        "id_parent": null,
+        "name": "INDUSTRIAS ALIMENTARIAS"
+    },
+    {
+        "id_parent": 14,
+        "name": "Técnico Superior en Procesos y Calidad en la Industria Alimentaria"
+    },
+    {
+        "id_parent": 14,
+        "name": "Técnico Superior en Vitivinicultura"
+    },
+    {
+        "id_parent": null,
+        "name": "INFORMÁTICA Y COMUNICACIONES"
+    },
+    {
+        "id_parent": 15,
+        "name": "Técnico Superior en Administración de Sistemas Informáticos en Red"
+    },
+    {
+        "id_parent": 15,
+        "name": "Técnico Superior en Desarrollo de Aplicaciones Multiplataforma"
+    },
+    {
+        "id_parent": 15,
+        "name": "Técnico Superior en Desarrollo de Aplicaciones Web"
+    },
+    {
+        "id_parent": null,
+        "name": "INSTALACIÓN Y MANTENIMIENTO"
+    },
+    {
+        "id_parent": 16,
+        "name": "Técnico Superior en Desarrollo de Proyectos de Instalaciones Térmicas y de Fluidos"
+    },
+    {
+        "id_parent": 16,
+        "name": "Técnico Superior en Mantenimiento de Instalaciones Térmicas y de Fluidos"
+    },
+    {
+        "id_parent": 16,
+        "name": "Técnico Superior en Mecatrónica Industrial"
+    },
+    {
+        "id_parent": null,
+        "name": "MADERA, MUEBLE Y CORCHO"
+    },
+    {
+        "id_parent": 17,
+        "name": "Técnico Superior en Diseño y Amueblamiento"
+    },
+    {
+        "id_parent": null,
+        "name": "MARÍTIMO PESQUERA"
+    },
+    {
+        "id_parent": 18,
+        "name": "Técnico Superior en Acuicultura"
+    },
+    {
+        "id_parent": 18,
+        "name": "Técnico Superior en Organización del Mantenimiento de Maquinaria de Buques y Embarcaciones"
+    },
+    {
+        "id_parent": 18,
+        "name": "Técnico Superior en Transporte Marítimo y Pesca de Altura"
+    },
+    {
+        "id_parent": null,
+        "name": "QUÍMICA"
+    },
+    {
+        "id_parent": 19,
+        "name": "Técnico Superior en Fabricación de Productos Farmacéuticos, Biotecnológicos y Afines"
+    },
+    {
+        "id_parent": 19,
+        "name": "Técnico Superior en Laboratorio de Análisis y de Control de Calidad"
+    },
+    {
+        "id_parent": 19,
+        "name": "Técnico Superior en Química Industrial"
+    },
+    {
+        "id_parent": null,
+        "name": "SANIDAD"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Anatomía Patológica y Citodiagnóstico"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Audiología Protésica"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Dietética"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Documentación y Administración Sanitarias"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Higiene Bucodental"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Imagen para el Diagnóstico y Medicina Nuclear"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Laboratorio Clínico y Biomédico"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Ortoprótesis y Productos de Apoyo"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Prótesis Dentales"
+    },
+    {
+        "id_parent": 20,
+        "name": "Técnico Superior en Radioterapia y Dosimetría"
+    },
+    {
+        "id_parent": null,
+        "name": "SEGURIDAD Y MEDIOAMBIENTE"
+    },
+    {
+        "id_parent": 21,
+        "name": "Técnico Superior en Coordinación de Emergencias y Protección Civil"
+    },
+    {
+        "id_parent": 21,
+        "name": "Técnico Superior en Educación y Control Ambiental"
+    },
+    {
+        "id_parent": 21,
+        "name": "Técnico Superior en Prevención de Riesgos Profesionales"
+    },
+    {
+        "id_parent": 21,
+        "name": "Técnico Superior en Química y Salud Ambiental"
+    },
+    {
+        "id_parent": null,
+        "name": "SERVICIOS SOCIOCULTURALES Y A LA COMUNIDAD"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Animación Sociocultural y Turística"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Educación Infantil"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Formación para la Movilidad Segura y Sostenible"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Integración Social"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Mediación Comunicativa"
+    },
+    {
+        "id_parent": 22,
+        "name": "Técnico Superior en Promoción de Igualdad de Género"
+    },
+    {
+        "id_parent": null,
+        "name": "TEXTIL, CONFECCIÓN Y PIEL"
+    },
+    {
+        "id_parent": 23,
+        "name": "Técnico Superior en Diseño Técnico en Textil y Piel"
+    },
+    {
+        "id_parent": 23,
+        "name": "Técnico Superior en Diseño y Producción de Calzado y Complementos"
+    },
+    {
+        "id_parent": 23,
+        "name": "Técnico Superior en Patronaje y Moda"
+    },
+    {
+        "id_parent": 23,
+        "name": "Técnico Superior en Vestuario a Medida y de Espectáculos"
+    },
+    {
+        "id_parent": null,
+        "name": "TRANSPORTE Y MANTENIMIENTO"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Automoción"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Mantenimiento Aeromecánico de Aviones con Motor de Pistón"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Mantenimiento Aeromecánico de Aviones con Motor de Turbina"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Mantenimiento Aeromecánico de Helicópteros con Motor de Pistón"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Mantenimiento Aeromecánico de Helicópteros con Motor de Turbina"
+    },
+    {
+        "id_parent": 24,
+        "name": "Técnico Superior en Mantenimiento de Sistemas Electrónicos y Aviónicos de Aeronaves"
+    },
+    {
+        "id_parent": null,
+        "name": "VIDRIO Y CERÁMICA"
+    },
+    {
+        "id_parent": 25,
+        "name": "Técnico Superior en Desarrollo y Fabricación de Productos Cerámicos"
+    }
+]

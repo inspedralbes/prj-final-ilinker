@@ -1,0 +1,576 @@
+name: Ofertas
+description: ''
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/admin/offers
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listar todas las ofertas'
+      description: 'Devuelve un listado paginado de las ofertas disponibles junto con la información de la empresa asociada.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        name: page
+        description: 'Número de página para paginación.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanQueryParameters:
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 1,
+                "title": "Desarrollador Backend",
+                "description": "Buscamos desarrollador con experiencia en Laravel.",
+                "company": {
+                  "id": 3,
+                  "name": "Tech Solutions"
+                },
+                "created_at": "2024-06-01T10:00:00Z",
+                "updated_at": "2024-06-01T10:00:00Z"
+              }
+            ]
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al cargar ofertas: error interno"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - GET
+    uri: 'api/admin/offers/{id}'
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Mostrar detalles de una oferta'
+      description: 'Recupera los detalles de una oferta específica, incluyendo la empresa que la publicó y los usuarios interesados.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'requerido El ID de la oferta.'
+        required: false
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 5
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 5,
+              "title": "Desarrollador Frontend",
+              "description": "Se busca desarrollador con experiencia en Vue.js",
+              "company": {
+                "id": 2,
+                "name": "WebTech S.A."
+              },
+              "users_interested": [
+                {
+                  "id": 12,
+                  "name": "Juan Pérez"
+                }
+              ],
+              "created_at": "2024-07-01T09:00:00Z",
+              "updated_at": "2024-07-01T09:00:00Z"
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Oferta no encontrada"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - PUT
+    uri: 'api/admin/offers/{id}'
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualizar una oferta'
+      description: |-
+        Permite actualizar los campos de una oferta existente. Se puede enviar solo los campos que se deseen modificar.
+        Este endpoint requiere autenticación.
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'requerido El ID de la oferta a actualizar.'
+        required: false
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 7
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      title:
+        name: title
+        description: 'El título de la oferta.'
+        required: false
+        example: 'Desarrollador Backend'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      description:
+        name: description
+        description: 'Descripción de la oferta.'
+        required: false
+        example: 'Experiencia en PHP y Laravel.'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      skills:
+        name: skills
+        description: 'Lista de habilidades requeridas.'
+        required: false
+        example:
+          - PHP
+          - Laravel
+          - MySQL
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      salary:
+        name: salary
+        description: 'Salario ofrecido.'
+        required: false
+        example: 30000-35000€
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      location_type:
+        name: location_type
+        description: 'Ubicación del trabajo (hibrido, remoto, presencial).'
+        required: false
+        example: remoto
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      city:
+        name: city
+        description: 'Ciudad donde se ofrece el trabajo.'
+        required: false
+        example: Madrid
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      vacancies:
+        name: vacancies
+        description: 'Número de vacantes.'
+        required: false
+        example: 2
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      active:
+        name: active
+        description: 'Indica si la oferta está activa.'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      title: 'Desarrollador Backend'
+      description: 'Experiencia en PHP y Laravel.'
+      skills:
+        - PHP
+        - Laravel
+        - MySQL
+      salary: 30000-35000€
+      location_type: remoto
+      city: Madrid
+      vacancies: 2
+      active: true
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 7,
+              "title": "Desarrollador Backend",
+              "description": "Experiencia en PHP y Laravel.",
+              "skills": "[\"PHP\",\"Laravel\"]",
+              "salary": "30000-35000€",
+              "location_type": "remoto",
+              "city": "Madrid",
+              "vacancies": 2,
+              "active": true,
+              "company": {
+                "id": 3,
+                "name": "TechCorp"
+              }
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 422
+        content: |-
+          {
+            "success": false,
+            "errors": {
+              "title": ["El campo title es obligatorio."]
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al actualizar oferta"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - PUT
+    uri: 'api/admin/offers/{id}/status'
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualizar el estado de una oferta'
+      description: 'Permite activar o desactivar una oferta específica. Este endpoint requiere autenticación.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'requerido El ID de la oferta a actualizar.'
+        required: false
+        example: 4
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 4
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      active:
+        name: active
+        description: 'requerido Indica si la oferta está activa (true) o inactiva (false).'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      active: true
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 4,
+              "title": "Desarrollador Frontend",
+              "active": true
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 422
+        content: |-
+          {
+            "message": "The given data was invalid.",
+            "errors": {
+              "active": ["The active field is required."]
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al actualizar estado: Error message"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - DELETE
+    uri: 'api/admin/offers/{id}'
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Eliminar una oferta'
+      description: 'Elimina permanentemente una oferta del sistema por su ID. Este endpoint está protegido y requiere permisos adecuados.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'requerido El ID de la oferta a eliminar.'
+        required: false
+        example: 4
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 4
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Oferta eliminada correctamente"
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "No query results for model [App\\Models\\Offer] 999"
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al eliminar oferta: Mensaje del error"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - GET
+    uri: 'api/admin/offers/{id}/applications'
+    metadata:
+      groupName: Ofertas
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener aplicaciones de una oferta'
+      description: 'Devuelve la lista de usuarios que se han postulado a una oferta específica, incluyendo el estado de la postulación y la fecha de creación.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'requerido El ID de la oferta.'
+        required: false
+        example: 5
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 5
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": [
+              {
+                "id": 10,
+                "name": "Juan",
+                "surname": "Pérez",
+                "pivot": {
+                  "status": "pendiente",
+                  "created_at": "2024-11-01T12:34:56.000000Z"
+                }
+              }
+            ]
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "No query results for model [App\\Models\\Offer] 999"
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al cargar aplicaciones: Mensaje del error"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

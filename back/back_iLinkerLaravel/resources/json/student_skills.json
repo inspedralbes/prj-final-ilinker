@@ -1,0 +1,22 @@
+[
+    {
+        "student_id": 1,
+        "skill_id": 2
+    },
+    {
+        "student_id": 1,
+        "skill_id": 3
+    },
+    {
+        "student_id": 1,
+        "skill_id": 1
+    },
+    {
+        "student_id": 1,
+        "skill_id": 4
+    },
+    {
+        "student_id": 1,
+        "skill_id": 5
+    }
+]

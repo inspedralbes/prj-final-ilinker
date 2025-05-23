@@ -1,0 +1,52 @@
+name: Preparant per producció front
+run-name: ${{ github.actor }} està pujant l'aplicació a NODE WEBSOCKETS🚀
+
+on:
+  push:
+    branches:
+      - student-profile
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: npm install
+        working-directory: back/back_iLinkerNode
+
+      - name: Verificar existència del directori back/back_iLinkerNode
+        run: ls -la back/back_iLinkerNode || echo "⚠️ Directori 'back/back_iLinkerNode' no existeix!"
+        working-directory: back/back_iLinkerNode
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: back/back_iLinkerNode
+          include-hidden-files: true
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descarregant l'artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: back/back_iLinkerNode
+
+      - name: Verificar contenid del directori descarregat
+        run: ls -la back/back_iLinkerNode || echo "⚠️ No s'ha descarregat res a 'back/back_iLinkerNode'!"
+
+      - name: rsync a producción
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/prod_key.pem
+          chmod 600 ~/prod_key.pem
+          rsync -avz --exclude=node_modules -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/prod_key.pem" back/back_iLinkerNode/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/backend/socket
+          rm ~/prod_key.pem
+
+      - run: echo "🍏 This job's status is ${{ job.status }}."

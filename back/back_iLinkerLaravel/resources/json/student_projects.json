@@ -1,0 +1,26 @@
+[
+    {
+        "student_id": 1,
+        "name": "Sistema de Gestión Escolar",
+        "description": "Un sistema para gestionar estudiantes, cursos y calificaciones.",
+        "link": "https://github.com/usuario/sistema-escolar",
+        "pictures": ["img1.png", "img2.png", "img3.png"],
+        "end_project": "2024-06-30"
+    },
+    {
+        "student_id": 1,
+        "name": "E-commerce de Ropa",
+        "description": "Plataforma para la venta de ropa en línea con pagos integrados.",
+        "link": "https://github.com/usuario/ecommerce-ropa",
+        "pictures": ["img1.png", "img2.png", "img3.png"],
+        "end_project": "2024-07-15"
+    },
+    {
+        "student_id": 1,
+        "name": "Blog de Noticias",
+        "description": "Un blog donde los usuarios pueden leer y comentar noticias.",
+        "link": null,
+        "pictures": ["img1.png", "img2.png", "img3.png"],
+        "end_project": "2024-08-20"
+    }
+]

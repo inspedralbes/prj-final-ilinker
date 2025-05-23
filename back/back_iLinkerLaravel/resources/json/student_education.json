@@ -1,0 +1,29 @@
+[
+    {
+        "student_id": 1,
+        "courses_id": 2,
+        "institution_id": 1,
+        "institute": "Instituto Tecnológico Central",
+        "degree": "Técnico Superior en Acondicionamiento Físico",
+        "start_date": "2021-09-01",
+        "end_date": "2025-06-30"
+    },
+    {
+        "student_id": 1,
+        "courses_id": null,
+        "institution_id": null,
+        "institute": "Instituto de Innovación Tecnológica",
+        "degree": "Desarrollo de Software",
+        "start_date": "2020-02-15",
+        "end_date": "2023-12-10"
+    },
+    {
+        "student_id": 1,
+        "courses_id": null,
+        "institution_id": null,
+        "institute": "Escuela de Programación Avanzada",
+        "degree": "Máster en Ciberseguridad",
+        "start_date": "2022-01-10",
+        "end_date": "2024-07-20"
+    }
+]

@@ -1,0 +1,30 @@
+[
+    {
+        "uuid": "default_uuid_01",
+        "company_id": 1,
+        "title": "Desarrollador Backend PHP",
+        "skills": ["PHP", "Laravel", "MySQL", "API REST"],
+        "description": "Buscamos un desarrollador backend con experiencia en Laravel para trabajar en proyectos innovadores.",
+        "address": "Calle Innovación 10",
+        "city": "Madrid",
+        "postal_code": "28001",
+        "salary": "30,000 - 40,000 EUR",
+        "active": true,
+        "location_type": "hibrido",
+        "vacancies": 2
+    },
+    {
+        "uuid": "default_uuid_02",
+        "company_id": 1,
+        "title": "Especialista en Marketing Digital",
+        "skills": ["SEO", "Google Ads", "Redes Sociales", "Content Marketing"],
+        "description": "Agencia de marketing busca un especialista en marketing digital con experiencia en campañas publicitarias.",
+        "address": "Avenida Publicidad 45",
+        "city": "Barcelona",
+        "postal_code": "08002",
+        "salary": "25,000 - 35,000 EUR",
+        "active" : true,
+        "location_type": "presencial",
+        "vacancies" : 2
+    }
+]
