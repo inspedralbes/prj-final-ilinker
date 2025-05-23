@@ -243,8 +243,8 @@ class AuthController extends Controller
             $token = $user['token'];
 
 
-            $body = View::make('welcomes.register', ['user' => $user['user']])->render();
-            $this->mailService->enviarMail($user['user']->name, $user['user']->email, $body);
+            //$body = View::make('welcomes.register', ['user' => $user['user']])->render();
+            //$this->mailService->enviarMail($user['user']->name, $user['user']->email, $body);
 
             if ($user['user']->rol === 'company') {
                 $company = $this->companyService->createCompany($user['user'], $request->company);
