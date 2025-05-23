@@ -14,7 +14,9 @@ import {
     Eye,
     Heart,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Flag,
+    AlertTriangle
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -38,6 +40,7 @@ import { useModal } from "@/hooks/use-modal";
 import { useRouter } from "next/navigation";
 import { es } from "date-fns/locale";
 import ShowPublication from "./modals/showPublication";
+import { Textarea } from "@/components/ui/textarea";
 
 
 
@@ -769,6 +772,7 @@ export default function StudentClientNotMe({ student, experience_group, publicat
         }
 
     }
+    
 
 
 
@@ -873,6 +877,12 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                                                 ? "seguidor"
                                                 : "seguidores"}
                                         </div>
+                                        <button
+                                            onClick={reportModal.openModal}
+                                            className="inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                                        >
+                                            <Flag className="h-5 w-5  text-gray-400" />
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1718,6 +1728,62 @@ export default function StudentClientNotMe({ student, experience_group, publicat
                         {!studentFollowers && (
                             <p className="text-gray-600">No hay seguidores</p>
                         )}
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Modal de reporte */}
+            <Modal
+                isOpen={reportModal.isOpen}
+                onClose={reportModal.closeModal}
+                id="report-modal"
+                size="md"
+                title={`Reportar a ${student.name}`}
+                closeOnOutsideClick={true}
+            >
+                <div className="flex flex-col space-y-4 p-5">
+                    <div className="flex items-start space-x-3 bg-yellow-50 p-3 rounded-lg">
+                        <AlertTriangle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                        <div>
+                            <p className="text-sm text-yellow-800">
+                                Por favor, proporciona detalles sobre el problema que has encontrado con este usuario.
+                                Revisaremos tu reporte y tomaremos las medidas necesarias.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">Motivo del reporte</label>
+                        <Textarea
+                            value={reportReason}
+                            onChange={(e:any) => setReportReason(e.target.value)}
+                            placeholder="Describe el motivo de tu reporte..."
+                            rows={5}
+                        />
+                    </div>
+
+                    <div className="flex justify-end space-x-2 pt-2">
+                        <Button
+                            variant="outline"
+                            onClick={reportModal.closeModal}
+                            disabled={isReporting}
+                        >
+                            Cancelar
+                        </Button>
+                        <Button
+                            onClick={handleReportUser}
+                            disabled={isReporting || !reportReason.trim()}
+                            className="bg-red-600 hover:bg-red-700"
+                        >
+                            {isReporting ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Enviando...
+                                </>
+                            ) : (
+                                "Enviar reporte"
+                            )}
+                        </Button>
                     </div>
                 </div>
             </Modal>

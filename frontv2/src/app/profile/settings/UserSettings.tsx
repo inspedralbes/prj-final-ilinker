@@ -4,7 +4,6 @@ import ProfileSettings from '@/components/settings/ProfileSettings';
 import SavedItems from '@/components/settings/SavedItems'; 
 import HelpCenter from '@/components/settings/HelpCenter'; 
 import BlockedUsers from '@/components/settings/BlockedUsers'; 
-import ReportedUsers from '@/components/settings/ReportedUsers';   
 import Likes from '@/components/settings/Likes'; 
  
 const UserSettings: React.FC = () => { 
@@ -12,12 +11,10 @@ const UserSettings: React.FC = () => {
  
   // Define all available tabs 
   const tabs = [  
-    { id: 'profile', label: 'Profile' }, 
-    { id: 'saved', label: 'Saved' }, 
-    { id: 'likes', label: 'Likes' }, 
-    { id: 'help', label: 'Help' }, 
-    { id: 'blocked', label: 'Blocked' }, 
-    { id: 'reported', label: 'Reported' }, 
+    { id: 'profile', label: 'Perfil' }, 
+    { id: 'likes', label: 'Me gusta' }, 
+    { id: 'help', label: 'Ayuda' }, 
+    { id: 'blocked', label: 'Bloqueados' }, 
   ]; 
  
   // Render the appropriate content base d on active tab
@@ -25,16 +22,12 @@ const UserSettings: React.FC = () => {
     switch (activeTab) { 
       case 'profile': 
         return <ProfileSettings />; 
-      case 'saved': 
-        return <SavedItems />; 
       case 'likes': 
         return <Likes />; 
       case 'help': 
         return <HelpCenter />; 
       case 'blocked': 
         return <BlockedUsers />;  
-      case 'reported':   
-        return <ReportedUsers />; 
       default: 
         return <ProfileSettings />;  
     } 

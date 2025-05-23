@@ -11,6 +11,8 @@ import config from '@/types/config';
 import { apiRequest } from '@/services/requests/apiRequest';
 import { Eye, Trash2, UserX, AlertTriangle, User, Mail, Calendar, Shield, Search, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useContext } from 'react';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 interface User {
   id: number;
@@ -34,6 +36,7 @@ interface Report {
 }
 
 export default function ReportedUsersPage() {
+  const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
   const [reports, setReports] = useState<Report[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -42,6 +45,7 @@ export default function ReportedUsersPage() {
   const [viewReport, setViewReport] = useState<Report | null>(null);
 
   const loadReports = async () => {
+    showLoader();
     try {
       const data = await apiRequest(`admin/reported-users`);
       if (!Array.isArray(data)) throw new Error('Formato de datos inválido');
@@ -51,6 +55,7 @@ export default function ReportedUsersPage() {
       setError(err instanceof Error ? err.message : 'Error desconocido');
       console.error(err);
     } finally {
+      hideLoader();
       setIsLoading(false);
     }
   };

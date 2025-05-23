@@ -4,7 +4,6 @@ import {
   Bookmark,    
   HelpCircle,  
   ShieldX, 
-  Flag, 
   Heart 
 } from 'lucide-react';  
  
@@ -28,16 +27,12 @@ const TabNavigation: React.FC<TabNavigationProps> = ({
     switch (id) { 
       case 'profile': 
         return <User className="h-5 w-5" />; 
-      case 'saved': 
-        return <Bookmark className="h-5 w-5" />; 
       case 'likes': 
         return <Heart className="h-5 w-5" />; 
       case 'help': 
         return <HelpCircle className="h-5 w-5" />; 
       case 'blocked': 
         return <ShieldX className="h-5 w-5" />; 
-      case 'reported': 
-        return <Flag className="h-5 w-5" />; 
       default: 
         return null; 
     } 

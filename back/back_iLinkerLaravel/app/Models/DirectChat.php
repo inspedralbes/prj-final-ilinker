@@ -54,8 +54,8 @@ class DirectChat extends Model
                     ->where('user_id', $user->id)
                     ->first();
 
-            case 'institution':
-                return $user->institution()
+            case 'institutions':
+                return $user->institutions()
                     ->where('user_id', $user->id)
                     ->first();
 
@@ -85,8 +85,8 @@ class DirectChat extends Model
                     ->where('user_id', $user->id)
                     ->first();
 
-            case 'institution':
-                return $user->institution()
+            case 'institutions':
+                return $user->institutions()
                     ->where('user_id', $user->id)
                     ->first();
 

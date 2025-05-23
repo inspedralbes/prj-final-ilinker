@@ -13,6 +13,8 @@ import { Eye, Pencil, Power, Trash2, RefreshCw, LayoutDashboard, FileUser, IdCar
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { useRouter } from 'next/navigation';
+import { useContext } from 'react';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 interface Student {
   id: number;
@@ -48,6 +50,7 @@ export default function StudentsPage() {
   const [editData, setEditData] = useState<Partial<Student>>({});
   const [currentLanguage, setCurrentLanguage] = useState('');
   const router = useRouter();
+  const { showLoader, hideLoader } = useContext(LoaderContext);
 
   const normalizeLanguages = (languages: any): string[] => {
     if (!languages) return [];
@@ -74,6 +77,7 @@ export default function StudentsPage() {
 
   const fetchStudents = async () => {
     setLoading(true);
+    showLoader();
     try {
       const response = await apiRequest(`admin/students`);
       const data = await response.data;
@@ -87,6 +91,7 @@ export default function StudentsPage() {
       toast.error(error instanceof Error ? error.message : 'Error al cargar estudiantes');
     } finally {
       setLoading(false);
+      hideLoader();
     }
   };
 

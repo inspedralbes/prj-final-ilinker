@@ -1,0 +1,455 @@
+name: Estudiantes
+description: ''
+endpoints:
+  -
+    httpMethods:
+      - GET
+    uri: api/admin/students
+    metadata:
+      groupName: Estudiantes
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Listar estudiantes'
+      description: 'Este endpoint devuelve una lista paginada de estudiantes, incluyendo su información relacionada como usuario, formación académica y habilidades.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters:
+      page:
+        name: page
+        description: 'Página de resultados para la paginación.'
+        required: false
+        example: 1
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanQueryParameters:
+      page: 1
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "current_page": 1,
+              "data": [
+                {
+                  "id": 5,
+                  "user": {
+                    "id": 12,
+                    "name": "Carlos Gómez"
+                  },
+                  "education": [...],
+                  "skills": [...],
+                  "created_at": "2024-12-01T12:34:56.000000Z"
+                }
+              ],
+              "total": 25,
+              "last_page": 3
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al cargar estudiantes: error_message"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - GET
+    uri: 'api/admin/students/{id}'
+    metadata:
+      groupName: Estudiantes
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Obtener detalles de un estudiante'
+      description: 'Este endpoint permite a un administrador obtener la información completa de un estudiante por su ID, incluyendo usuario relacionado, formación, experiencia, habilidades y proyectos.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'ID del estudiante a consultar.'
+        required: true
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 7
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 7,
+              "user": {
+                "id": 21,
+                "name": "Laura Pérez"
+              },
+              "education": [...],
+              "experience": [...],
+              "skills": [...],
+              "projects": [...],
+              "created_at": "2025-01-12T10:45:00.000000Z"
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 404
+        content: |-
+          {
+            "success": false,
+            "message": "Estudiante no encontrado"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - PUT
+    uri: 'api/admin/students/{id}'
+    metadata:
+      groupName: Estudiantes
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Actualizar información de un estudiante'
+      description: 'Este endpoint permite a un administrador actualizar tanto los datos del estudiante como del usuario asociado.'
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'ID del estudiante a actualizar.'
+        required: true
+        example: 7
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 7
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      name:
+        name: name
+        description: 'Nombre del estudiante.'
+        required: false
+        example: Laura
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      surname:
+        name: surname
+        description: 'Apellido del estudiante.'
+        required: false
+        example: Pérez
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      type_document:
+        name: type_document
+        description: 'Tipo de documento.'
+        required: false
+        example: DNI
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      id_document:
+        name: id_document
+        description: 'Número de documento.'
+        required: false
+        example: 12345678A
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      nationality:
+        name: nationality
+        description: 'Nacionalidad del estudiante.'
+        required: false
+        example: Española
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      birthday:
+        name: birthday
+        description: 'Fecha de nacimiento (YYYY-MM-DD).'
+        required: false
+        example: '2001-05-22'
+        type: date
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      gender:
+        name: gender
+        description: 'Género del estudiante.'
+        required: false
+        example: Femenino
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      phone:
+        name: phone
+        description: 'Teléfono del estudiante.'
+        required: false
+        example: '612345678'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      address:
+        name: address
+        description: 'Dirección del estudiante.'
+        required: false
+        example: 'Calle Mayor 123'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      city:
+        name: city
+        description: 'Ciudad del estudiante.'
+        required: false
+        example: Madrid
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      country:
+        name: country
+        description: 'País del estudiante.'
+        required: false
+        example: España
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      postal_code:
+        name: postal_code
+        description: 'Código postal.'
+        required: false
+        example: '28001'
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      languages:
+        name: languages
+        description: 'Idiomas del estudiante.'
+        required: false
+        example:
+          - Español
+          - Inglés
+        type: 'string[]'
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      active:
+        name: active
+        description: 'Indica si el usuario está activo.'
+        required: false
+        example: true
+        type: boolean
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+      email:
+        name: email
+        description: 'Email del usuario.'
+        required: false
+        example: laura.perez@email.com
+        type: string
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanBodyParameters:
+      name: Laura
+      surname: Pérez
+      type_document: DNI
+      id_document: 12345678A
+      nationality: Española
+      birthday: '2001-05-22'
+      gender: Femenino
+      phone: '612345678'
+      address: 'Calle Mayor 123'
+      city: Madrid
+      country: España
+      postal_code: '28001'
+      languages:
+        - Español
+        - Inglés
+      active: true
+      email: laura.perez@email.com
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "data": {
+              "id": 7,
+              "name": "Laura",
+              "surname": "Pérez",
+              "languages": "[\"Español\",\"Inglés\"]",
+              "user": {
+                "id": 21,
+                "email": "laura.perez@email.com",
+                "active": true
+              }
+            }
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al actualizar estudiante: Detalle del error"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []
+  -
+    httpMethods:
+      - DELETE
+    uri: 'api/admin/students/{id}'
+    metadata:
+      groupName: Estudiantes
+      groupDescription: ''
+      subgroup: ''
+      subgroupDescription: ''
+      title: 'Eliminar un estudiante'
+      description: |-
+        Este endpoint permite a un administrador eliminar un estudiante junto con su información relacionada,
+        como educación, experiencia, habilidades y proyectos. También elimina el usuario asociado.
+      authenticated: true
+      custom: []
+    headers:
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters:
+      id:
+        name: id
+        description: 'ID del estudiante a eliminar.'
+        required: true
+        example: 12
+        type: integer
+        enumValues: []
+        exampleWasSpecified: true
+        nullable: false
+        custom: []
+    cleanUrlParameters:
+      id: 12
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        status: 200
+        content: |-
+          {
+            "success": true,
+            "message": "Estudiante eliminado correctamente"
+          }
+        headers: []
+        description: ''
+        custom: []
+      -
+        status: 500
+        content: |-
+          {
+            "success": false,
+            "message": "Error al eliminar estudiante: Detalle del error"
+          }
+        headers: []
+        description: ''
+        custom: []
+    responseFields: []
+    auth: []
+    controller: null
+    method: null
+    route: null
+    custom: []

@@ -13,6 +13,7 @@ import { User } from "@/types/global";
 import CreatePostModal from "@/components/posts/CreatePostModal";
 import SavePublications from "./SavePublications";
 import SharePublications from "./SharePublications";
+import ContactSuggestions from "./ContactSuggestions";
 
 // Normaliza la URL de los archivos multimedia
 const normalizeUrl = (path: string): string => {
@@ -149,6 +150,7 @@ export default function PublicationPage() {
         showLoader();
         // Fetch publications first since we'll need them immediately
         await fetchPublications();
+        await fetchSuggestedUsers();
         // Only fetch users if we don't have them yet
         if (!allUsers || allUsers.length === 0) {
           await fetchAllUsers();
@@ -170,7 +172,7 @@ export default function PublicationPage() {
 
     // Inicialización
     loadInitialData();
-    
+
     // Configurar event listener para focus
     window.addEventListener('focus', handleFocus);
     checkAuth();
@@ -209,6 +211,25 @@ export default function PublicationPage() {
       setError('Error al cargar las publicaciones');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Funcion para obtener los usuarios sugeridos
+  const fetchSuggestedUsers = async () => {
+    try {
+      let response;
+      if(!userData){
+        response = await apiRequest('/users/suggested/logout', 'GET');
+      }else{
+        response = await apiRequest(`/users/suggested/login`, 'GET');
+      }
+      console.log(response);
+      if (response.status === 'success' && response.users) {
+        setSuggestedUsers(response.users);
+      }
+    } catch (err) {
+      console.error('Error al cargar los usuarios sugeridos:', err);
+      setError('Error al cargar los usuarios sugeridos');
     }
   };
 
@@ -541,6 +562,20 @@ export default function PublicationPage() {
     setPublications(prevPublications => [sharedPublication, ...prevPublications]);
   };
 
+  const [suggestedUsers, setSuggestedUsers] = useState<any[]>([]);
+
+  const handleAddContact = (userId: string) => {
+    // In a real app, this would call an API to add the contact
+    alert(`Contacto añadido: ${userId}`);
+    // Remove from suggestions after adding
+    setSuggestedUsers(suggestedUsers.filter(user => user.id !== userId));
+  };
+
+  const handleDismiss = (userId: string) => {
+    // Remove the suggestion
+    setSuggestedUsers(suggestedUsers.filter(user => user.id !== userId));
+  };
+
   // Render principal
   return (
     <div className="min-h-screen bg-gray-50">
@@ -596,7 +631,14 @@ export default function PublicationPage() {
               ))
             )}
           </div>
-          <div className="hidden lg:block w-80 flex-shrink-0"></div>
+          {/* Right column */}
+          <div className="hidden lg:block w-80 flex-shrink-0">
+            <ContactSuggestions
+              suggestedUsers={suggestedUsers}
+              onAddContact={handleAddContact}
+              onDismiss={handleDismiss}
+            />
+          </div>
         </div>
       </div>
       {/* Modal de comentarios */}
@@ -962,7 +1004,7 @@ const PublicationCard = ({
   const getAvatarUrl = (userId: number) => {
     const user = allUsers.find(u => u.id === userId);
     if (!user) return defaultAvatarSvg;
-    
+
     let avatarUrl = '';
     if (user.rol === "student" && user.student?.photo_pic) {
       avatarUrl = user.student.photo_pic.startsWith('http')
@@ -977,9 +1019,9 @@ const PublicationCard = ({
         ? user.institution.logo
         : `${config.storageUrl}${user.institution.logo}`;
     }
-    
+
     if (!avatarUrl) return defaultAvatarSvg;
-      
+
     // Usar cacheBuster del usuario autenticado para forzar recarga cuando cambie su avatar
     return `${avatarUrl}?t=${(userData?.id === userId ? cacheBuster : new Date().getTime())}`;
   };

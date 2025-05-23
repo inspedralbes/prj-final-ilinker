@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Search, Trash2, Edit, Ban, CheckCircle2, Eye, Power, Calendar, MapPin, Globe, Phone, Mail, RefreshCw, LayoutDashboard } from 'lucide-react';
 import { apiRequest } from '@/services/requests/apiRequest';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { useContext } from 'react';
+import { LoaderContext } from '@/contexts/LoaderContext';
 
 interface Institution {
   id: number;
@@ -41,6 +43,7 @@ interface Institution {
 }
 
 export default function InstitutionsPage() {
+  const { showLoader, hideLoader } = useContext(LoaderContext);
   const router = useRouter();
   const { isAdmin } = useAdminAuth();
   const [institutions, setInstitutions] = useState<Institution[]>([]);
@@ -53,6 +56,7 @@ export default function InstitutionsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchInstitutions = async () => {
+    showLoader();
     setLoading(true);
     try {
       const data = await apiRequest('admin/institutions', 'GET');
@@ -65,11 +69,13 @@ export default function InstitutionsPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al cargar instituciones');
     } finally {
+      hideLoader();
       setLoading(false);
     }
   };
 
   const handleUpdate = async (id: number) => {
+    showLoader();
     setIsSaving(true);
     try {
       const allowedFields = [
@@ -97,11 +103,13 @@ export default function InstitutionsPage() {
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al actualizar institución');
     } finally {
+      hideLoader();
       setIsSaving(false);
     }
   };
 
   const toggleStatus = async (id: number, currentStatus: boolean) => {
+    showLoader();
     try {
       const data = await apiRequest(`admin/institutions/${id}/status`, 'PUT', { active: !currentStatus });
 
@@ -113,6 +121,8 @@ export default function InstitutionsPage() {
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Error al cambiar estado');
+    } finally {
+      hideLoader();
     }
   };
 

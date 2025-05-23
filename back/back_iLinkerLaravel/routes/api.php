@@ -38,7 +38,7 @@ use App\Http\Controllers\Admin\AdminOfferController;
 use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Controllers\ReportController;
 
-
+Route::get('/users/suggested/logout', [UserController::class, 'suggestedLogout']);
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
@@ -88,6 +88,8 @@ Route::prefix('/institution')->group(function () {
 
 //RUTAS PROTEGIDAS
 Route::group(['middleware' => ['auth:sanctum']], function () {
+    Route::get('/users/suggested/login', [UserController::class, 'suggestedLogin']);
+
     Route::get('/auth/check', [AuthController::class, 'check'])->name('auth.check');
     Route::post('/report-user', [ReportController::class, 'store']);
 
@@ -134,7 +136,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         // Protected routes that require authentication
         Route::post('/store', [InstitutionController::class, 'store'])->name('institution.store');
         Route::post('/update', [InstitutionController::class, 'update'])->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->name('institution.destroy');
         Route::post('/checkOwner', [InstitutionController::class, 'checkOwner'])->name('institution.checkOwner');
     });
     Route::prefix('/institution')->group(function () {
@@ -142,9 +144,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::post('/delete', [InstitutionController::class, 'delete'])->name('institution.delete');
         Route::get('/', [InstitutionController::class, 'index'])->name('institution.index');
         Route::post('/store', [InstitutionController::class, 'store'])->middleware('auth:sanctum')->name('institution.store');
-        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show');
+        Route::get('/{id}', [InstitutionController::class, 'show'])->name('institution.show.id');
         Route::post('/update', [InstitutionController::class, 'update'])->middleware('auth:sanctum')->name('institution.update');
-        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.delete');
+        Route::delete('/{id}', [InstitutionController::class, 'destroy'])->middleware('auth:sanctum')->name('institution.destroy.id');
     });
 
     Route::prefix('/education')->group(function () {
@@ -290,5 +292,7 @@ Route::prefix('/admin')->middleware(['auth:sanctum', EnsureUserIsAdmin::class])-
     Route::put('/offers/{id}/status', [AdminOfferController::class, 'updateStatus']);
     Route::delete('/offers/{id}', [AdminOfferController::class, 'destroy']);
     Route::get('/offers/{id}/applications', [AdminOfferController::class, 'getApplications']);
+    Route::get('/questions', [ReportedUserController::class, 'getAdminQuestions']);
+    Route::post('/response-question', [ReportedUserController::class, 'responseQuestion']);
 });
 

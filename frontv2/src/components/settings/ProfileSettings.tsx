@@ -46,7 +46,7 @@ const ProfileSettings: React.FC = () => {
   const getProfilePic = () => {
     switch (profile?.rol) {
       case "student":
-        return profile?.student?.profile_pic;
+        return profile?.student?.photo_pic;
         break;
       case "company":
         return profile?.company?.logo;

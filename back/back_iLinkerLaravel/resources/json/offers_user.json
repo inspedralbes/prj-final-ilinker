@@ -1,7 +1,7 @@
 [
     {
         "offer_id": 1,
-        "user_id": 1,
+        "user_id": 2,
         "cover_letter_attachment": "letter1.pdf",
         "cv_attachment": "cv1.pdf",
         "availability": "Immediate",
@@ -9,7 +9,7 @@
     },
     {
         "offer_id": 2,
-        "user_id": 1,
+        "user_id": 2,
         "cover_letter_attachment": null,
         "cv_attachment": "cv2.pdf",
         "availability": "2 weeks",
@@ -17,7 +17,7 @@
     },
     {
         "offer_id": 1,
-        "user_id": 1,
+        "user_id": 3,
         "cover_letter_attachment": "letter3.pdf",
         "cv_attachment": null,
         "availability": null,
@@ -25,7 +25,7 @@
     },
     {
         "offer_id": 2,
-        "user_id": 1,
+        "user_id": 3,
         "cover_letter_attachment": null,
         "cv_attachment": null,
         "availability": "1 month",
